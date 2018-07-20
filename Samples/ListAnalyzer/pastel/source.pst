@@ -1,0 +1,52 @@
+struct NumAnalysis {
+	int count;
+	int min;
+	int max;
+	int total;
+	double mean;
+	double median;
+	double std_dev;
+};
+
+NumAnalysis perform_analysis(Array<int> nums, int length) {
+	NumAnalysis output = new NumAnalysis();
+	output.count = length;
+	if (length == 0) {
+		output.min = 0;
+		output.max = 0;
+		output.total = 0;
+		output.mean = 0;
+		output.median = 0;
+		output.std_dev = 0;
+	} else {
+		output.min = nums[0];
+		output.max = nums[0]
+		output.total = 0;
+		for (int i = 0; i < length; i += 1) {
+			int value = nums[i];
+			output.total += value;
+			if (value < output.min) output.min = value;
+			if (value > output.max) output.max = value;
+		}
+		output.mean = 1.0 * output.total / length;
+		output.std_dev = calculate_standard_deviation(nums, length, output.mean);
+	}
+	
+	Array<int> nums_copy = $array_copy(nums, length);
+	$array_sort(nums_copy, length);
+	if (length % 2 == 0) {
+		output.median = (nums[length / 2 - 1] + nums[length / 2]) / 2.0;
+	} else {
+		output.median = nums[length / 2];
+	}
+	return output;
+}
+
+double calculate_standard_deviation(Array<int> nums, int length, double mean) {
+	double total_dev = 0;
+	for (int i = 0; i < length; i += 1) {
+		double diff = nums[i] - mean;
+		total_dev += $math_pow(diff, 2);
+	}
+	return $math_sqrt(total_dev);
+}
