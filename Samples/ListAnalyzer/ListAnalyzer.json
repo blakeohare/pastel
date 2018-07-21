@@ -1,0 +1,22 @@
+{
+	"source": "pastel",
+	"targets": [
+		{
+			"name": "csharp",
+			"platform": "csharp",
+			"output": "csharp/gen",
+			"namespace": "PastelGenerated"
+		},
+		{
+			"name": "java",
+			"platform": "java",
+			"output": "java/src/gen",
+			"package": "gen"
+		},
+		{
+			"name": "python",
+			"platform": "python",
+			"output": "python/gen"
+		}
+	]
+}
