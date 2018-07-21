@@ -9,16 +9,9 @@ struct NumAnalysis {
 }
 
 NumAnalysis perform_analysis(Array<int> nums, int length) {
-	NumAnalysis output = new NumAnalysis();
+	NumAnalysis output = new NumAnalysis(0, 0, 0, 0, 0.0, 0.0, 0.0);
 	output.count = length;
-	if (length == 0) {
-		output.min = 0;
-		output.max = 0;
-		output.total = 0;
-		output.mean = 0.0;
-		output.median = 0.0;
-		output.std_dev = 0.0;
-	} else {
+	if (length > 0) {
 		output.min = nums[0];
 		output.max = nums[0];
 		output.total = 0;
@@ -30,14 +23,14 @@ NumAnalysis perform_analysis(Array<int> nums, int length) {
 		}
 		output.mean = $float_division(output.total, length);
 		output.std_dev = calculate_standard_deviation(nums, length, output.mean);
-	}
-	
-	Array<int> nums_copy = $array_copy(nums, length);
-	$array_sort_int(nums_copy, length);
-	if (length % 2 == 0) {
-		output.median = $float_division(nums[$integer_division(length, 2) - 1] + nums[$integer_division(length, 2)], 2.0);
-	} else {
-		output.median = 0.0 + nums[$integer_division(length, 2)];
+
+		Array<int> nums_copy = $array_copy(nums, length);
+		$array_sort_int(nums_copy, length);
+		if (length % 2 == 0) {
+			output.median = $float_division(nums[$integer_division(length, 2) - 1] + nums[$integer_division(length, 2)], 2.0);
+		} else {
+			output.median = 0.0 + nums[$integer_division(length, 2)];
+		}
 	}
 	return output;
 }

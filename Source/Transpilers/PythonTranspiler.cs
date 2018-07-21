@@ -36,6 +36,13 @@ namespace Pastel.Transpilers
             throw new InvalidOperationException("Python does not support types.");
         }
 
+        public override void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length)
+        {
+            sb.Append('(');
+            this.TranslateExpression(sb, array);
+            sb.Append(")[:]");
+        }
+
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
         {
             this.TranslateExpression(sb, array);
@@ -82,6 +89,23 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, index);
             sb.Append("] = ");
             this.TranslateExpression(sb, value);
+        }
+
+        public override void TranslateArraySortFloat(TranspilerContext sb, Expression array, Expression length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length)
+        {
+            sb.Append('(');
+            this.TranslateExpression(sb, array);
+            sb.Append(".sort()");
+        }
+
+        public override void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length)
+        {
+            throw new NotImplementedException();
         }
 
         public override void TranslateAssignment(TranspilerContext sb, Assignment assignment)
@@ -592,6 +616,13 @@ namespace Pastel.Transpilers
             sb.Append(" ** ");
             this.TranslateExpression(sb, exponent);
             sb.Append(')');
+        }
+
+        public override void TranslateMathSqrt(TranspilerContext sb, Expression value)
+        {
+            sb.Append('(');
+            this.TranslateExpression(sb, value);
+            sb.Append(") ** .5");
         }
 
         public override void TranslateMathSin(TranspilerContext sb, Expression thetaRadians)

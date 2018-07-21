@@ -197,5 +197,21 @@ namespace Pastel
             }
             return output;
         }
+
+        public static void WriteFileText(string path, string content)
+        {
+            EnsureDirectoryExists(System.IO.Path.GetDirectoryName(path));
+            System.IO.File.WriteAllText(path, content);
+        }
+
+        public static void EnsureDirectoryExists(string path)
+        {
+            if (!System.IO.Directory.Exists(path))
+            {
+                string parent = System.IO.Path.GetDirectoryName(path);
+                EnsureDirectoryExists(parent);
+                System.IO.Directory.CreateDirectory(path);
+            }
+        }
     }
 }

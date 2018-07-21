@@ -208,10 +208,14 @@ namespace Pastel.Transpilers
             Expression[] args = nativeFuncInvocation.Args;
             switch (nativeFuncInvocation.Function)
             {
+                case NativeFunction.ARRAY_COPY: this.TranslateArrayCopy(sb, args[0], args[1]); break;
                 case NativeFunction.ARRAY_GET: this.TranslateArrayGet(sb, args[0], args[1]); break;
                 case NativeFunction.ARRAY_JOIN: this.TranslateArrayJoin(sb, args[0], args[1]); break;
                 case NativeFunction.ARRAY_LENGTH: this.TranslateArrayLength(sb, args[0]); break;
                 case NativeFunction.ARRAY_SET: this.TranslateArraySet(sb, args[0], args[1], args[2]); break;
+                case NativeFunction.ARRAY_SORT_FLOAT: this.TranslateArraySortFloat(sb, args[0], args[1]); break;
+                case NativeFunction.ARRAY_SORT_INT: this.TranslateArraySortInt(sb, args[0], args[1]); break;
+                case NativeFunction.ARRAY_SORT_STRING: this.TranslateArraySortString(sb, args[0], args[1]); break;
                 case NativeFunction.BASE64_TO_STRING: this.TranslateBase64ToString(sb, args[0]); break;
                 case NativeFunction.CHAR_TO_STRING: this.TranslateCharToString(sb, args[0]); break;
                 case NativeFunction.CHR: this.TranslateChr(sb, args[0]); break;
@@ -262,6 +266,7 @@ namespace Pastel.Transpilers
                 case NativeFunction.MATH_COS: this.TranslateMathCos(sb, args[0]); break;
                 case NativeFunction.MATH_LOG: this.TranslateMathLog(sb, args[0]); break;
                 case NativeFunction.MATH_POW: this.TranslateMathPow(sb, args[0], args[1]); break;
+                case NativeFunction.MATH_SQRT: this.TranslateMathSqrt(sb, args[0]); break;
                 case NativeFunction.MATH_SIN: this.TranslateMathSin(sb, args[0]); break;
                 case NativeFunction.MATH_TAN: this.TranslateMathTan(sb, args[0]); break;
                 case NativeFunction.MULTIPLY_LIST: this.TranslateMultiplyList(sb, args[0], args[1]); break;
@@ -320,11 +325,15 @@ namespace Pastel.Transpilers
             }
         }
 
+        public abstract void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length);
         public abstract void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index);
         public abstract void TranslateArrayJoin(TranspilerContext sb, Expression array, Expression sep);
         public abstract void TranslateArrayLength(TranspilerContext sb, Expression array);
         public abstract void TranslateArrayNew(TranspilerContext sb, PType arrayType, Expression lengthExpression);
         public abstract void TranslateArraySet(TranspilerContext sb, Expression array, Expression index, Expression value);
+        public abstract void TranslateArraySortFloat(TranspilerContext sb, Expression array, Expression length);
+        public abstract void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length);
+        public abstract void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length);
         public abstract void TranslateAssignment(TranspilerContext sb, Assignment assignment);
         public abstract void TranslateBase64ToString(TranspilerContext sb, Expression base64String);
         public abstract void TranslateBooleanConstant(TranspilerContext sb, bool value);
@@ -390,6 +399,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateMathCos(TranspilerContext sb, Expression thetaRadians);
         public abstract void TranslateMathLog(TranspilerContext sb, Expression value);
         public abstract void TranslateMathPow(TranspilerContext sb, Expression expBase, Expression exponent);
+        public abstract void TranslateMathSqrt(TranspilerContext sb, Expression value);
         public abstract void TranslateMathSin(TranspilerContext sb, Expression thetaRadians);
         public abstract void TranslateMathTan(TranspilerContext sb, Expression thetaRadians);
         public abstract void TranslateMultiplyList(TranspilerContext sb, Expression list, Expression n);

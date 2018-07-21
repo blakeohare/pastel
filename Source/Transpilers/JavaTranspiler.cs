@@ -108,6 +108,11 @@ namespace Pastel.Transpilers
             sb.Append("System.exit(0)");
         }
 
+        public override void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
         {
             this.TranslateExpression(sb, array);
@@ -168,6 +173,21 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, index);
             sb.Append("] = ");
             this.TranslateExpression(sb, value);
+        }
+
+        public override void TranslateArraySortFloat(TranspilerContext sb, Expression array, Expression length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length)
+        {
+            throw new NotImplementedException();
         }
 
         public override void TranslateBase64ToString(TranspilerContext sb, Expression base64String)
@@ -804,6 +824,13 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, expBase);
             sb.Append(", ");
             this.TranslateExpression(sb, exponent);
+            sb.Append(')');
+        }
+
+        public override void TranslateMathSqrt(TranspilerContext sb, Expression value)
+        {
+            sb.Append("Math.sqrt(");
+            this.TranslateExpression(sb, value);
             sb.Append(')');
         }
 

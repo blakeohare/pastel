@@ -40,7 +40,7 @@ namespace Pastel
             {
                 string absolutePath = System.IO.Path.Combine(targetDir, filename);
                 string code = fileOutput[filename];
-                System.IO.File.WriteAllText(absolutePath, code);
+                Util.WriteFileText(absolutePath, code);
             }
         }
     }
