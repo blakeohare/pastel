@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ListAnalyzer", "ListAnalyzer.csproj", "{ADDA83DA-542E-4AA8-8AFF-05885475D4A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ADDA83DA-542E-4AA8-8AFF-05885475D4A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADDA83DA-542E-4AA8-8AFF-05885475D4A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADDA83DA-542E-4AA8-8AFF-05885475D4A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADDA83DA-542E-4AA8-8AFF-05885475D4A1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EA8F2B80-7F45-40E4-98E1-C6A8082DCDD9}
+	EndGlobalSection
+EndGlobal
