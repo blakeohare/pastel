@@ -13,8 +13,8 @@ namespace Pastel
 #if DEBUG
             effectiveArgs = new string[] {
                 @"C:\Things\Pastel\Samples\ListAnalyzer\pastel",
-                @"C:\Things\Pastel\Samples\ListAnalyzer\csharp\gen",
-                "csharp"
+                @"C:\Things\Pastel\Samples\ListAnalyzer\java\src\gen",
+                "java"
             };
 #endif
 
@@ -25,8 +25,9 @@ namespace Pastel
             Language lang;
             switch (platform)
             {
-                case "python": lang = Language.PYTHON; break;
                 case "csharp": lang = Language.CSHARP; break;
+                case "java": lang = Language.JAVA; break;
+                case "python": lang = Language.PYTHON; break;
                 default: throw new Exception();
             }
 

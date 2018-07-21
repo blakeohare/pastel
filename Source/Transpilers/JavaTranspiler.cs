@@ -16,7 +16,57 @@ namespace Pastel.Transpilers
 
         public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
         {
-            throw new NotImplementedException();
+            ctx.Append("package gen;").AppendNL().AppendNL();
+            ctx.Append("public final class FunctionWrapper {").AppendNL();
+            ctx.TabDepth++;
+            ctx.AppendTab().Append("private FunctionWrapper() {}").AppendNL();
+            foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
+            {
+                ctx.AppendNL();
+                this.GenerateCodeForFunction(ctx, fn);
+            }
+            ctx.TabDepth--;
+            ctx.Append("}").AppendNL();
+
+            files["FunctionWrapper.java"] = ctx.FlushAndClearBuffer();
+
+            files["TranslationHelper.java"] = Util.ReadAssemblyFileText(typeof(JavaTranspiler).Assembly, "Resources/TranslationHelperJava.txt");
+
+            foreach (StructDefinition sd in compiler.GetStructDefinitions())
+            {
+                string name = sd.NameToken.Value;
+
+                ctx.Append("package gen;").AppendNL().AppendNL();
+                ctx.Append("public final class ").Append(sd.NameToken.Value).Append(" {").AppendNL();
+                ctx.TabDepth++;
+                ctx.AppendTab().Append("public ").Append(name).Append('(');
+                for (int i = 0; i < sd.ArgNames.Length; ++i)
+                {
+                    if (i > 0) ctx.Append(", ");
+                    ctx.Append(this.TranslateType(sd.ArgTypes[i]));
+                    ctx.Append(' ');
+                    ctx.Append(sd.ArgNames[i].Value);
+                }
+                ctx.Append(") {").AppendNL();
+                ctx.TabDepth++;
+                foreach (Token arg in sd.ArgNames)
+                {
+                    ctx.AppendTab().Append("this.").Append(arg.Value).Append(" = ").Append(arg.Value).Append(';').AppendNL();
+                }
+                ctx.TabDepth--;
+                ctx.AppendTab().Append("}").AppendNL();
+
+                ctx.AppendNL();
+                for (int i = 0; i < sd.ArgNames.Length; ++i)
+                {
+                    ctx.AppendTab().Append("public ").Append(this.TranslateType(sd.ArgTypes[i])).Append(' ').Append(sd.ArgNames[i].Value).Append(';').AppendNL();
+                }
+
+                ctx.TabDepth--;
+                ctx.Append("}").AppendNL();
+
+                files[name + ".java"] = ctx.FlushAndClearBuffer();
+            }
         }
 
         public override string TranslateType(PType type)
@@ -110,7 +160,20 @@ namespace Pastel.Transpilers
 
         public override void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            PType rootType = array.ResolvedType.Generics[0];
+            if (rootType == PType.INT || rootType == PType.DOUBLE)
+            {
+                this.TranslateExpression(sb, array);
+                sb.Append(".clone()");
+            }
+            else
+            {
+                sb.Append("((");
+                sb.Append(this.TranslateType(array.ResolvedType));
+                sb.Append(")TranslationHelper.copyArray(");
+                this.TranslateExpression(sb, array);
+                sb.Append("))");
+            }
         }
 
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
@@ -182,7 +245,9 @@ namespace Pastel.Transpilers
 
         public override void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append("java.util.Arrays.sort(");
+            this.TranslateExpression(sb, array);
+            sb.Append(')');
         }
 
         public override void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length)
@@ -1209,7 +1274,7 @@ namespace Pastel.Transpilers
         {
             sb.Append(sb.CurrentTab);
             sb.Append(this.TranslateType(varDecl.Type));
-            sb.Append(" v_");
+            sb.Append(' ');
             sb.Append(varDecl.VariableNameToken.Value);
             if (varDecl.Value != null)
             {
@@ -1249,7 +1314,7 @@ namespace Pastel.Transpilers
             sb.Append(sb.CurrentTab);
             sb.Append("public static ");
             sb.Append(this.TranslateType(funcDef.ReturnType));
-            sb.Append(" v_");
+            sb.Append(' ');
             sb.Append(funcDef.NameToken.Value);
             sb.Append('(');
             Pastel.Token[] argNames = funcDef.ArgNames;
@@ -1258,7 +1323,7 @@ namespace Pastel.Transpilers
             {
                 if (i > 0) sb.Append(", ");
                 sb.Append(this.TranslateType(argTypes[i]));
-                sb.Append(" v_");
+                sb.Append(' ');
                 sb.Append(argNames[i].Value);
             }
             sb.Append(") {");
