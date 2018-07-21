@@ -72,6 +72,11 @@ namespace Pastel
                 this.cachedToken = null;
             }
 
+            internal void InvalidateCache()
+            {
+                this.cachedToken = null;
+            }
+
             internal Token Peek()
             {
                 if (this.cachedToken != null) return this.cachedToken;
@@ -153,7 +158,7 @@ namespace Pastel
         public Token Pop() { return this.aggregatingTokenStream.Pop(); }
         public Token Peek() { return this.aggregatingTokenStream.Peek(); }
         public TokenStreamState SnapshotState() { return new TokenStreamState() { Index = this.aggregatingTokenStream.Index }; }
-        public void RestoreState(TokenStreamState state) { this.aggregatingTokenStream.Index = state.Index; }
+        public void RestoreState(TokenStreamState state) { this.aggregatingTokenStream.Index = state.Index; this.aggregatingTokenStream.InvalidateCache(); }
 
         public Token PeekValid()
         {

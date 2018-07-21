@@ -6,7 +6,7 @@ struct NumAnalysis {
 	double mean;
 	double median;
 	double std_dev;
-};
+}
 
 NumAnalysis perform_analysis(Array<int> nums, int length) {
 	NumAnalysis output = new NumAnalysis();
@@ -20,7 +20,7 @@ NumAnalysis perform_analysis(Array<int> nums, int length) {
 		output.std_dev = 0;
 	} else {
 		output.min = nums[0];
-		output.max = nums[0]
+		output.max = nums[0];
 		output.total = 0;
 		for (int i = 0; i < length; i += 1) {
 			int value = nums[i];

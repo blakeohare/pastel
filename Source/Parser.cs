@@ -258,9 +258,10 @@ namespace Pastel
                 }
             }
 
+            TokenStreamState state = tokens.SnapshotState();
             PType type = TypeParser.TryParse(tokens);
             
-            if (type != null)
+            if (type != null && tokens.Peek().Type == TokenType.ALPHANUMS)
             {
                 Token variableName = EnsureTokenIsValidName(tokens.Pop(), "Invalid variable name");
 
@@ -277,6 +278,7 @@ namespace Pastel
                 }
                 return new VariableDeclaration(type, variableName, equalsToken, assignmentValue);
             }
+            tokens.RestoreState(state);
 
             Expression expression = ParseExpression(tokens);
 
@@ -643,6 +645,10 @@ namespace Pastel
                     tokens.Pop();
                     return new InlineConstant(isFloat ? PType.DOUBLE : PType.INT, nextToken, isFloat ? double.Parse(nextValue) : int.Parse(nextValue));
                 default:
+                    if (nextValue == "$")
+                    {
+                        throw new NotImplementedException(); // TODO: implement native functions
+                    }
                     throw new ParserException(nextToken, "Unexpected token: '" + nextValue + "'");
             }
         }
@@ -699,7 +705,7 @@ namespace Pastel
 
         public static Token EnsureTokenIsValidName(Token token, string errorMessage)
         {
-            if (token.Type == TokenType.ALPHANUMS && token.Value[0] != '$')
+            if (token.Type == TokenType.ALPHANUMS)
             {
                 return token;
             }

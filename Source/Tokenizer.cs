@@ -70,7 +70,6 @@ namespace Pastel
         private void PushToken(int start, int length, TokenType type)
         {
             string value = this.content.Substring(start, length);
-            bool isAlpha = ALPHANUMERIC_CHARS.Contains(value[0]);
             this.tokenBuilder.Add(new Token(this.filename, value, start, this.lines[start], this.columns[start], type));
         }
 
@@ -135,7 +134,7 @@ namespace Pastel
                                 }
                                 else
                                 {
-                                    this.PushToken(i, TokenType.ALPHANUMS);
+                                    this.PushToken(i, TokenType.PUNCTUATION);
                                 }
                                 break;
                         }
