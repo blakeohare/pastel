@@ -642,9 +642,12 @@ namespace Pastel
                     }
 
                 case TokenType.NUMBER:
-                    bool isFloat = nextValue.Contains(".");
                     tokens.Pop();
-                    return new InlineConstant(isFloat ? PType.DOUBLE : PType.INT, nextToken, isFloat ? double.Parse(nextValue) : int.Parse(nextValue));
+                    if (nextValue.Contains("."))
+                    {
+                        return new InlineConstant(PType.DOUBLE, nextToken, double.Parse(nextValue));
+                    }
+                    return new InlineConstant(PType.INT, nextToken, int.Parse(nextValue));
 
                 default:
                     if (nextValue == "$" && !nextToken.IsNextWhitespace)

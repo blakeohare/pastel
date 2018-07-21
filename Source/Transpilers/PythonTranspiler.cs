@@ -22,9 +22,13 @@ namespace Pastel.Transpilers
             this.UsesStructDefinitions = false;
         }
 
-        public override void GenerateCode(Dictionary<string, string> files)
+        public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
         {
-            throw new NotImplementedException();
+            foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
+            {
+                this.GenerateCodeForFunction(ctx, fn);
+            }
+            files["gen.py"] = ctx.FlushAndClearBuffer();
         }
 
         public override string TranslateType(PType type)

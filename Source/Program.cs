@@ -34,7 +34,8 @@ namespace Pastel
 
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(Language.PYTHON);
             Dictionary<string, string> fileOutput = new Dictionary<string, string>();
-            transpiler.GenerateCode(fileOutput);
+            Transpilers.TranspilerContext transpilerContext = new Transpilers.TranspilerContext(Language.PYTHON);
+            transpiler.GenerateCode(transpilerContext, pc, fileOutput);
             foreach (string filename in fileOutput.Keys)
             {
                 string absolutePath = System.IO.Path.Combine(targetDir, filename);

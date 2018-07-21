@@ -14,7 +14,7 @@ namespace Pastel.Transpilers
             this.isJava6 = isJava6;
         }
 
-        public override void GenerateCode(Dictionary<string, string> files)
+        public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
         {
             throw new NotImplementedException();
         }

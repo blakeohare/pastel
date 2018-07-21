@@ -33,7 +33,7 @@ namespace Pastel.Transpilers
             }
         }
 
-        public abstract void GenerateCode(Dictionary<string, string> files);
+        public abstract void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files);
 
         public virtual string TranslateType(PType type)
         {
