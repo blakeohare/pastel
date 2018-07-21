@@ -260,7 +260,7 @@ namespace Pastel
 
             TokenStreamState state = tokens.SnapshotState();
             PType type = TypeParser.TryParse(tokens);
-            
+
             if (type != null && tokens.Peek().Type == TokenType.ALPHANUMS)
             {
                 Token variableName = EnsureTokenIsValidName(tokens.Pop(), "Invalid variable name");
@@ -644,10 +644,22 @@ namespace Pastel
                     bool isFloat = nextValue.Contains(".");
                     tokens.Pop();
                     return new InlineConstant(isFloat ? PType.DOUBLE : PType.INT, nextToken, isFloat ? double.Parse(nextValue) : int.Parse(nextValue));
+
                 default:
-                    if (nextValue == "$")
+                    if (nextValue == "$" && !nextToken.IsNextWhitespace)
                     {
-                        throw new NotImplementedException(); // TODO: implement native functions
+                        tokens.Pop();
+                        Token nativeFunctionNameToken = tokens.Peek();
+                        if (nativeFunctionNameToken.Type == TokenType.ALPHANUMS)
+                        {
+                            NativeFunction? nf = NativeFunctionUtil.GetNativeFunctionFromName(nativeFunctionNameToken.Value);
+                            if (nf == null)
+                            {
+                                throw new ParserException(nativeFunctionNameToken, "'" + nativeFunctionNameToken.Value + "' is not a valid native function.");
+                            }
+                            tokens.Pop();
+                            return new NativeFunctionReference(nextToken, nf.Value);
+                        }
                     }
                     throw new ParserException(nextToken, "Unexpected token: '" + nextValue + "'");
             }

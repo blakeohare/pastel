@@ -216,9 +216,9 @@ namespace Pastel
                 }
             }
 
-            Token[] newTokens = this.tokenBuilder.Where(t => t != null).ToArray();
-
             this.tokenBuilder.Add(new Token(this.filename, null, this.length - 1, this.lines[this.length - 1], this.columns[this.length - 1], TokenType.EOF));
+
+            Token[] newTokens = this.tokenBuilder.Where(t => t != null).ToArray();
 
             return new TokenStream(this.filename, this.content, newTokens);
         }

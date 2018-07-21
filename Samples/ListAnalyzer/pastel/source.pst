@@ -33,7 +33,7 @@ NumAnalysis perform_analysis(Array<int> nums, int length) {
 	}
 	
 	Array<int> nums_copy = $array_copy(nums, length);
-	$array_sort(nums_copy, length);
+	$array_sort_int(nums_copy, length);
 	if (length % 2 == 0) {
 		output.median = (nums[length / 2 - 1] + nums[length / 2]) / 2.0;
 	} else {

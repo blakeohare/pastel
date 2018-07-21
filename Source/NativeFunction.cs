@@ -4,10 +4,14 @@
     {
         NONE,
 
+        ARRAY_COPY,
         ARRAY_GET,
         ARRAY_JOIN,
         ARRAY_LENGTH,
         ARRAY_SET,
+        ARRAY_SORT_INT,
+        ARRAY_SORT_FLOAT,
+        ARRAY_SORT_STRING,
         BASE64_TO_STRING,
         CHAR_TO_STRING,
         CHR,
@@ -61,6 +65,7 @@
         MATH_LOG,
         MATH_POW,
         MATH_SIN,
+        MATH_SQRT,
         MATH_TAN,
         MULTIPLY_LIST,
         ORD,

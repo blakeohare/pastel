@@ -10,6 +10,18 @@ namespace Pastel
         private static Dictionary<NativeFunction, PType> returnTypes;
         private static Dictionary<NativeFunction, PType[]> argTypes;
         private static Dictionary<NativeFunction, bool[]> argTypesRepeated;
+        private static Dictionary<string, NativeFunction> nativeFunctionsByName;
+
+        public static NativeFunction? GetNativeFunctionFromName(string name)
+        {
+            if (name[0] == '$')
+            {
+                name = name.Substring(1);
+            }
+            if (nativeFunctionsByName == null) NativeFunctionUtil.Init();
+            if (nativeFunctionsByName.ContainsKey(name)) return nativeFunctionsByName[name];
+            return null;
+        }
 
         public static PType[] GetNativeFunctionArgTypes(NativeFunction functionId)
         {
@@ -42,10 +54,10 @@ namespace Pastel
 
         private static void Init()
         {
-            Dictionary<string, NativeFunction> lookup = new Dictionary<string, NativeFunction>();
+            nativeFunctionsByName = new Dictionary<string, NativeFunction>();
             foreach (NativeFunction func in typeof(NativeFunction).GetEnumValues().Cast<NativeFunction>())
             {
-                lookup[func.ToString()] = func;
+                nativeFunctionsByName[func.ToString().ToLower()] = func;
             }
 
             returnTypes = new Dictionary<NativeFunction, PType>();
@@ -85,7 +97,7 @@ namespace Pastel
                         throw new Exception("Invalid entry in the manifest. Stuff at the end: " + row);
                     }
 
-                    NativeFunction func = lookup[name];
+                    NativeFunction func = nativeFunctionsByName[name.ToLower()];
                     returnTypes[func] = returnType;
                     argTypes[func] = argList.ToArray();
                     argTypesRepeated[func] = argRepeated.ToArray();
