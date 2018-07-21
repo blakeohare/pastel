@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pastel
 {
-    class Tokenizer
+    internal class Tokenizer
     {
-        private string content;
-        private string filename;
-        private int length;
-        private int[] lines;
-        private int[] columns;
-        private List<Token> tokenBuilder = new List<Token>();
+        private readonly string content;
+        private readonly string filename;
+        private readonly int length;
+        private readonly int[] lines;
+        private readonly int[] columns;
+        private readonly List<Token> tokenBuilder = new List<Token>();
 
         private static readonly HashSet<char> ALPHANUMERIC_CHARS;
 
@@ -35,17 +33,17 @@ namespace Pastel
             // - last line comments will get closed
             // - non-alphanumeric character guarantees that the alphanumeric end will get triggered
             this.content = content + "\n";
-
-            int length = this.content.Length;
+            this.filename = file;
+            this.length = this.content.Length;
             this.lines = new int[length];
             this.columns = new int[length];
             int line = 1;
             int column = 1;
-            for (int i = 0; i < length; ++i)
+            for (int i = 0; i < this.length; ++i)
             {
                 lines[i] = line;
                 columns[i] = column;
-                char c = content[i];
+                char c = this.content[i];
                 if (c == '\n')
                 {
                     line++;
@@ -69,20 +67,19 @@ namespace Pastel
             WORD
         }
 
-        private void PushToken(int start, int end)
+        private void PushToken(int start, int length, TokenType type)
         {
-            int length = end - start;
             string value = this.content.Substring(start, length);
             bool isAlpha = ALPHANUMERIC_CHARS.Contains(value[0]);
-            this.tokenBuilder.Add(new Token(this.filename, value, this.lines[start], this.columns[start], isAlpha, this.content[end]));
+            this.tokenBuilder.Add(new Token(this.filename, value, start, this.lines[start], this.columns[start], type));
         }
 
-        private void PushToken(int index)
+        private void PushToken(int index, TokenType type)
         {
-            this.PushToken(index, index + 1);
+            this.PushToken(index, 1, type);
         }
 
-        TokenStream Tokenize()
+        public TokenStream Tokenize()
         {
             int tokenStart = 0;
             State state = State.NORMAL;
@@ -126,7 +123,7 @@ namespace Pastel
                                 }
                                 if (state == State.NORMAL)
                                 {
-                                    this.PushToken(i);
+                                    this.PushToken(i, TokenType.PUNCTUATION);
                                 }
                                 break;
 
@@ -138,7 +135,7 @@ namespace Pastel
                                 }
                                 else
                                 {
-                                    this.PushToken(i);
+                                    this.PushToken(i, TokenType.ALPHANUMS);
                                 }
                                 break;
                         }
@@ -167,7 +164,7 @@ namespace Pastel
                         }
                         else if (c == (state == State.STRING_SINGLE ? '\'' : '"'))
                         {
-                            this.PushToken(tokenStart, i);
+                            this.PushToken(tokenStart, i - tokenStart + 1, TokenType.STRING);
                             state = State.NORMAL;
                         }
                         break;
@@ -175,8 +172,9 @@ namespace Pastel
                     case State.WORD:
                         if (!ALPHANUMERIC_CHARS.Contains(c))
                         {
+                            this.PushToken(tokenStart, i - tokenStart, TokenType.ALPHANUMS);
                             --i;
-                            this.PushToken(tokenStart, i);
+                            state = State.NORMAL;
                         }
                         break;
 
@@ -185,7 +183,45 @@ namespace Pastel
                 }
             }
 
-            return new TokenStream(this.tokenBuilder);
+            // Convert all decimals into single tokens.
+            // The implementation here is a little cheesy. 
+            // Find all the '.' tokens and then consolidate numbers around them
+            for (int i = 0; i < this.tokenBuilder.Count; ++i)
+            {
+                Token token = this.tokenBuilder[i];
+                if (token.Value == ".")
+                {
+                    if (i > 0)
+                    {
+                        Token prev = this.tokenBuilder[i - 1];
+                        if (prev.Type == TokenType.NUMBER && !prev.IsNextWhitespace)
+                        {
+                            prev.Value += ".";
+                            this.tokenBuilder[i] = prev;
+                            this.tokenBuilder[i - 1] = null;
+                            token = prev;
+                        }
+                    }
+
+                    if (i + 1 < this.tokenBuilder.Count)
+                    {
+                        Token next = this.tokenBuilder[i + 1];
+                        if (!token.IsNextWhitespace && next.Type == TokenType.NUMBER)
+                        {
+                            token.Value += next.Value;
+                            this.tokenBuilder[i + 1] = null;
+                            token.Type = TokenType.NUMBER;
+                            i++;
+                        }
+                    }
+                }
+            }
+
+            Token[] newTokens = this.tokenBuilder.Where(t => t != null).ToArray();
+
+            this.tokenBuilder.Add(new Token(this.filename, null, this.length - 1, this.lines[this.length - 1], this.columns[this.length - 1], TokenType.EOF));
+
+            return new TokenStream(this.filename, this.content, newTokens);
         }
     }
 }

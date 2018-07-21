@@ -1,0 +1,17 @@
+﻿using System;
+
+namespace Pastel
+{
+    internal class ParserException : Exception
+    {
+        public ParserException(Token token, string message)
+            : base(InterpretToken(token) + message)
+        { }
+
+        private static string InterpretToken(Token token)
+        {
+            if (token == null) return "";
+            return token.FileName + ", Line: " + token.Line + ", Col: " + token.Column + ", ";
+        }
+    }
+}
