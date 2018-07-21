@@ -1,12 +1,23 @@
+import sys
+
 from gen import *
 
-nums = raw_input("Type some integers: ")
-nums = list(map(int, nums))
-analysis = perform_analysis(nums)
+def main():
+	if len(sys.argv) == 1:
+		print("Usage: python main.py num1 num2 num3 numr4 ...")
+		print("e.g.:")
+		print("  python main.py 5 2 9 4 11 13")
+		return
 
-print("Count:", analysis.count)
-print("Min:", analysis.min)
-print("Max:", analysis.max)
-print("Mean:", analysis.mean)
-print("Standard Deviation:", analysis.std_dev)
-print("Median:", analysis.median)
+	nums = list(map(int, sys.argv[1:]))
+	analysis = perform_analysis(nums, len(nums))
+
+	print("Count: " + str(analysis.count))
+	print("Min: " + str(analysis.min))
+	print("Max: " + str(analysis.max))
+	print("Mean: " + str(analysis.mean))
+	print("Standard Deviation: " + str(analysis.std_dev))
+	print("Median: " + str(analysis.median))
+
+if __name__ == "__main__":
+	main()

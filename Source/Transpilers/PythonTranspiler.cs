@@ -24,11 +24,16 @@ namespace Pastel.Transpilers
 
         public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
         {
+            foreach (StructDefinition sd in compiler.GetStructDefinitions())
+            {
+                this.GenerateCodeForStruct(ctx, sd);
+            }
+
             foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
             {
                 this.GenerateCodeForFunction(ctx, fn);
             }
-            files["gen.py"] = ctx.FlushAndClearBuffer();
+            files["__init__.py"] = ctx.FlushAndClearBuffer();
         }
 
         public override string TranslateType(PType type)
@@ -100,7 +105,7 @@ namespace Pastel.Transpilers
         {
             sb.Append('(');
             this.TranslateExpression(sb, array);
-            sb.Append(".sort()");
+            sb.Append(").sort()");
         }
 
         public override void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length)
@@ -174,7 +179,8 @@ namespace Pastel.Transpilers
         {
             StructDefinition structDef = constructorInvocation.StructType;
             if (structDef == null) throw new NotImplementedException();
-            sb.Append('[');
+            sb.Append(structDef.NameToken.Value);
+            sb.Append('(');
             int args = structDef.ArgNames.Length;
             for (int i = 0; i < args; ++i)
             {
@@ -184,7 +190,7 @@ namespace Pastel.Transpilers
                 }
                 this.TranslateExpression(sb, constructorInvocation.Args[i]);
             }
-            sb.Append(']');
+            sb.Append(')');
         }
 
         public override void TranslateConvertRawDictionaryValueCollectionToAReusableValueList(TranspilerContext sb, Expression dictionary)
@@ -347,7 +353,6 @@ namespace Pastel.Transpilers
 
         public override void TranslateFunctionReference(TranspilerContext sb, FunctionReference funcRef)
         {
-            sb.Append("v_");
             sb.Append(funcRef.Function.NameToken.Value);
         }
 
@@ -984,9 +989,8 @@ namespace Pastel.Transpilers
         public override void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
             this.TranslateExpression(sb, root);
-            sb.Append('[');
-            sb.Append(fieldIndex);
-            sb.Append(']');
+            sb.Append('.');
+            sb.Append(fieldName);
         }
 
         public override void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement)
@@ -1029,17 +1033,12 @@ namespace Pastel.Transpilers
 
         public override void TranslateVariable(TranspilerContext sb, Variable variable)
         {
-            if (variable.ApplyPrefix)
-            {
-                sb.Append("v_");
-            }
             sb.Append(variable.Name);
         }
 
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append("v_");
             sb.Append(varDecl.VariableNameToken.Value);
             sb.Append(" = ");
             this.TranslateExpression(sb, varDecl.Value);
@@ -1094,14 +1093,13 @@ namespace Pastel.Transpilers
             sb.CurrentFunctionDefinition = funcDef;
 
             sb.Append(sb.CurrentTab);
-            sb.Append("def v_");
+            sb.Append("def ");
             sb.Append(funcDef.NameToken.Value);
             sb.Append('(');
             int argCount = funcDef.ArgNames.Length;
             for (int i = 0; i < argCount; ++i)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append("v_");
                 sb.Append(funcDef.ArgNames[i].Value);
             }
             sb.Append("):");
@@ -1123,7 +1121,32 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
-            throw new InvalidOperationException("This function should not be called. Python uses lists as structs.");
+            sb.Append("class ");
+            sb.Append(structDef.NameToken.Value);
+            sb.Append(':');
+            sb.Append(this.NewLine);
+            sb.TabDepth++;
+            sb.Append(sb.CurrentTab);
+            sb.Append("def __init__(self");
+            foreach (Token argName in structDef.ArgNames)
+            {
+                sb.Append(", ");
+                sb.Append(argName.Value);
+            }
+            sb.Append("):");
+            sb.Append(this.NewLine);
+            sb.TabDepth++;
+            foreach (Token argName in structDef.ArgNames)
+            {
+                sb.Append(sb.CurrentTab);
+                sb.Append("self.");
+                sb.Append(argName.Value);
+                sb.Append(" = ");
+                sb.Append(argName.Value);
+                sb.Append(this.NewLine);
+            }
+            sb.Append(this.NewLine);
+            sb.TabDepth -= 2;
         }
 
         public override void GenerateCodeForGlobalsDefinitions(TranspilerContext sb, IList<VariableDeclaration> globals)
