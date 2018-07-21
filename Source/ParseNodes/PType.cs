@@ -14,6 +14,7 @@ namespace Pastel.ParseNodes
         public static readonly PType DOUBLE = new PType(null, "double");
         public static readonly PType VOID = new PType(null, "void");
         public static readonly PType NULL = new PType(null, "null");
+        public static readonly PType OBJECT = new PType(null, "object");
 
         public Token FirstToken { get; set; }
         public string RootValue { get; set; }

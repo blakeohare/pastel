@@ -23,8 +23,7 @@ namespace Pastel.ParseNodes
 
         public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
-            // Introduced in ResolveTypes phase
-            throw new NotImplementedException();
+            return this;
         }
 
         internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)

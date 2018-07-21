@@ -11,6 +11,11 @@ namespace Pastel.Transpilers
             this.UsesStructDefinitions = false;
         }
 
+        public override void GenerateCode(Dictionary<string, string> files)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
         {
             this.TranslateExpression(sb, array);

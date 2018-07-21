@@ -33,6 +33,8 @@ namespace Pastel.Transpilers
             }
         }
 
+        public abstract void GenerateCode(Dictionary<string, string> files);
+
         public virtual string TranslateType(PType type)
         {
             throw new InvalidOperationException("This platform does not support types.");

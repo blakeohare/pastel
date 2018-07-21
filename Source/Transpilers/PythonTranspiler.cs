@@ -22,6 +22,11 @@ namespace Pastel.Transpilers
             this.UsesStructDefinitions = false;
         }
 
+        public override void GenerateCode(Dictionary<string, string> files)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string TranslateType(PType type)
         {
             throw new InvalidOperationException("Python does not support types.");

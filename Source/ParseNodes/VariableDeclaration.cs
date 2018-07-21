@@ -57,6 +57,10 @@ namespace Pastel.ParseNodes
 
             if (!PType.CheckAssignment(this.Type, this.Value.ResolvedType))
             {
+                if (this.Type == PType.DOUBLE && this.Value.ResolvedType == PType.INT)
+                {
+                    throw new ParserException(this.Value.FirstToken, "Must explicitly convert integer to a double/float.");
+                }
                 throw new ParserException(this.Value.FirstToken, "Cannot assign this type to a " + this.Type);
             }
 

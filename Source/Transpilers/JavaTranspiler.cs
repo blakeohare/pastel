@@ -14,6 +14,11 @@ namespace Pastel.Transpilers
             this.isJava6 = isJava6;
         }
 
+        public override void GenerateCode(Dictionary<string, string> files)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string TranslateType(PType type)
         {
             return TranslateJavaType(type);

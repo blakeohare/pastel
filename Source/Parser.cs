@@ -626,7 +626,8 @@ namespace Pastel
                         case "null":
                             return new InlineConstant(PType.NULL, tokens.Pop(), null);
                         default:
-                            return new Variable(tokens.Pop());
+                            Token variableToken = tokens.Pop();
+                            return new Variable(variableToken);
                     }
 
                 case TokenType.STRING:

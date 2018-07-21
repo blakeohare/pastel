@@ -70,6 +70,14 @@ namespace Pastel
         private void PushToken(int start, int length, TokenType type)
         {
             string value = this.content.Substring(start, length);
+            if (type == TokenType.ALPHANUMS)
+            {
+                char c = value[0];
+                if (c >= '0' && c <= '9')
+                {
+                    type = TokenType.NUMBER;
+                }
+            }
             this.tokenBuilder.Add(new Token(this.filename, value, start, this.lines[start], this.columns[start], type));
         }
 

@@ -41,6 +41,10 @@ namespace Pastel.ParseNodes
                 }
                 else
                 {
+                    if (this.Value.ResolvedType == PType.INT && this.Target.ResolvedType == PType.DOUBLE)
+                    {
+                        throw new ParserException(this.OpToken, "Must explicitly convert an int to a double before assignment.");
+                    }
                     throw new ParserException(this.OpToken, "Cannot assign a " + this.Value.ResolvedType + " to a " + this.Target.ResolvedType);
                 }
             }

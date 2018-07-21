@@ -14,6 +14,11 @@ namespace Pastel.Transpilers
             this.UsesFunctionDeclarations = true;
         }
 
+        public override void GenerateCode(Dictionary<string, string> files)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string TranslateType(PType type)
         {
             switch (type.RootValue)

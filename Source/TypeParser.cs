@@ -29,24 +29,24 @@ namespace Pastel
             return type;
         }
 
-        private static HashSet<string> primitiveTypes = new HashSet<string>()
+        private static Dictionary<string, PType> primitiveTypes = new Dictionary<string, PType>()
         {
-            "int",
-            "char",
-            "double",
-            "bool",
-            "void",
-            "string",
-            "object",
+            { "int", PType.INT },
+            { "char", PType.CHAR },
+            { "double", PType.DOUBLE },
+            { "bool", PType.BOOL },
+            { "void", PType.VOID },
+            { "string", PType.STRING },
+            { "object", PType.OBJECT },
         };
 
         private static PType TryParseImpl(TokenStream tokens)
         {
             Token token = tokens.Pop();
             if (token.Type != TokenType.ALPHANUMS) return null;
-            if (primitiveTypes.Contains(token.Value))
+            if (primitiveTypes.ContainsKey(token.Value))
             {
-                return new PType(token, token.Value);
+                return primitiveTypes[token.Value];
             }
 
             TokenStreamState state = tokens.SnapshotState();
