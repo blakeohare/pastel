@@ -1,0 +1,9 @@
+﻿using System;
+
+namespace PastelHelperClasses
+{
+	public static class TranslationHelper
+	{
+	
+	}
+}

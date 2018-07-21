@@ -79,7 +79,6 @@ namespace Pastel.Transpilers
 
         public override void TranslateFunctionReference(TranspilerContext sb, FunctionReference funcRef)
         {
-            sb.Append("v_");
             sb.Append(funcRef.Function.NameToken.Value);
         }
 
@@ -246,7 +245,6 @@ namespace Pastel.Transpilers
 
         public override void TranslateVariable(TranspilerContext sb, Variable variable)
         {
-            sb.Append("v_");
             sb.Append(variable.Name);
         }
 

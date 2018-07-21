@@ -42,6 +42,7 @@ namespace Pastel.Transpilers
             set
             {
                 this.currentTab = value;
+                if (value < 0) throw new System.Exception("Tab depth is < 0");
 
                 while (this.currentTab >= this.Transpiler.Tabs.Length)
                 {
@@ -56,6 +57,18 @@ namespace Pastel.Transpilers
                 this.CurrentTab = this.Transpiler.Tabs[this.currentTab];
             }
 
+        }
+
+        public TranspilerContext AppendTab()
+        {
+            this.buffer.Append(this.CurrentTab);
+            return this;
+        }
+
+        public TranspilerContext AppendNL()
+        {
+            this.buffer.Append(this.Transpiler.NewLine);
+            return this;
         }
 
         public TranspilerContext Append(char c)

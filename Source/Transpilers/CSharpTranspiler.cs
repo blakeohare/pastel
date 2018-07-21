@@ -11,7 +11,30 @@ namespace Pastel.Transpilers
 
         public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
         {
-            throw new NotImplementedException();
+            string pastelGeneratedNamespace = "PastelGeneratedNamespace";
+
+            ctx.Append("using System;").AppendNL();
+            ctx.Append("using System.Collections.Generic;").AppendNL();
+            ctx.Append("using System.Linq;").AppendNL();
+            ctx.AppendNL();
+            
+            ctx.AppendTab().Append("namespace ").Append(pastelGeneratedNamespace).AppendNL();
+            ctx.AppendTab().Append("{").AppendNL();
+            ctx.TabDepth++;
+            ctx.Append(ctx.CurrentTab).Append("internal static class FunctionWrapper").AppendNL();
+            ctx.Append(ctx.CurrentTab).Append('{').AppendNL();
+            ctx.TabDepth++;
+            foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
+            {
+                this.GenerateCodeForFunction(ctx, fn);
+                ctx.AppendNL();
+            }
+            ctx.TabDepth--;
+            ctx.AppendTab().Append('}').Append(this.NewLine);
+            ctx.TabDepth--;
+            ctx.AppendTab().Append('}').Append(this.NewLine);
+
+            files["GEN_FunctionWrapper.cs"] = ctx.FlushAndClearBuffer();
         }
 
         public override string TranslateType(PType type)
@@ -68,7 +91,11 @@ namespace Pastel.Transpilers
 
         public override void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append("((");
+            sb.Append(this.TranslateType(array.ResolvedType));
+            sb.Append(")TranslationHelper.ArrayCopy(");
+            this.TranslateExpression(sb, array);
+            sb.Append("))");
         }
 
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
@@ -129,7 +156,9 @@ namespace Pastel.Transpilers
 
         public override void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append("System.Array.Sort(");
+            this.TranslateExpression(sb, array);
+            sb.Append(')');
         }
 
         public override void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length)
@@ -310,7 +339,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateGlobalVariable(TranspilerContext sb, Variable variable)
         {
-            sb.Append("Globals.v_");
+            sb.Append("Globals.");
             sb.Append(variable.Name);
         }
 
@@ -845,17 +874,16 @@ namespace Pastel.Transpilers
 
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
-            sb.Append(sb.CurrentTab);
+            sb.AppendTab();
             sb.Append(this.TranslateType(varDecl.Type));
-            sb.Append(" v_");
+            sb.Append(' ');
             sb.Append(varDecl.VariableNameToken.Value);
             if (varDecl.Value != null)
             {
                 sb.Append(" = ");
                 this.TranslateExpression(sb, varDecl.Value);
             }
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(';').AppendNL();
         }
 
         public override void TranslateVmDetermineLibraryAvailability(TranspilerContext sb, Expression libraryName, Expression libraryVersion)
@@ -936,26 +964,24 @@ namespace Pastel.Transpilers
             PType[] argTypes = funcDef.ArgTypes;
             Token[] argNames = funcDef.ArgNames;
 
-            output.Append("public static ");
+            output.AppendTab().Append("public static ");
             output.Append(this.TranslateType(returnType));
-            output.Append(" v_");
+            output.Append(' ');
             output.Append(funcName);
             output.Append("(");
             for (int i = 0; i < argTypes.Length; ++i)
             {
                 if (i > 0) output.Append(", ");
                 output.Append(this.TranslateType(argTypes[i]));
-                output.Append(" v_");
+                output.Append(' ');
                 output.Append(argNames[i].Value);
             }
-            output.Append(")");
-            output.Append(this.NewLine);
-            output.Append("{");
-            output.Append(this.NewLine);
-            output.TabDepth = 1;
+            output.Append(")").AppendNL();
+            output.AppendTab().Append("{").AppendNL();
+            output.TabDepth++;
             this.TranslateExecutables(output, funcDef.Code);
-            output.TabDepth = 0;
-            output.Append("}");
+            output.TabDepth--;
+            output.AppendTab().Append("}").AppendNL();
         }
 
         public override void GenerateCodeForGlobalsDefinitions(TranspilerContext output, IList<VariableDeclaration> globals)
