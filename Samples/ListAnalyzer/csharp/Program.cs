@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using PastelGeneratedNamespace;
 
 namespace ListAnalyzer
 {
@@ -7,19 +7,16 @@ namespace ListAnalyzer
     {
         static void Main(string[] args)
         {
-            int[] nums;
-            try
-            {
-                nums = args.Select(n => int.Parse(n)).ToArray();
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Usage: ListAnalyzer.exe num1 num2 num3 ...");
-                return;
-            }
+            int[] nums = { 5, 9, 1, 3, 11, 13, 2, 10 };
+            NumAnalysis result = FunctionWrapper.perform_analysis(nums, nums.Length);
 
-            PastelGeneratedNamespace.FunctionWrapper.perform_analysis(nums, nums.Length);
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Count: " + result.count);
+            Console.WriteLine("Total: " + result.total);
+            Console.WriteLine("Min: " + result.min);
+            Console.WriteLine("Max: " + result.max);
+            Console.WriteLine("Mean: " + result.mean);
+            Console.WriteLine("Median: " + result.median);
+            Console.WriteLine("Standard Deviation: " + result.std_dev);
         }
     }
 }

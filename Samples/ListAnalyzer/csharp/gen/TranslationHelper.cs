@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace %%%PASTEL_GENERATED_NAMESPACE%%%
+namespace PastelGeneratedNamespace
 {
     public static class TranslationHelper
     {

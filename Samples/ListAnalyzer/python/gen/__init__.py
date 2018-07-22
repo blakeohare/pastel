@@ -15,7 +15,7 @@ def calculate_standard_deviation(nums, length, mean):
     diff = (nums[i] - mean)
     total_dev += (diff ** 2)
     i += 1
-  return (total_dev) ** .5
+  return ((1.0 * (total_dev) / (length))) ** .5
 
 def perform_analysis(nums, length):
   output = NumAnalysis(0, 0, 0, 0, 0.0, 0.0, 0.0)
@@ -33,7 +33,7 @@ def perform_analysis(nums, length):
       if (value > output.max):
         output.max = value
       i += 1
-    output.mean = (1.0 * (output.total) / (length))
+    output.mean = (1.0 * ((1.0 * output.total)) / (length))
     output.std_dev = calculate_standard_deviation(nums, length, output.mean)
     nums_copy = (nums)[:]
     (nums_copy).sort()

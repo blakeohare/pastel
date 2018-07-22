@@ -11,7 +11,7 @@ public final class FunctionWrapper {
       total_dev += Math.pow(diff, 2);
       i += 1;
     }
-    return Math.sqrt(total_dev);
+    return Math.sqrt(total_dev / length);
   }
 
   public static NumAnalysis perform_analysis(int[] nums, int length) {
@@ -33,7 +33,7 @@ public final class FunctionWrapper {
         }
         i += 1;
       }
-      output.mean = output.total / length;
+      output.mean = (1.0 * output.total) / length;
       output.std_dev = calculate_standard_deviation(nums, length, output.mean);
       int[] nums_copy = nums.clone();
       java.util.Arrays.sort(nums_copy);

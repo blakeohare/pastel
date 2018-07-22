@@ -17,7 +17,7 @@ namespace Pastel.Transpilers
             ctx.Append("using System.Collections.Generic;").AppendNL();
             ctx.Append("using System.Linq;").AppendNL();
             ctx.AppendNL();
-            
+
             ctx.AppendTab().Append("namespace ").Append(pastelGeneratedNamespace).AppendNL();
             ctx.AppendTab().Append("{").AppendNL();
             ctx.TabDepth++;
@@ -35,6 +35,48 @@ namespace Pastel.Transpilers
             ctx.AppendTab().Append('}').Append(this.NewLine);
 
             files["GEN_FunctionWrapper.cs"] = ctx.FlushAndClearBuffer();
+
+            foreach (StructDefinition sd in compiler.GetStructDefinitions())
+            {
+                ctx.Append("namespace ").Append(pastelGeneratedNamespace).AppendNL();
+                ctx.Append('{').AppendNL();
+                ctx.TabDepth++;
+                ctx.AppendTab().Append("public sealed class ").Append(sd.NameToken.Value).AppendNL();
+                ctx.AppendTab().Append("{").AppendNL();
+                ctx.TabDepth++;
+
+                for (int i = 0; i < sd.ArgNames.Length; ++i)
+                {
+                    ctx.AppendTab().Append("public ").Append(this.TranslateType(sd.ArgTypes[i])).Append(' ').Append(sd.ArgNames[i].Value).Append(';').AppendNL();
+                }
+
+                ctx.AppendNL();
+
+                ctx.AppendTab().Append("public ").Append(sd.NameToken.Value).Append('(');
+                for (int i = 0; i < sd.ArgNames.Length; ++i)
+                {
+                    if (i > 0) ctx.Append(", ");
+                    ctx.Append(this.TranslateType(sd.ArgTypes[i])).Append(' ').Append(sd.ArgNames[i].Value);
+                }
+                ctx.Append(')').AppendNL();
+                ctx.AppendTab().Append('{').AppendNL();
+                ctx.TabDepth++;
+                for (int i = 0; i < sd.ArgNames.Length; ++i)
+                {
+                    ctx.AppendTab().Append("this.").Append(sd.ArgNames[i].Value).Append(" = ").Append(sd.ArgNames[i].Value).Append(';').AppendNL();
+                }
+                ctx.TabDepth--;
+                ctx.AppendTab().Append('}').AppendNL();
+                ctx.TabDepth--;
+                ctx.AppendTab().Append('}').AppendNL();
+                ctx.Append('}').AppendNL();
+
+                files[sd.NameToken.Value + ".cs"] = ctx.FlushAndClearBuffer();
+            }
+
+            string translationHelper = ResourceReader.GetTextResource("Resources/TranslationHelperCs.txt")
+                .Replace("%%%PASTEL_GENERATED_NAMESPACE%%%", pastelGeneratedNamespace);
+            files["TranslationHelper.cs"] = translationHelper;
         }
 
         public override string TranslateType(PType type)
@@ -93,9 +135,9 @@ namespace Pastel.Transpilers
         {
             sb.Append("((");
             sb.Append(this.TranslateType(array.ResolvedType));
-            sb.Append(")TranslationHelper.ArrayCopy(");
+            sb.Append(") (");
             this.TranslateExpression(sb, array);
-            sb.Append("))");
+            sb.Append(").Clone())");
         }
 
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)

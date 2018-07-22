@@ -16,7 +16,7 @@ namespace PastelGeneratedNamespace
                 total_dev += Math.Pow(diff, 2);
                 i += 1;
             }
-            return Math.Sqrt(total_dev);
+            return Math.Sqrt((total_dev) / (length));
         }
 
         public static NumAnalysis perform_analysis(int[] nums, int length)
@@ -43,9 +43,9 @@ namespace PastelGeneratedNamespace
                     }
                     i += 1;
                 }
-                output.mean = (output.total) / (length);
+                output.mean = ((1.0 * output.total)) / (length);
                 output.std_dev = calculate_standard_deviation(nums, length, output.mean);
-                int[] nums_copy = ((int[])TranslationHelper.ArrayCopy(nums));
+                int[] nums_copy = ((int[]) (nums).Clone());
                 System.Array.Sort(nums_copy);
                 if (((length % 2) == 0))
                 {
