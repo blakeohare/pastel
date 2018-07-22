@@ -364,6 +364,12 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateFree(TranspilerContext ctx, Expression expression)
+        {
+            // Should be filtered out before now.
+            throw new NotImplementedException();
+        }
+
         public override void TranslateCommandLineArgs(TranspilerContext sb)
         {
             sb.Append("TranslationHelper.CommandLineArgs");

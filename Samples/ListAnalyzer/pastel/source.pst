@@ -31,6 +31,7 @@ NumAnalysis perform_analysis(Array<int> nums, int length) {
 		} else {
 			output.median = 0.0 + nums_copy[$integer_division(length, 2)];
 		}
+		$free(nums_copy);
 	}
 	return output;
 }

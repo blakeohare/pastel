@@ -528,6 +528,12 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateFree(TranspilerContext ctx, Expression expression)
+        {
+            // Should be filtered out before now.
+            throw new NotImplementedException();
+        }
+
         public override void TranslateFunctionInvocationInterpreterScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args)
         {
             sb.Append("Interpreter.");

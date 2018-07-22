@@ -243,6 +243,12 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, floatExpr);
         }
 
+        public override void TranslateFree(TranspilerContext ctx, Expression expression)
+        {
+            // Should be filtered out before now.
+            throw new NotImplementedException();
+        }
+
         public override void TranslateGetProgramData(TranspilerContext sb)
         {
             sb.Append("C$common$programData");

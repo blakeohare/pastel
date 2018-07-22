@@ -12,6 +12,7 @@ namespace Pastel.Transpilers
             this.UsesStringTable = true;
             this.UsesStructDeclarations = true;
             this.UsesFunctionDeclarations = true;
+            this.UsesFree = true;
         }
 
         public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
@@ -478,6 +479,13 @@ namespace Pastel.Transpilers
             sb.Append("TranslationHelper_double_to_string(");
             this.TranslateExpression(sb, floatExpr);
             sb.Append(')');
+        }
+
+        public override void TranslateFree(TranspilerContext ctx, Expression expression)
+        {
+            ctx.Append("free(");
+            this.TranslateExpression(ctx, expression);
+            ctx.Append(")");
         }
 
         public override void TranslateGetProgramData(TranspilerContext sb)

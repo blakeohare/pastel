@@ -59,6 +59,7 @@ NumAnalysis* v_perform_analysis(int* v_nums, int v_length)
         {
             output->median = (0.0 + nums_copy[(length) / (2)]);
         }
+        free(nums_copy);
     }
     return output;
 }

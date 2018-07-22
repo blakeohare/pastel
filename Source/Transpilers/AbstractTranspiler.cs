@@ -15,6 +15,7 @@ namespace Pastel.Transpilers
         public bool UsesStringTable { get; protected set; }
         public bool UsesFunctionDeclarations { get; protected set; }
         public bool UsesStructDeclarations { get; protected set; }
+        public bool UsesFree { get; protected set; }
 
         public AbstractTranspiler(string tab, string newLine)
         {
@@ -22,6 +23,7 @@ namespace Pastel.Transpilers
             this.UsesFunctionDeclarations = false;
             this.UsesStructDeclarations = false;
             this.UsesStringTable = false;
+            this.UsesFree = false;
 
             this.NewLine = newLine;
             this.TabChar = tab;
@@ -55,7 +57,6 @@ namespace Pastel.Transpilers
             {
                 case "Assignment": this.TranslateAssignment(sb, (Assignment)executable); break;
                 case "BreakStatement": this.TranslateBreak(sb); break;
-                case "ExpressionAsExecutable": this.TranslateExpressionAsExecutable(sb, ((ExpressionAsExecutable)executable).Expression); break;
                 case "IfStatement": this.TranslateIfStatement(sb, (IfStatement)executable); break;
                 case "ReturnStatement": this.TranslateReturnStatemnt(sb, (ReturnStatement)executable); break;
                 case "SwitchStatement": this.TranslateSwitchStatement(sb, (SwitchStatement)executable); break;
@@ -66,6 +67,23 @@ namespace Pastel.Transpilers
                     for (int i = 0; i < execs.Length; ++i)
                     {
                         this.TranslateExecutable(sb, execs[i]);
+                    }
+                    break;
+
+                case "ExpressionAsExecutable":
+                    ExpressionAsExecutable exprAsExec = (ExpressionAsExecutable)executable;
+                    bool omit = false;
+                    NativeFunctionInvocation nfi = exprAsExec.Expression as NativeFunctionInvocation;
+                    if (nfi != null)
+                    {
+                        if (nfi.Function == NativeFunction.FREE)
+                        {
+                            omit = !sb.Transpiler.UsesFree;
+                        }
+                    }
+                    if (!omit)
+                    {
+                        this.TranslateExpressionAsExecutable(sb, exprAsExec.Expression);
                     }
                     break;
 
@@ -237,6 +255,7 @@ namespace Pastel.Transpilers
                 case NativeFunction.FLOAT_BUFFER_16: this.TranslateFloatBuffer16(sb); break;
                 case NativeFunction.FLOAT_DIVISION: this.TranslateFloatDivision(sb, args[0], args[1]); break;
                 case NativeFunction.FLOAT_TO_STRING: this.TranslateFloatToString(sb, args[0]); break;
+                case NativeFunction.FREE: this.TranslateFree(sb, args[0]); break;
                 case NativeFunction.GET_PROGRAM_DATA: this.TranslateGetProgramData(sb); break;
                 case NativeFunction.GET_RESOURCE_MANIFEST: this.TranslateGetResourceManifest(sb); break;
                 case NativeFunction.INT: this.TranslateFloatToInt(sb, args[0]); break;
@@ -364,6 +383,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateFloatDivision(TranspilerContext sb, Expression floatNumerator, Expression floatDenominator);
         public abstract void TranslateFloatToInt(TranspilerContext sb, Expression floatExpr);
         public abstract void TranslateFloatToString(TranspilerContext sb, Expression floatExpr);
+        public abstract void TranslateFree(TranspilerContext ctx, Expression expression);
         public abstract void TranslateFunctionInvocationInterpreterScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
         public abstract void TranslateFunctionInvocationLocallyScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
         public abstract void TranslateFunctionReference(TranspilerContext sb, FunctionReference funcRef);
