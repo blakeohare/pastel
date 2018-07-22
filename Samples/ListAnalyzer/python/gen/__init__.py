@@ -38,8 +38,8 @@ def perform_analysis(nums, length):
     nums_copy = (nums)[:]
     (nums_copy).sort()
     if ((length % 2) == 0):
-      output.median = (1.0 * ((nums[((length) // (2) - 1)] + nums[(length) // (2)])) / (2.0))
+      output.median = (1.0 * ((nums_copy[((length) // (2) - 1)] + nums_copy[(length) // (2)])) / (2.0))
     else:
-      output.median = (0.0 + nums[(length) // (2)])
+      output.median = (0.0 + nums_copy[(length) // (2)])
   return output
 

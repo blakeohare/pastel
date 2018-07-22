@@ -49,11 +49,11 @@ namespace PastelGeneratedNamespace
                 System.Array.Sort(nums_copy);
                 if (((length % 2) == 0))
                 {
-                    output.median = ((nums[((length) / (2) - 1)] + nums[(length) / (2)])) / (2.0);
+                    output.median = ((nums_copy[((length) / (2) - 1)] + nums_copy[(length) / (2)])) / (2.0);
                 }
                 else
                 {
-                    output.median = (0.0 + nums[(length) / (2)]);
+                    output.median = (0.0 + nums_copy[(length) / (2)]);
                 }
             }
             return output;

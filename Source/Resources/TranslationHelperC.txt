@@ -1,0 +1,9 @@
+﻿void* translation_helper_array_copy(void* original, int bytes) {
+	void* copy = malloc(bytes);
+	memcpy(original, copy, bytes);
+	return copy;
+}
+
+void translation_helper_array_sort_int(int* nums, int length) {
+	// TODO: this
+}

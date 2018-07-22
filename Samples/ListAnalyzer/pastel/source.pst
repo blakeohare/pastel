@@ -27,9 +27,9 @@ NumAnalysis perform_analysis(Array<int> nums, int length) {
 		Array<int> nums_copy = $array_copy(nums, length);
 		$array_sort_int(nums_copy, length);
 		if (length % 2 == 0) {
-			output.median = $float_division(nums[$integer_division(length, 2) - 1] + nums[$integer_division(length, 2)], 2.0);
+			output.median = $float_division(nums_copy[$integer_division(length, 2) - 1] + nums_copy[$integer_division(length, 2)], 2.0);
 		} else {
-			output.median = 0.0 + nums[$integer_division(length, 2)];
+			output.median = 0.0 + nums_copy[$integer_division(length, 2)];
 		}
 	}
 	return output;

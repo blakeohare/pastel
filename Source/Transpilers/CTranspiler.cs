@@ -16,7 +16,56 @@ namespace Pastel.Transpilers
 
         public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
         {
-            throw new NotImplementedException();
+            foreach (StructDefinition sd in compiler.GetStructDefinitions())
+            {
+                this.GenerateCodeForStructDeclaration(ctx, sd.NameToken.Value);
+                ctx.AppendNL();
+            }
+            foreach (StructDefinition sd in compiler.GetStructDefinitions())
+            {
+                string name = sd.NameToken.Value;
+                this.GenerateCodeForStruct(ctx, sd);
+                ctx.AppendNL();
+                ctx.Append(name).Append("* ").Append(name).Append("_new(");
+                for (int i = 0; i < sd.ArgNames.Length; ++i)
+                {
+                    if (i > 0) ctx.Append(", ");
+                    ctx.Append(this.TranslateType(sd.ArgTypes[i])).Append(" _").Append(sd.ArgNames[i].Value);
+                }
+                ctx.Append(')').AppendNL();
+                ctx.Append('{').AppendNL();
+                ctx.TabDepth++;
+                ctx.AppendTab().Append(name).Append("* t = (").Append(name).Append("*)malloc(sizeof(").Append(name).Append("));").AppendNL();
+                for (int i = 0; i < sd.ArgNames.Length; ++i)
+                {
+                    ctx.AppendTab().Append("t->").Append(sd.ArgNames[i].Value).Append(" = _").Append(sd.ArgNames[i].Value).Append(';').AppendNL();
+                }
+                ctx.AppendTab().Append("return t;").AppendNL();
+                ctx.TabDepth--;
+                ctx.Append('}').AppendNL();
+                ctx.AppendNL();
+            }
+            ctx.AppendNL();
+
+            foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
+            {
+                this.GenerateCodeForFunctionDeclaration(ctx, fn);
+                ctx.AppendNL();
+            }
+            files["generated.h"] = ctx.FlushAndClearBuffer();
+
+            ctx.Append("#include <stdlib.h>").AppendNL();
+            ctx.Append("#include <string.h>").AppendNL();
+            ctx.AppendNL();
+
+            ctx.Append(ResourceReader.GetTextResource("Resources/TranslationHelperC.txt"));
+
+            foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
+            {
+                this.GenerateCodeForFunction(ctx, fn);
+                ctx.AppendNL();
+            }
+            files["generated.c"] = ctx.FlushAndClearBuffer();
         }
 
         public override string TranslateType(PType type)
@@ -52,7 +101,13 @@ namespace Pastel.Transpilers
 
         public override void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append("translation_helper_array_copy(");
+            this.TranslateExpression(sb, array);
+            sb.Append(", (");
+            this.TranslateExpression(sb, length);
+            sb.Append(") * sizeof(");
+            sb.Append(this.TranslateType(array.ResolvedType.Generics[0]));
+            sb.Append("))");
         }
 
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
@@ -124,7 +179,11 @@ namespace Pastel.Transpilers
 
         public override void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append("translation_helper_array_sort_int(");
+            this.TranslateExpression(sb, array);
+            sb.Append(", ");
+            this.TranslateExpression(sb, length);
+            sb.Append(')');
         }
 
         public override void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length)

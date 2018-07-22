@@ -36,6 +36,7 @@ namespace Pastel
                 Language lang;
                 switch (platform)
                 {
+                    case "c": lang = Language.C; break;
                     case "csharp": lang = Language.CSHARP; break;
                     case "java": lang = Language.JAVA; break;
                     case "javascript": lang = Language.JAVASCRIPT; break;

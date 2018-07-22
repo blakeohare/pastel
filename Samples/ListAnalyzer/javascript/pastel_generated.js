@@ -33,9 +33,9 @@ var perform_analysis = function(nums, length) {
 		var nums_copy = (nums).concat([]);
 		(nums_copy).sort();
 		if (((length % 2) == 0)) {
-			output.median = ((nums[(Math.floor(length / 2) - 1)] + nums[Math.floor(length / 2)]) / 2.0);
+			output.median = ((nums_copy[(Math.floor(length / 2) - 1)] + nums_copy[Math.floor(length / 2)]) / 2.0);
 		} else {
-			output.median = (0.0 + nums[Math.floor(length / 2)]);
+			output.median = (0.0 + nums_copy[Math.floor(length / 2)]);
 		}
 	}
 	return output;

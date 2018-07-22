@@ -22,6 +22,11 @@
 			"name": "javascript",
 			"platform": "javascript",
 			"output": "javascript"
+		},
+		{
+			"name": "c",
+			"platform": "c",
+			"output": "c"
 		}
 	]
 }
