@@ -13,12 +13,19 @@ namespace Pastel.Transpilers
 
         public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
         {
-            throw new NotImplementedException();
+            foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
+            {
+                this.GenerateCodeForFunction(ctx, fn);
+            }
+
+            files["pastel_generated.js"] = ctx.FlushAndClearBuffer();
         }
 
         public override void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append('(');
+            this.TranslateExpression(sb, array);
+            sb.Append(").concat([])");
         }
 
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
@@ -58,17 +65,23 @@ namespace Pastel.Transpilers
 
         public override void TranslateArraySortFloat(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append('(');
+            this.TranslateExpression(sb, array);
+            sb.Append(").sort()");
         }
 
         public override void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append('(');
+            this.TranslateExpression(sb, array);
+            sb.Append(").sort()");
         }
 
         public override void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length)
         {
-            throw new NotImplementedException();
+            sb.Append('(');
+            this.TranslateExpression(sb, array);
+            sb.Append(").sort()");
         }
 
         public override void TranslateBase64ToString(TranspilerContext sb, Expression base64String)
@@ -107,14 +120,20 @@ namespace Pastel.Transpilers
 
         public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
         {
-            sb.Append('[');
+            sb.Append('{');
+            
+            StructDefinition sd = constructorInvocation.StructType;
             Expression[] args = constructorInvocation.Args;
+            Token[] argNames = sd.ArgNames;
+            
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
+                sb.Append(argNames[i].Value);
+                sb.Append(": ");
                 this.TranslateExpression(sb, args[i]);
             }
-            sb.Append(']');
+            sb.Append('}');
         }
 
         public override void TranslateConvertRawDictionaryValueCollectionToAReusableValueList(TranspilerContext sb, Expression dictionary)
@@ -237,7 +256,6 @@ namespace Pastel.Transpilers
 
         public override void TranslateGlobalVariable(TranspilerContext sb, Variable variable)
         {
-            sb.Append("v_");
             sb.Append(variable.Name);
         }
 
@@ -436,7 +454,9 @@ namespace Pastel.Transpilers
 
         public override void TranslateMathSqrt(TranspilerContext sb, Expression value)
         {
-            throw new NotImplementedException();
+            sb.Append("Math.sqrt(");
+            this.TranslateExpression(sb, value);
+            sb.Append(')');
         }
 
         public override void TranslateMathSin(TranspilerContext sb, Expression thetaRadians)
@@ -751,9 +771,7 @@ namespace Pastel.Transpilers
         public override void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
             this.TranslateExpression(sb, root);
-            sb.Append('[');
-            sb.Append(fieldIndex);
-            sb.Append(']');
+            sb.Append('.').Append(fieldName);
         }
 
         public override void TranslateThreadSleep(TranspilerContext sb, Expression seconds)
@@ -773,7 +791,7 @@ namespace Pastel.Transpilers
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append("var v_");
+            sb.Append("var ");
             sb.Append(varDecl.VariableNameToken.Value);
             sb.Append(" = ");
             if (varDecl.Value == null)
@@ -822,14 +840,13 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef)
         {
-            sb.Append("var v_");
+            sb.Append("var ");
             sb.Append(funcDef.NameToken.Value);
             sb.Append(" = function(");
             Token[] args = funcDef.ArgNames;
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append("v_");
                 sb.Append(args[i].Value);
             }
             sb.Append(") {");

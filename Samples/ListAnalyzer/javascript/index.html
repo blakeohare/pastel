@@ -1,0 +1,36 @@
+<html>
+	<head>
+		<title>List Analyzer</title>
+		<script src="pastel_generated.js"></script>
+		<script>
+function init() {
+	var nums = [5, 9, 1, 3, 11, 13, 2];
+	var result = perform_analysis(nums, nums.length);
+	getElement('output_nums').innerHTML = nums.join(' ');
+	getElement('output_count').innerHTML = result.count;
+	getElement('output_total').innerHTML = result.total;
+	getElement('output_min').innerHTML = result.min;
+	getElement('output_max').innerHTML = result.max;
+	getElement('output_mean').innerHTML = result.mean;
+	getElement('output_median').innerHTML = result.median;
+	getElement('output_stddev').innerHTML = result.std_dev;
+}
+
+function getElement(id) {
+	return document.getElementById(id);
+}
+		</script>
+	</head>
+	<body onload="init()">
+		<table>
+			<tr><td>Numbers</td><td id="output_nums"></td></tr>
+			<tr><td>Count</td><td id="output_count"></td></tr>
+			<tr><td>Total</td><td id="output_total"></td></tr>
+			<tr><td>Min</td><td id="output_min"></td></tr>
+			<tr><td>Max</td><td id="output_max"></td></tr>
+			<tr><td>Mean</td><td id="output_mean"></td></tr>
+			<tr><td>Median</td><td id="output_median"></td></tr>
+			<tr><td>Standard Deviation</td><td id="output_stddev"></td></tr>
+		</table>
+	</body>
+</html>

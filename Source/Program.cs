@@ -38,6 +38,7 @@ namespace Pastel
                 {
                     case "csharp": lang = Language.CSHARP; break;
                     case "java": lang = Language.JAVA; break;
+                    case "javascript": lang = Language.JAVASCRIPT; break;
                     case "python": lang = Language.PYTHON; break;
                     default: throw new Exception();
                 }

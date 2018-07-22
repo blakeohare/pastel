@@ -17,6 +17,11 @@
 			"name": "python",
 			"platform": "python",
 			"output": "python/gen"
+		},
+		{
+			"name": "javascript",
+			"platform": "javascript",
+			"output": "javascript"
 		}
 	]
 }
