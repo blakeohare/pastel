@@ -366,9 +366,9 @@ namespace Pastel.Transpilers
             sb.Append(")");
         }
 
-        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
+        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef)
         {
-            if (constructorInvocation.StructType.NameToken.Value == "Value")
+            if (structDef.NameToken.Value == "Value")
             {
                 Expression firstArg = constructorInvocation.Args[0];
                 if (!(firstArg is InlineConstant))

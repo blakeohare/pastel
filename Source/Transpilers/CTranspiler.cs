@@ -239,9 +239,9 @@ namespace Pastel.Transpilers
             sb.Append("TranslationHelper_get_command_line_args()");
         }
 
-        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
+        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef)
         {
-            sb.Append(constructorInvocation.StructType.NameToken.Value);
+            sb.Append(structDef.NameToken.Value);
             sb.Append("_new(");
             Expression[] args = constructorInvocation.Args;
             for (int i = 0; i < args.Length; ++i)

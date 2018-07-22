@@ -253,10 +253,10 @@ namespace Pastel.Transpilers
             sb.Append("TranslationHelper.CurrentTime");
         }
 
-        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
+        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef)
         {
             sb.Append("new ");
-            sb.Append(constructorInvocation.Type.RootValue);
+            sb.Append(structDef.NameToken.Value);
             sb.Append('(');
             Expression[] args = constructorInvocation.Args;
             for (int i = 0; i < args.Length; ++i)

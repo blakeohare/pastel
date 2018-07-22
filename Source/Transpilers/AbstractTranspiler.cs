@@ -159,7 +159,7 @@ namespace Pastel.Transpilers
 
                         default:
                             // TODO: throw an exception (in the parser) if generics exist.
-                            this.TranslateConstructorInvocation(sb, constructor);
+                            this.TranslateConstructorInvocation(sb, constructor, constructor.StructType);
                             break;
                     }
                     break;
@@ -344,7 +344,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateCharToString(TranspilerContext sb, Expression charValue);
         public abstract void TranslateChr(TranspilerContext sb, Expression charCode);
         public abstract void TranslateCommandLineArgs(TranspilerContext sb);
-        public abstract void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation);
+        public abstract void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef);
         public abstract void TranslateConvertRawDictionaryValueCollectionToAReusableValueList(TranspilerContext sb, Expression dictionary);
         public abstract void TranslateCurrentTimeSeconds(TranspilerContext sb);
         public abstract void TranslateDictionaryContainsKey(TranspilerContext sb, Expression dictionary, Expression key);

@@ -118,13 +118,12 @@ namespace Pastel.Transpilers
             sb.Append("C$common$commandLineArgs");
         }
 
-        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
+        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef)
         {
             sb.Append('{');
             
-            StructDefinition sd = constructorInvocation.StructType;
             Expression[] args = constructorInvocation.Args;
-            Token[] argNames = sd.ArgNames;
+            Token[] argNames = structDef.ArgNames;
             
             for (int i = 0; i < args.Length; ++i)
             {
