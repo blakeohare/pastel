@@ -12,7 +12,8 @@ namespace Pastel
 
 #if DEBUG
             effectiveArgs = new string[] {
-                @"C:\Things\Pastel\Samples\ListAnalyzer\ListAnalyzer.json",
+                //@"C:\Things\Pastel\Samples\ListAnalyzer\ListAnalyzer.json",
+                @"C:\Things\MPlex\libs\Diff\Pastel\Diff.json"
             };
 #endif
 

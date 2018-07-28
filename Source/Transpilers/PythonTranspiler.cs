@@ -24,6 +24,8 @@ namespace Pastel.Transpilers
 
         public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
         {
+            ctx.Append(ResourceReader.GetTextResource("Resources/TranslationHelperPython.txt")).AppendNL();
+
             foreach (StructDefinition sd in compiler.GetStructDefinitions())
             {
                 this.GenerateCodeForStruct(ctx, sd);
