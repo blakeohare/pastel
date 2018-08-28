@@ -172,11 +172,6 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
-        public override void TranslateCommandLineArgs(TranspilerContext sb)
-        {
-            sb.Append("TranslationHelper_getCommandLineArgs()");
-        }
-
         public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef)
         {
             if (structDef == null) throw new NotImplementedException();
@@ -363,16 +358,6 @@ namespace Pastel.Transpilers
             sb.Append(funcRef.Function.NameToken.Value);
         }
 
-        public override void TranslateGetProgramData(TranspilerContext sb)
-        {
-            sb.Append("TranslationHelper_getProgramData()");
-        }
-
-        public override void TranslateGetResourceManifest(TranspilerContext sb)
-        {
-            sb.Append("TranslationHelper_getResourceManifest()");
-        }
-
         public override void TranslateGlobalVariable(TranspilerContext sb, Variable variable)
         {
             // no special syntax
@@ -456,14 +441,6 @@ namespace Pastel.Transpilers
         {
             sb.Append("str(");
             this.TranslateExpression(sb, integer);
-            sb.Append(')');
-        }
-
-        public override void TranslateInvokeDynamicLibraryFunction(TranspilerContext sb, Expression functionId, Expression argsArray)
-        {
-            this.TranslateExpression(sb, functionId);
-            sb.Append('(');
-            this.TranslateExpression(sb, argsArray);
             sb.Append(')');
         }
 
@@ -738,42 +715,12 @@ namespace Pastel.Transpilers
             sb.Append("random.random()");
         }
 
-        public override void TranslateReadByteCodeFile(TranspilerContext sb)
-        {
-            sb.Append("TranslationHelper_getByteCode()");
-        }
-
-        public override void TranslateRegisterLibraryFunction(TranspilerContext sb, Expression libRegObj, Expression functionName, Expression functionArgCount)
-        {
-            sb.Append("TranslationHelper_registerLibraryFunction(_moduleInfo, ");
-            this.TranslateExpression(sb, libRegObj);
-            sb.Append(", ");
-            this.TranslateExpression(sb, functionName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, functionArgCount);
-            sb.Append(')');
-        }
-
-        public override void TranslateResourceReadTextFile(TranspilerContext sb, Expression path)
-        {
-            sb.Append("ResourceReader_readTextFile('res/text/' + ");
-            this.TranslateExpression(sb, path);
-            sb.Append(')');
-        }
-
         public override void TranslateReturnStatemnt(TranspilerContext sb, ReturnStatement returnStatement)
         {
             sb.Append(sb.CurrentTab);
             sb.Append("return ");
             this.TranslateExpression(sb, returnStatement.Expression);
             sb.Append(this.NewLine);
-        }
-
-        public override void TranslateSetProgramData(TranspilerContext sb, Expression programData)
-        {
-            sb.Append("TranslationHelper_setProgramData(");
-            this.TranslateExpression(sb, programData);
-            sb.Append(')');
         }
 
         public override void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray)
@@ -1050,37 +997,6 @@ namespace Pastel.Transpilers
             sb.Append(" = ");
             this.TranslateExpression(sb, varDecl.Value);
             sb.Append(this.NewLine);
-        }
-
-        public override void TranslateVmDetermineLibraryAvailability(TranspilerContext sb, Expression libraryName, Expression libraryVersion)
-        {
-            sb.Append("TranslationHelper_determineLibraryAvailability(");
-            this.TranslateExpression(sb, libraryName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, libraryVersion);
-            sb.Append(')');
-        }
-
-        public override void TranslateVmEnqueueResume(TranspilerContext sb, Expression seconds, Expression executionContextId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void TranslateVmEndProcess(TranspilerContext sb)
-        {
-            sb.Append("sys.exit(0)");
-        }
-
-        public override void TranslateVmRunLibraryManifest(
-            TranspilerContext sb,
-            Expression libraryName,
-            Expression libRegObj)
-        {
-            sb.Append("TranslationHelper_runLibraryManifest(");
-            this.TranslateExpression(sb, libraryName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, libRegObj);
-            sb.Append(')');
         }
 
         public override void TranslateWhileLoop(TranspilerContext sb, WhileLoop whileLoop)

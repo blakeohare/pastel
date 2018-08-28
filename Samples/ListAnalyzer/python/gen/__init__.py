@@ -1,3 +1,5 @@
+TranslationHelper_NoneListOfOne = [None]
+
 class NumAnalysis:
   def __init__(self, count, min, max, total, mean, median, std_dev):
     self.count = count

@@ -110,23 +110,18 @@ namespace Pastel.ParseNodes
                 case "Base64ToString": return NativeFunction.BASE64_TO_STRING;
                 case "CharToString": return NativeFunction.CHAR_TO_STRING;
                 case "Chr": return NativeFunction.CHR;
-                case "CommandLineArgs": return NativeFunction.COMMAND_LINE_ARGS;
                 case "ConvertRawDictionaryValueCollectionToAReusableValueList": return NativeFunction.CONVERT_RAW_DICTIONARY_VALUE_COLLECTION_TO_A_REUSABLE_VALUE_LIST;
                 case "Cos": return NativeFunction.MATH_COS;
                 case "CurrentTimeSeconds": return NativeFunction.CURRENT_TIME_SECONDS;
                 case "EmitComment": return NativeFunction.EMIT_COMMENT;
-                case "EnqueueVmResume": return NativeFunction.ENQUEUE_VM_RESUME;
                 case "FloatBuffer16": return NativeFunction.FLOAT_BUFFER_16;
                 case "FloatDivision": return NativeFunction.FLOAT_DIVISION;
                 case "FloatToString": return NativeFunction.FLOAT_TO_STRING;
                 case "ForceParens": return NativeFunction.FORCE_PARENS;
-                case "GetProgramData": return NativeFunction.GET_PROGRAM_DATA;
-                case "GetResourceManifest": return NativeFunction.GET_RESOURCE_MANIFEST;
                 case "Int": return NativeFunction.INT;
                 case "IntBuffer16": return NativeFunction.INT_BUFFER_16;
                 case "IntegerDivision": return NativeFunction.INTEGER_DIVISION;
                 case "IntToString": return NativeFunction.INT_TO_STRING;
-                case "InvokeDynamicLibraryFunction": return NativeFunction.INVOKE_DYNAMIC_LIBRARY_FUNCTION;
                 case "IsDebug": return NativeFunction.IS_DEBUG;
                 case "IsValidInteger": return NativeFunction.IS_VALID_INTEGER;
                 case "ListConcat": return NativeFunction.LIST_CONCAT;
@@ -140,10 +135,6 @@ namespace Pastel.ParseNodes
                 case "PrintStdErr": return NativeFunction.PRINT_STDERR;
                 case "PrintStdOut": return NativeFunction.PRINT_STDOUT;
                 case "RandomFloat": return NativeFunction.RANDOM_FLOAT;
-                case "ReadByteCodeFile": return NativeFunction.READ_BYTE_CODE_FILE;
-                case "RegisterLibraryFunction": return NativeFunction.REGISTER_LIBRARY_FUNCTION;
-                case "ReadResourceTextFile": return NativeFunction.RESOURCE_READ_TEXT_FILE;
-                case "SetProgramData": return NativeFunction.SET_PROGRAM_DATA;
                 case "Sin": return NativeFunction.MATH_SIN;
                 case "StringAppend": return NativeFunction.STRING_APPEND;
                 case "StringBuffer16": return NativeFunction.STRING_BUFFER_16;
@@ -155,9 +146,6 @@ namespace Pastel.ParseNodes
                 case "Tan": return NativeFunction.MATH_TAN;
                 case "ThreadSleep": return NativeFunction.THREAD_SLEEP;
                 case "TryParseFloat": return NativeFunction.TRY_PARSE_FLOAT;
-                case "VmDetermineLibraryAvailability": return NativeFunction.VM_DETERMINE_LIBRARY_AVAILABILITY;
-                case "VmEndProcess": return NativeFunction.VM_END_PROCESS;
-                case "VmRunLibraryManifest": return NativeFunction.VM_RUN_LIBRARY_MANIFEST;
 
                 // TODO: get this information from the parameter rather than having separate Core function
                 case "SortedCopyOfStringArray": return NativeFunction.SORTED_COPY_OF_STRING_ARRAY;

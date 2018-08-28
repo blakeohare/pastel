@@ -237,7 +237,6 @@ namespace Pastel.Transpilers
                 case NativeFunction.BASE64_TO_STRING: this.TranslateBase64ToString(sb, args[0]); break;
                 case NativeFunction.CHAR_TO_STRING: this.TranslateCharToString(sb, args[0]); break;
                 case NativeFunction.CHR: this.TranslateChr(sb, args[0]); break;
-                case NativeFunction.COMMAND_LINE_ARGS: this.TranslateCommandLineArgs(sb); break;
                 case NativeFunction.CONVERT_RAW_DICTIONARY_VALUE_COLLECTION_TO_A_REUSABLE_VALUE_LIST: this.TranslateConvertRawDictionaryValueCollectionToAReusableValueList(sb, args[0]); break;
                 case NativeFunction.CURRENT_TIME_SECONDS: this.TranslateCurrentTimeSeconds(sb); break;
                 case NativeFunction.DICTIONARY_CONTAINS_KEY: this.TranslateDictionaryContainsKey(sb, args[0], args[1]); break;
@@ -251,18 +250,14 @@ namespace Pastel.Transpilers
                 case NativeFunction.DICTIONARY_VALUES: this.TranslateDictionaryValues(sb, args[0]); break;
                 case NativeFunction.DICTIONARY_VALUES_TO_VALUE_LIST: this.TranslateDictionaryValues(sb, args[0]); break;
                 case NativeFunction.EMIT_COMMENT: this.TranslateEmitComment(sb, ((InlineConstant)args[0]).Value.ToString()); break;
-                case NativeFunction.ENQUEUE_VM_RESUME: this.TranslateVmEnqueueResume(sb, args[0], args[1]); break;
                 case NativeFunction.FLOAT_BUFFER_16: this.TranslateFloatBuffer16(sb); break;
                 case NativeFunction.FLOAT_DIVISION: this.TranslateFloatDivision(sb, args[0], args[1]); break;
                 case NativeFunction.FLOAT_TO_STRING: this.TranslateFloatToString(sb, args[0]); break;
                 case NativeFunction.FREE: this.TranslateFree(sb, args[0]); break;
-                case NativeFunction.GET_PROGRAM_DATA: this.TranslateGetProgramData(sb); break;
-                case NativeFunction.GET_RESOURCE_MANIFEST: this.TranslateGetResourceManifest(sb); break;
                 case NativeFunction.INT: this.TranslateFloatToInt(sb, args[0]); break;
                 case NativeFunction.INT_BUFFER_16: this.TranslateIntBuffer16(sb); break;
                 case NativeFunction.INT_TO_STRING: this.TranslateIntToString(sb, args[0]); break;
                 case NativeFunction.INTEGER_DIVISION: this.TranslateIntegerDivision(sb, args[0], args[1]); break;
-                case NativeFunction.INVOKE_DYNAMIC_LIBRARY_FUNCTION: this.TranslateInvokeDynamicLibraryFunction(sb, args[0], args[1]); break;
                 case NativeFunction.IS_VALID_INTEGER: this.TranslateIsValidInteger(sb, args[0]); break;
                 case NativeFunction.LIST_ADD: this.TranslateListAdd(sb, args[0], args[1]); break;
                 case NativeFunction.LIST_CLEAR: this.TranslateListClear(sb, args[0]); break;
@@ -295,10 +290,6 @@ namespace Pastel.Transpilers
                 case NativeFunction.PRINT_STDERR: this.TranslatePrintStdErr(sb, args[0]); break;
                 case NativeFunction.PRINT_STDOUT: this.TranslatePrintStdOut(sb, args[0]); break;
                 case NativeFunction.RANDOM_FLOAT: this.TranslateRandomFloat(sb); break;
-                case NativeFunction.READ_BYTE_CODE_FILE: this.TranslateReadByteCodeFile(sb); break;
-                case NativeFunction.REGISTER_LIBRARY_FUNCTION: this.TranslateRegisterLibraryFunction(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.RESOURCE_READ_TEXT_FILE: this.TranslateResourceReadTextFile(sb, args[0]); break;
-                case NativeFunction.SET_PROGRAM_DATA: this.TranslateSetProgramData(sb, args[0]); break;
                 case NativeFunction.SORTED_COPY_OF_INT_ARRAY: this.TranslateSortedCopyOfIntArray(sb, args[0]); break;
                 case NativeFunction.SORTED_COPY_OF_STRING_ARRAY: this.TranslateSortedCopyOfStringArray(sb, args[0]); break;
                 case NativeFunction.STRING_APPEND: this.TranslateStringAppend(sb, args[0], args[1]); break;
@@ -327,14 +318,11 @@ namespace Pastel.Transpilers
                 case NativeFunction.STRONG_REFERENCE_EQUALITY: this.TranslateStrongReferenceEquality(sb, args[0], args[1]); break;
                 case NativeFunction.THREAD_SLEEP: this.TranslateThreadSleep(sb, args[0]); break;
                 case NativeFunction.TRY_PARSE_FLOAT: this.TranslateTryParseFloat(sb, args[0], args[1]); break;
-                case NativeFunction.VM_DETERMINE_LIBRARY_AVAILABILITY: this.TranslateVmDetermineLibraryAvailability(sb, args[0], args[1]); break;
-                case NativeFunction.VM_END_PROCESS: this.TranslateVmEndProcess(sb); break;
-                case NativeFunction.VM_RUN_LIBRARY_MANIFEST: this.TranslateVmRunLibraryManifest(sb, args[0], args[1]); break;
 
                 default: throw new NotImplementedException(nativeFuncInvocation.Function.ToString());
             }
         }
-        
+
         public void TranslateCommaDelimitedExpressions(TranspilerContext sb, IList<Expression> expressions)
         {
             for (int i = 0; i < expressions.Count; ++i)
@@ -362,7 +350,6 @@ namespace Pastel.Transpilers
         public abstract void TranslateCharConstant(TranspilerContext sb, char value);
         public abstract void TranslateCharToString(TranspilerContext sb, Expression charValue);
         public abstract void TranslateChr(TranspilerContext sb, Expression charCode);
-        public abstract void TranslateCommandLineArgs(TranspilerContext sb);
         public abstract void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef);
         public abstract void TranslateConvertRawDictionaryValueCollectionToAReusableValueList(TranspilerContext sb, Expression dictionary);
         public abstract void TranslateCurrentTimeSeconds(TranspilerContext sb);
@@ -387,8 +374,6 @@ namespace Pastel.Transpilers
         public abstract void TranslateFunctionInvocationInterpreterScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
         public abstract void TranslateFunctionInvocationLocallyScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
         public abstract void TranslateFunctionReference(TranspilerContext sb, FunctionReference funcRef);
-        public abstract void TranslateGetProgramData(TranspilerContext sb);
-        public abstract void TranslateGetResourceManifest(TranspilerContext sb);
         public abstract void TranslateGlobalVariable(TranspilerContext sb, Variable variable);
         public abstract void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement);
         public abstract void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition);
@@ -396,7 +381,6 @@ namespace Pastel.Transpilers
         public abstract void TranslateIntegerConstant(TranspilerContext sb, int value);
         public abstract void TranslateIntegerDivision(TranspilerContext sb, Expression integerNumerator, Expression integerDenominator);
         public abstract void TranslateIntToString(TranspilerContext sb, Expression integer);
-        public abstract void TranslateInvokeDynamicLibraryFunction(TranspilerContext sb, Expression functionId, Expression argsArray);
         public abstract void TranslateIsValidInteger(TranspilerContext sb, Expression stringValue);
         public abstract void TranslateListAdd(TranspilerContext sb, Expression list, Expression item);
         public abstract void TranslateListClear(TranspilerContext sb, Expression list);
@@ -432,11 +416,7 @@ namespace Pastel.Transpilers
         public abstract void TranslatePrintStdErr(TranspilerContext sb, Expression value);
         public abstract void TranslatePrintStdOut(TranspilerContext sb, Expression value);
         public abstract void TranslateRandomFloat(TranspilerContext sb);
-        public abstract void TranslateReadByteCodeFile(TranspilerContext sb);
-        public abstract void TranslateRegisterLibraryFunction(TranspilerContext sb, Expression libRegObj, Expression functionName, Expression functionArgCount);
-        public abstract void TranslateResourceReadTextFile(TranspilerContext sb, Expression path);
         public abstract void TranslateReturnStatemnt(TranspilerContext sb, ReturnStatement returnStatement);
-        public abstract void TranslateSetProgramData(TranspilerContext sb, Expression programData);
         public abstract void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray);
         public abstract void TranslateSortedCopyOfStringArray(TranspilerContext sb, Expression stringArray);
         public abstract void TranslateStringAppend(TranspilerContext sb, Expression str1, Expression str2);
@@ -472,10 +452,6 @@ namespace Pastel.Transpilers
         public abstract void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement);
         public abstract void TranslateVariable(TranspilerContext sb, Variable variable);
         public abstract void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl);
-        public abstract void TranslateVmDetermineLibraryAvailability(TranspilerContext sb, Expression libraryName, Expression libraryVersion);
-        public abstract void TranslateVmEndProcess(TranspilerContext sb);
-        public abstract void TranslateVmEnqueueResume(TranspilerContext sb, Expression seconds, Expression executionContextId);
-        public abstract void TranslateVmRunLibraryManifest(TranspilerContext sb, Expression libraryName, Expression libRegObj);
         public abstract void TranslateWhileLoop(TranspilerContext sb, WhileLoop whileLoop);
 
         public abstract void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef);

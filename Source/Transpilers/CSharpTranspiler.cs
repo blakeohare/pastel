@@ -370,21 +370,6 @@ namespace Pastel.Transpilers
             throw new NotImplementedException();
         }
 
-        public override void TranslateCommandLineArgs(TranspilerContext sb)
-        {
-            sb.Append("TranslationHelper.CommandLineArgs");
-        }
-
-        public override void TranslateGetProgramData(TranspilerContext sb)
-        {
-            sb.Append("TranslationHelper.ProgramData");
-        }
-
-        public override void TranslateGetResourceManifest(TranspilerContext sb)
-        {
-            sb.Append("TranslationHelper.ResourceManifest");
-        }
-
         public override void TranslateGlobalVariable(TranspilerContext sb, Variable variable)
         {
             sb.Append("Globals.");
@@ -416,15 +401,6 @@ namespace Pastel.Transpilers
         {
             sb.Append("CrayonWrapper.");
             base.TranslateFunctionInvocationInterpreterScoped(sb, funcRef, args);
-        }
-
-        public override void TranslateInvokeDynamicLibraryFunction(TranspilerContext sb, Expression functionId, Expression argsArray)
-        {
-            sb.Append("TranslationHelper.InvokeDynamicLibraryFunction(");
-            this.TranslateExpression(sb, functionId);
-            sb.Append(", ");
-            this.TranslateExpression(sb, argsArray);
-            sb.Append(")");
         }
 
         public override void TranslateIsValidInteger(TranspilerContext sb, Expression stringValue)
@@ -659,35 +635,6 @@ namespace Pastel.Transpilers
         public override void TranslateRandomFloat(TranspilerContext sb)
         {
             sb.Append("TranslationHelper.Random.NextDouble()");
-        }
-
-        public override void TranslateReadByteCodeFile(TranspilerContext sb)
-        {
-            sb.Append("TranslationHelper.ByteCode");
-        }
-
-        public override void TranslateRegisterLibraryFunction(TranspilerContext sb, Expression libRegObj, Expression functionName, Expression functionArgCount)
-        {
-            sb.Append("TranslationHelper.RegisterLibraryFunction(typeof(LibraryWrapper), ");
-            this.TranslateExpression(sb, libRegObj);
-            sb.Append(", ");
-            this.TranslateExpression(sb, functionName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, functionArgCount);
-            sb.Append(')');
-        }
-
-        public override void TranslateResourceReadTextFile(TranspilerContext sb, Expression path)
-        {
-            sb.Append("ResourceReader.ReadTextResource(");
-            this.TranslateExpression(sb, path);
-            sb.Append(")");
-        }
-
-        public override void TranslateSetProgramData(TranspilerContext sb, Expression programData)
-        {
-            sb.Append("TranslationHelper.ProgramData = ");
-            this.TranslateExpression(sb, programData);
         }
 
         public override void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray)
@@ -932,34 +879,6 @@ namespace Pastel.Transpilers
                 this.TranslateExpression(sb, varDecl.Value);
             }
             sb.Append(';').AppendNL();
-        }
-
-        public override void TranslateVmDetermineLibraryAvailability(TranspilerContext sb, Expression libraryName, Expression libraryVersion)
-        {
-            sb.Append("TranslationHelper.VmDetermineLibraryAvailability(");
-            this.TranslateExpression(sb, libraryName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, libraryVersion);
-            sb.Append(')');
-        }
-
-        public override void TranslateVmEnqueueResume(TranspilerContext sb, Expression seconds, Expression executionContextId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void TranslateVmEndProcess(TranspilerContext sb)
-        {
-            // Not needed. C# Finishes cleanly on all current platforms.
-        }
-
-        public override void TranslateVmRunLibraryManifest(TranspilerContext sb, Expression libraryName, Expression libRegObj)
-        {
-            sb.Append("TranslationHelper.VmRunLibraryManifest(");
-            this.TranslateExpression(sb, libraryName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, libRegObj);
-            sb.Append(')');
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

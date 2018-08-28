@@ -113,18 +113,13 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
-        public override void TranslateCommandLineArgs(TranspilerContext sb)
-        {
-            sb.Append("C$common$commandLineArgs");
-        }
-
         public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef)
         {
             sb.Append('{');
-            
+
             Expression[] args = constructorInvocation.Args;
             Token[] argNames = structDef.ArgNames;
-            
+
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
@@ -249,16 +244,6 @@ namespace Pastel.Transpilers
             throw new NotImplementedException();
         }
 
-        public override void TranslateGetProgramData(TranspilerContext sb)
-        {
-            sb.Append("C$common$programData");
-        }
-
-        public override void TranslateGetResourceManifest(TranspilerContext sb)
-        {
-            sb.Append("C$common$resourceManifest");
-        }
-
         public override void TranslateGlobalVariable(TranspilerContext sb, Variable variable)
         {
             sb.Append(variable.Name);
@@ -282,14 +267,6 @@ namespace Pastel.Transpilers
         {
             sb.Append("('' + ");
             this.TranslateExpression(sb, integer);
-            sb.Append(')');
-        }
-
-        public override void TranslateInvokeDynamicLibraryFunction(TranspilerContext sb, Expression functionId, Expression argsArray)
-        {
-            this.TranslateExpression(sb, functionId);
-            sb.Append('(');
-            this.TranslateExpression(sb, argsArray);
             sb.Append(')');
         }
 
@@ -528,37 +505,6 @@ namespace Pastel.Transpilers
         public override void TranslateRandomFloat(TranspilerContext sb)
         {
             sb.Append("Math.random()");
-        }
-
-        public override void TranslateReadByteCodeFile(TranspilerContext sb)
-        {
-            sb.Append("C$bytecode");
-        }
-
-        public override void TranslateRegisterLibraryFunction(TranspilerContext sb, Expression libRegObj, Expression functionName, Expression functionArgCount)
-        {
-            sb.Append("C$common$registerLibraryFunction('");
-            sb.Append(sb.UniquePrefixForNonCollisions);
-            sb.Append("', ");
-            this.TranslateExpression(sb, libRegObj);
-            sb.Append(", ");
-            this.TranslateExpression(sb, functionName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, functionArgCount);
-            sb.Append(')');
-        }
-
-        public override void TranslateResourceReadTextFile(TranspilerContext sb, Expression path)
-        {
-            sb.Append("C$common$readResourceText(");
-            this.TranslateExpression(sb, path);
-            sb.Append(')');
-        }
-
-        public override void TranslateSetProgramData(TranspilerContext sb, Expression programData)
-        {
-            sb.Append("C$common$programData = ");
-            this.TranslateExpression(sb, programData);
         }
 
         public override void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray)
@@ -809,38 +755,6 @@ namespace Pastel.Transpilers
             }
             sb.Append(';');
             sb.Append(this.NewLine);
-        }
-
-        public override void TranslateVmDetermineLibraryAvailability(TranspilerContext sb, Expression libraryName, Expression libraryVersion)
-        {
-            sb.Append("C$common$determineLibraryAvailability(");
-            this.TranslateExpression(sb, libraryName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, libraryVersion);
-            sb.Append(')');
-        }
-
-        public override void TranslateVmEnqueueResume(TranspilerContext sb, Expression seconds, Expression executionContextId)
-        {
-            sb.Append("C$common$enqueueVmResume(");
-            this.TranslateExpression(sb, seconds);
-            sb.Append(", ");
-            this.TranslateExpression(sb, executionContextId);
-            sb.Append(')');
-        }
-
-        public override void TranslateVmEndProcess(TranspilerContext sb)
-        {
-            // Specific app-like JS platforms can override.
-        }
-
-        public override void TranslateVmRunLibraryManifest(TranspilerContext sb, Expression libraryName, Expression libRegObj)
-        {
-            sb.Append("C$common$runLibraryManifest(");
-            this.TranslateExpression(sb, libraryName);
-            sb.Append(", ");
-            this.TranslateExpression(sb, libRegObj);
-            sb.Append(')');
         }
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef)
