@@ -59,7 +59,24 @@ namespace Pastel
 
         public static string ConvertStringValueToCode(string value)
         {
-            throw new System.Exception("Not implemented."); // also, you should take in the quote type as a parameter as well.
+            StringBuilder sb = new StringBuilder();
+            sb.Append('"');
+            for (int i = 0; i < value.Length; ++i)
+            {
+                char c = value[i];
+                switch (c)
+                {
+                    case '"': sb.Append("\\\""); break;
+                    case '\t': sb.Append("\\t"); break;
+                    case '\n': sb.Append("\\n"); break;
+                    case '\0': sb.Append("\\0"); break;
+                    case '\r': sb.Append("\\r"); break;
+                    case '\\': sb.Append("\\\\"); break;
+                    default: sb.Append(c); break;
+                }
+            }
+            sb.Append('"');
+            return sb.ToString();
         }
 
         public static string FloatToString(double value)

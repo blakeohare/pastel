@@ -197,7 +197,7 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, value);
         }
 
-        public override void TranslateDictionarySize(TranspilerContext sb, Expression dictionary)
+        public override void TranslateDictionaryLength(TranspilerContext sb, Expression dictionary)
         {
             sb.Append("Object.keys(");
             this.TranslateExpression(sb, dictionary);
@@ -396,7 +396,7 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
-        public override void TranslateListSize(TranspilerContext sb, Expression list)
+        public override void TranslateListLength(TranspilerContext sb, Expression list)
         {
             this.TranslateExpression(sb, list);
             sb.Append(".length");

@@ -179,9 +179,9 @@ namespace Pastel.ParseNodes
                         case "Contains": return NativeFunction.STRING_CONTAINS;
                         case "EndsWith": return NativeFunction.STRING_ENDS_WITH;
                         case "IndexOf": return NativeFunction.STRING_INDEX_OF;
+                        case "Length": return NativeFunction.STRING_LENGTH;
                         case "Replace": return NativeFunction.STRING_REPLACE;
                         case "Reverse": return NativeFunction.STRING_REVERSE;
-                        case "Size": return NativeFunction.STRING_LENGTH;
                         case "Split": return NativeFunction.STRING_SPLIT;
                         case "StartsWith": return NativeFunction.STRING_STARTS_WITH;
                         case "SubString": return NativeFunction.STRING_SUBSTRING;
@@ -198,7 +198,7 @@ namespace Pastel.ParseNodes
                     switch (field)
                     {
                         case "Join": return NativeFunction.ARRAY_JOIN;
-                        case "Size": return NativeFunction.ARRAY_LENGTH;
+                        case "Length": return NativeFunction.ARRAY_LENGTH;
                         default: throw new ParserException(this.FieldName, "Unresolved Array method: " + field);
                     }
 
@@ -221,7 +221,7 @@ namespace Pastel.ParseNodes
                         case "RemoveAt": return NativeFunction.LIST_REMOVE_AT;
                         case "Reverse": return NativeFunction.LIST_REVERSE;
                         case "Shuffle": return NativeFunction.LIST_SHUFFLE;
-                        case "Size": return NativeFunction.LIST_SIZE;
+                        case "Length": return NativeFunction.LIST_LENGTH;
                         default: throw new ParserException(this.FieldName, "Unresolved List method: " + field);
                     }
 
@@ -231,7 +231,7 @@ namespace Pastel.ParseNodes
                         case "Contains": return NativeFunction.DICTIONARY_CONTAINS_KEY;
                         case "Keys": return NativeFunction.DICTIONARY_KEYS;
                         case "Remove": return NativeFunction.DICTIONARY_REMOVE;
-                        case "Size": return NativeFunction.DICTIONARY_SIZE;
+                        case "Length": return NativeFunction.DICTIONARY_LENGTH;
                         case "Values": return NativeFunction.DICTIONARY_VALUES;
                         default: throw new ParserException(this.FieldName, "Unresolved Dictionary method: " + field);
                     }
