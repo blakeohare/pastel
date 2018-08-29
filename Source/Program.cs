@@ -8,18 +8,35 @@ namespace Pastel
     {
         static void Main(string[] args)
         {
-            List<string[]> argSet = new List<string[]>() { args };
-#if DEBUG
-            // Various test projects
-            argSet.Clear();
-            argSet.AddRange(new string[] {
-                @"C:\Things\Pastel\Samples\ListAnalyzer\ListAnalyzer.json",
-            }.Select(a => new string[] { a }));
-#endif
-            foreach (string[] a in argSet)
+            foreach (string[] a in GetArgs(args))
             {
                 RunPastel(a);
             }
+        }
+
+        private static List<string[]> GetArgs(string[] commandLineArgs)
+        {
+            List<string[]> output = new List<string[]>() { commandLineArgs };
+#if DEBUG
+            string pastelHome = System.Environment.GetEnvironmentVariable("PASTEL_HOME");
+            if (pastelHome != null)
+            {
+                string debugArgsPath = System.IO.Path.Combine(pastelHome, "DEBUG.txt");
+                if (System.IO.File.Exists(debugArgsPath))
+                {
+                    output.Clear();
+                    foreach (string debugArgs in System.IO.File.ReadAllLines(debugArgsPath))
+                    {
+                        string line = debugArgs.Trim();
+                        if (line.Length > 0 && line[0] != '#')
+                        {
+                            output.Add(line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                        }
+                    }
+                }
+            }
+#endif
+            return output;
         }
 
         private static void RunPastel(string[] args)
