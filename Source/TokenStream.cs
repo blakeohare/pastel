@@ -54,13 +54,14 @@ namespace Pastel
             private string originalContents;
             private Token[] tokens;
             private int length;
-            public int Index { get; set; } = 0;
+            public int Index { get; set; }
             private bool enableMultiCharTokens = true;
             private Token cachedToken = null;
 
             public AggregatingTokenStream(string filename, string contents, IList<Token> tokens)
             {
                 this.tokens = tokens.ToArray();
+                this.Index = 0;
                 this.length = this.tokens.Length;
                 this.Filename = filename;
                 this.originalContents = contents;
