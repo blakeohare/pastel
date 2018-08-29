@@ -8,16 +8,23 @@ namespace Pastel
     {
         static void Main(string[] args)
         {
-            string[] effectiveArgs = args;
-
+            List<string[]> argSet = new List<string[]>() { args };
 #if DEBUG
-            effectiveArgs = new string[] {
-                //@"C:\Things\Pastel\Samples\ListAnalyzer\ListAnalyzer.json",
-                @"C:\Things\MPlex\libs\Diff\Pastel\Diff.json"
-            };
+            // Various test projects
+            argSet.Clear();
+            argSet.AddRange(new string[] {
+                @"C:\Things\Pastel\Samples\ListAnalyzer\ListAnalyzer.json",
+            }.Select(a => new string[] { a }));
 #endif
+            foreach (string[] a in argSet)
+            {
+                RunPastel(a);
+            }
+        }
 
-            string manifestPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), effectiveArgs[0]);
+        private static void RunPastel(string[] args)
+        {
+            string manifestPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), args[0]);
             manifestPath = System.IO.Path.GetFullPath(manifestPath);
             string projectRoot = System.IO.Path.GetDirectoryName(manifestPath);
 
