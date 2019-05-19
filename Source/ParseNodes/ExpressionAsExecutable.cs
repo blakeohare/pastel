@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class ExpressionAsExecutable : Executable
     {
@@ -11,7 +11,7 @@ namespace Pastel.ParseNodes
             this.Expression = expression;
         }
 
-        internal Executable[] ImmediateResolveMaybe(Parser parser)
+        internal Executable[] ImmediateResolveMaybe(PastelParser parser)
         {
             if (this.Expression is FunctionInvocation)
             {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class OpChain : Expression
     {
@@ -11,7 +11,7 @@ namespace Pastel.ParseNodes
 
         public OpChain(
             IList<Expression> expressions,
-            IList<Token> ops) : base(expressions[0].FirstToken)
+            IList<Token> ops) : base(expressions[0].FirstToken, expressions[0].Owner)
         {
             this.Expressions = expressions.ToArray();
             this.Ops = ops.ToArray();
@@ -39,13 +39,13 @@ namespace Pastel.ParseNodes
                 switch (lookup)
                 {
                     case "int+int":
-                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value + (int)next.Value);
+                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value + (int)next.Value, next.Owner);
                         break;
                     case "int-int":
-                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value - (int)next.Value);
+                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value - (int)next.Value, next.Owner);
                         break;
                     case "int*int":
-                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value * (int)next.Value);
+                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value * (int)next.Value, next.Owner);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -210,27 +210,43 @@ namespace Pastel.ParseNodes
                 left = this.Expressions[0] as InlineConstant;
                 right = this.Expressions[1] as InlineConstant;
             }
+
+            // TODO(pastel-split): This is just a quick and dirty short-circuit logic for && and ||
+            // Do full logic later. Currently this is causing problems in specific snippets in Crayon libraries.
+            string opValue = this.Ops[0].Value;
+            if (left != null)
+            {
+                if (opValue == "&&" && left.Value is bool)
+                {
+                    return (bool)left.Value ? (Expression)this : left;
+                }
+                if (opValue == "||" && left.Value is bool)
+                {
+                    return (bool)left.Value ? left : (Expression)this;
+                }
+            }
+
             return this;
         }
 
         private InlineConstant CreateBoolean(Token originalFirstToken, bool value)
         {
-            return new InlineConstant(PType.BOOL, originalFirstToken, value) { ResolvedType = PType.BOOL };
+            return new InlineConstant(PType.BOOL, originalFirstToken, value, this.Owner) { ResolvedType = PType.BOOL };
         }
 
         private InlineConstant CreateInteger(Token originalFirstToken, int value)
         {
-            return new InlineConstant(PType.INT, originalFirstToken, value) { ResolvedType = PType.INT };
+            return new InlineConstant(PType.INT, originalFirstToken, value, this.Owner) { ResolvedType = PType.INT };
         }
 
         private InlineConstant CreateFloat(Token originalFirstToken, double value)
         {
-            return new InlineConstant(PType.DOUBLE, originalFirstToken, value) { ResolvedType = PType.DOUBLE };
+            return new InlineConstant(PType.DOUBLE, originalFirstToken, value, this.Owner) { ResolvedType = PType.DOUBLE };
         }
 
         private InlineConstant CreateString(Token originalFirstToken, string value)
         {
-            return new InlineConstant(PType.STRING, originalFirstToken, value) { ResolvedType = PType.STRING };
+            return new InlineConstant(PType.STRING, originalFirstToken, value, this.Owner) { ResolvedType = PType.STRING };
         }
     }
 }

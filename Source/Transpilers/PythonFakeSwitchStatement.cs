@@ -1,4 +1,4 @@
-﻿using Pastel.ParseNodes;
+﻿using Pastel.Nodes;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,7 +15,7 @@ namespace Pastel.Transpilers
 
         For every single switch statement that is translated in Python, there is a dictionary
         that is serialized after the function definition. This dictionary has the following name format:
-        "swlookup__{function name without 'v_'}__{number that is allocated starting from 1 on a per function basis}"
+        "swlookup__{function name}__{number that is allocated starting from 1 on a per function basis}"
 
         In the actual code, the switch statement is serialized as a lookup in that dictionary with a .get
         The value that is looked up is the switch condition value and the default fallback value is the code chunk ID of the default.
@@ -28,6 +28,7 @@ namespace Pastel.Transpilers
     {
         private string functionName;
         private int switchId;
+        private ICompilationEntity owner;
         private Dictionary<InlineConstant, int> expressionsToChunkIds;
         private Dictionary<int, Executable[]> chunkIdsToCode;
 
@@ -61,6 +62,7 @@ namespace Pastel.Transpilers
 
         public static PythonFakeSwitchStatement Build(SwitchStatement switchStatement, int switchId, string functionName)
         {
+            ICompilationEntity owner = switchStatement.Condition.Owner;
             Dictionary<InlineConstant, int> expressionToId = new Dictionary<InlineConstant, int>();
             Dictionary<int, Executable[]> codeById = new Dictionary<int, Executable[]>();
             int? nullableDefaultId = null;
@@ -102,7 +104,7 @@ namespace Pastel.Transpilers
                 codeById[defaultId] = new Executable[0];
             }
 
-            return new PythonFakeSwitchStatement(functionName, switchId, defaultId, expressionToId, codeById);
+            return new PythonFakeSwitchStatement(functionName, switchId, defaultId, expressionToId, codeById, owner);
         }
 
         private PythonFakeSwitchStatement(
@@ -110,8 +112,10 @@ namespace Pastel.Transpilers
             int switchId,
             int defaultChunkId,
             Dictionary<InlineConstant, int> expressionsToChunkIds,
-            Dictionary<int, Executable[]> chunkIdsToCode)
+            Dictionary<int, Executable[]> chunkIdsToCode,
+            ICompilationEntity owner)
         {
+            this.owner = owner;
             this.functionName = functionName;
             this.switchId = switchId;
             this.DefaultId = defaultChunkId;
@@ -146,7 +150,7 @@ namespace Pastel.Transpilers
                 }
                 else
                 {
-                    dictionaryBuilder.Append(Util.ConvertStringValueToCode((string)ic.Value));
+                    dictionaryBuilder.Append(PastelUtil.ConvertStringValueToCode((string)ic.Value));
                 }
                 dictionaryBuilder.Append(": ");
                 dictionaryBuilder.Append(this.expressionsToChunkIds[ic]);
@@ -208,17 +212,16 @@ namespace Pastel.Transpilers
 
         private IfStatement BuildIfStatement(int id, string op, Executable[] trueCode, Executable[] falseCode)
         {
-            Token nearbyToken = trueCode[0].FirstToken;
-            Token equalsToken = TokenStream.CreateDummyToken(nearbyToken, op);
-            Variable variable = new Variable(TokenStream.CreateDummyToken(nearbyToken, this.ConditionVariableName));
+            Token equalsToken = Token.CreateDummyToken(op);
+            Variable variable = new Variable(Token.CreateDummyToken(this.ConditionVariableName), this.owner);
             variable.ApplyPrefix = false;
-            Expression condition = new OpChain(new Expression[] { variable, InlineConstant.Of(nearbyToken, id) }, new Pastel.Token[] { equalsToken });
+            Expression condition = new OpChain(new Expression[] { variable, InlineConstant.Of(id, this.owner) }, new Token[] { equalsToken });
 
             return new IfStatement(
-                TokenStream.CreateDummyToken(nearbyToken, "if"),
+                Token.CreateDummyToken("if"),
                 condition,
                 TrimBreak(trueCode),
-                TokenStream.CreateDummyToken(nearbyToken, "else"),
+                Token.CreateDummyToken("else"),
                 TrimBreak(falseCode));
         }
 

@@ -1,234 +1,189 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace Pastel
 {
-    internal class Tokenizer
+    internal static class Tokenizer
     {
-        private readonly string content;
-        private readonly string filename;
-        private readonly int length;
-        private readonly int[] lines;
-        private readonly int[] columns;
-        private readonly List<Token> tokenBuilder = new List<Token>();
+        private static readonly HashSet<string> TWO_CHAR_TOKENS = new HashSet<string>(
+            "++ -- == != <= >= && || += -= *= /= %= &= |= ^=".Split(' '));
+        private static readonly HashSet<char> IDENTIFIER_CHARS = new HashSet<char>("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_".ToCharArray());
+        private static readonly HashSet<char> WHITESPACE = new HashSet<char>(" \r\n\t".ToCharArray());
 
-        private static readonly HashSet<char> ALPHANUMERIC_CHARS;
-
-        static Tokenizer()
+        public static Token[] Tokenize(string filename, string code)
         {
-            ALPHANUMERIC_CHARS = new HashSet<char>() { '_' };
-            for (int i = 0; i < 26; ++i)
-            {
-                ALPHANUMERIC_CHARS.Add((char)('a' + i));
-                ALPHANUMERIC_CHARS.Add((char)('A' + i));
-                if (i < 10) ALPHANUMERIC_CHARS.Add((char)('0' + i));
-            }
-        }
+            code += '\n';
+            code += '\0';
 
-        public Tokenizer(string file, string content)
-        {
-            // Adding a dummy \n to the end of the file allows for simpler code
-            // - index + 1 can generally be blindly checked, without checking bounds
-            // - last line comments will get closed
-            // - non-alphanumeric character guarantees that the alphanumeric end will get triggered
-            this.content = content + "\n";
-            this.filename = file;
-            this.length = this.content.Length;
-            this.lines = new int[length];
-            this.columns = new int[length];
-            int line = 1;
-            int column = 1;
-            for (int i = 0; i < this.length; ++i)
+            int[] lineByIndex = new int[code.Length];
+            int[] colByIndex = new int[code.Length];
+            char c;
+            int line = 0;
+            int col = 0;
+            for (int i = 0; i < code.Length; ++i)
             {
-                lines[i] = line;
-                columns[i] = column;
-                char c = this.content[i];
+                c = code[i];
+                lineByIndex[i] = line;
+                colByIndex[i] = col;
                 if (c == '\n')
                 {
-                    line++;
-                    column = 1;
+                    ++line;
+                    col = -1;
+                }
+
+                ++col;
+            }
+
+            List<Token> tokens = new List<Token>();
+
+            string commentType = null;
+            string stringType = null;
+            StringBuilder stringToken = null;
+            string normalToken = null;
+            int stringStart = 0;
+            int normalStart = 0;
+
+            bool previousIsWhitespace = false;
+            bool tokenStartHasPreviousWhitespace = false;
+
+            string c2;
+            int length = code.Length;
+            for (int i = 0; i < length; ++i)
+            {
+                c = code[i];
+                c2 = (i >= (length - 1)) ? "" : ("" + c + code[i + 1]);
+
+                if (c == '\0' && i == length - 1)
+                {
+                    // Indicates the end of the stream. Throw an exception in cases where you left something lingering.
+                    if (commentType == "*") throw new ParserException(new Token("EOF", filename, lineByIndex[lineByIndex.Length - 1], colByIndex[colByIndex.Length - 1], false), "This file contains an unclosed comment somewhere.");
+                    if (stringType != null)
+                    {
+                        Token suspiciousToken = null;
+                        foreach (Token suspiciousCheck in tokens)
+                        {
+                            c = suspiciousCheck.Value[0];
+                            if (c == '"' || c == '\'')
+                            {
+                                if (suspiciousCheck.Value.Contains("\n"))
+                                {
+                                    suspiciousToken = suspiciousCheck;
+                                    break;
+                                }
+                            }
+                        }
+
+                        string unclosedStringError = "This file contains an unclosed string somewhere.";
+                        if (suspiciousToken != null)
+                        {
+                            unclosedStringError += " Line " + (suspiciousToken.Line + 1) + " is suspicious.";
+                        }
+                        throw new ParserException(new Token("EOF", filename, lineByIndex[lineByIndex.Length - 1], colByIndex[colByIndex.Length - 1], false), unclosedStringError);
+                    }
+                }
+
+                if (commentType == "/")
+                {
+                    if (c == '\n')
+                    {
+                        commentType = null;
+                    }
+                    previousIsWhitespace = true;
+                }
+                else if (commentType == "*")
+                {
+                    if (c2 == "*/")
+                    {
+                        commentType = null;
+                        ++i;
+                    }
+                    previousIsWhitespace = true;
+                }
+                else if (stringType != null)
+                {
+                    if (c == '\\')
+                    {
+                        stringToken.Append(c2);
+                        ++i;
+                    }
+                    else if (c == stringType[0])
+                    {
+                        stringToken.Append(c);
+                        stringType = null;
+                        tokens.Add(new Token(stringToken.ToString(), filename, lineByIndex[stringStart], colByIndex[stringStart], tokenStartHasPreviousWhitespace));
+                    }
+                    else
+                    {
+                        stringToken.Append(c);
+                    }
+                    previousIsWhitespace = false;
+                }
+                else if (normalToken != null)
+                {
+                    if (IDENTIFIER_CHARS.Contains(c))
+                    {
+                        normalToken += c;
+                    }
+                    else
+                    {
+                        tokens.Add(new Token(normalToken, filename, lineByIndex[normalStart], colByIndex[normalStart], tokenStartHasPreviousWhitespace));
+                        --i;
+                        normalToken = null;
+                    }
+                    previousIsWhitespace = false;
+                }
+                else if (TWO_CHAR_TOKENS.Contains(c2))
+                {
+                    tokens.Add(new Token(c2, filename, lineByIndex[i], colByIndex[i], previousIsWhitespace));
+                    ++i;
+                    previousIsWhitespace = false;
+                }
+                else if (WHITESPACE.Contains(c))
+                {
+                    previousIsWhitespace = true;
+                }
+                else if (c == '"')
+                {
+                    stringType = "\"";
+                    stringToken = new StringBuilder("" + stringType);
+                    stringStart = i;
+                    tokenStartHasPreviousWhitespace = previousIsWhitespace;
+                    previousIsWhitespace = false;
+                }
+                else if (c == '\'')
+                {
+                    stringType = "'";
+                    stringToken = new StringBuilder("" + stringType);
+                    stringStart = i;
+                    tokenStartHasPreviousWhitespace = previousIsWhitespace;
+                    previousIsWhitespace = false;
+                }
+                else if (IDENTIFIER_CHARS.Contains(c))
+                {
+                    normalToken = "" + c;
+                    normalStart = i;
+                    tokenStartHasPreviousWhitespace = previousIsWhitespace;
+                    previousIsWhitespace = false;
+                }
+                else if (c2 == "//")
+                {
+                    commentType = "/";
+                    i += 1;
+                }
+                else if (c2 == "/*")
+                {
+                    commentType = "*";
+                    i += 1;
                 }
                 else
                 {
-                    column++;
+                    tokens.Add(new Token("" + c, filename, lineByIndex[i], colByIndex[i], previousIsWhitespace));
+                    previousIsWhitespace = false;
                 }
             }
-            this.tokenBuilder = new List<Token>();
-        }
+            tokens.RemoveAt(tokens.Count - 1);
 
-        private enum State
-        {
-            NORMAL,
-            COMMENT_LINE,
-            COMMENT_MULTILINE,
-            STRING_SINGLE,
-            STRING_DOUBLE,
-            WORD
-        }
-
-        private void PushToken(int start, int length, TokenType type)
-        {
-            string value = this.content.Substring(start, length);
-            if (type == TokenType.ALPHANUMS)
-            {
-                char c = value[0];
-                if (c >= '0' && c <= '9')
-                {
-                    type = TokenType.NUMBER;
-                }
-            }
-            this.tokenBuilder.Add(new Token(this.filename, value, start, this.lines[start], this.columns[start], type));
-        }
-
-        private void PushToken(int index, TokenType type)
-        {
-            this.PushToken(index, 1, type);
-        }
-
-        public TokenStream Tokenize()
-        {
-            int tokenStart = 0;
-            State state = State.NORMAL;
-            char c;
-            for (int i = 0; i < length; ++i)
-            {
-                c = content[i];
-                switch (state)
-                {
-                    case State.NORMAL:
-                        switch (c)
-                        {
-                            case ' ':
-                            case '\t':
-                            case '\n':
-                            case '\r':
-                                break;
-
-                            case '"':
-                                tokenStart = i;
-                                state = State.STRING_DOUBLE;
-                                break;
-                            case '\'':
-                                tokenStart = i;
-                                state = State.STRING_SINGLE;
-                                break;
-
-                            case '/':
-                                if (i + 1 < length)
-                                {
-                                    c = content[i + 1];
-                                    if (c == '/')
-                                    {
-                                        state = State.COMMENT_LINE;
-                                    }
-                                    else if (c == '*')
-                                    {
-                                        state = State.COMMENT_MULTILINE;
-                                        i++;
-                                    }
-                                }
-                                if (state == State.NORMAL)
-                                {
-                                    this.PushToken(i, TokenType.PUNCTUATION);
-                                }
-                                break;
-
-                            default:
-                                if (ALPHANUMERIC_CHARS.Contains(c))
-                                {
-                                    tokenStart = i;
-                                    state = State.WORD;
-                                }
-                                else
-                                {
-                                    this.PushToken(i, TokenType.PUNCTUATION);
-                                }
-                                break;
-                        }
-                        break;
-
-                    case State.COMMENT_LINE:
-                        if (c == '\n')
-                        {
-                            state = State.NORMAL;
-                        }
-                        break;
-
-                    case State.COMMENT_MULTILINE:
-                        if (c == '*' && content[i + 1] == '/')
-                        {
-                            i++;
-                            state = State.NORMAL;
-                        }
-                        break;
-
-                    case State.STRING_DOUBLE:
-                    case State.STRING_SINGLE:
-                        if (c == '\\')
-                        {
-                            i++;
-                        }
-                        else if (c == (state == State.STRING_SINGLE ? '\'' : '"'))
-                        {
-                            this.PushToken(tokenStart, i - tokenStart + 1, TokenType.STRING);
-                            state = State.NORMAL;
-                        }
-                        break;
-
-                    case State.WORD:
-                        if (!ALPHANUMERIC_CHARS.Contains(c))
-                        {
-                            this.PushToken(tokenStart, i - tokenStart, TokenType.ALPHANUMS);
-                            --i;
-                            state = State.NORMAL;
-                        }
-                        break;
-
-                    default:
-                        throw new Exception();
-                }
-            }
-
-            // Convert all decimals into single tokens.
-            // The implementation here is a little cheesy. 
-            // Find all the '.' tokens and then consolidate numbers around them
-            for (int i = 0; i < this.tokenBuilder.Count; ++i)
-            {
-                Token token = this.tokenBuilder[i];
-                if (token.Value == ".")
-                {
-                    if (i > 0)
-                    {
-                        Token prev = this.tokenBuilder[i - 1];
-                        if (prev.Type == TokenType.NUMBER && !prev.IsNextWhitespace)
-                        {
-                            prev.Value += ".";
-                            this.tokenBuilder[i] = prev;
-                            this.tokenBuilder[i - 1] = null;
-                            token = prev;
-                        }
-                    }
-
-                    if (i + 1 < this.tokenBuilder.Count)
-                    {
-                        Token next = this.tokenBuilder[i + 1];
-                        if (!token.IsNextWhitespace && next.Type == TokenType.NUMBER)
-                        {
-                            token.Value += next.Value;
-                            this.tokenBuilder[i + 1] = null;
-                            token.Type = TokenType.NUMBER;
-                            i++;
-                        }
-                    }
-                }
-            }
-
-            this.tokenBuilder.Add(new Token(this.filename, null, this.length - 1, this.lines[this.length - 1], this.columns[this.length - 1], TokenType.EOF));
-
-            Token[] newTokens = this.tokenBuilder.Where(t => t != null).ToArray();
-
-            return new TokenStream(this.filename, this.content, newTokens);
+            return tokens.ToArray();
         }
     }
 }

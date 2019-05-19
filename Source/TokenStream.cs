@@ -3,191 +3,79 @@ using System.Linq;
 
 namespace Pastel
 {
-    internal class TokenStreamState
+    internal class TokenStream
     {
-        internal int Index { get; set; }
-    }
+        private Token[] tokens;
+        private int index;
+        private int length;
 
-    class TokenStream
-    {
-        private AggregatingTokenStream aggregatingTokenStream;
-
-        public TokenStream(string filename, string originalContents, IList<Token> tokens)
+        public TokenStream(IList<Token> tokens)
         {
-            this.aggregatingTokenStream = new AggregatingTokenStream(filename, originalContents, tokens);
+            this.index = 0;
+            this.tokens = tokens.ToArray();
+            this.length = this.tokens.Length;
         }
 
-        private class AggregatingTokenStream
+        public int SnapshotState()
         {
-            private static Dictionary<char, string[]> multiCharTokens = new Dictionary<char, string[]>();
-
-            static AggregatingTokenStream()
-            {
-                Dictionary<char, List<string>> lookupBuilder = new Dictionary<char, List<string>>();
-                foreach (string token in new string[]
-                    {
-                        "==", "!=", ">=", "<=",
-                        "&&", "||",
-                        "+=", "-=", "*=", "/=", ">>=", "<<=",
-                        "<<", ">>", ">>>",
-
-                        "++", "--", // not supported by Pastel, but should never appear. Recognize them in the tokenizer only for the purpose of clear error messages.
-                    })
-                {
-                    char c = token[0];
-                    if (!lookupBuilder.ContainsKey(c))
-                    {
-                        lookupBuilder[c] = new List<string>();
-                    }
-                    lookupBuilder[c].Add(token);
-                }
-
-                AggregatingTokenStream.multiCharTokens = new Dictionary<char, string[]>();
-                foreach (char c in lookupBuilder.Keys)
-                {
-                    // Sort by length (largest first) so that tokens like >> don't get detected before >>=
-                    AggregatingTokenStream.multiCharTokens[c] = lookupBuilder[c].OrderBy(v => -v.Length).ToArray();
-                }
-            }
-
-            public string Filename { get; private set; }
-            private string originalContents;
-            private Token[] tokens;
-            private int length;
-            public int Index { get; set; }
-            private bool enableMultiCharTokens = true;
-            private Token cachedToken = null;
-
-            public AggregatingTokenStream(string filename, string contents, IList<Token> tokens)
-            {
-                this.tokens = tokens.ToArray();
-                this.Index = 0;
-                this.length = this.tokens.Length;
-                this.Filename = filename;
-                this.originalContents = contents;
-            }
-
-            internal void ToggleMultiChar(bool value)
-            {
-                this.enableMultiCharTokens = value;
-                this.cachedToken = null;
-            }
-
-            internal void InvalidateCache()
-            {
-                this.cachedToken = null;
-            }
-
-            internal Token Peek()
-            {
-                if (this.cachedToken != null) return this.cachedToken;
-                
-                Token nextToken = this.tokens[this.Index];
-                string nextValue = nextToken.Value;
-                if (this.enableMultiCharTokens)
-                {
-                    if (nextToken.Type == TokenType.PUNCTUATION &&
-                        AggregatingTokenStream.multiCharTokens.ContainsKey(nextValue[0]))
-                    {
-                        foreach (string mcharToken in AggregatingTokenStream.multiCharTokens[nextValue[0]])
-                        {
-                            if (this.originalContents.Substring(nextToken.Index, mcharToken.Length) == mcharToken)
-                            {
-                                this.cachedToken = new Token(this.Filename, mcharToken, nextToken.Index, nextToken.Line, nextToken.Column, nextToken.Type);
-                                return this.cachedToken;
-                            }
-                        }
-                    }
-                }
-
-                this.cachedToken = this.tokens[this.Index];
-
-                return this.cachedToken;
-            }
-
-            internal Token Pop()
-            {
-                Token token = this.Peek();
-                if (token.Type == TokenType.PUNCTUATION && token.Value.Length > 1)
-                {
-                    if (token.Type == TokenType.EOF) throw new ParserException(token, "EOF reached.");
-                    this.Index += token.Value.Length;
-                }
-                else
-                {
-                    this.Index++;
-                }
-                this.cachedToken = null;
-                return token;
-            }
+            return this.index;
         }
 
-        public bool HasMore {  get { return this.aggregatingTokenStream.Peek().Type != TokenType.EOF; } }
-
-        public static Token CreateDummyToken(Token nearbyToken, string value)
+        public void RevertState(int index)
         {
-            char c = value[0];
-            TokenType type = TokenType.PUNCTUATION;
-            if (c == '"' || c == '\'')
-            {
-                type = TokenType.STRING;
-            }
-            else if (c >= '0' && c <= '9')
-            {
-                type = TokenType.NUMBER;
-            }
-            else if (
-              (c >= 'a' && c <= 'z') ||
-              (c >= 'A' && c <= 'Z') ||
-              (c >= '0' && c <= '9') ||
-              c == '_')
-            {
-                type = TokenType.ALPHANUMS;
-            }
-
-            return new Token(nearbyToken.FileName, value, nearbyToken.Index, nearbyToken.Line, nearbyToken.Column, type);
+            this.index = index;
         }
 
-        public Token CreateDummyToken(string value)
+        public bool IsNext(string token)
         {
-            return TokenStream.CreateDummyToken(this.Peek(), value);
-        }
-
-        public void EnableMultiCharTokens() { this.aggregatingTokenStream.ToggleMultiChar(true); }
-        public void DisableMultiCharTokens() { this.aggregatingTokenStream.ToggleMultiChar(false); }
-
-        public Token Pop() { return this.aggregatingTokenStream.Pop(); }
-        public Token Peek() { return this.aggregatingTokenStream.Peek(); }
-        public TokenStreamState SnapshotState() { return new TokenStreamState() { Index = this.aggregatingTokenStream.Index }; }
-        public void RestoreState(TokenStreamState state) { this.aggregatingTokenStream.Index = state.Index; this.aggregatingTokenStream.InvalidateCache(); }
-
-        public Token PeekValid()
-        {
-            Token token = this.aggregatingTokenStream.Peek();
-            if (token.Type == TokenType.EOF)
+            if (this.index < this.length)
             {
-                throw new ParserException(token, "Unexpected EOF");
+                return this.tokens[this.index].Value == token;
             }
-            return token;
+            return false;
         }
 
-        public bool IsNext(string value)
+        public Token Peek()
         {
-            Token token = this.aggregatingTokenStream.Peek();
-            return token.Value == value;
+            if (this.index < this.length)
+            {
+                return this.tokens[this.index];
+            }
+            return null;
+        }
+
+        public Token Pop()
+        {
+            if (this.index < this.length)
+            {
+                return this.tokens[this.index++];
+            }
+            throw new EofException();
         }
 
         public string PeekValue()
         {
-            return this.aggregatingTokenStream.Peek().Value;
+            if (this.index < this.length)
+            {
+                return this.tokens[this.index].Value;
+            }
+            return null;
+        }
+
+        public string PeekAhead(int offset)
+        {
+            if (this.index + offset < this.length)
+            {
+                return this.tokens[this.index + offset].Value;
+            }
+            return null;
         }
 
         public bool PopIfPresent(string value)
         {
-            Token token = this.aggregatingTokenStream.Peek();
-            if (token.Value == value)
+            if (this.index < this.length && this.tokens[this.index].Value == value)
             {
-                this.aggregatingTokenStream.Pop();
+                this.index++;
                 return true;
             }
             return false;
@@ -195,20 +83,45 @@ namespace Pastel
 
         public Token PopExpected(string value)
         {
-            Token token = this.aggregatingTokenStream.Peek();
-            if (token.Value == value)
+            Token token = this.Pop();
+            if (token.Value != value)
             {
-                return this.aggregatingTokenStream.Pop();
+                string message = "Unexpected token. Expected: '" + value + "' but found '" + token.Value + "'.";
+                throw new ParserException(token, message);
             }
-            throw new ParserException(token, "Expected '" + value + "' but found '" + token.Value + "'");
+            return token;
         }
 
-        public void EnsureNext(string value)
+        public bool HasMore
         {
-            if (!this.IsNext(value))
+            get
             {
-                this.PopExpected(value);
+                return this.index < this.length;
             }
+        }
+
+        public Token PopBitShiftHackIfPresent()
+        {
+            string next = this.PeekValue();
+            if (next == "<" || next == ">")
+            {
+                if (this.index + 1 < this.length)
+                {
+                    Token nextToken = this.tokens[this.index + 1];
+                    if (nextToken.Value == next && !nextToken.HasWhitespacePrefix)
+                    {
+                        Token output = this.Pop();
+                        this.Pop();
+                        return new Token(
+                            output.Value + output.Value,
+                            output.FileName,
+                            output.Line,
+                            output.Col,
+                            output.HasWhitespacePrefix);
+                    }
+                }
+            }
+            return null;
         }
     }
 }

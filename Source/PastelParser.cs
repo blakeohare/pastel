@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pastel.ParseNodes;
+using Pastel.Nodes;
 
 namespace Pastel
 {
-    internal class Parser
+    internal class PastelParser
     {
         private static readonly HashSet<string> OP_TOKENS = new HashSet<string>(new string[] { "=", "+=", "*=", "-=", "&=", "|=", "^=" });
         private static readonly Executable[] EMPTY_CODE_BLOCK = new Executable[0];
@@ -13,10 +13,19 @@ namespace Pastel
 
         private IInlineImportCodeLoader importCodeLoader;
 
-        public Parser(
+        // TODO: Get rid of this somehow. The parser logic should be relatively stateless.
+        // However, this value is set at the beginning and end of a code owner parsing
+        // and the reference is passed to all instantiations of parse tree objects below.
+        private ICompilationEntity currentCodeOwner = null;
+
+        private PastelContext context;
+
+        public PastelParser(
+            PastelContext context,
             IDictionary<string, object> constants,
             IInlineImportCodeLoader importCodeLoader)
         {
+            this.context = context;
             this.constants = constants;
             this.importCodeLoader = importCodeLoader;
         }
@@ -36,11 +45,6 @@ namespace Pastel
             return (bool)this.GetConstant(name, false);
         }
 
-        internal int GetParseTimeIntegerConstant(string name)
-        {
-            return (int)this.GetConstant(name, 0);
-        }
-
         internal string GetParseTimeStringConstant(string name)
         {
             return (string)this.GetConstant(name, "");
@@ -48,7 +52,7 @@ namespace Pastel
 
         public ICompilationEntity[] ParseText(string filename, string text)
         {
-            TokenStream tokens = new Tokenizer(filename, text).Tokenize();
+            TokenStream tokens = new TokenStream(Tokenizer.Tokenize(filename, text));
             List<ICompilationEntity> output = new List<ICompilationEntity>();
             while (tokens.HasMore)
             {
@@ -62,12 +66,14 @@ namespace Pastel
                         output.Add(this.ParseConstDefinition(tokens));
                         break;
 
-                    case "global":
-                        output.Add(this.ParseGlobalDefinition(tokens));
-                        break;
-
                     case "struct":
                         output.Add(this.ParseStructDefinition(tokens));
+                        break;
+
+                    case "@":
+                        Token atToken = tokens.Pop();
+                        ICompilationEntity[] inlinedEntities = this.ParseTopLevelInlineImport(atToken, tokens);
+                        output.AddRange(inlinedEntities);
                         break;
 
                     default:
@@ -78,11 +84,65 @@ namespace Pastel
             return output.ToArray();
         }
 
+        private ICompilationEntity[] ParseTopLevelInlineImport(Token atToken, TokenStream tokens)
+        {
+            string sourceFile = null;
+            string functionName = tokens.PeekValue();
+            switch (functionName)
+            {
+                case "import":
+                    tokens.PopExpected("import");
+                    tokens.PopExpected("(");
+                    Token stringToken = tokens.Pop();
+                    tokens.PopExpected(")");
+                    tokens.PopExpected(";");
+                    sourceFile = PastelUtil.ConvertStringTokenToValue(stringToken.Value);
+                    break;
+
+                case "importIfTrue":
+                case "importIfFalse":
+                    tokens.Pop();
+                    tokens.PopExpected("(");
+                    Token constantExpression = tokens.Pop();
+                    string constantValue = PastelUtil.ConvertStringTokenToValue(constantExpression.Value);
+                    tokens.PopExpected(",");
+                    Token pathToken = tokens.Pop();
+                    tokens.PopExpected(")");
+                    tokens.PopExpected(";");
+                    object value = this.GetConstant(constantValue, false);
+                    if (!(value is bool)) value = false;
+                    bool valueBool = (bool)value;
+                    if (functionName == "importIfFalse")
+                    {
+                        valueBool = !valueBool;
+                    }
+
+                    if (valueBool)
+                    {
+                        sourceFile = PastelUtil.ConvertStringTokenToValue(pathToken.Value);
+                    }
+                    break;
+
+                default:
+                    // intentional crash...
+                    tokens.PopExpected("import");
+                    break;
+            }
+
+            if (sourceFile != null)
+            {
+                string code = this.importCodeLoader.LoadCode(sourceFile);
+                return this.ParseText(sourceFile, code);
+            }
+
+            return new ICompilationEntity[0];
+        }
+
         public Executable[] ParseImportedCode(string path)
         {
             path = path.Replace(".cry", ".pst"); // lol TODO: fix this in the .pst code.
             string code = this.importCodeLoader.LoadCode(path);
-            TokenStream tokens = new Tokenizer(path, code).Tokenize();
+            TokenStream tokens = new TokenStream(Tokenizer.Tokenize(path, code));
             List<Executable> output = new List<Executable>();
             while (tokens.HasMore)
             {
@@ -96,14 +156,6 @@ namespace Pastel
             Token constToken = tokens.PopExpected("const");
             VariableDeclaration assignment = this.ParseAssignmentWithNewFirstToken(constToken, tokens);
             assignment.IsConstant = true;
-            return assignment;
-        }
-
-        public VariableDeclaration ParseGlobalDefinition(TokenStream tokens)
-        {
-            Token globalToken = tokens.PopExpected("global");
-            VariableDeclaration assignment = this.ParseAssignmentWithNewFirstToken(globalToken, tokens);
-            assignment.IsGlobal = true;
             return assignment;
         }
 
@@ -123,6 +175,8 @@ namespace Pastel
         {
             Token enumToken = tokens.PopExpected("enum");
             Token nameToken = EnsureTokenIsValidName(tokens.Pop(), "Invalid name for an enum.");
+            EnumDefinition enumDef = new EnumDefinition(enumToken, nameToken, this.context);
+            this.currentCodeOwner = enumDef;
             List<Token> valueTokens = new List<Token>();
             List<Expression> valueExpressions = new List<Expression>();
             tokens.PopExpected("{");
@@ -156,7 +210,9 @@ namespace Pastel
                 }
             }
 
-            return new EnumDefinition(enumToken, nameToken, valueTokens, valueExpressions);
+            enumDef.InitializeValues(valueTokens, valueExpressions);
+            this.currentCodeOwner = null;
+            return enumDef;
         }
 
         public StructDefinition ParseStructDefinition(TokenStream tokens)
@@ -168,18 +224,18 @@ namespace Pastel
             tokens.PopExpected("{");
             while (!tokens.PopIfPresent("}"))
             {
-                PType fieldType = TypeParser.Parse(tokens);
+                PType fieldType = PType.Parse(tokens);
                 Token fieldName = EnsureTokenIsValidName(tokens.Pop(), "Invalid struct field name");
                 structFieldTypes.Add(fieldType);
                 structFieldNames.Add(fieldName);
                 tokens.PopExpected(";");
             }
-            return new StructDefinition(structToken, nameToken, structFieldTypes, structFieldNames);
+            return new StructDefinition(structToken, nameToken, structFieldTypes, structFieldNames, this.context);
         }
 
         public FunctionDefinition ParseFunctionDefinition(TokenStream tokens)
         {
-            PType returnType = TypeParser.Parse(tokens);
+            PType returnType = PType.Parse(tokens);
             Token nameToken = EnsureTokenIsValidName(tokens.Pop(), "Expected function name");
             tokens.PopExpected("(");
             List<PType> argTypes = new List<PType>();
@@ -187,12 +243,15 @@ namespace Pastel
             while (!tokens.PopIfPresent(")"))
             {
                 if (argTypes.Count > 0) tokens.PopExpected(",");
-                argTypes.Add(TypeParser.Parse(tokens));
+                argTypes.Add(PType.Parse(tokens));
                 argNames.Add(EnsureTokenIsValidName(tokens.Pop(), "Invalid function arg name"));
             }
+            FunctionDefinition funcDef = new FunctionDefinition(nameToken, returnType, argTypes, argNames, this.context);
+            this.currentCodeOwner = funcDef;
             List<Executable> code = this.ParseCodeBlock(tokens, true);
-
-            return new FunctionDefinition(nameToken, returnType, argTypes, argNames, code);
+            this.currentCodeOwner = null;
+            funcDef.Code = code.ToArray();
+            return funcDef;
         }
 
         public List<Executable> ParseCodeBlock(TokenStream tokens, bool curlyBracesRequired)
@@ -258,16 +317,15 @@ namespace Pastel
                 }
             }
 
-            TokenStreamState state = tokens.SnapshotState();
-            PType type = TypeParser.TryParse(tokens);
-
-            if (type != null && tokens.Peek().Type == TokenType.ALPHANUMS)
+            int currentState = tokens.SnapshotState();
+            PType assignmentType = PType.TryParse(tokens);
+            if (assignmentType != null && tokens.HasMore && IsValidName(tokens.PeekValue()))
             {
                 Token variableName = EnsureTokenIsValidName(tokens.Pop(), "Invalid variable name");
 
                 if (tokens.PopIfPresent(";"))
                 {
-                    return new VariableDeclaration(type, variableName, null, null);
+                    return new VariableDeclaration(assignmentType, variableName, null, null, this.context);
                 }
 
                 Token equalsToken = tokens.PopExpected("=");
@@ -276,9 +334,9 @@ namespace Pastel
                 {
                     tokens.PopExpected(";");
                 }
-                return new VariableDeclaration(type, variableName, equalsToken, assignmentValue);
+                return new VariableDeclaration(assignmentType, variableName, equalsToken, assignmentValue, this.context);
             }
-            tokens.RestoreState(state);
+            tokens.RevertState(currentState);
 
             Expression expression = ParseExpression(tokens);
 
@@ -503,10 +561,16 @@ namespace Pastel
             return this.ParseOpChain(tokens, OPS_INEQUALITY, this.ParseBitShift);
         }
 
-        private static readonly HashSet<string> OPS_BITSHIFT = new HashSet<string>(new string[] { "<<", ">>", ">>>" });
         private Expression ParseBitShift(TokenStream tokens)
         {
-            return this.ParseOpChain(tokens, OPS_BITSHIFT, this.ParseAddition);
+            Expression left = this.ParseAddition(tokens);
+            Token bitShift = tokens.PopBitShiftHackIfPresent();
+            if (bitShift != null)
+            {
+                Expression right = this.ParseAddition(tokens);
+                return new OpChain(new Expression[] { left, right }, new Token[] { bitShift });
+            }
+            return left;
         }
 
         private static readonly HashSet<string> OPS_ADDITION = new HashSet<string>(new string[] { "+", "-" });
@@ -543,18 +607,19 @@ namespace Pastel
             }
 
             Expression expression;
-            TokenStreamState state = tokens.SnapshotState();
+            int tokenIndex = tokens.SnapshotState();
             if (prefix == null &&
-                tokens.PeekValue() == "(")
+                tokens.PeekValue() == "(" &&
+                IsValidName(tokens.PeekAhead(1)))
             {
                 Token parenthesis = tokens.Pop();
-                PType castType = TypeParser.TryParse(tokens);
+                PType castType = PType.TryParse(tokens);
                 if (castType != null && tokens.PopIfPresent(")"))
                 {
                     expression = this.ParseIncrementOrCast(tokens);
                     return new CastExpression(parenthesis, castType, expression);
                 }
-                tokens.RestoreState(state);
+                tokens.RevertState(tokenIndex);
             }
 
             expression = this.ParseEntity(tokens);
@@ -577,9 +642,9 @@ namespace Pastel
             if (tokens.IsNext("new"))
             {
                 Token newToken = tokens.Pop();
-                PType typeToConstruct = TypeParser.Parse(tokens);
-                tokens.EnsureNext("(");
-                Expression constructorReference = new ConstructorReference(newToken, typeToConstruct);
+                PType typeToConstruct = PType.Parse(tokens);
+                if (!tokens.IsNext("(")) tokens.PopExpected("("); // intentional error if not present.
+                Expression constructorReference = new ConstructorReference(newToken, typeToConstruct, this.currentCodeOwner);
                 return this.ParseEntityChain(constructorReference, tokens);
             }
 
@@ -613,60 +678,73 @@ namespace Pastel
 
         private Expression ParseEntityRoot(TokenStream tokens)
         {
-            Token nextToken = tokens.PeekValid();
-            string nextValue = nextToken.Value;
-            switch (nextToken.Type)
+            string next = tokens.PeekValue();
+            switch (next)
             {
-                case TokenType.ALPHANUMS:
-                    switch (nextValue)
+                case "true":
+                case "false":
+                    return new InlineConstant(PType.BOOL, tokens.Pop(), next == "true", this.currentCodeOwner);
+                case "null":
+                    return new InlineConstant(PType.NULL, tokens.Pop(), null, this.currentCodeOwner);
+                case ".":
+                    Token dotToken = tokens.Pop();
+                    Token numToken = tokens.Pop();
+                    EnsureInteger(tokens.Pop(), false, false);
+                    string strValue = "0." + numToken.Value;
+                    double dblValue;
+                    if (!numToken.HasWhitespacePrefix && double.TryParse(strValue, out dblValue))
                     {
-                        case "true":
-                        case "false":
-                            return new InlineConstant(PType.BOOL, tokens.Pop(), nextValue == "true");
-                        case "null":
-                            return new InlineConstant(PType.NULL, tokens.Pop(), null);
-                        default:
-                            Token variableToken = tokens.Pop();
-                            return new Variable(variableToken);
+                        return new InlineConstant(PType.DOUBLE, dotToken, dblValue, this.currentCodeOwner);
                     }
+                    throw new ParserException(dotToken, "Unexpected '.'");
 
-                case TokenType.STRING:
-                    switch (nextValue[0])
-                    {
-                        case '\'':
-                            return new InlineConstant(PType.CHAR, tokens.Pop(), Util.ConvertStringTokenToValue(nextToken));
-                        case '"':
-                            return new InlineConstant(PType.STRING, tokens.Pop(), Util.ConvertStringTokenToValue(nextToken));
-                        default:
-                            throw new Exception(); // This shouldn't happen.
-                    }
-
-                case TokenType.NUMBER:
-                    tokens.Pop();
-                    if (nextValue.Contains("."))
-                    {
-                        return new InlineConstant(PType.DOUBLE, nextToken, double.Parse(nextValue));
-                    }
-                    return new InlineConstant(PType.INT, nextToken, int.Parse(nextValue));
-
-                default:
-                    if (nextValue == "$" && !nextToken.IsNextWhitespace)
-                    {
-                        tokens.Pop();
-                        Token nativeFunctionNameToken = tokens.Peek();
-                        if (nativeFunctionNameToken.Type == TokenType.ALPHANUMS)
-                        {
-                            NativeFunction? nf = NativeFunctionUtil.GetNativeFunctionFromName(nativeFunctionNameToken.Value);
-                            if (nf == null)
-                            {
-                                throw new ParserException(nativeFunctionNameToken, "'" + nativeFunctionNameToken.Value + "' is not a valid native function.");
-                            }
-                            tokens.Pop();
-                            return new NativeFunctionReference(nextToken, nf.Value);
-                        }
-                    }
-                    throw new ParserException(nextToken, "Unexpected token: '" + nextValue + "'");
+                default: break;
             }
+            char firstChar = next[0];
+            switch (firstChar)
+            {
+                case '\'':
+                    return new InlineConstant(PType.CHAR, tokens.Pop(), PastelUtil.ConvertStringTokenToValue(next), this.currentCodeOwner);
+                case '"':
+                    return new InlineConstant(PType.STRING, tokens.Pop(), PastelUtil.ConvertStringTokenToValue(next), this.currentCodeOwner);
+                case '@':
+                    Token atToken = tokens.PopExpected("@");
+                    Token compileTimeFunction = EnsureTokenIsValidName(tokens.Pop(), "Expected compile time function name.");
+                    if (!tokens.IsNext("(")) tokens.PopExpected("(");
+                    return new CompileTimeFunctionReference(atToken, compileTimeFunction, this.currentCodeOwner);
+            }
+
+            if (firstChar >= '0' && firstChar <= '9')
+            {
+                Token numToken = tokens.Pop();
+                if (tokens.IsNext("."))
+                {
+                    EnsureInteger(numToken, false, false);
+                    Token dotToken = tokens.Pop();
+                    if (dotToken.HasWhitespacePrefix) throw new ParserException(dotToken, "Unexpected '.'");
+                    Token decimalToken = tokens.Pop();
+                    EnsureInteger(decimalToken, false, false);
+                    if (decimalToken.HasWhitespacePrefix) throw new ParserException(decimalToken, "Unexpected '" + decimalToken.Value + "'");
+                    double dblValue;
+                    if (double.TryParse(numToken.Value + "." + decimalToken.Value, out dblValue))
+                    {
+                        return new InlineConstant(PType.DOUBLE, numToken, dblValue, this.currentCodeOwner);
+                    }
+                    throw new ParserException(decimalToken, "Unexpected token.");
+                }
+                else
+                {
+                    int numValue = EnsureInteger(numToken, true, true);
+                    return new InlineConstant(PType.INT, numToken, numValue, this.currentCodeOwner);
+                }
+            }
+
+            if (IsValidName(tokens.PeekValue()))
+            {
+                return new Variable(tokens.Pop(), this.currentCodeOwner);
+            }
+
+            throw new ParserException(tokens.Peek(), "Unrecognized expression.");
         }
 
         private Expression ParseEntityChain(Expression root, TokenStream tokens)
@@ -675,7 +753,7 @@ namespace Pastel
             {
                 case ".":
                     Token dotToken = tokens.Pop();
-                    Token field = Parser.EnsureTokenIsValidName(tokens.Pop(), "Invalid field name");
+                    Token field = PastelParser.EnsureTokenIsValidName(tokens.Pop(), "Invalid field name");
                     return new DotField(root, dotToken, field);
                 case "[":
                     Token openBracket = tokens.Pop();
@@ -696,18 +774,31 @@ namespace Pastel
             }
         }
 
-        private Token EnsureInteger(Token token)
+        // This function became really weird for legitimate reasons, but deseparately needs to be written (or rather,
+        // the places where this is called need to be rewritten).
+        private int EnsureInteger(Token token, bool allowHex, bool calculateValue)
         {
             string value = token.Value;
-            switch (value)
-            {
-                case "0":
-                case "1":
-                case "2":
-                    // this is like 80% of cases.
-                    return token;
-            }
             char c;
+            if (allowHex && value.StartsWith("0x"))
+            {
+                value = value.Substring(2).ToLower();
+                int num = 0;
+                for (int i = 0; i < value.Length; ++i)
+                {
+                    num *= 16;
+                    c = value[i];
+                    if (c >= '0' && c <= '9')
+                    {
+                        num += c - '0';
+                    }
+                    else if (c >= 'a' && c <= 'f')
+                    {
+                        num += c - 'a' + 10;
+                    }
+                }
+                return calculateValue ? num : 0;
+            }
             for (int i = value.Length - 1; i >= 0; --i)
             {
                 c = value[i];
@@ -716,16 +807,40 @@ namespace Pastel
                     throw new ParserException(token, "Expected number");
                 }
             }
-            return token;
+            if (!calculateValue) return 0;
+            int output;
+            if (!int.TryParse(value, out output))
+            {
+                throw new ParserException(token, "Integer is too big.");
+            }
+            return output;
         }
 
         public static Token EnsureTokenIsValidName(Token token, string errorMessage)
         {
-            if (token.Type == TokenType.ALPHANUMS)
+            if (IsValidName(token.Value))
             {
                 return token;
             }
             throw new ParserException(token, errorMessage);
+        }
+
+        public static bool IsValidName(string value)
+        {
+            char c;
+            for (int i = value.Length - 1; i >= 0; --i)
+            {
+                c = value[i];
+                if (!(
+                    (c >= 'a' && c <= 'z') ||
+                    (c >= 'A' && c <= 'Z') ||
+                    (c >= '0' && c <= '9' && i > 0) ||
+                    (c == '_')))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

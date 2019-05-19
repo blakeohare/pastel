@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class StructDefinition : ICompilationEntity
     {
@@ -12,11 +12,11 @@ namespace Pastel.ParseNodes
         public PType[] ArgTypes { get; set; }
         public Token[] ArgNames { get; set; }
         public Dictionary<string, int> ArgIndexByName { get; set; }
+        public PastelContext Context { get; private set; }
 
-        private PType Type { get; set; }
-
-        public StructDefinition(Token structToken, Token name, IList<PType> argTypes, IList<Token> argNames)
+        public StructDefinition(Token structToken, Token name, IList<PType> argTypes, IList<Token> argNames, PastelContext context)
         {
+            this.Context = context;
             this.FirstToken = structToken;
             this.NameToken = name;
             this.ArgTypes = argTypes.ToArray();
@@ -27,7 +27,6 @@ namespace Pastel.ParseNodes
                 string argName = this.ArgNames[i].Value;
                 this.ArgIndexByName[argName] = i;
             }
-            this.Type = new PType(this.FirstToken, name.Value);
         }
     }
 }

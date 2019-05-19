@@ -1,4 +1,4 @@
-﻿namespace Pastel.ParseNodes
+﻿namespace Pastel.Nodes
 {
     internal class InlineIncrement : Expression
     {
@@ -6,7 +6,7 @@
         public Expression Expression { get; set; }
         public bool IsPrefix { get; set; }
 
-        public InlineIncrement(Token firstToken, Token incrementToken, Expression root, bool isPrefix) : base(firstToken)
+        public InlineIncrement(Token firstToken, Token incrementToken, Expression root, bool isPrefix) : base(firstToken, root.Owner)
         {
             this.IncrementToken = incrementToken;
             this.Expression = root;
@@ -22,7 +22,7 @@
         internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
         {
             this.Expression = this.Expression.ResolveType(varScope, compiler);
-            if (!this.Expression.ResolvedType.IsIdentical(PType.INT))
+            if (!this.Expression.ResolvedType.IsIdentical(compiler, PType.INT))
             {
                 throw new ParserException(this.IncrementToken, "++ and -- can only be applied to integer types.");
             }

@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class EnumReference : Expression
     {
         public EnumDefinition EnumDef { get; set; }
 
-        public EnumReference(Token firstToken, EnumDefinition enumDef) : base(firstToken)
+        public EnumReference(Token firstToken, EnumDefinition enumDef, ICompilationEntity owner) : base(firstToken, owner)
         {
             this.EnumDef = enumDef;
         }

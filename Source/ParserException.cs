@@ -2,16 +2,16 @@
 
 namespace Pastel
 {
-    internal class ParserException : Exception
+    public class ParserException : Exception
     {
-        public ParserException(Token token, string message)
+        internal ParserException(Token token, string message)
             : base(InterpretToken(token) + message)
         { }
 
         private static string InterpretToken(Token token)
         {
             if (token == null) return "";
-            return token.FileName + ", Line: " + token.Line + ", Col: " + token.Column + ", ";
+            return token.FileName + ", Line: " + (token.Line + 1) + ", Col: " + (token.Col + 1) + ", ";
         }
     }
 }

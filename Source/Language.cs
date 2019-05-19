@@ -5,6 +5,8 @@ namespace Pastel
 {
     public enum Language
     {
+        NONE,
+
         C,
         CSHARP,
         JAVA,
@@ -16,6 +18,19 @@ namespace Pastel
     internal static class LanguageUtil
     {
         private static readonly Dictionary<Language, AbstractTranspiler> singletons = new Dictionary<Language, AbstractTranspiler>();
+
+        internal static Language ParseLanguage(string value)
+        {
+            switch (value.ToLower())
+            {
+                case "c": return Language.C;
+                case "csharp": return Language.CSHARP;
+                case "java": return Language.JAVA;
+                case "javascript": return Language.JAVASCRIPT;
+                case "python": return Language.PYTHON;
+                default: return Language.NONE;
+            }
+        }
 
         internal static AbstractTranspiler GetTranspiler(Language language)
         {
@@ -37,6 +52,23 @@ namespace Pastel
             }
             singletons[language] = t;
             return t;
+        }
+
+        internal static Dictionary<string, object> GetLanguageConstants(Language lang)
+        {
+            Dictionary<string, object> output = new Dictionary<string, object>();
+
+            output["ARRAY_IS_LIST"] = lang == Language.PYTHON || lang == Language.JAVASCRIPT;
+            output["HAS_INCREMENT"] = lang != Language.PYTHON;
+            output["INT_IS_FLOOR"] = lang == Language.JAVASCRIPT || lang == Language.C;
+            output["IS_C"] = lang == Language.C;
+            output["IS_CHAR_A_NUMBER"] = lang == Language.C || lang == Language.CSHARP || lang == Language.JAVA || lang == Language.JAVA6;
+            output["IS_JAVASCRIPT"] = lang == Language.JAVASCRIPT;
+            output["IS_PYTHON"] = lang == Language.PYTHON;
+            output["PLATFORM_SUPPORTS_LIST_CLEAR"] = lang != Language.PYTHON;
+            output["STRONGLY_TYPED"] = lang == Language.C || lang == Language.CSHARP || lang == Language.JAVA || lang == Language.JAVA6;
+
+            return output;
         }
     }
 }

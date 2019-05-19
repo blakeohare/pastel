@@ -1,11 +1,11 @@
-﻿namespace Pastel.ParseNodes
+﻿namespace Pastel.Nodes
 {
     internal class FunctionReference : Expression
     {
         public FunctionDefinition Function { get; set; }
         public bool IsLibraryScopedFunction { get; set; }
 
-        public FunctionReference(Token firstToken, FunctionDefinition functionDefinition) : base(firstToken)
+        public FunctionReference(Token firstToken, FunctionDefinition functionDefinition, ICompilationEntity owner) : base(firstToken, owner)
         {
             this.Function = functionDefinition;
             this.IsLibraryScopedFunction = false;

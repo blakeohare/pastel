@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal abstract class Executable
     {

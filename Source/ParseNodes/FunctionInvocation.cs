@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class FunctionInvocation : Expression
     {
@@ -13,14 +13,14 @@ namespace Pastel.ParseNodes
         public FunctionInvocation(
             Expression root,
             Token openParen,
-            IList<Expression> args) : base(root.FirstToken)
+            IList<Expression> args) : base(root.FirstToken, root.Owner)
         {
             this.Root = root;
             this.OpenParenToken = openParen;
             this.Args = args.ToArray();
         }
 
-        internal Expression MaybeImmediatelyResolve(Parser parser)
+        internal Expression MaybeImmediatelyResolve(PastelParser parser)
         {
             if (this.Root is CompileTimeFunctionReference)
             {
@@ -32,13 +32,8 @@ namespace Pastel.ParseNodes
                         return new InlineConstant(
                             PType.BOOL,
                             this.FirstToken,
-                            parser.GetParseTimeBooleanConstant(argName.Value.ToString()));
-
-                    case "ext_integer":
-                        return new InlineConstant(
-                            PType.INT,
-                            this.FirstToken,
-                            parser.GetParseTimeIntegerConstant(argName.Value.ToString()));
+                            parser.GetParseTimeBooleanConstant(argName.Value.ToString()),
+                            this.Owner);
 
                     default:
                         return this;
@@ -75,7 +70,7 @@ namespace Pastel.ParseNodes
 
                 for (int i = 0; i < this.Args.Length; ++i)
                 {
-                    if (!PType.CheckAssignment(expectedTypes[i], this.Args[i].ResolvedType))
+                    if (!PType.CheckAssignment(compiler, expectedTypes[i], this.Args[i].ResolvedType))
                     {
                         throw new ParserException(this.Args[i].FirstToken, "Wrong function arg type. Cannot convert a " + this.Args[i].ResolvedType + " to a " + expectedTypes[i]);
                     }
@@ -84,28 +79,38 @@ namespace Pastel.ParseNodes
                 this.ResolvedType = functionDefinition.ReturnType;
                 return this;
             }
-            else if (this.Root is NativeFunctionReference)
+            else if (this.Root is CoreFunctionReference)
             {
-                NativeFunctionReference nfr = (NativeFunctionReference)this.Root;
-                NativeFunctionInvocation nfi;
+                CoreFunctionReference nfr = (CoreFunctionReference)this.Root;
+                CoreFunctionInvocation nfi;
                 if (nfr.Context == null)
                 {
-                    nfi = new NativeFunctionInvocation(this.FirstToken, nfr.NativeFunctionId, this.Args);
+                    nfi = new CoreFunctionInvocation(this.FirstToken, nfr.CoreFunctionId, this.Args, this.Owner);
                 }
                 else
                 {
-                    nfi = new NativeFunctionInvocation(this.FirstToken, nfr.NativeFunctionId, nfr.Context, this.Args);
+                    nfi = new CoreFunctionInvocation(this.FirstToken, nfr.CoreFunctionId, nfr.Context, this.Args, this.Owner);
                 }
 
                 return nfi.ResolveType(varScope, compiler);
             }
+            else if (this.Root is ExtensibleFunctionReference)
+            {
+                return new ExtensibleFunctionInvocation(this.FirstToken, (ExtensibleFunctionReference)this.Root, this.Args).ResolveType(varScope, compiler);
+            }
             else if (this.Root is ConstructorReference)
             {
-                return new ConstructorInvocation(this.FirstToken, ((ConstructorReference)this.Root).TypeToConstruct, this.Args);
+                PType typeToConstruct = ((ConstructorReference)this.Root).TypeToConstruct;
+                typeToConstruct.FinalizeType(compiler);
+                return new ConstructorInvocation(this.FirstToken, typeToConstruct, this.Args, this.Owner);
+            }
+            else if (this.Root.ResolvedType.RootValue == "Func")
+            {
+                return new FunctionPointerInvocation(compiler, this.FirstToken, this.Root, this.Args);
             }
             else
             {
-                throw new NotImplementedException();
+                throw new ParserException(this.OpenParenToken, "This expression cannot be invoked like a function.");
             }
         }
 

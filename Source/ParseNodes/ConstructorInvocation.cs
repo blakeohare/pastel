@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class ConstructorInvocation : Expression
     {
@@ -10,7 +10,8 @@ namespace Pastel.ParseNodes
         public Expression[] Args { get; set; }
         public StructDefinition StructType { get; set; }
 
-        public ConstructorInvocation(Token firstToken, PType type, IList<Expression> args) : base(firstToken)
+        public ConstructorInvocation(Token firstToken, PType type, IList<Expression> args, ICompilationEntity owner)
+            : base(firstToken, owner)
         {
             this.Type = type;
             this.Args = args.ToArray();
@@ -41,11 +42,25 @@ namespace Pastel.ParseNodes
                 case "List":
                 case "Dictionary":
                     break;
+
                 default:
-                    StructDefinition sd = compiler.GetStructDefinition(this.Type.RootValue);
-                    if (sd != null)
+                    if (!this.Type.IsStruct) throw new ParserException(this.FirstToken, "Cannot instantiate this item.");
+                    StructDefinition sd = this.Type.StructDef;
+                    this.StructType = sd;
+                    int fieldCount = this.StructType.ArgTypes.Length;
+                    if (fieldCount != this.Args.Length)
                     {
-                        this.StructType = sd;
+                        throw new ParserException(this.FirstToken, "Incorrect number of args in constructor. Expected " + fieldCount + ", found " + this.Args.Length);
+                    }
+
+                    for (int i = 0; i < fieldCount; ++i)
+                    {
+                        PType actualType = this.Args[i].ResolvedType;
+                        PType expectedType = this.StructType.ArgTypes[i];
+                        if (!PType.CheckAssignment(compiler, expectedType, actualType))
+                        {
+                            throw new ParserException(this.Args[i].FirstToken, "Cannot use an arg of this type for this struct field. Expected " + expectedType.ToString() + " but found " + actualType.ToString());
+                        }
                     }
                     break;
             }

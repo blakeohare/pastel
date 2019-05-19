@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Pastel.ParseNodes
+﻿namespace Pastel.Nodes
 {
     internal class Assignment : Executable
     {
@@ -31,20 +28,16 @@ namespace Pastel.ParseNodes
             this.Value = this.Value.ResolveType(varScope, compiler);
             this.Target = this.Target.ResolveType(varScope, compiler);
 
-            if (!PType.CheckAssignment(this.Target.ResolvedType, this.Value.ResolvedType))
+            if (!PType.CheckAssignment(compiler, this.Target.ResolvedType, this.Value.ResolvedType))
             {
                 if (this.OpToken.Value != "=" &&
-                    this.Target.ResolvedType.IsIdentical(PType.DOUBLE) &&
-                    this.Value.ResolvedType.IsIdentical(PType.INT))
+                    this.Target.ResolvedType.IsIdentical(compiler, PType.DOUBLE) &&
+                    this.Value.ResolvedType.IsIdentical(compiler, PType.INT))
                 {
                     // You can apply incremental ops such as += with an int to a float and that is fine without explicit conversion in any platform.
                 }
                 else
                 {
-                    if (this.Value.ResolvedType == PType.INT && this.Target.ResolvedType == PType.DOUBLE)
-                    {
-                        throw new ParserException(this.OpToken, "Must explicitly convert an int to a double before assignment.");
-                    }
                     throw new ParserException(this.OpToken, "Cannot assign a " + this.Value.ResolvedType + " to a " + this.Target.ResolvedType);
                 }
             }
@@ -52,7 +45,6 @@ namespace Pastel.ParseNodes
 
         internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
         {
-
             if (this.Target is BracketIndex)
             {
                 if (this.OpToken.Value != "=")
@@ -64,27 +56,28 @@ namespace Pastel.ParseNodes
                 BracketIndex bi = (BracketIndex)this.Target;
                 string rootType = bi.Root.ResolvedType.RootValue;
                 Expression[] args = new Expression[] { bi.Root, bi.Index, this.Value };
-                NativeFunction nf;
+                CoreFunction nf;
                 if (rootType == "Array")
                 {
-                    nf = NativeFunction.ARRAY_SET;
+                    nf = CoreFunction.ARRAY_SET;
                 }
                 else if (rootType == "List")
                 {
-                    nf = NativeFunction.LIST_SET;
+                    nf = CoreFunction.LIST_SET;
                 }
                 else if (rootType == "Dictionary")
                 {
-                    nf = NativeFunction.DICTIONARY_SET;
+                    nf = CoreFunction.DICTIONARY_SET;
                 }
                 else
                 {
                     throw new ParserException(bi.BracketToken, "Can't use brackets here.");
                 }
-                return new ExpressionAsExecutable(new NativeFunctionInvocation(
+                return new ExpressionAsExecutable(new CoreFunctionInvocation(
                     this.FirstToken,
                     nf,
-                    args)).ResolveWithTypeContext(compiler);
+                    args,
+                    bi.Owner)).ResolveWithTypeContext(compiler);
             }
 
             this.Target = this.Target.ResolveWithTypeContext(compiler);

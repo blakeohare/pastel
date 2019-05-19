@@ -1,4 +1,4 @@
-﻿using Pastel.ParseNodes;
+﻿using Pastel.Nodes;
 using System.Collections.Generic;
 
 namespace Pastel.Transpilers
@@ -6,8 +6,6 @@ namespace Pastel.Transpilers
     public class TranspilerContext
     {
         private System.Text.StringBuilder buffer = new System.Text.StringBuilder();
-
-        public StringTableBuilder StringTableBuilder { get; set; }
 
         internal List<PythonFakeSwitchStatement> SwitchStatements { get; private set; }
 
@@ -22,8 +20,9 @@ namespace Pastel.Transpilers
         internal AbstractTranspiler Transpiler { get; private set; }
         public Dictionary<string, string> ExtensibleFunctionLookup { get; private set; }
 
-        internal TranspilerContext(Language language)
+        internal TranspilerContext(Language language, Dictionary<string, string> extensibleFunctions)
         {
+            this.ExtensibleFunctionLookup = extensibleFunctions;
             this.Transpiler = LanguageUtil.GetTranspiler(language);
             if (language == Language.PYTHON)
             {
@@ -42,7 +41,6 @@ namespace Pastel.Transpilers
             set
             {
                 this.currentTab = value;
-                if (value < 0) throw new System.Exception("Tab depth is < 0");
 
                 while (this.currentTab >= this.Transpiler.Tabs.Length)
                 {
@@ -57,18 +55,6 @@ namespace Pastel.Transpilers
                 this.CurrentTab = this.Transpiler.Tabs[this.currentTab];
             }
 
-        }
-
-        public TranspilerContext AppendTab()
-        {
-            this.buffer.Append(this.CurrentTab);
-            return this;
-        }
-
-        public TranspilerContext AppendNL()
-        {
-            this.buffer.Append(this.Transpiler.NewLine);
-            return this;
         }
 
         public TranspilerContext Append(char c)

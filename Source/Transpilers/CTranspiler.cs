@@ -1,4 +1,4 @@
-﻿using Pastel.ParseNodes;
+﻿using Pastel.Nodes;
 using System;
 using System.Collections.Generic;
 
@@ -9,64 +9,8 @@ namespace Pastel.Transpilers
         public CTranspiler()
             : base("    ", "\n", false)
         {
-            this.UsesStringTable = true;
             this.UsesStructDeclarations = true;
             this.UsesFunctionDeclarations = true;
-            this.UsesFree = true;
-        }
-
-        public override void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files)
-        {
-            foreach (StructDefinition sd in compiler.GetStructDefinitions())
-            {
-                this.GenerateCodeForStructDeclaration(ctx, sd.NameToken.Value);
-                ctx.AppendNL();
-            }
-            foreach (StructDefinition sd in compiler.GetStructDefinitions())
-            {
-                string name = sd.NameToken.Value;
-                this.GenerateCodeForStruct(ctx, sd);
-                ctx.AppendNL();
-                ctx.Append(name).Append("* ").Append(name).Append("_new(");
-                for (int i = 0; i < sd.ArgNames.Length; ++i)
-                {
-                    if (i > 0) ctx.Append(", ");
-                    ctx.Append(this.TranslateType(sd.ArgTypes[i])).Append(" _").Append(sd.ArgNames[i].Value);
-                }
-                ctx.Append(')').AppendNL();
-                ctx.Append('{').AppendNL();
-                ctx.TabDepth++;
-                ctx.AppendTab().Append(name).Append("* t = (").Append(name).Append("*)malloc(sizeof(").Append(name).Append("));").AppendNL();
-                for (int i = 0; i < sd.ArgNames.Length; ++i)
-                {
-                    ctx.AppendTab().Append("t->").Append(sd.ArgNames[i].Value).Append(" = _").Append(sd.ArgNames[i].Value).Append(';').AppendNL();
-                }
-                ctx.AppendTab().Append("return t;").AppendNL();
-                ctx.TabDepth--;
-                ctx.Append('}').AppendNL();
-                ctx.AppendNL();
-            }
-            ctx.AppendNL();
-
-            foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
-            {
-                this.GenerateCodeForFunctionDeclaration(ctx, fn);
-                ctx.AppendNL();
-            }
-            files["generated.h"] = ctx.FlushAndClearBuffer();
-
-            ctx.Append("#include <stdlib.h>").AppendNL();
-            ctx.Append("#include <string.h>").AppendNL();
-            ctx.AppendNL();
-
-            ctx.Append(ResourceReader.GetTextResource("Resources/TranslationHelperC.txt"));
-
-            foreach (FunctionDefinition fn in compiler.GetFunctionDefinitions())
-            {
-                this.GenerateCodeForFunction(ctx, fn);
-                ctx.AppendNL();
-            }
-            files["generated.c"] = ctx.FlushAndClearBuffer();
         }
 
         public override string TranslateType(PType type)
@@ -100,15 +44,9 @@ namespace Pastel.Transpilers
             throw new NotImplementedException();
         }
 
-        public override void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length)
+        protected override void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct)
         {
-            sb.Append("translation_helper_array_copy(");
-            this.TranslateExpression(sb, array);
-            sb.Append(", (");
-            this.TranslateExpression(sb, length);
-            sb.Append(") * sizeof(");
-            sb.Append(this.TranslateType(array.ResolvedType.Generics[0]));
-            sb.Append("))");
+            throw new NotImplementedException();
         }
 
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
@@ -171,25 +109,6 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, index);
             sb.Append("] = ");
             this.TranslateExpression(sb, value);
-        }
-
-        public override void TranslateArraySortFloat(TranspilerContext sb, Expression array, Expression length)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length)
-        {
-            sb.Append("translation_helper_array_sort_int(");
-            this.TranslateExpression(sb, array);
-            sb.Append(", ");
-            this.TranslateExpression(sb, length);
-            sb.Append(')');
-        }
-
-        public override void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length)
-        {
-            throw new NotImplementedException();
         }
 
         public override void TranslateAssignment(TranspilerContext sb, Assignment assignment)
@@ -277,7 +196,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateCharConstant(TranspilerContext sb, char value)
         {
-            sb.Append(Util.ConvertCharToCharConstantCode(value));
+            sb.Append(PastelUtil.ConvertCharToCharConstantCode(value));
         }
 
         public override void TranslateCharToString(TranspilerContext sb, Expression charValue)
@@ -294,9 +213,9 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
-        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef)
+        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
         {
-            sb.Append(structDef.NameToken.Value);
+            sb.Append(constructorInvocation.StructType.NameToken.Value);
             sb.Append("_new(");
             Expression[] args = constructorInvocation.Args;
             for (int i = 0; i < args.Length; ++i)
@@ -304,13 +223,6 @@ namespace Pastel.Transpilers
                 if (i > 0) sb.Append(", ");
                 this.TranslateExpression(sb, args[i]);
             }
-            sb.Append(')');
-        }
-
-        public override void TranslateConvertRawDictionaryValueCollectionToAReusableValueList(TranspilerContext sb, Expression dictionary)
-        {
-            sb.Append("TranslationHelper_get_value_struct_list_from_dictionary_values(");
-            this.TranslateExpression(sb, dictionary);
             sb.Append(')');
         }
 
@@ -354,13 +266,6 @@ namespace Pastel.Transpilers
             sb.Append("Dictionary_get_keys_");
             sb.Append(this.GetDictionaryKeyType(dictionary.ResolvedType.Generics[0]));
             sb.Append('(');
-            this.TranslateExpression(sb, dictionary);
-            sb.Append(')');
-        }
-
-        public override void TranslateDictionaryKeysToValueList(TranspilerContext sb, Expression dictionary)
-        {
-            sb.Append("TranslationHelper_get_value_struct_list_from_dictionary_keys(");
             this.TranslateExpression(sb, dictionary);
             sb.Append(')');
         }
@@ -428,10 +333,15 @@ namespace Pastel.Transpilers
             sb.Append(")");
         }
 
-        public override void TranslateDictionaryLength(TranspilerContext sb, Expression dictionary)
+        public override void TranslateDictionarySize(TranspilerContext sb, Expression dictionary)
         {
             this.TranslateExpression(sb, dictionary);
             sb.Append("->size");
+        }
+
+        public override void TranslateDictionaryTryGet(TranspilerContext sb, Expression dictionary, Expression key, Expression fallbackValue, Variable varOut)
+        {
+            throw new NotImplementedException();
         }
 
         public override void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary)
@@ -441,11 +351,6 @@ namespace Pastel.Transpilers
             sb.Append('(');
             this.TranslateExpression(sb, dictionary);
             sb.Append(')');
-        }
-
-        public override void TranslateDictionaryValuesToValueList(TranspilerContext sb, Expression dictionary)
-        {
-            throw new NotImplementedException();
         }
 
         public override void TranslateFloatBuffer16(TranspilerContext sb)
@@ -476,16 +381,9 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
-        public override void TranslateFree(TranspilerContext ctx, Expression expression)
+        public override void TranslateGetFunction(TranspilerContext sb, Expression name)
         {
-            ctx.Append("free(");
-            this.TranslateExpression(ctx, expression);
-            ctx.Append(")");
-        }
-
-        public override void TranslateGlobalVariable(TranspilerContext sb, Variable variable)
-        {
-            this.TranslateVariable(sb, variable);
+            throw new NotImplementedException();
         }
 
         public override void TranslateIntBuffer16(TranspilerContext sb)
@@ -628,7 +526,7 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
-        public override void TranslateListLength(TranspilerContext sb, Expression list)
+        public override void TranslateListSize(TranspilerContext sb, Expression list)
         {
             this.TranslateExpression(sb, list);
             sb.Append("->size");
@@ -684,13 +582,6 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, expBase);
             sb.Append(", ");
             this.TranslateExpression(sb, exponent);
-            sb.Append(')');
-        }
-
-        public override void TranslateMathSqrt(TranspilerContext sb, Expression value)
-        {
-            sb.Append("TranslationHelper_math_sqrt(");
-            this.TranslateExpression(sb, value);
             sb.Append(')');
         }
 
@@ -870,10 +761,9 @@ namespace Pastel.Transpilers
 
         public override void TranslateStringConstant(TranspilerContext sb, string value)
         {
-            sb.Append(sb.StringTableBuilder.GetId(value));
-            sb.Append("/* ");
-            sb.Append(Util.ConvertStringValueToCode(value).Replace("*/", "* /"));
-            sb.Append(" */");
+            // TODO: append string constants as static references
+            // This used to be done via a string table class, but ideally the definitions should be inline.
+            throw new NotImplementedException();
         }
 
         public override void TranslateStringContains(TranspilerContext sb, Expression haystack, Expression needle)
@@ -1077,13 +967,6 @@ namespace Pastel.Transpilers
             sb.Append(fieldName);
         }
 
-        public override void TranslateThreadSleep(TranspilerContext sb, Expression seconds)
-        {
-            sb.Append("TranslationHelper_thread_sleep(");
-            this.TranslateExpression(sb, seconds);
-            sb.Append(')');
-        }
-
         public override void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList)
         {
             sb.Append("TranslationHelper_try_parse_float(");
@@ -1097,7 +980,7 @@ namespace Pastel.Transpilers
         {
             sb.Append(sb.CurrentTab);
             sb.Append(this.TranslateType(varDecl.Type));
-            sb.Append(" v_");
+            sb.Append(' ');
             sb.Append(varDecl.VariableNameToken.Value);
             if (varDecl.Value != null)
             {
@@ -1130,14 +1013,14 @@ namespace Pastel.Transpilers
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef)
         {
             sb.Append(this.TranslateType(funcDef.ReturnType));
-            sb.Append(" v_");
+            sb.Append(' ');
             sb.Append(funcDef.NameToken.Value);
             sb.Append('(');
             for (int i = 0; i < funcDef.ArgNames.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
                 sb.Append(this.TranslateType(funcDef.ArgTypes[i]));
-                sb.Append(" v_");
+                sb.Append(' ');
                 sb.Append(funcDef.ArgNames[i].Value);
             }
             sb.Append(")\n{\n");
@@ -1150,54 +1033,17 @@ namespace Pastel.Transpilers
         public override void GenerateCodeForFunctionDeclaration(TranspilerContext sb, FunctionDefinition funcDef)
         {
             sb.Append(this.TranslateType(funcDef.ReturnType));
-            sb.Append(" v_");
+            sb.Append(' ');
             sb.Append(funcDef.NameToken.Value);
             sb.Append('(');
             for (int i = 0; i < funcDef.ArgNames.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
                 sb.Append(this.TranslateType(funcDef.ArgTypes[i]));
-                sb.Append(" v_");
+                sb.Append(' ');
                 sb.Append(funcDef.ArgNames[i].Value);
             }
             sb.Append(");");
-        }
-
-        public override void GenerateCodeForGlobalsDefinitions(TranspilerContext sb, IList<VariableDeclaration> globals)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void GenerateCodeForStringTable(TranspilerContext sb, StringTableBuilder stringTable)
-        {
-            List<string> names = stringTable.Names;
-            List<string> values = stringTable.Values;
-            int total = names.Count;
-            for (int i = 0; i < total; ++i)
-            {
-                sb.Append("int* ");
-                sb.Append(names[i]);
-                sb.Append(';');
-                sb.Append(this.NewLine);
-            }
-            sb.Append("void populate_string_table_for_");
-            sb.Append(stringTable.Prefix);
-            sb.Append("()");
-            sb.Append(this.NewLine);
-            sb.Append('{');
-            sb.Append(this.NewLine);
-            for (int i = 0; i < total; ++i)
-            {
-                sb.Append('\t');
-                sb.Append(names[i]);
-                sb.Append(" = String_from_utf8(");
-                sb.Append(Util.ConvertStringValueToCode(values[i]).Replace("%", "%%"));
-                sb.Append(");");
-                sb.Append(this.NewLine);
-            }
-            sb.Append('}');
-            sb.Append(this.NewLine);
-            sb.Append(this.NewLine);
         }
 
         public override void GenerateCodeForStructDeclaration(TranspilerContext sb, string structName)

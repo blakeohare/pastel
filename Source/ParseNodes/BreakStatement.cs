@@ -1,4 +1,4 @@
-﻿namespace Pastel.ParseNodes
+﻿namespace Pastel.Nodes
 {
     internal class BreakStatement : Executable
     {

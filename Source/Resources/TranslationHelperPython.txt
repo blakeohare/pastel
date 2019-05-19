@@ -1,1 +1,0 @@
-﻿TranslationHelper_NoneListOfOne = [None]

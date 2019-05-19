@@ -1,4 +1,4 @@
-﻿using Pastel.ParseNodes;
+﻿using Pastel.Nodes;
 
 namespace Pastel.Transpilers
 {
@@ -58,18 +58,19 @@ namespace Pastel.Transpilers
 
         public override void TranslateFloatConstant(TranspilerContext sb, double value)
         {
-            sb.Append(Util.FloatToString(value));
+            sb.Append(PastelUtil.FloatToString(value));
         }
 
-        public override void TranslateFunctionInvocationInterpreterScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args)
+        public override void TranslateFunctionInvocationWithPrefix(TranspilerContext sb, string prefix, FunctionReference funcRef, Expression[] args)
         {
+            sb.Append(prefix);
             this.TranslateFunctionReference(sb, funcRef);
             sb.Append('(');
             this.TranslateCommaDelimitedExpressions(sb, args);
             sb.Append(')');
         }
 
-        public override void TranslateFunctionInvocationLocallyScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args)
+        public override void TranslateFunctionInvocation(TranspilerContext sb, FunctionReference funcRef, Expression[] args)
         {
             this.TranslateFunctionReference(sb, funcRef);
             sb.Append('(');
@@ -191,7 +192,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateStringConstant(TranspilerContext sb, string value)
         {
-            sb.Append(Util.ConvertStringValueToCode(value));
+            sb.Append(PastelUtil.ConvertStringValueToCode(value));
         }
 
         public override void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement)

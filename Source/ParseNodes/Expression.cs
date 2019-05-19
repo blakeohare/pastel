@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal abstract class Expression
     {
@@ -8,9 +8,12 @@ namespace Pastel.ParseNodes
 
         public PType ResolvedType { get; set; }
 
-        public Expression(Token firstToken)
+        public ICompilationEntity Owner { get; private set; }
+
+        public Expression(Token firstToken, ICompilationEntity owner)
         {
             this.FirstToken = firstToken;
+            this.Owner = owner;
         }
 
         public abstract Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler);

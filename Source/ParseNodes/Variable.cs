@@ -1,14 +1,23 @@
-﻿namespace Pastel.ParseNodes
+﻿using System.Collections.Generic;
+
+namespace Pastel.Nodes
 {
     internal class Variable : Expression
     {
-        public Variable(Token token) : base(token)
+        public readonly static HashSet<string> BANNED_NAMES = new HashSet<string>() {
+            "len",
+        };
+
+        public Variable(Token token, ICompilationEntity owner) : base(token, owner)
         {
             this.ApplyPrefix = true;
+            if (BANNED_NAMES.Contains(token.Value))
+            {
+                throw new ParserException(token, "The name '" + token.Value + "' is reserved for some platforms and cannot be used.");
+            }
         }
 
-        // All variables have a v_ prefix when translated to prevent collisions with language constructs.
-        // However, some generated code needs to namespace itself different to prevent collision with translated variables.
+        // Some generated code needs to namespace itself different to prevent collision with translated variables.
         // For example, some of the Python switch statement stuff uses temporary variables that are not in the original code.
         public bool ApplyPrefix { get; set; }
 
@@ -24,10 +33,33 @@
                 return constantValue.CloneWithNewToken(this.FirstToken);
             }
 
-            FunctionDefinition functionDefinition = compiler.GetFunctionDefinitionAndMaybeQueueForResolution(name);
+            if (name == "Core")
+            {
+                return new CoreNamespaceReference(this.FirstToken, this.Owner);
+            }
+
+            if (name == "Extension")
+            {
+                return new ExtensibleNamespaceReference(this.FirstToken, this.Owner);
+            }
+
+            FunctionDefinition functionDefinition = compiler.GetFunctionDefinition(name);
             if (functionDefinition != null)
             {
-                return new FunctionReference(this.FirstToken, functionDefinition);
+                return new FunctionReference(this.FirstToken, functionDefinition, this.Owner);
+            }
+
+            EnumDefinition enumDefinition = compiler.GetEnumDefinition(name);
+            if (enumDefinition != null)
+            {
+                return new EnumReference(this.FirstToken, enumDefinition, this.Owner);
+            }
+
+            if (compiler.IncludedScopeNamespacesToIndex.ContainsKey(name))
+            {
+                int index = compiler.IncludedScopeNamespacesToIndex[name];
+                PastelCompiler referencedScope = compiler.IncludedScopes[index];
+                return new DependencyNamespaceReference(this.FirstToken, referencedScope, this.Owner);
             }
 
             return this;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class VariableDeclaration : Executable, ICompilationEntity
     {
@@ -10,7 +10,6 @@ namespace Pastel.ParseNodes
             get
             {
                 if (this.IsConstant) return CompilationEntityType.CONSTANT;
-                if (this.IsGlobal) return CompilationEntityType.GLOBAL;
                 throw new Exception(); // this shouldn't have been a top-level thing.
             }
         }
@@ -19,16 +18,18 @@ namespace Pastel.ParseNodes
         public Token VariableNameToken { get; set; }
         public Token EqualsToken { get; set; }
         public Expression Value { get; set; }
+        public PastelContext Context { get; private set; }
 
         public bool IsConstant { get; set; }
-        public bool IsGlobal { get; set; }
 
         public VariableDeclaration(
             PType type,
             Token variableNameToken,
             Token equalsToken,
-            Expression assignmentValue) : base(type.FirstToken)
+            Expression assignmentValue,
+            PastelContext context) : base(type.FirstToken)
         {
+            this.Context = context;
             this.Type = type;
             this.VariableNameToken = variableNameToken;
             this.EqualsToken = equalsToken;
@@ -55,12 +56,8 @@ namespace Pastel.ParseNodes
         {
             this.Value = this.Value.ResolveType(varScope, compiler);
 
-            if (!PType.CheckAssignment(this.Type, this.Value.ResolvedType))
+            if (!PType.CheckAssignment(compiler, this.Type, this.Value.ResolvedType))
             {
-                if (this.Type == PType.DOUBLE && this.Value.ResolvedType == PType.INT)
-                {
-                    throw new ParserException(this.Value.FirstToken, "Must explicitly convert integer to a double/float.");
-                }
                 throw new ParserException(this.Value.FirstToken, "Cannot assign this type to a " + this.Type);
             }
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class FunctionDefinition : ICompilationEntity
     {
@@ -13,20 +13,21 @@ namespace Pastel.ParseNodes
         public PType[] ArgTypes { get; set; }
         public Token[] ArgNames { get; set; }
         public Executable[] Code { get; set; }
+        public PastelContext Context { get; private set; }
 
         public FunctionDefinition(
             Token nameToken,
             PType returnType,
             IList<PType> argTypes,
             IList<Token> argNames,
-            IList<Executable> code)
+            PastelContext context)
         {
+            this.Context = context;
             this.FirstToken = returnType.FirstToken;
             this.NameToken = nameToken;
             this.ReturnType = returnType;
             this.ArgTypes = argTypes.ToArray();
             this.ArgNames = argNames.ToArray();
-            this.Code = code.ToArray();
         }
 
         public void ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
@@ -36,13 +37,7 @@ namespace Pastel.ParseNodes
 
         public void ResolveTypes(PastelCompiler compiler)
         {
-            Dictionary<string, VariableDeclaration> globals = new Dictionary<string, VariableDeclaration>(compiler.Globals);
-            foreach (PastelCompiler includedScope in compiler.IncludedScopes)
-            {
-                Util.MergeDictionaryInto<string, VariableDeclaration>(includedScope.Globals, globals);
-            }
-
-            VariableScope varScope = new VariableScope(this, globals);
+            VariableScope varScope = new VariableScope(this);
             for (int i = 0; i < this.ArgTypes.Length; ++i)
             {
                 varScope.DeclareVariables(this.ArgNames[i], this.ArgTypes[i]);

@@ -1,11 +1,11 @@
-﻿namespace Pastel.ParseNodes
+﻿namespace Pastel.Nodes
 {
     internal class CastExpression : Expression
     {
         public PType Type { get; set; }
         public Expression Expression { get; set; }
 
-        public CastExpression(Token openParenToken, PType type, Expression expression) : base(openParenToken)
+        public CastExpression(Token openParenToken, PType type, Expression expression) : base(openParenToken, expression.Owner)
         {
             this.Type = type;
             this.Expression = expression;

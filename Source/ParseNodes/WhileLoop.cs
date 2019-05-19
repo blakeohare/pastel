@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class WhileLoop : Executable
     {
@@ -27,7 +27,7 @@ namespace Pastel.ParseNodes
         internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
         {
             this.Condition = this.Condition.ResolveType(varScope, compiler);
-            if (!this.Condition.ResolvedType.IsIdentical(PType.BOOL))
+            if (!this.Condition.ResolvedType.IsIdentical(compiler, PType.BOOL))
             {
                 throw new ParserException(this.Condition.FirstToken, "While loop must have a boolean condition.");
             }

@@ -1,4 +1,4 @@
-﻿using Pastel.ParseNodes;
+﻿using Pastel.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,33 +8,56 @@ namespace Pastel
     internal class PastelCompiler
     {
         internal PastelCompiler[] IncludedScopes { get; private set; }
-        
+        internal Dictionary<string, int> IncludedScopeNamespacesToIndex { get; private set; }
+
+        internal IDictionary<string, ExtensibleFunction> ExtensibleFunctions { get; private set; }
+
         internal Transpilers.AbstractTranspiler Transpiler { get; set; }
 
         public IInlineImportCodeLoader CodeLoader { get; private set; }
 
+        public PastelContext Context { get; private set; }
+
         public PastelCompiler(
+            PastelContext context,
             Language language,
             IList<PastelCompiler> includedScopes,
+            Dictionary<string, int> namespaceToScopeIndex,
             IDictionary<string, object> constants,
-            IInlineImportCodeLoader inlineImportCodeLoader)
+            IInlineImportCodeLoader inlineImportCodeLoader,
+            ICollection<ExtensibleFunction> extensibleFunctions)
         {
+            this.Context = context;
+            Dictionary<string, object> langConstants = LanguageUtil.GetLanguageConstants(language);
+            Dictionary<string, object> flattenedConstants = new Dictionary<string, object>(langConstants);
+            foreach (string key in constants.Keys)
+            {
+                flattenedConstants[key] = constants[key];
+            }
+
             this.CodeLoader = inlineImportCodeLoader;
             this.Transpiler = LanguageUtil.GetTranspiler(language);
             this.IncludedScopes = includedScopes.ToArray();
+            this.IncludedScopeNamespacesToIndex = new Dictionary<string, int>(namespaceToScopeIndex);
+            this.ExtensibleFunctions = extensibleFunctions == null
+                ? new Dictionary<string, ExtensibleFunction>()
+                : extensibleFunctions.ToDictionary(ef => ef.Name);
             this.StructDefinitions = new Dictionary<string, StructDefinition>();
             this.EnumDefinitions = new Dictionary<string, EnumDefinition>();
-            this.Globals = new Dictionary<string, VariableDeclaration>();
             this.ConstantDefinitions = new Dictionary<string, VariableDeclaration>();
             this.FunctionDefinitions = new Dictionary<string, FunctionDefinition>();
-            this.interpreterParser = new Parser(constants, inlineImportCodeLoader);
+            this.interpreterParser = new PastelParser(context, flattenedConstants, inlineImportCodeLoader);
         }
 
-        private Parser interpreterParser;
+        public override string ToString()
+        {
+            return "Pastel Compiler for " + this.Context.ToString();
+        }
+
+        private PastelParser interpreterParser;
 
         public Dictionary<string, StructDefinition> StructDefinitions { get; set; }
         internal Dictionary<string, EnumDefinition> EnumDefinitions { get; set; }
-        public Dictionary<string, VariableDeclaration> Globals { get; set; }
         internal Dictionary<string, VariableDeclaration> ConstantDefinitions { get; set; }
         public Dictionary<string, FunctionDefinition> FunctionDefinitions { get; set; }
 
@@ -43,14 +66,6 @@ namespace Pastel
             return this.StructDefinitions.Keys
                 .OrderBy(k => k)
                 .Select(key => this.StructDefinitions[key])
-                .ToArray();
-        }
-
-        public VariableDeclaration[] GetGlobalsDefinitions()
-        {
-            return this.Globals.Keys
-                .OrderBy(k => k)
-                .Select(key => this.Globals[key])
                 .ToArray();
         }
 
@@ -71,15 +86,6 @@ namespace Pastel
             {
                 return (InlineConstant)this.ConstantDefinitions[name].Value;
             }
-
-            foreach (PastelCompiler includedScope in this.IncludedScopes)
-            {
-                if (includedScope.ConstantDefinitions.ContainsKey(name))
-                {
-                    return (InlineConstant)includedScope.ConstantDefinitions[name].Value;
-                }
-            }
-
             return null;
         }
 
@@ -89,15 +95,6 @@ namespace Pastel
             {
                 return this.EnumDefinitions[name];
             }
-
-            foreach (PastelCompiler includedScope in this.IncludedScopes)
-            {
-                if (includedScope.EnumDefinitions.ContainsKey(name))
-                {
-                    return includedScope.EnumDefinitions[name];
-                }
-            }
-
             return null;
         }
 
@@ -107,33 +104,15 @@ namespace Pastel
             {
                 return this.StructDefinitions[name];
             }
-
-            foreach (PastelCompiler includedScope in this.IncludedScopes)
-            {
-                if (includedScope.StructDefinitions.ContainsKey(name))
-                {
-                    return includedScope.StructDefinitions[name];
-                }
-            }
-
             return null;
         }
 
-        internal FunctionDefinition GetFunctionDefinitionAndMaybeQueueForResolution(string name)
+        internal FunctionDefinition GetFunctionDefinition(string name)
         {
             if (this.FunctionDefinitions.ContainsKey(name))
             {
                 return this.FunctionDefinitions[name];
             }
-
-            foreach (PastelCompiler includedScope in this.IncludedScopes)
-            {
-                if (includedScope.FunctionDefinitions.ContainsKey(name))
-                {
-                    return includedScope.FunctionDefinitions[name];
-                }
-            }
-
             return null;
         }
 
@@ -175,12 +154,9 @@ namespace Pastel
                         break;
 
                     case CompilationEntityType.CONSTANT:
-                    case CompilationEntityType.GLOBAL:
                         VariableDeclaration assignment = (VariableDeclaration)entity;
                         string targetName = assignment.VariableNameToken.Value;
-                        Dictionary<string, VariableDeclaration> lookup = entity.EntityType == CompilationEntityType.CONSTANT
-                            ? this.ConstantDefinitions
-                            : this.Globals;
+                        Dictionary<string, VariableDeclaration> lookup = this.ConstantDefinitions;
                         if (lookup.ContainsKey(targetName))
                         {
                             throw new ParserException(
@@ -200,8 +176,31 @@ namespace Pastel
         {
             this.ResolveConstants();
             this.ResolveNamesAndCullUnusedCode();
+            this.ResolveSignatureTypes();
             this.ResolveTypes();
             this.ResolveWithTypeContext();
+        }
+
+        private void ResolveSignatureTypes()
+        {
+            foreach (string structName in this.StructDefinitions.Keys.OrderBy(t => t))
+            {
+                StructDefinition structDef = this.StructDefinitions[structName];
+                for (int i = 0; i < structDef.ArgTypes.Length; ++i)
+                {
+                    structDef.ArgTypes[i].FinalizeType(this);
+                }
+            }
+
+            foreach (string funcName in this.FunctionDefinitions.Keys.OrderBy(t => t))
+            {
+                FunctionDefinition funcDef = this.FunctionDefinitions[funcName];
+                funcDef.ReturnType.FinalizeType(this);
+                for (int i = 0; i < funcDef.ArgTypes.Length; ++i)
+                {
+                    funcDef.ArgTypes[i].FinalizeType(this);
+                }
+            }
         }
 
         private void ResolveConstants()
@@ -229,13 +228,6 @@ namespace Pastel
 
         private void ResolveNamesAndCullUnusedCode()
         {
-            string[] globalNames = this.Globals.Keys.ToArray();
-            for (int i = 0; i < globalNames.Length; ++i)
-            {
-                string name = globalNames[i];
-                this.Globals[name] = (VariableDeclaration)this.Globals[name].ResolveNamesAndCullUnusedCode(this);
-            }
-
             this.ResolvedFunctions = new HashSet<string>();
             this.ResolutionQueue = new Queue<string>();
 
@@ -273,12 +265,6 @@ namespace Pastel
 
         private void ResolveTypes()
         {
-            foreach (VariableDeclaration global in this.Globals.Values)
-            {
-                VariableScope vs = new VariableScope();
-                global.ResolveTypes(vs, this);
-            }
-
             string[] functionNames = this.FunctionDefinitions.Keys.OrderBy(s => s).ToArray();
             foreach (string functionName in functionNames)
             {
@@ -289,12 +275,6 @@ namespace Pastel
 
         private void ResolveWithTypeContext()
         {
-            string[] globalNames = this.Globals.Keys.OrderBy(s => s).ToArray();
-            foreach (string globalName in globalNames)
-            {
-                this.Globals[globalName] = (VariableDeclaration)this.Globals[globalName].ResolveWithTypeContext(this);
-            }
-
             string[] functionNames = this.FunctionDefinitions.Keys.OrderBy<string, string>(s => s).ToArray();
             foreach (string functionName in functionNames)
             {
@@ -321,74 +301,23 @@ namespace Pastel
         {
             foreach (FunctionDefinition fd in this.GetFunctionDefinitions())
             {
-                if (!alreadySerializedFunctions.Contains(fd))
-                {
-                    ctx.Transpiler.GenerateCodeForFunctionDeclaration(ctx, fd);
-                    ctx.Append(ctx.Transpiler.NewLine);
-                }
+                ctx.Transpiler.GenerateCodeForFunctionDeclaration(ctx, fd);
+                ctx.Append(ctx.Transpiler.NewLine);
             }
 
             return Indent(ctx.FlushAndClearBuffer().Trim(), ctx.Transpiler.NewLine, indent);
         }
 
-        // Delete once migrated to PastelContext
-        internal string GetFunctionCodeTEMP(Transpilers.TranspilerContext ctx, string indent)
-        {
-            foreach (FunctionDefinition fd in this.GetFunctionDefinitions())
-            {
-                if (!alreadySerializedFunctions.Contains(fd))
-                {
-                    this.Transpiler.GenerateCodeForFunction(ctx, fd);
-                    ctx.Append(this.Transpiler.NewLine);
-                }
-            }
-
-            return Indent(ctx.FlushAndClearBuffer().Trim(), this.Transpiler.NewLine, indent);
-        }
         internal Dictionary<string, string> GetFunctionCodeAsLookupTEMP(Transpilers.TranspilerContext ctx, string indent)
         {
             Dictionary<string, string> output = new Dictionary<string, string>();
             foreach (FunctionDefinition fd in this.GetFunctionDefinitions())
             {
-                if (!alreadySerializedFunctions.Contains(fd))
-                {
-                    ctx.Transpiler.GenerateCodeForFunction(ctx, fd);
-                    output[fd.NameToken.Value] = Indent(ctx.FlushAndClearBuffer().Trim(), ctx.Transpiler.NewLine, indent);
-                }
+                ctx.Transpiler.GenerateCodeForFunction(ctx, fd);
+                output[fd.NameToken.Value] = Indent(ctx.FlushAndClearBuffer().Trim(), ctx.Transpiler.NewLine, indent);
             }
 
             return output;
-        }
-
-        private HashSet<FunctionDefinition> alreadySerializedFunctions = new HashSet<FunctionDefinition>();
-        internal string GetFunctionCodeForSpecificFunctionAndPopItFromFutureSerializationTEMP(
-            TokenStream tokens,
-            string name,
-            string swapOutWithNewNameOrNull,
-            Transpilers.TranspilerContext ctx,
-            string indent)
-        {
-            FunctionDefinition fd = this.GetFunctionDefinitions().Where(f => f.NameToken.Value == name).FirstOrDefault();
-            if (fd == null || this.alreadySerializedFunctions.Contains(fd))
-            {
-                return null;
-            }
-
-            this.alreadySerializedFunctions.Add(fd);
-
-            if (swapOutWithNewNameOrNull != null)
-            {
-                fd.NameToken = tokens.CreateDummyToken(swapOutWithNewNameOrNull);
-            }
-
-            this.Transpiler.GenerateCodeForFunction(ctx, fd);
-            return Indent(ctx.FlushAndClearBuffer().Trim(), this.Transpiler.NewLine, indent);
-        }
-
-        internal string GetGlobalsCodeTEMP(Transpilers.TranspilerContext ctx, string indent)
-        {
-            this.Transpiler.GenerateCodeForGlobalsDefinitions(ctx, this.GetGlobalsDefinitions());
-            return Indent(ctx.FlushAndClearBuffer().Trim(), this.Transpiler.NewLine, indent);
         }
 
         private static string Indent(string code, string newline, string indent)

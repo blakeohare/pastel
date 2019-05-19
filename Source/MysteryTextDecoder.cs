@@ -1,4 +1,6 @@
-﻿namespace Pastel
+﻿using System.Text;
+
+namespace Pastel
 {
     // Semi-efficiently auto-detect the text encoding from some bytes and convert to a string.
     public static class MysteryTextDecoder
@@ -56,7 +58,7 @@
 
         private static string DecodeAsUtf16(int offset, byte[] bytes, bool isBigEndian)
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            StringBuilder sb = new StringBuilder();
             int length = bytes.Length;
             if (length % 2 == 1) return null;
             int b1, b2, b3, b4;
@@ -97,7 +99,7 @@
 
         private static string DecodeAsUtf8AndFailSilently(int offset, byte[] bytes)
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
             int length = bytes.Length;
             byte b, b2, b3, b4;
@@ -156,7 +158,7 @@
 
         private static string DecodeAsAnsi(byte[] bytes)
         {
-            return System.Text.Encoding.GetEncoding("iso-8859-1").GetString(bytes);
+            return Encoding.GetEncoding("iso-8859-1").GetString(bytes);
         }
     }
 }

@@ -1,45 +1,30 @@
 ﻿namespace Pastel
 {
-    public enum TokenType
-    {
-        EOF,
-        ALPHANUMS,
-        NUMBER,
-        PUNCTUATION,
-        STRING
-    }
-
     public class Token
     {
-        public string FileName { get; private set; }
-        public string Value { get; set; }
+        public string Value { get; private set; }
         public int Line { get; private set; }
-        public int Column { get; private set; }
-        public TokenType Type { get; set; }
-        public bool IsNextWhitespace { get; private set; }
-        public int Index { get; private set; }
-        
-        public Token(string filename, string value, int startIndex, int line, int column, TokenType type)
+        public int Col { get; private set; }
+        public string FileName { get; private set; }
+        public bool HasWhitespacePrefix { get; private set; }
+
+        public Token(string value, string filename, int lineIndex, int colIndex, bool hasWhitespacePrefix)
         {
-            this.FileName = filename;
             this.Value = value;
-            this.Line = line;
-            this.Column = column;
-            this.Type = type;
-            this.Index = startIndex;
+            this.FileName = filename;
+            this.Line = lineIndex;
+            this.Col = colIndex;
+            this.HasWhitespacePrefix = hasWhitespacePrefix;
         }
 
-        public static Token CreateDummyToken(string filename, string value, TokenType type)
+        public static Token CreateDummyToken(string value)
         {
-            char c = value[0];
-            bool isAlpha = (c >= 'a' && c <= 'Z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
-            return new Token(filename, value, 0, 1, 1, type);
+            return new Token(value, "", 0, 0, false);
         }
 
         public override string ToString()
         {
-            if (this.Type == TokenType.EOF) return "EOF Token";
-            return "Token: " + this.Value;
+            return "Token: '" + this.Value + "'";
         }
     }
 }

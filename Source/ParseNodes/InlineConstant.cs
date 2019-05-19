@@ -1,36 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pastel.ParseNodes
+namespace Pastel.Nodes
 {
     internal class InlineConstant : Expression
     {
         public object Value { get; set; }
         public PType Type { get; set; }
 
-        public static InlineConstant Of(Token similarToken, object value)
+        public static InlineConstant Of(object value, ICompilationEntity owner)
         {
-            TokenType type = TokenType.ALPHANUMS; // TODO: change this.
-            Token token = new Token(similarToken.FileName, value.ToString(), similarToken.Index, similarToken.Line, similarToken.Column, type);
-            return OfImpl(token, value);
-        }
-
-        public static InlineConstant Of(TokenStream tokens, object value)
-        {
-            return OfImpl(tokens.CreateDummyToken(value.ToString()), value);
-        }
-
-        private static InlineConstant OfImpl(Token dummyToken, object value)
-        {
+            Token dummyToken = Token.CreateDummyToken(value.ToString());
             if (value is int)
             {
-                return (InlineConstant)new InlineConstant(PType.INT, dummyToken, value).ResolveType(null, null);
+                return (InlineConstant)new InlineConstant(PType.INT, dummyToken, value, owner).ResolveType(null, null);
             }
 
             throw new NotImplementedException();
         }
 
-        public InlineConstant(PType type, Token firstToken, object value) : base(firstToken)
+        public InlineConstant(PType type, Token firstToken, object value, ICompilationEntity owner) : base(firstToken, owner)
         {
             this.Type = type;
             this.ResolvedType = type;
@@ -44,7 +33,12 @@ namespace Pastel.ParseNodes
 
         public InlineConstant CloneWithNewToken(Token token)
         {
-            return new InlineConstant(this.Type, token, this.Value);
+            return new InlineConstant(this.Type, token, this.Value, this.Owner);
+        }
+
+        public InlineConstant CloneWithNewTokenAndOwner(Token token, ICompilationEntity owner)
+        {
+            return new InlineConstant(this.Type, token, this.Value, owner);
         }
 
         internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, PastelCompiler compiler)

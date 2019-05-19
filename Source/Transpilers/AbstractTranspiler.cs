@@ -1,4 +1,4 @@
-﻿using Pastel.ParseNodes;
+﻿using Pastel.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,18 +12,16 @@ namespace Pastel.Transpilers
         public string NewLine { get; private set; }
 
         public bool UsesStructDefinitions { get; protected set; }
-        public bool UsesStringTable { get; protected set; }
         public bool UsesFunctionDeclarations { get; protected set; }
         public bool UsesStructDeclarations { get; protected set; }
-        public bool UsesFree { get; protected set; }
+
+        public virtual string HelperCodeResourcePath { get { return null; } }
 
         public AbstractTranspiler(string tab, string newLine)
         {
             this.UsesStructDefinitions = true;
             this.UsesFunctionDeclarations = false;
             this.UsesStructDeclarations = false;
-            this.UsesStringTable = false;
-            this.UsesFree = false;
 
             this.NewLine = newLine;
             this.TabChar = tab;
@@ -34,8 +32,6 @@ namespace Pastel.Transpilers
                 this.Tabs[i] = this.Tabs[i - 1] + this.TabChar;
             }
         }
-
-        public abstract void GenerateCode(TranspilerContext ctx, PastelCompiler compiler, Dictionary<string, string> files);
 
         public virtual string TranslateType(PType type)
         {
@@ -55,8 +51,27 @@ namespace Pastel.Transpilers
             string typeName = executable.GetType().Name;
             switch (typeName)
             {
-                case "Assignment": this.TranslateAssignment(sb, (Assignment)executable); break;
+                case "Assignment":
+                    Assignment asgn = (Assignment)executable;
+                    if (asgn.Value is CoreFunctionInvocation &&
+                        asgn.Target is Variable &&
+                        ((CoreFunctionInvocation)asgn.Value).Function == CoreFunction.DICTIONARY_TRY_GET)
+                    {
+                        Variable variableOut = (Variable)asgn.Target;
+                        Expression[] tryGetArgs = ((CoreFunctionInvocation)asgn.Value).Args;
+                        Expression dictionary = tryGetArgs[0];
+                        Expression key = tryGetArgs[1];
+                        Expression fallbackValue = tryGetArgs[2];
+                        this.TranslateDictionaryTryGet(sb, dictionary, key, fallbackValue, variableOut);
+                    }
+                    else
+                    {
+                        this.TranslateAssignment(sb, asgn);
+                    }
+                    break;
+
                 case "BreakStatement": this.TranslateBreak(sb); break;
+                case "ExpressionAsExecutable": this.TranslateExpressionAsExecutable(sb, ((ExpressionAsExecutable)executable).Expression); break;
                 case "IfStatement": this.TranslateIfStatement(sb, (IfStatement)executable); break;
                 case "ReturnStatement": this.TranslateReturnStatemnt(sb, (ReturnStatement)executable); break;
                 case "SwitchStatement": this.TranslateSwitchStatement(sb, (SwitchStatement)executable); break;
@@ -67,23 +82,6 @@ namespace Pastel.Transpilers
                     for (int i = 0; i < execs.Length; ++i)
                     {
                         this.TranslateExecutable(sb, execs[i]);
-                    }
-                    break;
-
-                case "ExpressionAsExecutable":
-                    ExpressionAsExecutable exprAsExec = (ExpressionAsExecutable)executable;
-                    bool omit = false;
-                    NativeFunctionInvocation nfi = exprAsExec.Expression as NativeFunctionInvocation;
-                    if (nfi != null)
-                    {
-                        if (nfi.Function == NativeFunction.FREE)
-                        {
-                            omit = !sb.Transpiler.UsesFree;
-                        }
-                    }
-                    if (!omit)
-                    {
-                        this.TranslateExpressionAsExecutable(sb, exprAsExec.Expression);
                     }
                     break;
 
@@ -99,8 +97,14 @@ namespace Pastel.Transpilers
             {
                 case "CastExpression": this.TranslateCast(sb, ((CastExpression)expression).Type, ((CastExpression)expression).Expression); break;
                 case "FunctionReference": this.TranslateFunctionReference(sb, (FunctionReference)expression); break;
-                case "NativeFunctionInvocation": this.TranslateNativeFunctionInvocation(sb, (NativeFunctionInvocation)expression); break;
+                case "FunctionPointerInvocation": this.TranslateFunctionPointerInvocation(sb, (FunctionPointerInvocation)expression); break;
+                case "CoreFunctionInvocation": this.TranslateCoreFunctionInvocation(sb, (CoreFunctionInvocation)expression); break;
                 case "OpChain": this.TranslateOpChain(sb, (OpChain)expression); break;
+                case "ExtensibleFunctionInvocation":
+                    this.TranslateExtensibleFunctionInvocation(
+                        sb,
+                        (ExtensibleFunctionInvocation)expression);
+                    break;
 
                 case "InlineIncrement":
                     InlineIncrement ii = (InlineIncrement)expression;
@@ -109,39 +113,28 @@ namespace Pastel.Transpilers
 
                 case "FunctionInvocation":
                     FunctionInvocation funcInvocation = (FunctionInvocation)expression;
-                    bool specifyInterpreterScope = false;
-                    if (funcInvocation.FirstToken.FileName.StartsWith("LIB:") &&
-                        funcInvocation.Root is FunctionReference)
+                    string prefix = null;
+                    FunctionDefinition funcDef = ((FunctionReference)funcInvocation.Root).Function;
+                    PastelContext targetContext = funcDef.Context;
+                    PastelContext callerContext = funcInvocation.Owner.Context;
+                    if (targetContext != callerContext)
                     {
-                        FunctionDefinition funcDef = ((FunctionReference)funcInvocation.Root).Function;
-                        if (!funcDef.NameToken.FileName.StartsWith("LIB:"))
-                        {
-                            specifyInterpreterScope = true;
-                        }
+                        prefix = callerContext.GetDependencyExportPrefix(targetContext);
                     }
 
-                    if (specifyInterpreterScope)
+                    if (prefix != null)
                     {
-                        this.TranslateFunctionInvocationInterpreterScoped(sb, (FunctionReference)funcInvocation.Root, funcInvocation.Args);
+                        this.TranslateFunctionInvocationWithPrefix(sb, prefix, (FunctionReference)funcInvocation.Root, funcInvocation.Args);
                     }
                     else
                     {
-                        this.TranslateFunctionInvocationLocallyScoped(sb, (FunctionReference)funcInvocation.Root, funcInvocation.Args);
+                        this.TranslateFunctionInvocation(sb, (FunctionReference)funcInvocation.Root, funcInvocation.Args);
                     }
                     break;
 
                 case "Variable":
                     Variable v = (Variable)expression;
-                    string name = v.Name;
-                    char firstChar = name[0];
-                    if (firstChar >= 'A' && firstChar <= 'Z' && name.Contains('_') && name.ToUpper() == name)
-                    {
-                        this.TranslateGlobalVariable(sb, v);
-                    }
-                    else
-                    {
-                        this.TranslateVariable(sb, v);
-                    }
+                    this.TranslateVariable(sb, v);
                     break;
 
                 case "ConstructorInvocation":
@@ -177,7 +170,7 @@ namespace Pastel.Transpilers
 
                         default:
                             // TODO: throw an exception (in the parser) if generics exist.
-                            this.TranslateConstructorInvocation(sb, constructor, constructor.StructType);
+                            this.TranslateConstructorInvocation(sb, constructor);
                             break;
                     }
                     break;
@@ -221,105 +214,171 @@ namespace Pastel.Transpilers
             }
         }
 
-        public void TranslateNativeFunctionInvocation(TranspilerContext sb, NativeFunctionInvocation nativeFuncInvocation)
+        public virtual void TranslateFunctionPointerInvocation(TranspilerContext sb, FunctionPointerInvocation fpi)
         {
-            Expression[] args = nativeFuncInvocation.Args;
-            switch (nativeFuncInvocation.Function)
+            this.TranslateExpression(sb, fpi.Root);
+            sb.Append('(');
+            for (int i = 0; i < fpi.Args.Length; ++i)
             {
-                case NativeFunction.ARRAY_COPY: this.TranslateArrayCopy(sb, args[0], args[1]); break;
-                case NativeFunction.ARRAY_GET: this.TranslateArrayGet(sb, args[0], args[1]); break;
-                case NativeFunction.ARRAY_JOIN: this.TranslateArrayJoin(sb, args[0], args[1]); break;
-                case NativeFunction.ARRAY_LENGTH: this.TranslateArrayLength(sb, args[0]); break;
-                case NativeFunction.ARRAY_SET: this.TranslateArraySet(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.ARRAY_SORT_FLOAT: this.TranslateArraySortFloat(sb, args[0], args[1]); break;
-                case NativeFunction.ARRAY_SORT_INT: this.TranslateArraySortInt(sb, args[0], args[1]); break;
-                case NativeFunction.ARRAY_SORT_STRING: this.TranslateArraySortString(sb, args[0], args[1]); break;
-                case NativeFunction.BASE64_TO_STRING: this.TranslateBase64ToString(sb, args[0]); break;
-                case NativeFunction.CHAR_TO_STRING: this.TranslateCharToString(sb, args[0]); break;
-                case NativeFunction.CHR: this.TranslateChr(sb, args[0]); break;
-                case NativeFunction.CONVERT_RAW_DICTIONARY_VALUE_COLLECTION_TO_A_REUSABLE_VALUE_LIST: this.TranslateConvertRawDictionaryValueCollectionToAReusableValueList(sb, args[0]); break;
-                case NativeFunction.CURRENT_TIME_SECONDS: this.TranslateCurrentTimeSeconds(sb); break;
-                case NativeFunction.DICTIONARY_CONTAINS_KEY: this.TranslateDictionaryContainsKey(sb, args[0], args[1]); break;
-                case NativeFunction.DICTIONARY_GET: this.TranslateDictionaryGet(sb, args[0], args[1]); break;
-                case NativeFunction.DICTIONARY_KEYS: this.TranslateDictionaryKeys(sb, args[0]); break;
-                case NativeFunction.DICTINOARY_KEYS_TO_VALUE_LIST: this.TranslateDictionaryKeysToValueList(sb, args[0]); break;
-                case NativeFunction.DICTIONARY_LENGTH: this.TranslateDictionaryLength(sb, args[0]); break;
-                case NativeFunction.DICTIONARY_NEW: this.TranslateDictionaryNew(sb, nativeFuncInvocation.ResolvedType.Generics[0], nativeFuncInvocation.ResolvedType.Generics[1]); break;
-                case NativeFunction.DICTIONARY_REMOVE: this.TranslateDictionaryRemove(sb, args[0], args[1]); break;
-                case NativeFunction.DICTIONARY_SET: this.TranslateDictionarySet(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.DICTIONARY_VALUES: this.TranslateDictionaryValues(sb, args[0]); break;
-                case NativeFunction.DICTIONARY_VALUES_TO_VALUE_LIST: this.TranslateDictionaryValues(sb, args[0]); break;
-                case NativeFunction.EMIT_COMMENT: this.TranslateEmitComment(sb, ((InlineConstant)args[0]).Value.ToString()); break;
-                case NativeFunction.FLOAT_BUFFER_16: this.TranslateFloatBuffer16(sb); break;
-                case NativeFunction.FLOAT_DIVISION: this.TranslateFloatDivision(sb, args[0], args[1]); break;
-                case NativeFunction.FLOAT_TO_STRING: this.TranslateFloatToString(sb, args[0]); break;
-                case NativeFunction.FREE: this.TranslateFree(sb, args[0]); break;
-                case NativeFunction.INT: this.TranslateFloatToInt(sb, args[0]); break;
-                case NativeFunction.INT_BUFFER_16: this.TranslateIntBuffer16(sb); break;
-                case NativeFunction.INT_TO_STRING: this.TranslateIntToString(sb, args[0]); break;
-                case NativeFunction.INTEGER_DIVISION: this.TranslateIntegerDivision(sb, args[0], args[1]); break;
-                case NativeFunction.IS_VALID_INTEGER: this.TranslateIsValidInteger(sb, args[0]); break;
-                case NativeFunction.LIST_ADD: this.TranslateListAdd(sb, args[0], args[1]); break;
-                case NativeFunction.LIST_CLEAR: this.TranslateListClear(sb, args[0]); break;
-                case NativeFunction.LIST_CONCAT: this.TranslateListConcat(sb, args[0], args[1]); break;
-                case NativeFunction.LIST_GET: this.TranslateListGet(sb, args[0], args[1]); break;
-                case NativeFunction.LIST_INSERT: this.TranslateListInsert(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.LIST_JOIN_CHARS: this.TranslateListJoinChars(sb, args[0]); break;
-                case NativeFunction.LIST_JOIN_STRINGS: this.TranslateListJoinStrings(sb, args[0], args[1]); break;
-                case NativeFunction.LIST_LENGTH: this.TranslateListLength(sb, args[0]); break;
-                case NativeFunction.LIST_NEW: this.TranslateListNew(sb, nativeFuncInvocation.ResolvedType.Generics[0]); break;
-                case NativeFunction.LIST_POP: this.TranslateListPop(sb, args[0]); break;
-                case NativeFunction.LIST_REMOVE_AT: this.TranslateListRemoveAt(sb, args[0], args[1]); break;
-                case NativeFunction.LIST_REVERSE: this.TranslateListReverse(sb, args[0]); break;
-                case NativeFunction.LIST_SET: this.TranslateListSet(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.LIST_SHUFFLE: this.TranslateListShuffle(sb, args[0]); break;
-                case NativeFunction.LIST_TO_ARRAY: this.TranslateListToArray(sb, args[0]); break;
-                case NativeFunction.MATH_ARCCOS: this.TranslateMathArcCos(sb, args[0]); break;
-                case NativeFunction.MATH_ARCSIN: this.TranslateMathArcSin(sb, args[0]); break;
-                case NativeFunction.MATH_ARCTAN: this.TranslateMathArcTan(sb, args[0], args[1]); break;
-                case NativeFunction.MATH_COS: this.TranslateMathCos(sb, args[0]); break;
-                case NativeFunction.MATH_LOG: this.TranslateMathLog(sb, args[0]); break;
-                case NativeFunction.MATH_POW: this.TranslateMathPow(sb, args[0], args[1]); break;
-                case NativeFunction.MATH_SQRT: this.TranslateMathSqrt(sb, args[0]); break;
-                case NativeFunction.MATH_SIN: this.TranslateMathSin(sb, args[0]); break;
-                case NativeFunction.MATH_TAN: this.TranslateMathTan(sb, args[0]); break;
-                case NativeFunction.MULTIPLY_LIST: this.TranslateMultiplyList(sb, args[0], args[1]); break;
-                case NativeFunction.ORD: this.TranslateOrd(sb, args[0]); break;
-                case NativeFunction.PARSE_FLOAT_UNSAFE: this.TranslateParseFloatUnsafe(sb, args[0]); break;
-                case NativeFunction.PARSE_INT: this.TranslateParseInt(sb, args[0]); break;
-                case NativeFunction.PRINT_STDERR: this.TranslatePrintStdErr(sb, args[0]); break;
-                case NativeFunction.PRINT_STDOUT: this.TranslatePrintStdOut(sb, args[0]); break;
-                case NativeFunction.RANDOM_FLOAT: this.TranslateRandomFloat(sb); break;
-                case NativeFunction.SORTED_COPY_OF_INT_ARRAY: this.TranslateSortedCopyOfIntArray(sb, args[0]); break;
-                case NativeFunction.SORTED_COPY_OF_STRING_ARRAY: this.TranslateSortedCopyOfStringArray(sb, args[0]); break;
-                case NativeFunction.STRING_APPEND: this.TranslateStringAppend(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_BUFFER_16: this.TranslateStringBuffer16(sb); break;
-                case NativeFunction.STRING_CHAR_AT: this.TranslateStringCharAt(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_CHAR_CODE_AT: this.TranslateStringCharCodeAt(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_COMPARE_IS_REVERSE: this.TranslateStringCompareIsReverse(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_CONCAT_ALL: if (args.Length == 2) this.TranslateStringConcatPair(sb, args[0], args[1]); else this.TranslateStringConcatAll(sb, args); break;
-                case NativeFunction.STRING_CONTAINS: this.TranslateStringContains(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_ENDS_WITH: this.TranslateStringEndsWith(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_EQUALS: this.TranslateStringEquals(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_FROM_CHAR_CODE: this.TranslateStringFromCharCode(sb, args[0]); break;
-                case NativeFunction.STRING_INDEX_OF: if (args.Length == 2) this.TranslateStringIndexOf(sb, args[0], args[1]); else this.TranslateStringIndexOfWithStart(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.STRING_LENGTH: this.TranslateStringLength(sb, args[0]); break;
-                case NativeFunction.STRING_REPLACE: this.TranslateStringReplace(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.STRING_REVERSE: this.TranslateStringReverse(sb, args[0]); break;
-                case NativeFunction.STRING_SPLIT: this.TranslateStringSplit(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_STARTS_WITH: this.TranslateStringStartsWith(sb, args[0], args[1]); break;
-                case NativeFunction.STRING_SUBSTRING: this.TranslateStringSubstring(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.STRING_SUBSTRING_IS_EQUAL_TO: this.TranslateStringSubstringIsEqualTo(sb, args[0], args[1], args[2]); break;
-                case NativeFunction.STRING_TO_LOWER: this.TranslateStringToLower(sb, args[0]); break;
-                case NativeFunction.STRING_TO_UPPER: this.TranslateStringToUpper(sb, args[0]); break;
-                case NativeFunction.STRING_TRIM: this.TranslateStringTrim(sb, args[0]); break;
-                case NativeFunction.STRING_TRIM_END: this.TranslateStringTrimEnd(sb, args[0]); break;
-                case NativeFunction.STRING_TRIM_START: this.TranslateStringTrimStart(sb, args[0]); break;
-                case NativeFunction.STRONG_REFERENCE_EQUALITY: this.TranslateStrongReferenceEquality(sb, args[0], args[1]); break;
-                case NativeFunction.THREAD_SLEEP: this.TranslateThreadSleep(sb, args[0]); break;
-                case NativeFunction.TRY_PARSE_FLOAT: this.TranslateTryParseFloat(sb, args[0], args[1]); break;
+                if (i > 0) sb.Append(", ");
+                this.TranslateExpression(sb, fpi.Args[i]);
+            }
+            sb.Append(')');
+        }
 
-                default: throw new NotImplementedException(nativeFuncInvocation.Function.ToString());
+        public void TranslateCoreFunctionInvocation(TranspilerContext sb, CoreFunctionInvocation coreFuncInvocation)
+        {
+            Expression[] args = coreFuncInvocation.Args;
+            switch (coreFuncInvocation.Function)
+            {
+                case CoreFunction.ARRAY_GET: this.TranslateArrayGet(sb, args[0], args[1]); break;
+                case CoreFunction.ARRAY_JOIN: this.TranslateArrayJoin(sb, args[0], args[1]); break;
+                case CoreFunction.ARRAY_LENGTH: this.TranslateArrayLength(sb, args[0]); break;
+                case CoreFunction.ARRAY_SET: this.TranslateArraySet(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.BASE64_TO_STRING: this.TranslateBase64ToString(sb, args[0]); break;
+                case CoreFunction.CHAR_TO_STRING: this.TranslateCharToString(sb, args[0]); break;
+                case CoreFunction.CHR: this.TranslateChr(sb, args[0]); break;
+                case CoreFunction.CURRENT_TIME_SECONDS: this.TranslateCurrentTimeSeconds(sb); break;
+                case CoreFunction.DICTIONARY_CONTAINS_KEY: this.TranslateDictionaryContainsKey(sb, args[0], args[1]); break;
+                case CoreFunction.DICTIONARY_GET: this.TranslateDictionaryGet(sb, args[0], args[1]); break;
+                case CoreFunction.DICTIONARY_KEYS: this.TranslateDictionaryKeys(sb, args[0]); break;
+                case CoreFunction.DICTIONARY_NEW: this.TranslateDictionaryNew(sb, coreFuncInvocation.ResolvedType.Generics[0], coreFuncInvocation.ResolvedType.Generics[1]); break;
+                case CoreFunction.DICTIONARY_REMOVE: this.TranslateDictionaryRemove(sb, args[0], args[1]); break;
+                case CoreFunction.DICTIONARY_SET: this.TranslateDictionarySet(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.DICTIONARY_SIZE: this.TranslateDictionarySize(sb, args[0]); break;
+                case CoreFunction.DICTIONARY_VALUES: this.TranslateDictionaryValues(sb, args[0]); break;
+                case CoreFunction.EMIT_COMMENT: this.TranslateEmitComment(sb, ((InlineConstant)args[0]).Value.ToString()); break;
+                case CoreFunction.FLOAT_BUFFER_16: this.TranslateFloatBuffer16(sb); break;
+                case CoreFunction.FLOAT_DIVISION: this.TranslateFloatDivision(sb, args[0], args[1]); break;
+                case CoreFunction.FLOAT_TO_STRING: this.TranslateFloatToString(sb, args[0]); break;
+                case CoreFunction.GET_FUNCTION: this.TranslateGetFunction(sb, args[0]); break;
+                case CoreFunction.INT: this.TranslateFloatToInt(sb, args[0]); break;
+                case CoreFunction.INT_BUFFER_16: this.TranslateIntBuffer16(sb); break;
+                case CoreFunction.INT_TO_STRING: this.TranslateIntToString(sb, args[0]); break;
+                case CoreFunction.INTEGER_DIVISION: this.TranslateIntegerDivision(sb, args[0], args[1]); break;
+                case CoreFunction.IS_VALID_INTEGER: this.TranslateIsValidInteger(sb, args[0]); break;
+                case CoreFunction.LIST_ADD: this.TranslateListAdd(sb, args[0], args[1]); break;
+                case CoreFunction.LIST_CLEAR: this.TranslateListClear(sb, args[0]); break;
+                case CoreFunction.LIST_CONCAT: this.TranslateListConcat(sb, args[0], args[1]); break;
+                case CoreFunction.LIST_GET: this.TranslateListGet(sb, args[0], args[1]); break;
+                case CoreFunction.LIST_INSERT: this.TranslateListInsert(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.LIST_JOIN_CHARS: this.TranslateListJoinChars(sb, args[0]); break;
+                case CoreFunction.LIST_JOIN_STRINGS: this.TranslateListJoinStrings(sb, args[0], args[1]); break;
+                case CoreFunction.LIST_NEW: this.TranslateListNew(sb, coreFuncInvocation.ResolvedType.Generics[0]); break;
+                case CoreFunction.LIST_POP: this.TranslateListPop(sb, args[0]); break;
+                case CoreFunction.LIST_REMOVE_AT: this.TranslateListRemoveAt(sb, args[0], args[1]); break;
+                case CoreFunction.LIST_REVERSE: this.TranslateListReverse(sb, args[0]); break;
+                case CoreFunction.LIST_SET: this.TranslateListSet(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.LIST_SHUFFLE: this.TranslateListShuffle(sb, args[0]); break;
+                case CoreFunction.LIST_SIZE: this.TranslateListSize(sb, args[0]); break;
+                case CoreFunction.LIST_TO_ARRAY: this.TranslateListToArray(sb, args[0]); break;
+                case CoreFunction.MATH_ARCCOS: this.TranslateMathArcCos(sb, args[0]); break;
+                case CoreFunction.MATH_ARCSIN: this.TranslateMathArcSin(sb, args[0]); break;
+                case CoreFunction.MATH_ARCTAN: this.TranslateMathArcTan(sb, args[0], args[1]); break;
+                case CoreFunction.MATH_COS: this.TranslateMathCos(sb, args[0]); break;
+                case CoreFunction.MATH_LOG: this.TranslateMathLog(sb, args[0]); break;
+                case CoreFunction.MATH_POW: this.TranslateMathPow(sb, args[0], args[1]); break;
+                case CoreFunction.MATH_SIN: this.TranslateMathSin(sb, args[0]); break;
+                case CoreFunction.MATH_TAN: this.TranslateMathTan(sb, args[0]); break;
+                case CoreFunction.MULTIPLY_LIST: this.TranslateMultiplyList(sb, args[0], args[1]); break;
+                case CoreFunction.ORD: this.TranslateOrd(sb, args[0]); break;
+                case CoreFunction.PARSE_FLOAT_UNSAFE: this.TranslateParseFloatUnsafe(sb, args[0]); break;
+                case CoreFunction.PARSE_INT: this.TranslateParseInt(sb, args[0]); break;
+                case CoreFunction.PRINT_STDERR: this.TranslatePrintStdErr(sb, args[0]); break;
+                case CoreFunction.PRINT_STDOUT: this.TranslatePrintStdOut(sb, args[0]); break;
+                case CoreFunction.RANDOM_FLOAT: this.TranslateRandomFloat(sb); break;
+                case CoreFunction.SORTED_COPY_OF_INT_ARRAY: this.TranslateSortedCopyOfIntArray(sb, args[0]); break;
+                case CoreFunction.SORTED_COPY_OF_STRING_ARRAY: this.TranslateSortedCopyOfStringArray(sb, args[0]); break;
+                case CoreFunction.STRING_APPEND: this.TranslateStringAppend(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_BUFFER_16: this.TranslateStringBuffer16(sb); break;
+                case CoreFunction.STRING_CHAR_AT: this.TranslateStringCharAt(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_CHAR_CODE_AT: this.TranslateStringCharCodeAt(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_COMPARE_IS_REVERSE: this.TranslateStringCompareIsReverse(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_CONCAT_ALL: if (args.Length == 2) this.TranslateStringConcatPair(sb, args[0], args[1]); else this.TranslateStringConcatAll(sb, args); break;
+                case CoreFunction.STRING_CONTAINS: this.TranslateStringContains(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_ENDS_WITH: this.TranslateStringEndsWith(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_EQUALS: this.TranslateStringEquals(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_FROM_CHAR_CODE: this.TranslateStringFromCharCode(sb, args[0]); break;
+                case CoreFunction.STRING_INDEX_OF: if (args.Length == 2) this.TranslateStringIndexOf(sb, args[0], args[1]); else this.TranslateStringIndexOfWithStart(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.STRING_LENGTH: this.TranslateStringLength(sb, args[0]); break;
+                case CoreFunction.STRING_REPLACE: this.TranslateStringReplace(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.STRING_REVERSE: this.TranslateStringReverse(sb, args[0]); break;
+                case CoreFunction.STRING_SPLIT: this.TranslateStringSplit(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_STARTS_WITH: this.TranslateStringStartsWith(sb, args[0], args[1]); break;
+                case CoreFunction.STRING_SUBSTRING: this.TranslateStringSubstring(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO: this.TranslateStringSubstringIsEqualTo(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.STRING_TO_LOWER: this.TranslateStringToLower(sb, args[0]); break;
+                case CoreFunction.STRING_TO_UPPER: this.TranslateStringToUpper(sb, args[0]); break;
+                case CoreFunction.STRING_TRIM: this.TranslateStringTrim(sb, args[0]); break;
+                case CoreFunction.STRING_TRIM_END: this.TranslateStringTrimEnd(sb, args[0]); break;
+                case CoreFunction.STRING_TRIM_START: this.TranslateStringTrimStart(sb, args[0]); break;
+                case CoreFunction.STRONG_REFERENCE_EQUALITY: this.TranslateStrongReferenceEquality(sb, args[0], args[1]); break;
+                case CoreFunction.TRY_PARSE_FLOAT: this.TranslateTryParseFloat(sb, args[0], args[1]); break;
+
+                case CoreFunction.DICTIONARY_TRY_GET:
+                    throw new ParserException(coreFuncInvocation.FirstToken, "Dictionary's TryGet method cannot be called like this. It must be assigned to a variable directly. This is due to a restriction in how this can get transpiled to certain languages.");
+
+                default: throw new NotImplementedException(coreFuncInvocation.Function.ToString());
+            }
+        }
+
+        public void TranslateExtensibleFunctionInvocation(TranspilerContext sb, ExtensibleFunctionInvocation funcInvocation)
+        {
+            Expression[] args = funcInvocation.Args;
+            Token throwToken = funcInvocation.FunctionRef.FirstToken;
+            string functionName = funcInvocation.FunctionRef.Name;
+            Dictionary<string, string> extLookup = sb.ExtensibleFunctionLookup;
+
+            if (!extLookup.ContainsKey(functionName) || extLookup[functionName] == null)
+            {
+                string msg = "The extensbile method '" + functionName + "' does not have any registered translation.";
+                throw new ExtensionMethodNotImplementedException(throwToken, msg);
+            }
+
+            string codeSnippet = extLookup[functionName];
+
+            // Filter down to just the arguments that are used.
+            // Put their location and length in this locations lookup. The key
+            // is the ordinal for the argument starting from 0.
+            Dictionary<int, int[]> locations = new Dictionary<int, int[]>();
+            for (int i = 0; i < args.Length; ++i)
+            {
+                string searchString = "[ARG:" + (i + 1) + "]";
+                int argIndex = codeSnippet.IndexOf(searchString);
+                if (argIndex != -1)
+                {
+                    locations[i] = new int[] { argIndex, searchString.Length, argIndex + searchString.Length };
+                }
+            }
+            // Get the arguments in order of their actual appearance.
+            int[] argOrdinalsInOrder = locations.Keys.OrderBy(argN => locations[argN][0]).ToArray();
+            if (argOrdinalsInOrder.Length == 0)
+            {
+                // If there aren't any, you're done. Just put the code snippet into the
+                // buffer as-is.
+                sb.Append(codeSnippet);
+            }
+            else
+            {
+                sb.Append(codeSnippet.Substring(0, locations[argOrdinalsInOrder[0]][0]));
+                for (int i = 0; i < argOrdinalsInOrder.Length; ++i)
+                {
+                    int currentArgOrdinal = argOrdinalsInOrder[i];
+                    int nextArgOrdinal = i + 1 < argOrdinalsInOrder.Length ? argOrdinalsInOrder[i + 1] : -1;
+                    sb.Transpiler.TranslateExpression(sb, (Expression)args[currentArgOrdinal]);
+                    int argEndIndex = locations[currentArgOrdinal][2];
+                    if (nextArgOrdinal == -1)
+                    {
+                        // Take the code snippet from the end of the current arg to the end and
+                        // add it to the buffer.
+                        sb.Append(codeSnippet.Substring(argEndIndex));
+                    }
+                    else
+                    {
+                        int nextArgBeginIndex = locations[nextArgOrdinal][0];
+                        sb.Append(codeSnippet.Substring(argEndIndex, nextArgBeginIndex - argEndIndex));
+                    }
+                }
             }
         }
 
@@ -332,15 +391,11 @@ namespace Pastel.Transpilers
             }
         }
 
-        public abstract void TranslateArrayCopy(TranspilerContext sb, Expression array, Expression length);
         public abstract void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index);
         public abstract void TranslateArrayJoin(TranspilerContext sb, Expression array, Expression sep);
         public abstract void TranslateArrayLength(TranspilerContext sb, Expression array);
         public abstract void TranslateArrayNew(TranspilerContext sb, PType arrayType, Expression lengthExpression);
         public abstract void TranslateArraySet(TranspilerContext sb, Expression array, Expression index, Expression value);
-        public abstract void TranslateArraySortFloat(TranspilerContext sb, Expression array, Expression length);
-        public abstract void TranslateArraySortInt(TranspilerContext sb, Expression array, Expression length);
-        public abstract void TranslateArraySortString(TranspilerContext sb, Expression array, Expression length);
         public abstract void TranslateAssignment(TranspilerContext sb, Assignment assignment);
         public abstract void TranslateBase64ToString(TranspilerContext sb, Expression base64String);
         public abstract void TranslateBooleanConstant(TranspilerContext sb, bool value);
@@ -350,19 +405,17 @@ namespace Pastel.Transpilers
         public abstract void TranslateCharConstant(TranspilerContext sb, char value);
         public abstract void TranslateCharToString(TranspilerContext sb, Expression charValue);
         public abstract void TranslateChr(TranspilerContext sb, Expression charCode);
-        public abstract void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation, StructDefinition structDef);
-        public abstract void TranslateConvertRawDictionaryValueCollectionToAReusableValueList(TranspilerContext sb, Expression dictionary);
+        public abstract void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation);
         public abstract void TranslateCurrentTimeSeconds(TranspilerContext sb);
         public abstract void TranslateDictionaryContainsKey(TranspilerContext sb, Expression dictionary, Expression key);
         public abstract void TranslateDictionaryGet(TranspilerContext sb, Expression dictionary, Expression key);
         public abstract void TranslateDictionaryKeys(TranspilerContext sb, Expression dictionary);
-        public abstract void TranslateDictionaryKeysToValueList(TranspilerContext sb, Expression dictionary);
         public abstract void TranslateDictionaryNew(TranspilerContext sb, PType keyType, PType valueType);
         public abstract void TranslateDictionaryRemove(TranspilerContext sb, Expression dictionary, Expression key);
         public abstract void TranslateDictionarySet(TranspilerContext sb, Expression dictionary, Expression key, Expression value);
-        public abstract void TranslateDictionaryLength(TranspilerContext sb, Expression dictionary);
+        public abstract void TranslateDictionarySize(TranspilerContext sb, Expression dictionary);
+        public abstract void TranslateDictionaryTryGet(TranspilerContext sb, Expression dictionary, Expression key, Expression fallbackValue, Variable varOut);
         public abstract void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary);
-        public abstract void TranslateDictionaryValuesToValueList(TranspilerContext sb, Expression dictionary);
         public abstract void TranslateEmitComment(TranspilerContext sb, string value);
         public abstract void TranslateExpressionAsExecutable(TranspilerContext sb, Expression expression);
         public abstract void TranslateFloatBuffer16(TranspilerContext sb);
@@ -370,11 +423,10 @@ namespace Pastel.Transpilers
         public abstract void TranslateFloatDivision(TranspilerContext sb, Expression floatNumerator, Expression floatDenominator);
         public abstract void TranslateFloatToInt(TranspilerContext sb, Expression floatExpr);
         public abstract void TranslateFloatToString(TranspilerContext sb, Expression floatExpr);
-        public abstract void TranslateFree(TranspilerContext ctx, Expression expression);
-        public abstract void TranslateFunctionInvocationInterpreterScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
-        public abstract void TranslateFunctionInvocationLocallyScoped(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
+        public abstract void TranslateFunctionInvocationWithPrefix(TranspilerContext sb, string prefix, FunctionReference funcRef, Expression[] args);
+        public abstract void TranslateFunctionInvocation(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
         public abstract void TranslateFunctionReference(TranspilerContext sb, FunctionReference funcRef);
-        public abstract void TranslateGlobalVariable(TranspilerContext sb, Variable variable);
+        public abstract void TranslateGetFunction(TranspilerContext sb, Expression name);
         public abstract void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement);
         public abstract void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition);
         public abstract void TranslateIntBuffer16(TranspilerContext sb);
@@ -389,13 +441,13 @@ namespace Pastel.Transpilers
         public abstract void TranslateListInsert(TranspilerContext sb, Expression list, Expression index, Expression item);
         public abstract void TranslateListJoinChars(TranspilerContext sb, Expression list);
         public abstract void TranslateListJoinStrings(TranspilerContext sb, Expression list, Expression sep);
-        public abstract void TranslateListLength(TranspilerContext sb, Expression list);
         public abstract void TranslateListNew(TranspilerContext sb, PType type);
         public abstract void TranslateListPop(TranspilerContext sb, Expression list);
         public abstract void TranslateListRemoveAt(TranspilerContext sb, Expression list, Expression index);
         public abstract void TranslateListReverse(TranspilerContext sb, Expression list);
         public abstract void TranslateListSet(TranspilerContext sb, Expression list, Expression index, Expression value);
         public abstract void TranslateListShuffle(TranspilerContext sb, Expression list);
+        public abstract void TranslateListSize(TranspilerContext sb, Expression list);
         public abstract void TranslateListToArray(TranspilerContext sb, Expression list);
         public abstract void TranslateMathArcCos(TranspilerContext sb, Expression ratio);
         public abstract void TranslateMathArcSin(TranspilerContext sb, Expression ratio);
@@ -403,7 +455,6 @@ namespace Pastel.Transpilers
         public abstract void TranslateMathCos(TranspilerContext sb, Expression thetaRadians);
         public abstract void TranslateMathLog(TranspilerContext sb, Expression value);
         public abstract void TranslateMathPow(TranspilerContext sb, Expression expBase, Expression exponent);
-        public abstract void TranslateMathSqrt(TranspilerContext sb, Expression value);
         public abstract void TranslateMathSin(TranspilerContext sb, Expression thetaRadians);
         public abstract void TranslateMathTan(TranspilerContext sb, Expression thetaRadians);
         public abstract void TranslateMultiplyList(TranspilerContext sb, Expression list, Expression n);
@@ -446,7 +497,6 @@ namespace Pastel.Transpilers
         public abstract void TranslateStringTrimEnd(TranspilerContext sb, Expression str);
         public abstract void TranslateStringTrimStart(TranspilerContext sb, Expression str);
         public abstract void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right);
-        public abstract void TranslateThreadSleep(TranspilerContext sb, Expression seconds);
         public abstract void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList);
         public abstract void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex);
         public abstract void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement);
@@ -456,7 +506,6 @@ namespace Pastel.Transpilers
 
         public abstract void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef);
         public abstract void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef);
-        public abstract void GenerateCodeForGlobalsDefinitions(TranspilerContext sb, IList<VariableDeclaration> globals);
 
         public virtual void GenerateCodeForStructDeclaration(TranspilerContext sb, string structName)
         {
@@ -469,11 +518,20 @@ namespace Pastel.Transpilers
             throw new NotSupportedException();
         }
 
-        // Overridden in languages that can't allocate strings in the local scope.
-        // For example, strings allocated in C will be reclaimed once the scope ends.
-        public virtual void GenerateCodeForStringTable(TranspilerContext sb, StringTableBuilder stringTable)
+        internal string WrapCodeForFunctions(ProjectConfig config, string code)
         {
-            throw new NotSupportedException();
+            List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
+            WrapCodeImpl(config, lines, false);
+            return string.Join(this.NewLine, lines).Trim() + this.NewLine;
         }
+
+        internal string WrapCodeForStructs(ProjectConfig config, string code)
+        {
+            List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
+            WrapCodeImpl(config, lines, true);
+            return string.Join(this.NewLine, lines).Trim() + this.NewLine;
+        }
+
+        protected abstract void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct);
     }
 }
