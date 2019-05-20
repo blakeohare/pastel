@@ -1,6 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace PastelGeneratedNamespace
 {
-    public sealed class NumAnalysis
+    public class NumAnalysis
     {
         public int count;
         public int min;
@@ -21,4 +24,5 @@ namespace PastelGeneratedNamespace
             this.std_dev = std_dev;
         }
     }
+
 }

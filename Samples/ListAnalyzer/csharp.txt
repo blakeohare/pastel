@@ -1,0 +1,18 @@
+IMPORT: base.txt
+
+LANGUAGE: csharp
+
+FLAG: HAS_INCREMENT: true
+FLAG: IS_CHAR_A_NUMBER: true
+FLAG: PLATFORM_SUPPORTS_LIST_CLEAR: true
+FLAG: STRONGLY_TYPED: true
+
+CODE-IMPORT: System.Collections.Generic
+CODE-IMPORT: System.Linq
+
+OUTPUT-STRUCTS: csharp/gen
+OUTPUT-FUNCTIONS: csharp/gen/GEN_FunctionWrapper.cs
+
+NAMESPACE-FUNCTIONS: PastelGeneratedNamespace
+NAMESPACE-STRUCTS: PastelGeneratedNamespace
+FUNCTION-WRAPPER-CLASS: FunctionWrapper

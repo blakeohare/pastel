@@ -21,17 +21,15 @@ NumAnalysis perform_analysis(Array<int> nums, int length) {
 			if (value < output.min) output.min = value;
 			if (value > output.max) output.max = value;
 		}
-		output.mean = $float_division(1.0 * output.total, length);
+		output.mean = Core.FloatDivision(1.0 * output.total, length);
 		output.std_dev = calculate_standard_deviation(nums, length, output.mean);
 
-		Array<int> nums_copy = $array_copy(nums, length);
-		$array_sort_int(nums_copy, length);
+		Array<int> nums_copy = Core.SortedCopyOfIntArray(nums);
 		if (length % 2 == 0) {
-			output.median = $float_division(nums_copy[$integer_division(length, 2) - 1] + nums_copy[$integer_division(length, 2)], 2.0);
+			output.median = Core.FloatDivision(nums_copy[Core.IntegerDivision(length, 2) - 1] + nums_copy[Core.IntegerDivision(length, 2)], 2.0);
 		} else {
-			output.median = 0.0 + nums_copy[$integer_division(length, 2)];
+			output.median = 0.0 + nums_copy[Core.IntegerDivision(length, 2)];
 		}
-		$free(nums_copy);
 	}
 	return output;
 }
@@ -40,7 +38,7 @@ double calculate_standard_deviation(Array<int> nums, int length, double mean) {
 	double total_dev = 0.0;
 	for (int i = 0; i < length; i += 1) {
 		double diff = nums[i] - mean;
-		total_dev += $math_pow(diff, 2);
+		total_dev += Core.Pow(diff, 2);
 	}
-	return $math_sqrt($float_division(total_dev, length));
+	return Core.Pow(Core.FloatDivision(total_dev, length), 0.5);
 }
