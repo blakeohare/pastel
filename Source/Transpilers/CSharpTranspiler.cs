@@ -561,13 +561,13 @@ namespace Pastel.Transpilers
         public override void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray)
         {
             this.TranslateExpression(sb, intArray);
-            sb.Append(".OrderBy<int, int>(i => i).ToArray()");
+            sb.Append(".OrderBy<int, int>(_PST_GEN_arg => _PST_GEN_arg).ToArray()");
         }
 
         public override void TranslateSortedCopyOfStringArray(TranspilerContext sb, Expression stringArray)
         {
             this.TranslateExpression(sb, stringArray);
-            sb.Append(".OrderBy<string, string>(s => s).ToArray()");
+            sb.Append(".OrderBy<string, string>(_PST_GEN_arg => _PST_GEN_arg).ToArray()");
         }
 
         public override void TranslateStringAppend(TranspilerContext sb, Expression str1, Expression str2)
