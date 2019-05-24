@@ -1,15 +1,27 @@
-﻿private static java.util.Random PST_random = new java.util.Random();
+﻿// PASTEL_ENTITY_ID: PST_random
+private static java.util.Random PST_random = new java.util.Random();
+
+// PASTEL_ENTITY_ID: PST_emptyArrayString
 private static final String[] PST_emptyArrayString = new String[0];
+
+// PASTEL_ENTITY_ID: PST_emptyArrayList
 @SuppressWarnings("rawtypes")
 private static final ArrayList[] PST_emptyArrayList = new ArrayList[0];
+
+// PASTEL_ENTITY_ID: PST_emptyArrayMap
 @SuppressWarnings("rawtypes")
 private static final HashMap[] PST_emptyArrayMap = new HashMap[0];
 
+// PASTEL_ENTITY_ID: PST_intBuffer16
 private static final int[] PST_intBuffer16 = new int[16];
+
+// PASTEL_ENTITY_ID: PST_floatBuffer16
 private static final double[] PST_floatBuffer16 = new double[16];
+
+// PASTEL_ENTITY_ID: PST_stringBuffer16
 private static final String[] PST_stringBuffer16 = new String[16];
 
-private static final java.nio.charset.Charset UTF8 = java.nio.charset.Charset.forName("UTF-8");
+// PASTEL_ENTITY_ID: PST_base64ToString
 private static String PST_base64ToString(String b64Value) {
   int inputLength = b64Value.length();
 
@@ -101,6 +113,7 @@ private static String PST_base64ToString(String b64Value) {
   return sb.toString();
 }
 
+// PASTEL_ENTITY_ID: PST_convertIntegerSetToArray
 private static int[] PST_convertIntegerSetToArray(java.util.Set<Integer> original) {
   int[] output = new int[original.size()];
   int i = 0;
@@ -110,6 +123,7 @@ private static int[] PST_convertIntegerSetToArray(java.util.Set<Integer> origina
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_convertStringSetToArray
 private static String[] PST_convertStringSetToArray(java.util.Set<String> original) {
   String[] output = new String[original.size()];
   int i = 0;
@@ -119,6 +133,7 @@ private static String[] PST_convertStringSetToArray(java.util.Set<String> origin
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_isValidInteger
 private static boolean PST_isValidInteger(String value) {
   try {
     Integer.parseInt(value);
@@ -128,6 +143,7 @@ private static boolean PST_isValidInteger(String value) {
   return true;
 }
 
+// PASTEL_ENTITY_ID: PST_joinChars
 private static String PST_joinChars(ArrayList<Character> chars) {
   char[] output = new char[chars.size()];
   for (int i = output.length - 1; i >= 0; --i) {
@@ -136,6 +152,7 @@ private static String PST_joinChars(ArrayList<Character> chars) {
   return String.copyValueOf(output);
 }
 
+// PASTEL_ENTITY_ID: PST_joinList
 private static String PST_joinList(String sep, ArrayList<String> items) {
   int length = items.size();
   if (length < 2) {
@@ -160,10 +177,12 @@ private static String PST_joinList(String sep, ArrayList<String> items) {
   return sb.toString();
 }
 
+// PASTEL_ENTITY_ID: PST_listPop
 private static <T> T PST_listPop(ArrayList<T> list) {
   return list.remove(list.size() - 1);
 }
 
+// PASTEL_ENTITY_ID: PST_literalStringSplit
 private static String[] PST_literalStringSplit(String original, String sep) {
   ArrayList<String> output = new ArrayList<String>();
   ArrayList<String> currentPiece = new ArrayList<String>();
@@ -202,6 +221,7 @@ private static String[] PST_literalStringSplit(String original, String sep) {
   return output.toArray(new String[output.size()]);
 }
 
+// PASTEL_ENTITY_ID: PST_reverseString
 private static String PST_reverseString(String original) {
   char[] output = original.toCharArray();
   int length = output.length;
@@ -216,6 +236,7 @@ private static String PST_reverseString(String original) {
   return String.copyValueOf(output);
 }
 
+// PASTEL_ENTITY_ID: PST_checkStringInString
 private static boolean PST_checkStringInString(String haystack, int index, String expectedValue) {
   int evLength = expectedValue.length();
   if (evLength + index > haystack.length()) return false;
@@ -229,6 +250,7 @@ private static boolean PST_checkStringInString(String haystack, int index, Strin
   return true;
 }
 
+// PASTEL_ENTITY_ID: PST_trimSide
 private static String PST_trimSide(String value, boolean isLeft) {
   int i = isLeft ? 0 : value.length() - 1;
   int end = isLeft ? value.length() : -1;
@@ -253,6 +275,7 @@ private static String PST_trimSide(String value, boolean isLeft) {
   return isLeft ? value.substring(i) : value.substring(0, i + 1);
 }
 
+// PASTEL_ENTITY_ID: PST_parseFloatOrReturnNull
 private static void PST_parseFloatOrReturnNull(double[] outParam, String rawValue) {
   try {
     outParam[1] = Double.parseDouble(rawValue);
@@ -262,6 +285,7 @@ private static void PST_parseFloatOrReturnNull(double[] outParam, String rawValu
   }
 }
 
+// PASTEL_ENTITY_ID: PST_multiplyList
 private static <T> ArrayList<T> PST_multiplyList(ArrayList<T> list, int n) {
   int len = list.size();
   ArrayList<T> output = new ArrayList<T>(len * n);
@@ -280,6 +304,7 @@ private static <T> ArrayList<T> PST_multiplyList(ArrayList<T> list, int n) {
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_concatLists
 private static <T> ArrayList<T> PST_concatLists(ArrayList<T> a, ArrayList<T> b) {
   ArrayList<T> output = new ArrayList(a.size() + b.size());
   output.addAll(a);
@@ -287,6 +312,7 @@ private static <T> ArrayList<T> PST_concatLists(ArrayList<T> a, ArrayList<T> b) 
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_listShuffle
 private static <T> void PST_listShuffle(ArrayList<T> list) {
   int len = list.size();
   for (int i = len - 1; i >= 0; --i) {
@@ -299,6 +325,7 @@ private static <T> void PST_listShuffle(ArrayList<T> list) {
   }
 }
 
+// PASTEL_ENTITY_ID: PST_listToArrayBool
 private static boolean[] PST_listToArrayBool(ArrayList<Boolean> list) {
   int length = list.size();
   boolean[] output = new boolean[length];
@@ -306,6 +333,7 @@ private static boolean[] PST_listToArrayBool(ArrayList<Boolean> list) {
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_listToArrayByte
 private static byte[] PST_listToArrayByte(ArrayList<Byte> list) {
   int length = list.size();
   byte[] output = new byte[length];
@@ -313,6 +341,7 @@ private static byte[] PST_listToArrayByte(ArrayList<Byte> list) {
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_listToArrayInt
 private static int[] PST_listToArrayInt(ArrayList<Integer> list) {
   int length = list.size();
   int[] output = new int[length];
@@ -320,6 +349,7 @@ private static int[] PST_listToArrayInt(ArrayList<Integer> list) {
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_listToArrayDouble
 private static double[] PST_listToArrayDouble(ArrayList<Double> list) {
   int length = list.size();
   double[] output = new double[length];
@@ -327,6 +357,7 @@ private static double[] PST_listToArrayDouble(ArrayList<Double> list) {
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_listToArrayChar
 private static char[] PST_listToArrayChar(ArrayList<Character> list) {
   int length = list.size();
   char[] output = new char[length];
@@ -334,12 +365,14 @@ private static char[] PST_listToArrayChar(ArrayList<Character> list) {
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_sortedCopyOfIntArray
 private static int[] PST_sortedCopyOfIntArray(int[] nums) {
   int[] output = java.util.Arrays.copyOf(nums, nums.length);
   java.util.Arrays.sort(output);
   return output;
 }
 
+// PASTEL_ENTITY_ID: PST_sortedCopyOfStringArray
 private static String[] PST_sortedCopyOfStringArray(String[] values) {
   String[] output = java.util.Arrays.copyOf(values, values.length);
   java.util.Arrays.sort(output);

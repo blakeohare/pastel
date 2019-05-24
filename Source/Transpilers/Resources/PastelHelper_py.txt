@@ -1,34 +1,51 @@
+# PASTEL_ENTITY_ID: PST_StringBuffer16
 PST_StringBuffer16 = [None] * 16
+
+# PASTEL_ENTITY_ID: PST_IntBuffer16
 PST_IntBuffer16 = [0] * 16
+
+# PASTEL_ENTITY_ID: PST_FloatBuffer16
 PST_FloatBuffer16 = [0.0] * 16
+
+# PASTEL_ENTITY_ID: PST_NoneListOfOne
 PST_NoneListOfOne = [None]
 
+# PASTEL_ENTITY_ID: PST_StringType
 PST_StringType = type('')
+
+# PASTEL_ENTITY_ID: PST_base64ToString
 def PST_base64ToString(value):
   u_value = base64.b64decode(value)
   if type(u_value) == PST_StringType:
     return u_value
   return u_value.decode('utf8')
-
+  
+# PASTEL_ENTITY_ID: PST_isValidInteger
 def PST_isValidInteger(value):
   if len(value) == 0: return False
   if value[0] == '-': value = value[1:]
   return value.isdigit()
 
+# PASTEL_ENTITY_ID: PST_sortedCopyOfList
 def PST_sortedCopyOfList(t):
   t = t[:]
   t.sort()
   return t
-
+  
+# PASTEL_ENTITY_ID: PST_tryParseFloat
 def PST_tryParseFloat(value, floatOut):
   try:
     floatOut[1] = float(value)
     floatOut[0] = 1.0
   except:
     floatOut[0] = -1.0
-
+	
+# PASTEL_ENTITY_ID: PST_stringCheckSlice
 def PST_stringCheckSlice(haystack, i, needle):
   return haystack[i:i + len(needle)] == needle
-
+  
+# PASTEL_ENTITY_ID: always_true
 def always_true(): return True
+
+# PASTEL_ENTITY_ID: always_false
 def always_false(): return False

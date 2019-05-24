@@ -1,11 +1,22 @@
-﻿private static readonly int[] PST_IntBuffer16 = new int[16];
+﻿// PASTEL_ENTITY_ID: PST_IntBuffer16
+private static readonly int[] PST_IntBuffer16 = new int[16];
+
+// PASTEL_ENTITY_ID: PST_FloatBuffer16
 private static readonly double[] PST_FloatBuffer16 = new double[16];
+
+// PASTEL_ENTITY_ID: PST_StringBuffer16
 private static readonly string[] PST_StringBuffer16 = new string[16];
+
+// PASTEL_ENTITY_ID: PST_Random
 private static readonly System.Random PST_Random = new System.Random();
 
+// PASTEL_ENTITY_ID: AlwaysTrue
 public static bool AlwaysTrue() { return true; }
+
+// PASTEL_ENTITY_ID: AlwaysFalse
 public static bool AlwaysFalse() { return false; }
 
+// PASTEL_ENTITY_ID: PST_StringReverse
 public static string PST_StringReverse(string value)
 {
     if (value.Length < 2) return value;
@@ -13,7 +24,10 @@ public static string PST_StringReverse(string value)
     return new string(chars.Reverse().ToArray());
 }
 
+// PASTEL_ENTITY_ID: PST_SplitSep
 private static readonly string[] PST_SplitSep = new string[1];
+
+// PASTEL_ENTITY_ID: PST_StringSplit
 private static string[] PST_StringSplit(string value, string sep)
 {
     if (sep.Length == 1) return value.Split(sep[0]);
@@ -22,6 +36,7 @@ private static string[] PST_StringSplit(string value, string sep)
     return value.Split(PST_SplitSep, System.StringSplitOptions.None);
 }
 
+// PASTEL_ENTITY_ID: PST_FloatToString
 private static string PST_FloatToString(double value)
 {
     string output = value.ToString();
@@ -30,12 +45,16 @@ private static string PST_FloatToString(double value)
     return output;
 }
 
+// PASTEL_ENTITY_ID: PST_UnixEpoch
 private static readonly System.DateTime PST_UnixEpoch = new System.DateTime(1970, 1, 1);
+
+// PASTEL_ENTITY_ID: PST_CurrentTime
 private static double PST_CurrentTime
 {
     get { return System.DateTime.UtcNow.Subtract(PST_UnixEpoch).TotalSeconds; }
 }
 
+// PASTEL_ENTITY_ID: PST_Base64ToString
 private static string PST_Base64ToString(string b64Value)
 {
     byte[] utf8Bytes = System.Convert.FromBase64String(b64Value);
@@ -43,6 +62,7 @@ private static string PST_Base64ToString(string b64Value)
     return value;
 }
 
+// PASTEL_ENTITY_ID: PST_IsValidInteger
 // TODO: use a model like parse float to avoid double parsing.
 public static bool PST_IsValidInteger(string value)
 {
@@ -58,6 +78,7 @@ public static bool PST_IsValidInteger(string value)
     return true;
 }
 
+// PASTEL_ENTITY_ID: PST_ParseFloat
 public static void PST_ParseFloat(string strValue, double[] output)
 {
     double num = 0.0;
@@ -65,6 +86,7 @@ public static void PST_ParseFloat(string strValue, double[] output)
     output[1] = num;
 }
 
+// PASTEL_ENTITY_ID: PST_ListConcat
 private static List<T> PST_ListConcat<T>(List<T> a, List<T> b)
 {
     List<T> output = new List<T>(a.Count + b.Count);
@@ -73,6 +95,7 @@ private static List<T> PST_ListConcat<T>(List<T> a, List<T> b)
     return output;
 }
 
+// PASTEL_ENTITY_ID: PST_MultiplyList
 private static List<Value> PST_MultiplyList(List<Value> items, int times)
 {
     List<Value> output = new List<Value>(items.Count * times);
@@ -80,6 +103,7 @@ private static List<Value> PST_MultiplyList(List<Value> items, int times)
     return output;
 }
 
+// PASTEL_ENTITY_ID: PST_SubstringIsEqualTo
 private static bool PST_SubstringIsEqualTo(string haystack, int index, string needle)
 {
     int needleLength = needle.Length;
@@ -94,6 +118,7 @@ private static bool PST_SubstringIsEqualTo(string haystack, int index, string ne
     return true;
 }
 
+// PASTEL_ENTITY_ID: PST_ShuffleInPlace
 private static void PST_ShuffleInPlace<T>(List<T> list)
 {
     if (list.Count < 2) return;

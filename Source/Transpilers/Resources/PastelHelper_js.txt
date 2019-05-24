@@ -1,9 +1,11 @@
-﻿PST$sortedCopyOfArray = function(n) {
+﻿// PASTEL_ENTITY_ID: PST$sortedCopyOfArray
+PST$sortedCopyOfArray = function(n) {
 	var a = n.concat([]);
 	a.sort();
 	return a;
 };
 
+// PASTEL_ENTITY_ID: PST$multiplyList
 PST$multiplyList = function(l, n) {
 	var o = [];
 	var s = l.length;
@@ -16,8 +18,10 @@ PST$multiplyList = function(l, n) {
 	return o;
 };
 
+// PASTEL_ENTITY_ID: PST$checksubstring
 PST$checksubstring = function(s, index, lookfor) { return s.substring(index, index + lookfor.length) === lookfor; };
 
+// PASTEL_ENTITY_ID: PST$stringTrimOneSide
 PST$stringTrimOneSide = function(s, isLeft) {
 	var i = isLeft ? 0 : s.length - 1;
 	var end = isLeft ? s.length : -1;
@@ -42,6 +46,7 @@ PST$stringTrimOneSide = function(s, isLeft) {
 	return isLeft ? s.substring(i) : s.substring(0, i + 1);
 };
 
+// PASTEL_ENTITY_ID: PST$floatParseHelper
 PST$floatParseHelper = function(o, s) {
 	var t = parseFloat(s);
 	if (t + '' == 'NaN') {
@@ -52,12 +57,14 @@ PST$floatParseHelper = function(o, s) {
 	}
 };
 
+// PASTEL_ENTITY_ID: PST$createNewArray
 PST$createNewArray = function(s) {
 	var o = [];
 	while (s-- > 0) o.push(null);
 	return o;
 };
 
+// PASTEL_ENTITY_ID: PST$dictionaryKeys
 PST$dictionaryKeys = function(d) {
 	var o = [];
 	for (var k in d) {
@@ -66,6 +73,7 @@ PST$dictionaryKeys = function(d) {
 	return o;
 };
 
+// PASTEL_ENTITY_ID: PST$dictionaryValues
 PST$dictionaryValues = function(d) {
 	var o = [];
 	for (var k in d) {
@@ -74,15 +82,18 @@ PST$dictionaryValues = function(d) {
 	return o;
 };
 
+// PASTEL_ENTITY_ID: PST$is_valid_integer
 PST$is_valid_integer = function(n) {
 	var t = parseInt(n);
 	return t < 0 || t >= 0;
 };
 
+// PASTEL_ENTITY_ID: PST$clearList
 PST$clearList = function(v) {
 	v.length = 0;
 };
 
+// PASTEL_ENTITY_ID: PST$shuffle
 PST$shuffle = function(v) {
 	var t;
 	var len = v.length;
@@ -95,10 +106,16 @@ PST$shuffle = function(v) {
 	}
 };
 
+// PASTEL_ENTITY_ID: PST$stringEndsWith
 PST$stringEndsWith = function(s, v) {
 	return s.indexOf(v, s.length - v.length) !== -1;
 };
 
+// PASTEL_ENTITY_ID: PST$intBuffer16
 PST$intBuffer16 = PST$multiplyList([0], 16);
+
+// PASTEL_ENTITY_ID: PST$floatBuffer16
 PST$floatBuffer16 = PST$multiplyList([0.0], 16);
+
+// PASTEL_ENTITY_ID: PST$stringBuffer16
 PST$stringBuffer16 = PST$multiplyList([''], 16);
