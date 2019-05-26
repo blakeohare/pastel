@@ -14,6 +14,7 @@ namespace Pastel.Transpilers
         public bool UsesStructDefinitions { get; protected set; }
         public bool UsesFunctionDeclarations { get; protected set; }
         public bool UsesStructDeclarations { get; protected set; }
+        public bool HasNewLineAtEndOfFile { get; protected set; }
 
         public virtual string HelperCodeResourcePath { get { return null; } }
 
@@ -22,6 +23,7 @@ namespace Pastel.Transpilers
             this.UsesStructDefinitions = true;
             this.UsesFunctionDeclarations = false;
             this.UsesStructDeclarations = false;
+            this.HasNewLineAtEndOfFile = true;
 
             this.NewLine = newLine;
             this.TabChar = tab;
@@ -522,14 +524,18 @@ namespace Pastel.Transpilers
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
             WrapCodeImpl(config, lines, false);
-            return string.Join(this.NewLine, lines).Trim() + this.NewLine;
+            string output = string.Join(this.NewLine, lines).Trim();
+            if (this.HasNewLineAtEndOfFile) output += this.NewLine;
+            return output;
         }
 
         internal string WrapCodeForStructs(ProjectConfig config, string code)
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
             WrapCodeImpl(config, lines, true);
-            return string.Join(this.NewLine, lines).Trim() + this.NewLine;
+            string output = string.Join(this.NewLine, lines).Trim();
+            if (this.HasNewLineAtEndOfFile) output += this.NewLine;
+            return output;
         }
 
         protected abstract void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct);

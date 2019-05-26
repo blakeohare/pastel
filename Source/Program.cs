@@ -104,7 +104,7 @@ namespace Pastel
             // Currently only C# and Java hit this code path, but C code generation will be very different.
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
             structCode = transpiler.WrapCodeForStructs(config, structCode);
-            string fileExtension = config.Language == Language.CSHARP ? ".cs" : ".java";
+            string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, structName + fileExtension);
             System.IO.File.WriteAllText(path, structCode);
         }
