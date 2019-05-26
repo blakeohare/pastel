@@ -304,7 +304,6 @@ namespace Pastel
             }
 
             string[] pstParts = code.Split(new string[] { "PST" }, System.StringSplitOptions.None);
-            char c;
             for (int i = 1; i < pstParts.Length; ++i)
             {
                 string markerName = GetMarkerNameHacky(pstParts[i]);
