@@ -1,0 +1,2 @@
+// PASTEL_ENTITY_ID: PST_nullListOfOne
+$_PST_nullListOfOne = array(null);

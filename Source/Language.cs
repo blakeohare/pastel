@@ -12,6 +12,7 @@ namespace Pastel
         JAVA,
         JAVA6,
         JAVASCRIPT,
+        PHP,
         PYTHON,
     }
 
@@ -27,6 +28,7 @@ namespace Pastel
                 case "csharp": return Language.CSHARP;
                 case "java": return Language.JAVA;
                 case "javascript": return Language.JAVASCRIPT;
+                case "php": return Language.PHP;
                 case "python": return Language.PYTHON;
                 default: return Language.NONE;
             }
@@ -58,7 +60,7 @@ namespace Pastel
         {
             Dictionary<string, object> output = new Dictionary<string, object>();
 
-            output["ARRAY_IS_LIST"] = lang == Language.PYTHON || lang == Language.JAVASCRIPT;
+            output["ARRAY_IS_LIST"] = lang == Language.PYTHON || lang == Language.JAVASCRIPT || lang == Language.PHP;
             output["HAS_INCREMENT"] = lang != Language.PYTHON;
             output["INT_IS_FLOOR"] = lang == Language.JAVASCRIPT || lang == Language.C;
             output["IS_C"] = lang == Language.C;
