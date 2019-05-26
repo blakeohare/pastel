@@ -435,20 +435,21 @@ namespace Pastel.Transpilers
             string keyVar = null;
             if (!keyExpressionIsSimple)
             {
-                keyVar = "dictKey" + sb.SwitchCounter++;
+                keyVar = "_PST_dictKey" + sb.SwitchCounter++;
                 sb.Append(sb.CurrentTab);
                 sb.Append(this.TranslateType(keyType));
+                sb.Append(' ');
+                sb.Append(keyVar);
                 sb.Append(" = ");
                 this.TranslateExpression(sb, key);
                 sb.Append(";");
                 sb.Append(this.NewLine);
             }
 
-            string lookupSuffix = "" + sb.SwitchCounter++;
+            string lookupVar = "_PST_dictLookup" + sb.SwitchCounter++;
             sb.Append(sb.CurrentTab);
             sb.Append(this.TranslateJavaNestedType(valueType));
-            sb.Append(" dictLookup");
-            sb.Append(lookupSuffix);
+            sb.Append(lookupVar);
             sb.Append(" = ");
             this.TranslateExpression(sb, dictionary);
             sb.Append(".get(");
@@ -464,8 +465,8 @@ namespace Pastel.Transpilers
             sb.Append(this.NewLine);
             sb.Append(sb.CurrentTab);
             sb.Append(varOut.Name);
-            sb.Append(" = dictLookup");
-            sb.Append(lookupSuffix);
+            sb.Append(" = ");
+            sb.Append(lookupVar);
             sb.Append(" == null ? (");
 
             if (!keyTypeIsBoxed)
@@ -485,8 +486,8 @@ namespace Pastel.Transpilers
             {
                 this.TranslateExpression(sb, fallbackValue);
             }
-            sb.Append(") : dictLookup");
-            sb.Append(lookupSuffix);
+            sb.Append(") : ");
+            sb.Append(lookupVar);
             sb.Append(';');
             sb.Append(this.NewLine);
         }

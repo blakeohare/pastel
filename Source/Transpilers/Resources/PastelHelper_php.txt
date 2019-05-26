@@ -5,3 +5,91 @@ private static function PST_sortedCopyOfIntArray($nums) {
 	sort($o->arr);
 	return $o;
 }
+
+// PASTEL_ENTITY_ID: PST_sortedCopyOfStringArray
+private static function PST_sortedCopyOfStringArray($strs) {
+	$o = new PastelPtrArray();
+	$o->arr = array_merge($strs->arr, array());
+	sort($o->arr);
+	return $o;
+}
+
+// PASTEL_ENTITY_ID: PST_stringIndexOf
+private static function PST_stringIndexOf($haystack, $needle) {
+	$o = strpos($haystack, $needle)
+	if ($o === false) return -1;
+	return $o;
+}
+
+// PASTEL_ENTITY_ID: PST_dictGetKeys
+private static function PST_dictGetKeys($d) {
+	$keys = new PastelPtrArray();
+	foreach ($d as $k => $ignore) {
+		array_push($keys->arr, $k);
+	}
+	return $keys;
+}
+
+// PASTEL_ENTITY_ID: PST_intBuffer16
+private static var PST_intBuffer16 = array_fill(0, 16, 0);
+
+// PASTEL_ENTITY_ID: PST_stringEndsWith
+private static function PST_stringEndsWith($haystack, $needle) {
+	$nLen = strlen($needle);
+	$hLen = strlen($haystack);
+	if ($nLen === 0) return true;
+	if ($hLen <= $nLen) return $haystack === $needle;
+	$hOffset = $hLen - $nLen;
+	for ($i = 0; $i < $nLen; ++$i) {
+		if ($haystack[$hOffset + $i] !== $needle[$i]) return false;
+	}
+	return true;
+}
+
+// PASTEL_ENTITY_ID: PST_stringStartsWith
+private static function PST_stringStartsWith($haystack, $needle) {
+	$nLen = strlen($needle);
+	$hLen = strlen($haystack);
+	if ($nLen === 0) return true;
+	if ($hLen <= $nLen) return $haystack === $needle;
+	for ($i = 0; $i < $nLen; ++$i) {
+		if ($haystack[$i] !== $needle[$i]) return false;
+	}
+	return true;
+}
+
+// PASTEL_ENTITY_ID: PST_reverseArray
+private static function PST_reverseArray($a) {
+	$a->arr = array_reverse($a->arr);
+}
+
+// PASTEL_ENTITY_ID: PST_createFunctionPointer
+private static function PST_createFunctionPointer($name) {
+	throw new Exception("Not implemented");
+}
+
+// PASTEL_ENTITY_ID: PST_isValidInteger
+private static function PST_isValidInteger($s) {
+	$length = strlen($s);
+	if ($length == 0 || $s === '-') return false;
+	$index = $s[0] === '-' ? 1 : 0;
+	$n0 = ord('0');
+	$n9 = $n0 + 9;
+	while ($index < $length) {
+		$c = ord($s[$i]);
+		if ($c < $n0 || $c > $n9) return false;
+	}
+	return true;
+}
+
+// PASTEL_ENTITY_ID: PST_tryParseFloat
+private static function PST_tryParseFloat($s, $outValue) {
+	$s = trim($s);
+	$f = floatval($s);
+	$check = '' . $f;
+	$valid = $s === '' . $f;
+	$outValue->arr[0] = $valid ? 1.0 : -1.0;
+	if ($valid) {
+		$outValue->arr[1] = $f;
+	}
+}
