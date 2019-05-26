@@ -1,7 +1,12 @@
 package gen;
 
 public final class FunctionWrapper {
-  private FunctionWrapper() {}
+
+  private static int[] PST_sortedCopyOfIntArray(int[] nums) {
+    int[] output = java.util.Arrays.copyOf(nums, nums.length);
+    java.util.Arrays.sort(output);
+    return output;
+  }
 
   public static double calculate_standard_deviation(int[] nums, int length, double mean) {
     double total_dev = 0.0;
@@ -11,7 +16,7 @@ public final class FunctionWrapper {
       total_dev += Math.pow(diff, 2);
       i += 1;
     }
-    return Math.sqrt(total_dev / length);
+    return Math.pow(total_dev / length, 0.5);
   }
 
   public static NumAnalysis perform_analysis(int[] nums, int length) {
@@ -35,8 +40,7 @@ public final class FunctionWrapper {
       }
       output.mean = (1.0 * output.total) / length;
       output.std_dev = calculate_standard_deviation(nums, length, output.mean);
-      int[] nums_copy = nums.clone();
-      java.util.Arrays.sort(nums_copy);
+      int[] nums_copy = PST_sortedCopyOfIntArray(nums);
       if (((length % 2) == 0)) {
         output.median = (nums_copy[(length / 2 - 1)] + nums_copy[length / 2]) / 2.0;
       } else {
