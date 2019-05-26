@@ -6,7 +6,7 @@ FLAG: HAS_INCREMENT: true
 FLAG: PLATFORM_SUPPORTS_LIST_CLEAR: true
 
 OUTPUT-STRUCTS: php/gen
-OUTPUT-FUNCTIONS: php/gen/FunctionWrapper.php
+OUTPUT-FUNCTIONS: php/gen/functions.php
 
 NAMESPACE-FUNCTIONS: PastelGeneratedCode
 NAMESPACE-STRUCTS: PastelGeneratedCode
