@@ -20,6 +20,24 @@ namespace Pastel
     {
         private static readonly Dictionary<Language, AbstractTranspiler> singletons = new Dictionary<Language, AbstractTranspiler>();
 
+        internal static string GetFileExtension(Language lang)
+        {
+            switch (lang)
+            {
+                case Language.C: return ".c";
+                case Language.CSHARP: return ".cs";
+                case Language.JAVA:
+                case Language.JAVA6: return ".java";
+                case Language.JAVASCRIPT: return ".js";
+                case Language.PHP: return ".php";
+                case Language.PYTHON: return ".py";
+
+                case Language.NONE:
+                default:
+                    throw new System.NotImplementedException();
+            }
+        }
+
         internal static Language ParseLanguage(string value)
         {
             switch (value.ToLower())
@@ -49,6 +67,7 @@ namespace Pastel
                 case Language.JAVA: t = new JavaTranspiler(false); break;
                 case Language.JAVA6: t = new JavaTranspiler(true); break;
                 case Language.JAVASCRIPT: t = new JavaScriptTranspiler(); break;
+                case Language.PHP: t = new PhpTranspiler(); break;
                 case Language.PYTHON: t = new PythonTranspiler(); break;
                 default: throw new System.Exception();
             }

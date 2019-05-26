@@ -9,6 +9,7 @@ namespace Pastel.Transpilers
     {
         public PhpTranspiler() : base("  ", "\n", true)
         {
+            this.HasNewLineAtEndOfFile = false;
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.php"; } }
@@ -20,7 +21,33 @@ namespace Pastel.Transpilers
 
         protected override void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct)
         {
-            throw new NotImplementedException();
+            if (isForStruct)
+            {
+                PastelUtil.IndentLines(this.TabChar, lines);
+
+                lines.InsertRange(0, new string[]
+                {
+                    "<?php",
+                    "",
+                });
+
+                lines.Add("?>");
+            }
+            else
+            {
+                PastelUtil.IndentLines(this.TabChar + this.TabChar, lines);
+
+
+                lines.InsertRange(0, new string[] {
+                    "<?php",
+                    "",
+                    this.TabChar + "class PastelGeneratedCode {",
+                });
+
+                lines.Add(this.TabChar + "}");
+                lines.Add("");
+                lines.Add("?>");
+            }
         }
 
         public override void TranslateFunctionPointerInvocation(TranspilerContext sb, FunctionPointerInvocation fpi)
@@ -490,12 +517,84 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef)
         {
-            throw new NotImplementedException();
+            sb.Append(this.NewLine);
+            sb.Append(sb.CurrentTab);
+            sb.Append("public static function ");
+            sb.Append(funcDef.NameToken.Value);
+            sb.Append('(');
+            for (int i = 0; i < funcDef.ArgNames.Length; ++i)
+            {
+                Token arg = funcDef.ArgNames[i];
+                if (i > 0) sb.Append(", ");
+                sb.Append('$');
+                sb.Append(arg.Value);
+            }
+            sb.Append(") {");
+            sb.Append(this.NewLine);
+            sb.TabDepth++;
+
+            //this.TranslateExecutables(sb, funcDef.Code);
+            sb.Append(sb.CurrentTab + "// TODO: function body");
+            sb.Append(this.NewLine);
+
+            sb.TabDepth--;
+            sb.Append(sb.CurrentTab);
+            sb.Append('}');
+            sb.Append(this.NewLine);
+            sb.Append(this.NewLine);
+
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
-            throw new NotImplementedException();
+            string name = structDef.NameToken.Value;
+            sb.Append(sb.CurrentTab);
+            sb.Append("class ");
+            sb.Append(name);
+            sb.Append(" {");
+            sb.Append(this.NewLine);
+            sb.TabDepth++;
+
+            string[] fieldNames = structDef.ArgNames.Select(a => a.Value).ToArray();
+
+            foreach (string fieldName in fieldNames)
+            {
+                sb.Append(sb.CurrentTab);
+                sb.Append("var ");
+                sb.Append(fieldName);
+                sb.Append(';');
+                sb.Append(this.NewLine);
+            }
+            sb.Append(sb.CurrentTab);
+            sb.Append("function __construct(");
+            for (int i = 0; i < fieldNames.Length; ++i)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append("$a");
+                sb.Append(i);
+            }
+            sb.Append(") {");
+            sb.Append(this.NewLine);
+            sb.TabDepth++;
+            for (int i = 0; i < fieldNames.Length; ++i)
+            {
+                sb.Append(sb.CurrentTab);
+                sb.Append("$this->");
+                sb.Append(fieldNames[i]);
+                sb.Append(" = $a");
+                sb.Append(i);
+                sb.Append(';');
+                sb.Append(this.NewLine);
+            }
+            sb.TabDepth--;
+            sb.Append(sb.CurrentTab);
+            sb.Append('}');
+            sb.Append(this.NewLine);
+
+            sb.TabDepth--;
+            sb.Append(sb.CurrentTab);
+            sb.Append('}');
+            sb.Append(this.NewLine);
         }
     }
 }
