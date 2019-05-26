@@ -43,6 +43,7 @@ namespace Pastel
         public bool UsesStructDefinitions { get { return this.Transpiler.UsesStructDefinitions; } }
         public bool UsesFunctionDeclarations { get { return this.Transpiler.UsesFunctionDeclarations; } }
         public bool UsesStructDeclarations { get { return this.Transpiler.UsesStructDeclarations; } }
+        public bool HasStructsInSeparateFiles { get { return this.Transpiler.HasStructsInSeparateFiles; } }
 
         private TranspilerContext tc = null;
         public TranspilerContext GetTranspilerContext()

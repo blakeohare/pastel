@@ -71,18 +71,24 @@ namespace Pastel
             if (context.UsesStructDefinitions)
             {
                 Dictionary<string, string> structDefinitions = context.GetCodeForStructs();
-                string[] structNames = structDefinitions.Keys.OrderBy(k => k.ToLower()).ToArray();
-
-                foreach (string structName in structNames)
+                string[] structOrder = structDefinitions.Keys.OrderBy(k => k.ToLower()).ToArray();
+                if (context.HasStructsInSeparateFiles)
                 {
-                    GenerateStructImplementation(config, structName, structDefinitions[structName]);
+                    foreach (string structName in structOrder)
+                    {
+                        GenerateStructImplementation(config, structName, structDefinitions[structName]);
+                    }
+                }
+                else
+                {
+                    GenerateStructBundleImplementation(config, structOrder, structDefinitions);
                 }
 
                 if (context.UsesStructDeclarations)
                 {
-                    Dictionary<string, string> structDeclarations = structNames.ToDictionary(k => context.GetCodeForStructDeclaration(k));
+                    Dictionary<string, string> structDeclarations = structOrder.ToDictionary(k => context.GetCodeForStructDeclaration(k));
 
-                    foreach (string structName in structNames)
+                    foreach (string structName in structOrder)
                     {
                         output["struct_decl:" + structName] = structDeclarations[structName];
                     }
@@ -100,13 +106,24 @@ namespace Pastel
 
         private static void GenerateStructImplementation(ProjectConfig config, string structName, string structCode)
         {
-            // TODO(pastel-split): move this to platform specific code.
-            // Currently only C# and Java hit this code path, but C code generation will be very different.
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
             structCode = transpiler.WrapCodeForStructs(config, structCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, structName + fileExtension);
             System.IO.File.WriteAllText(path, structCode);
+        }
+
+        private static void GenerateStructBundleImplementation(ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)
+        {
+            Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
+            List<string> finalCode = new List<string>();
+            foreach (string structName in structOrder)
+            {
+                finalCode.Add(transpiler.WrapCodeForStructs(config, structCodeByName[structName]));
+            }
+            finalCode.Insert(0, "<?php");
+            finalCode.Add("?>");
+            System.IO.File.WriteAllText(config.OutputDirStructs, string.Join(transpiler.NewLine, finalCode));
         }
 
         private static PastelContext CompilePastelContexts(ProjectConfig rootConfig)

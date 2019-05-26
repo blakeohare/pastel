@@ -14,6 +14,7 @@ namespace Pastel.Transpilers
         public bool UsesStructDefinitions { get; protected set; }
         public bool UsesFunctionDeclarations { get; protected set; }
         public bool UsesStructDeclarations { get; protected set; }
+        public bool HasStructsInSeparateFiles { get; protected set; }
         public bool HasNewLineAtEndOfFile { get; protected set; }
 
         public virtual string HelperCodeResourcePath { get { return null; } }
@@ -24,6 +25,7 @@ namespace Pastel.Transpilers
             this.UsesFunctionDeclarations = false;
             this.UsesStructDeclarations = false;
             this.HasNewLineAtEndOfFile = true;
+            this.HasStructsInSeparateFiles = true;
 
             this.NewLine = newLine;
             this.TabChar = tab;

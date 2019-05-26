@@ -10,6 +10,7 @@ namespace Pastel.Transpilers
         public PhpTranspiler() : base("\t", "\n", true)
         {
             this.HasNewLineAtEndOfFile = false;
+            this.HasStructsInSeparateFiles = false;
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.php"; } }
@@ -21,19 +22,7 @@ namespace Pastel.Transpilers
 
         protected override void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct)
         {
-            if (isForStruct)
-            {
-                PastelUtil.IndentLines(this.TabChar, lines);
-
-                lines.InsertRange(0, new string[]
-                {
-                    "<?php",
-                    "",
-                });
-
-                lines.Add("?>");
-            }
-            else
+            if (!isForStruct)
             {
                 PastelUtil.IndentLines(this.TabChar + this.TabChar, lines);
 
@@ -839,7 +828,6 @@ namespace Pastel.Transpilers
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
             string name = structDef.NameToken.Value;
-            sb.Append(sb.CurrentTab);
             sb.Append("class ");
             sb.Append(name);
             sb.Append(" {");
