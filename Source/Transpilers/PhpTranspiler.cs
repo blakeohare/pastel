@@ -50,7 +50,22 @@ namespace Pastel.Transpilers
 
                 lines.InsertRange(0, prefixes);
 
+                bool hasIntBuffer = false;
+                foreach (string line in lines)
+                {
+                    if (line.Contains("PST_intBuffer16"))
+                    {
+                        hasIntBuffer = true;
+                    }
+                }
+
                 lines.Add(this.TabChar + "}");
+
+                if (hasIntBuffer)
+                {
+                    lines.Add(this.TabChar + "PastelGeneratedCode::$PST_intBuffer16 = pastelWrapList(array_fill(0, 16, 0));");
+                }
+
                 lines.Add("");
                 lines.Add("?>");
             }
@@ -107,16 +122,23 @@ namespace Pastel.Transpilers
 
         public override void TranslateArrayNew(TranspilerContext sb, PType arrayType, Expression lengthExpression)
         {
-            sb.Append("new PastelPtrArray()");
+            sb.Append("pastelWrapList(array_fill(0, ");
+            this.TranslateExpression(sb, lengthExpression);
+            sb.Append(", ");
+            switch (arrayType.RootValue)
+            {
+                case "int": sb.Append("0"); break;
+                case "bool": sb.Append("false"); break;
+                case "float": sb.Append("0.0"); break;
+                case "double": sb.Append("0.0"); break;
+                default: sb.Append("null"); break;
+            }
+            sb.Append("))");
         }
 
         public override void TranslateArraySet(TranspilerContext sb, Expression array, Expression index, Expression value)
         {
-            this.TranslateExpression(sb, array);
-            sb.Append("->arr[");
-            this.TranslateExpression(sb, index);
-            sb.Append("] = ");
-            this.TranslateExpression(sb, value);
+            this.TranslateListSet(sb, array, index, value);
         }
 
         public override void TranslateBase64ToString(TranspilerContext sb, Expression base64String)
@@ -167,12 +189,35 @@ namespace Pastel.Transpilers
             sb.Append("microtime(true)");
         }
 
+        private void TranslateDictionaryKeyExpression(TranspilerContext sb, Expression keyExpr)
+        {
+            if (keyExpr.ResolvedType.RootValue == "int")
+            {
+                if (keyExpr is InlineConstant)
+                {
+                    sb.Append("'i");
+                    int key = (int)((InlineConstant)keyExpr).Value;
+                    sb.Append(key);
+                    sb.Append("'");
+                }
+                else
+                {
+                    sb.Append("'i'.");
+                    this.TranslateExpression(sb, keyExpr);
+                }
+            }
+            else
+            {
+                this.TranslateExpression(sb, keyExpr);
+            }
+        }
+
         public override void TranslateDictionaryContainsKey(TranspilerContext sb, Expression dictionary, Expression key)
         {
             sb.Append("isset(");
             this.TranslateExpression(sb, dictionary);
             sb.Append("->arr[");
-            this.TranslateExpression(sb, key);
+            TranslateDictionaryKeyExpression(sb, key);
             sb.Append("])");
         }
 
@@ -180,7 +225,7 @@ namespace Pastel.Transpilers
         {
             this.TranslateExpression(sb, dictionary);
             sb.Append("->arr[");
-            this.TranslateExpression(sb, key);
+            TranslateDictionaryKeyExpression(sb, key);
             sb.Append(']');
         }
 
@@ -188,6 +233,8 @@ namespace Pastel.Transpilers
         {
             sb.Append("self::PST_dictGetKeys(");
             this.TranslateExpression(sb, dictionary);
+            sb.Append(", ");
+            sb.Append(dictionary.ResolvedType.Generics[0].RootValue == "int" ? "true" : "false");
             sb.Append(')');
         }
 
@@ -201,7 +248,7 @@ namespace Pastel.Transpilers
             sb.Append("unset(");
             this.TranslateExpression(sb, dictionary);
             sb.Append("->arr[");
-            this.TranslateExpression(sb, key);
+            TranslateDictionaryKeyExpression(sb, key);
             sb.Append("])");
         }
 
@@ -209,7 +256,8 @@ namespace Pastel.Transpilers
         {
             this.TranslateExpression(sb, dictionary);
             sb.Append("->arr[");
-            this.TranslateExpression(sb, key);
+
+            TranslateDictionaryKeyExpression(sb, key);
             sb.Append("] = ");
             this.TranslateExpression(sb, value);
         }
@@ -231,7 +279,7 @@ namespace Pastel.Transpilers
                 keyVar = "$_PST_dictKey" + sb.SwitchCounter++;
                 sb.Append(keyVar);
                 sb.Append(" = ");
-                this.TranslateExpression(sb, key);
+                TranslateDictionaryKeyExpression(sb, key);
                 sb.Append(";");
                 sb.Append(this.NewLine);
                 sb.Append(sb.CurrentTab);
@@ -241,10 +289,10 @@ namespace Pastel.Transpilers
             sb.Append(varOut.Name);
             sb.Append(" = isset(");
             this.TranslateExpression(sb, dictionary);
-            sb.Append('[');
+            sb.Append("->arr[");
             if (keyExpressionIsSimple)
             {
-                this.TranslateExpression(sb, key);
+                TranslateDictionaryKeyExpression(sb, key);
             }
             else
             {
@@ -252,10 +300,10 @@ namespace Pastel.Transpilers
             }
             sb.Append("]) ? ");
             this.TranslateExpression(sb, dictionary);
-            sb.Append('[');
+            sb.Append("->arr[");
             if (keyExpressionIsSimple)
             {
-                this.TranslateExpression(sb, key);
+                TranslateDictionaryKeyExpression(sb, key);
             }
             else
             {
@@ -309,7 +357,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateIntBuffer16(TranspilerContext sb)
         {
-            sb.Append("self::PST_intBuffer16");
+            sb.Append("(self::PST_intBuffer16)");
         }
 
         public override void TranslateIntegerDivision(TranspilerContext sb, Expression integerNumerator, Expression integerDenominator)
@@ -325,7 +373,7 @@ namespace Pastel.Transpilers
         {
             sb.Append("('' . (");
             this.TranslateExpression(sb, integer);
-            sb.Append(')');
+            sb.Append("))");
         }
 
         public override void TranslateIsValidInteger(TranspilerContext sb, Expression stringValue)
@@ -356,7 +404,7 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, list);
             sb.Append("->arr, ");
             this.TranslateExpression(sb, items);
-            sb.Append("->arr)");
+            sb.Append("->arr))");
         }
 
         public override void TranslateListGet(TranspilerContext sb, Expression list, Expression index)
@@ -424,11 +472,24 @@ namespace Pastel.Transpilers
 
         public override void TranslateListSet(TranspilerContext sb, Expression list, Expression index, Expression value)
         {
-            this.TranslateExpression(sb, list);
-            sb.Append("->arr[");
-            this.TranslateExpression(sb, index);
-            sb.Append("] = ");
-            this.TranslateExpression(sb, value);
+            if (list is Variable)
+            {
+                this.TranslateExpression(sb, list);
+                sb.Append("->arr[");
+                this.TranslateExpression(sb, index);
+                sb.Append("] = ");
+                this.TranslateExpression(sb, value);
+            }
+            else
+            {
+                sb.Append("self::PST_assignIndexHack(");
+                this.TranslateExpression(sb, list);
+                sb.Append(", ");
+                this.TranslateExpression(sb, index);
+                sb.Append(", ");
+                this.TranslateExpression(sb, value);
+                sb.Append(')');
+            }
         }
 
         public override void TranslateListShuffle(TranspilerContext sb, Expression list)
@@ -690,11 +751,11 @@ namespace Pastel.Transpilers
 
         public override void TranslateStringSplit(TranspilerContext sb, Expression haystack, Expression needle)
         {
-            sb.Append("explode(");
+            sb.Append("pastelWrapList(explode(");
             this.TranslateExpression(sb, needle);
             sb.Append(", ");
             this.TranslateExpression(sb, haystack);
-            sb.Append(')');
+            sb.Append("))");
         }
 
         public override void TranslateStringStartsWith(TranspilerContext sb, Expression haystack, Expression needle)

@@ -16,22 +16,22 @@ private static function PST_sortedCopyOfStringArray($strs) {
 
 // PASTEL_ENTITY_ID: PST_stringIndexOf
 private static function PST_stringIndexOf($haystack, $needle) {
-	$o = strpos($haystack, $needle)
+	$o = strpos($haystack, $needle);
 	if ($o === false) return -1;
 	return $o;
 }
 
 // PASTEL_ENTITY_ID: PST_dictGetKeys
-private static function PST_dictGetKeys($d) {
+private static function PST_dictGetKeys($d, $isIntDict) {
 	$keys = new PastelPtrArray();
-	foreach ($d as $k => $ignore) {
-		array_push($keys->arr, $k);
+	foreach ($d->arr as $k => $ignore) {
+		array_push($keys->arr, $isIntDict ? intval(substr($k, 1)) : $k);
 	}
 	return $keys;
 }
 
 // PASTEL_ENTITY_ID: PST_intBuffer16
-private static var PST_intBuffer16 = array_fill(0, 16, 0);
+public static $PST_intBuffer16 = null;
 
 // PASTEL_ENTITY_ID: PST_stringEndsWith
 private static function PST_stringEndsWith($haystack, $needle) {
@@ -92,4 +92,9 @@ private static function PST_tryParseFloat($s, $outValue) {
 	if ($valid) {
 		$outValue->arr[1] = $f;
 	}
+}
+
+// PASTEL_ENTITY_ID: PST_assignIndexHack
+private static function PST_assignIndexHack($list, $index, $value) {
+	$list->arr[$index] = $value;
 }
