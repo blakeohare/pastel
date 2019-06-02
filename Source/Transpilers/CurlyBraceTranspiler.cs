@@ -85,7 +85,11 @@ namespace Pastel.Transpilers
 
         public override void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement)
         {
-            sb.Append(sb.CurrentTab);
+            this.TranslateIfStatementImpl(sb, ifStatement, true);
+        }
+
+        private void TranslateIfStatementImpl(TranspilerContext sb, IfStatement ifStatement, bool includeInitialTab) { 
+            if (includeInitialTab) sb.Append(sb.CurrentTab);
             sb.Append("if (");
             this.TranslateExpression(sb, ifStatement.Condition);
             if (this.isEgyptian)
@@ -110,10 +114,17 @@ namespace Pastel.Transpilers
 
             if (ifStatement.ElseCode.Length > 0)
             {
+                bool isIfElseChain = ifStatement.ElseCode.Length == 1 && ifStatement.ElseCode[0] is IfStatement;
+
                 if (this.isEgyptian)
                 {
-                    sb.Append(" else {");
-                    sb.Append(this.NewLine);
+                    sb.Append(" else ");
+
+                    if (!isIfElseChain)
+                    {
+                        sb.Append("{");
+                        sb.Append(this.NewLine);
+                    }
                 }
                 else
                 {
@@ -121,22 +132,37 @@ namespace Pastel.Transpilers
 
                     sb.Append(sb.CurrentTab);
                     sb.Append("else");
-                    sb.Append(this.NewLine);
 
-                    sb.Append(sb.CurrentTab);
-                    sb.Append("{");
-                    sb.Append(this.NewLine);
+                    if (isIfElseChain)
+                    {
+                        sb.Append(' ');
+                    }
+                    else
+                    {
+                        sb.Append(this.NewLine);
+
+                        sb.Append(sb.CurrentTab);
+                        sb.Append("{");
+                        sb.Append(this.NewLine);
+                    }
                 }
 
-                sb.TabDepth++;
-                this.TranslateExecutables(sb, ifStatement.ElseCode);
-                sb.TabDepth--;
+                if (isIfElseChain)
+                {
+                    this.TranslateIfStatementImpl(sb, (IfStatement)ifStatement.ElseCode[0], false);
+                }
+                else
+                {
+                    sb.TabDepth++;
+                    this.TranslateExecutables(sb, ifStatement.ElseCode);
+                    sb.TabDepth--;
 
-                sb.Append(sb.CurrentTab);
-                sb.Append("}");
+                    sb.Append(sb.CurrentTab);
+                    sb.Append("}");
+                }
             }
 
-            sb.Append(this.NewLine);
+            if (includeInitialTab) sb.Append(this.NewLine);
         }
 
         public override void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition)
