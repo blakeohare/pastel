@@ -449,6 +449,7 @@ namespace Pastel.Transpilers
             string lookupVar = "_PST_dictLookup" + sb.SwitchCounter++;
             sb.Append(sb.CurrentTab);
             sb.Append(this.TranslateJavaNestedType(valueType));
+            sb.Append(' ');
             sb.Append(lookupVar);
             sb.Append(" = ");
             this.TranslateExpression(sb, dictionary);
