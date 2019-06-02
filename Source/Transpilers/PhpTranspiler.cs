@@ -716,12 +716,18 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, haystack);
             sb.Append(", ");
             this.TranslateExpression(sb, needle);
-            sb.Append(')');
+            sb.Append(", 0)");
         }
 
         public override void TranslateStringIndexOfWithStart(TranspilerContext sb, Expression haystack, Expression needle, Expression startIndex)
         {
-            throw new NotImplementedException();
+            sb.Append("self::PST_stringIndexOf(");
+            this.TranslateExpression(sb, haystack);
+            sb.Append(", ");
+            this.TranslateExpression(sb, needle);
+            sb.Append(", ");
+            this.TranslateExpression(sb, startIndex);
+            sb.Append(")");
         }
 
         public override void TranslateStringLength(TranspilerContext sb, Expression str)

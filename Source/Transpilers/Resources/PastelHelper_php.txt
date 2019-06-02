@@ -15,8 +15,8 @@ private static function PST_sortedCopyOfStringArray($strs) {
 }
 
 // PASTEL_ENTITY_ID: PST_stringIndexOf
-private static function PST_stringIndexOf($haystack, $needle) {
-	$o = strpos($haystack, $needle);
+private static function PST_stringIndexOf($haystack, $needle, $index) {
+	$o = strpos($haystack, $needle, $index);
 	if ($o === false) return -1;
 	return $o;
 }
