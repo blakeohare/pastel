@@ -33,7 +33,7 @@ namespace Pastel.Transpilers
                     this.TabChar + "var $arr = array();",
                     "}",
                     "class PastelPtr {",
-                    this.TabChar + "var $value = null",
+                    this.TabChar + "var $value = null;",
                     this.TabChar + "function __constructor($value) { $this->value = $value; }",
                     "}",
                     "function _pastelWrapValue($value) { $o = new PastelPtrArray(); $o->arr = $value; return $o; }",
@@ -397,7 +397,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateGetFunction(TranspilerContext sb, Expression name)
         {
-            sb.Append("self::PST_createFunctionPointer(");
+            sb.Append("TranslationHelper_getFunction(");
             this.TranslateExpression(sb, name);
             sb.Append(')');
         }

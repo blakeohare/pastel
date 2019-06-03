@@ -63,11 +63,6 @@ private static function PST_reverseArray($a) {
 	$a->arr = array_reverse($a->arr);
 }
 
-// PASTEL_ENTITY_ID: PST_createFunctionPointer
-private static function PST_createFunctionPointer($name) {
-	throw new Exception("Not implemented");
-}
-
 // PASTEL_ENTITY_ID: PST_isValidInteger
 private static function PST_isValidInteger($s) {
 	$length = strlen($s);
