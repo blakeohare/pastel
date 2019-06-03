@@ -4,6 +4,26 @@ namespace Pastel
 {
     internal static class PastelUtil
     {
+        public static bool StringToBool(string value)
+        {
+            switch (value.ToUpper())
+            {
+                case "TRUE":
+                case "YES":
+                case "1":
+                case "AYE":
+                case "AFFIRMATIVE":
+                    return true;
+                case "FALSE":
+                case "NO":
+                case "0":
+                case "NAY":
+                case "NEGATIVE":
+                    return false;
+                default:
+                    throw new System.InvalidOperationException("Invalid value for boolean: " + value);
+            }
+        }
         public static string ConvertCharToCharConstantCode(char value)
         {
             switch (value)

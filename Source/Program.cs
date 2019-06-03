@@ -60,13 +60,6 @@ namespace Pastel
         private static Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> output = new Dictionary<string, string>();
-            if (context.UsesFunctionDeclarations)
-            {
-                string funcDeclarations = context.GetCodeForFunctionDeclarations();
-                throw new NotImplementedException();
-            }
-
-            GenerateFunctionImplementation(config, context.GetCodeForFunctions());
 
             if (context.UsesStructDefinitions)
             {
@@ -94,6 +87,15 @@ namespace Pastel
                     }
                 }
             }
+
+            if (context.UsesFunctionDeclarations)
+            {
+                string funcDeclarations = context.GetCodeForFunctionDeclarations();
+                throw new NotImplementedException();
+            }
+
+            GenerateFunctionImplementation(config, context.GetCodeForFunctions());
+
             return output;
         }
 
