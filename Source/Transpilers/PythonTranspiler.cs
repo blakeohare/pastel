@@ -908,6 +908,42 @@ namespace Pastel.Transpilers
             sb.Append(".lstrip()");
         }
 
+        public override void TranslateStringBuilderAdd(TranspilerContext sb, Expression sbInst, Expression obj)
+        {
+            this.TranslateExpression(sb, sbInst);
+            sb.Append(".append(");
+            string t = obj.ResolvedType.RootValue;
+            bool isString = t == "string" || t == "char";
+            if (isString)
+            {
+                this.TranslateExpression(sb, obj);
+            }
+            else
+            {
+                sb.Append("str(");
+                this.TranslateExpression(sb, obj);
+                sb.Append(')');
+            }
+            sb.Append(')');
+        }
+
+        public override void TranslateStringBuilderClear(TranspilerContext sb, Expression sbInst)
+        {
+            this.TranslateListClear(sb, sbInst);
+        }
+
+        public override void TranslateStringBuilderNew(TranspilerContext sb)
+        {
+            sb.Append("[]");
+        }
+
+        public override void TranslateStringBuilderToString(TranspilerContext sb, Expression sbInst)
+        {
+            sb.Append("''.join(");
+            this.TranslateExpression(sb, sbInst);
+            sb.Append(')');
+        }
+
         public override void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right)
         {
             this.TranslateExpression(sb, left);

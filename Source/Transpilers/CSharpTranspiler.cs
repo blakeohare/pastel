@@ -25,6 +25,9 @@ namespace Pastel.Transpilers
                 case "void":
                     return type.RootValue;
 
+                case "StringBuilder":
+                    return "System.Text.StringBuilder";
+
                 case "List":
                     return "List<" + this.TranslateType(type.Generics[0]) + ">";
 
@@ -763,6 +766,31 @@ namespace Pastel.Transpilers
         {
             this.TranslateExpression(sb, str);
             sb.Append(".TrimStart()");
+        }
+
+        public override void TranslateStringBuilderAdd(TranspilerContext sb, Expression sbInst, Expression obj)
+        {
+            this.TranslateExpression(sb, sbInst);
+            sb.Append(".Append(");
+            this.TranslateExpression(sb, obj);
+            sb.Append(')');
+        }
+
+        public override void TranslateStringBuilderClear(TranspilerContext sb, Expression sbInst)
+        {
+            this.TranslateExpression(sb, sbInst);
+            sb.Append(".Clear()");
+        }
+
+        public override void TranslateStringBuilderNew(TranspilerContext sb)
+        {
+            sb.Append("new System.Text.StringBuilder()");
+        }
+
+        public override void TranslateStringBuilderToString(TranspilerContext sb, Expression sbInst)
+        {
+            this.TranslateExpression(sb, sbInst);
+            sb.Append(".ToString()");
         }
 
         public override void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right)

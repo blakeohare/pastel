@@ -147,6 +147,11 @@ namespace Pastel.Nodes
                     case "double/double":
                         throw new ParserException(this.Ops[i], "Due to varying platform behavior of / use Core.IntegerDivision(numerator, denominator) or Core.FloatDivision(numerator, denominator)");
 
+                    case "char+string":
+                    case "string+char":
+                        this.ResolvedType = PType.STRING;
+                        break;
+
                     default:
                         throw new ParserException(this.Ops[i], "The operator '" + this.Ops[i].Value + "' is not defined for types: " + this.ResolvedType + " and " + nextType + ".");
                 }

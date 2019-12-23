@@ -919,6 +919,26 @@ namespace Pastel.Transpilers
             sb.Append(", 1, 0)");
         }
 
+        public override void TranslateStringBuilderAdd(TranspilerContext sb, Expression sbInst, Expression obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TranslateStringBuilderClear(TranspilerContext sb, Expression sbInst)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TranslateStringBuilderNew(TranspilerContext sb)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TranslateStringBuilderToString(TranspilerContext sb, Expression sbInst)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right)
         {
             string type = left.ResolvedType.RootValue;

@@ -102,6 +102,7 @@ namespace Pastel.Nodes
                     case "string":
                     case "number":
                     case "byte":
+                    case "StringBuilder":
                         this.Category = TypeCategory.PRIMITIVE;
                         break;
 
@@ -147,7 +148,7 @@ namespace Pastel.Nodes
                     this.IsNullable = true;
                     break;
                 case TypeCategory.PRIMITIVE:
-                    this.IsNullable = this.RootValue == "string";
+                    this.IsNullable = this.RootValue == "string" || this.RootValue == "StringBuilder";
                     break;
                 default:
                     this.IsNullable = false;

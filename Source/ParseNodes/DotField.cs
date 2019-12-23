@@ -194,6 +194,7 @@ namespace Pastel.Nodes
                         case "Contains": return CoreFunction.STRING_CONTAINS;
                         case "EndsWith": return CoreFunction.STRING_ENDS_WITH;
                         case "IndexOf": return CoreFunction.STRING_INDEX_OF;
+                        case "Length": throw new ParserException(this.FieldName, "String uses .Size() for its length.");
                         case "Replace": return CoreFunction.STRING_REPLACE;
                         case "Reverse": return CoreFunction.STRING_REVERSE;
                         case "Size": return CoreFunction.STRING_LENGTH;
@@ -252,6 +253,15 @@ namespace Pastel.Nodes
                         case "TryGet": return CoreFunction.DICTIONARY_TRY_GET;
                         case "Values": return CoreFunction.DICTIONARY_VALUES;
                         default: throw new ParserException(this.FieldName, "Unresolved Dictionary method: " + field);
+                    }
+
+                case "StringBuilder":
+                    switch (field)
+                    {
+                        case "Add": return CoreFunction.STRINGBUILDER_ADD;
+                        case "Clear": return CoreFunction.STRINGBUILDER_CLEAR;
+                        case "ToString": return CoreFunction.STRINGBUILDER_TOSTRING;
+                        default: throw new ParserException(this.FieldName, "Unresolved StringBuilder method: " + field);
                     }
 
                 default:

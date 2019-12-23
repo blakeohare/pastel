@@ -41,6 +41,7 @@ namespace Pastel.Nodes
                 case "Array":
                 case "List":
                 case "Dictionary":
+                case "StringBuilder":
                     break;
 
                 default:

@@ -61,9 +61,12 @@ namespace Pastel.Nodes
         internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
         {
             this.Condition = this.Condition.ResolveType(varScope, compiler);
-            if (!this.Condition.ResolvedType.IsIdentical(compiler, PType.INT))
+            PType conditionType = this.Condition.ResolvedType;
+            bool isInt = conditionType.IsIdentical(compiler, PType.INT);
+            bool isChar = !isInt && conditionType.IsIdentical(compiler, PType.CHAR);
+            if (!isInt && !isChar)
             {
-                throw new ParserException(this.Condition.FirstToken, "Only ints can be used in switch statements.");
+                throw new ParserException(this.Condition.FirstToken, "Only ints and chars can be used in switch statements.");
             }
 
             // consider it all one scope
@@ -77,9 +80,10 @@ namespace Pastel.Nodes
                     {
                         ex = ex.ResolveType(varScope, compiler);
                         chunk.Cases[j] = ex;
-                        if (ex.ResolvedType.RootValue != "int")
+                        if ((isInt && ex.ResolvedType.RootValue != "int") ||
+                            (isChar && ex.ResolvedType.RootValue != "char"))
                         {
-                            throw new ParserException(ex.FirstToken, "Only ints may be used.");
+                            throw new ParserException(ex.FirstToken, isInt ? "Only ints may be used." : "Only chars may be used.");
                         }
                     }
                 }

@@ -172,6 +172,14 @@ namespace Pastel.Transpilers
                             this.TranslateDictionaryNew(sb, dictionaryKeyType, dictionaryValueType);
                             break;
 
+                        case "StringBuilder":
+                            if (constructor.Type.Generics.Length != 0)
+                            {
+                                throw new ParserException(constructor.Type.FirstToken, "StringBuilder constructor does not have any generics.");
+                            }
+                            this.TranslateStringBuilderNew(sb);
+                            break;
+
                         default:
                             // TODO: throw an exception (in the parser) if generics exist.
                             this.TranslateConstructorInvocation(sb, constructor);
@@ -316,6 +324,9 @@ namespace Pastel.Transpilers
                 case CoreFunction.STRING_TRIM: this.TranslateStringTrim(sb, args[0]); break;
                 case CoreFunction.STRING_TRIM_END: this.TranslateStringTrimEnd(sb, args[0]); break;
                 case CoreFunction.STRING_TRIM_START: this.TranslateStringTrimStart(sb, args[0]); break;
+                case CoreFunction.STRINGBUILDER_ADD: this.TranslateStringBuilderAdd(sb, args[0], args[1]); break;
+                case CoreFunction.STRINGBUILDER_CLEAR: this.TranslateStringBuilderClear(sb, args[0]); break;
+                case CoreFunction.STRINGBUILDER_TOSTRING: this.TranslateStringBuilderToString(sb, args[0]); break;
                 case CoreFunction.STRONG_REFERENCE_EQUALITY: this.TranslateStrongReferenceEquality(sb, args[0], args[1]); break;
                 case CoreFunction.TRY_PARSE_FLOAT: this.TranslateTryParseFloat(sb, args[0], args[1]); break;
 
@@ -452,6 +463,10 @@ namespace Pastel.Transpilers
         public abstract void TranslateListSet(TranspilerContext sb, Expression list, Expression index, Expression value);
         public abstract void TranslateListShuffle(TranspilerContext sb, Expression list);
         public abstract void TranslateListSize(TranspilerContext sb, Expression list);
+        public abstract void TranslateStringBuilderNew(TranspilerContext sb);
+        public abstract void TranslateStringBuilderAdd(TranspilerContext sb, Expression sbInst, Expression obj);
+        public abstract void TranslateStringBuilderClear(TranspilerContext sb, Expression sbInst);
+        public abstract void TranslateStringBuilderToString(TranspilerContext sb, Expression sbInst);
         public abstract void TranslateListToArray(TranspilerContext sb, Expression list);
         public abstract void TranslateMathArcCos(TranspilerContext sb, Expression ratio);
         public abstract void TranslateMathArcSin(TranspilerContext sb, Expression ratio);
