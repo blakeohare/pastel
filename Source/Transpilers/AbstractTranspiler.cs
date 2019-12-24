@@ -103,7 +103,17 @@ namespace Pastel.Transpilers
                 case "FunctionReference": this.TranslateFunctionReference(sb, (FunctionReference)expression); break;
                 case "FunctionPointerInvocation": this.TranslateFunctionPointerInvocation(sb, (FunctionPointerInvocation)expression); break;
                 case "CoreFunctionInvocation": this.TranslateCoreFunctionInvocation(sb, (CoreFunctionInvocation)expression); break;
-                case "OpChain": this.TranslateOpChain(sb, (OpChain)expression); break;
+                case "OpChain":
+                    OpChain oc = (OpChain)expression;
+                    if (oc.IsStringConcatenation)
+                    {
+                        this.TranslateStringConcatenation(sb, oc.Expressions);
+                    }
+                    else
+                    {
+                        this.TranslateOpChain(sb, oc);
+                    }
+                    break;
                 case "ExtensibleFunctionInvocation":
                     this.TranslateExtensibleFunctionInvocation(
                         sb,
@@ -223,6 +233,18 @@ namespace Pastel.Transpilers
                     break;
 
                 default: throw new NotImplementedException(typeName);
+            }
+        }
+
+        public void TranslateStringConcatenation(TranspilerContext sb, Expression[] expressions)
+        {
+            if (expressions.Length == 2)
+            {
+                this.TranslateStringConcatPair(sb, expressions[0], expressions[1]);
+            }
+            else
+            {
+                this.TranslateStringConcatAll(sb, expressions);
             }
         }
 

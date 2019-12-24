@@ -17,6 +17,25 @@ namespace Pastel.Nodes
             this.Ops = ops.ToArray();
         }
 
+        public bool IsStringConcatenation
+        {
+            get
+            {
+                if (this.Expressions[0].ResolvedType.RootValue == "string")
+                {
+                    for (int i = 0; i < this.Ops.Length; ++i)
+                    {
+                        if (this.Ops[i].Value != "+")
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+
         public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             Expression.ResolveNamesAndCullUnusedCodeInPlace(this.Expressions, compiler);
@@ -149,6 +168,10 @@ namespace Pastel.Nodes
 
                     case "char+string":
                     case "string+char":
+                        this.ResolvedType = PType.STRING;
+                        break;
+
+                    case "string+string":
                         this.ResolvedType = PType.STRING;
                         break;
 
