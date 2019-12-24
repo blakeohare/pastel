@@ -88,7 +88,8 @@ namespace Pastel.Transpilers
             this.TranslateIfStatementImpl(sb, ifStatement, true);
         }
 
-        private void TranslateIfStatementImpl(TranspilerContext sb, IfStatement ifStatement, bool includeInitialTab) { 
+        private void TranslateIfStatementImpl(TranspilerContext sb, IfStatement ifStatement, bool includeInitialTab)
+        {
             if (includeInitialTab) sb.Append(sb.CurrentTab);
             sb.Append("if (");
             this.TranslateExpression(sb, ifStatement.Condition);
@@ -203,13 +204,10 @@ namespace Pastel.Transpilers
         public override void TranslateReturnStatemnt(TranspilerContext sb, ReturnStatement returnStatement)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append("return ");
-            if (returnStatement.Expression == null)
+            sb.Append("return");
+            if (returnStatement.Expression != null)
             {
-                sb.Append("null");
-            }
-            else
-            {
+                sb.Append(' ');
                 this.TranslateExpression(sb, returnStatement.Expression);
             }
             sb.Append(';');
