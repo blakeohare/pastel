@@ -110,11 +110,11 @@ namespace Pastel.Nodes
                 rootType.FinalizeType(compiler);
                 this.StructType = rootType.StructDef;
                 int fieldIndex;
-                if (!this.StructType.ArgIndexByName.TryGetValue(this.FieldName.Value, out fieldIndex))
+                if (!this.StructType.FlatFieldIndexByName.TryGetValue(this.FieldName.Value, out fieldIndex))
                 {
                     throw new ParserException(this.FieldName, "The struct '" + this.StructType.NameToken.Value + "' does not have a field called '" + this.FieldName.Value + "'");
                 }
-                this.ResolvedType = this.StructType.ArgTypes[fieldIndex];
+                this.ResolvedType = this.StructType.FlatFieldTypes[fieldIndex];
                 return this;
             }
 

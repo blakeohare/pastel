@@ -202,7 +202,7 @@ namespace Pastel.Transpilers
                     StructDefinition structDef = df.StructType;
                     if (structDef == null) throw new InvalidOperationException(); // should have been thrown by the compiler
                     string fieldName = df.FieldName.Value;
-                    int fieldIndex = structDef.ArgIndexByName[fieldName];
+                    int fieldIndex = structDef.FlatFieldIndexByName[fieldName];
                     this.TranslateStructFieldDereference(sb, df.Root, structDef, fieldName, fieldIndex);
                     break;
 

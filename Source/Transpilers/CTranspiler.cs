@@ -1016,10 +1016,10 @@ namespace Pastel.Transpilers
             sb.Append("struct ");
             sb.Append(structDef.NameToken.Value);
             sb.Append(" {\n");
-            for (int i = 0; i < structDef.ArgNames.Length; ++i)
+            for (int i = 0; i < structDef.FlatFieldNames.Length; ++i)
             {
-                string fieldName = structDef.ArgNames[i].Value;
-                PType fieldType = structDef.ArgTypes[i];
+                string fieldName = structDef.FlatFieldNames[i].Value;
+                PType fieldType = structDef.FlatFieldTypes[i];
                 sb.Append('\t');
                 sb.Append(this.TranslateType(fieldType));
                 sb.Append(' ');

@@ -48,7 +48,7 @@ namespace Pastel.Nodes
                     if (!this.Type.IsStruct) throw new ParserException(this.FirstToken, "Cannot instantiate this item.");
                     StructDefinition sd = this.Type.StructDef;
                     this.StructType = sd;
-                    int fieldCount = this.StructType.ArgTypes.Length;
+                    int fieldCount = this.StructType.FlatFieldTypes.Length;
                     if (fieldCount != this.Args.Length)
                     {
                         throw new ParserException(this.FirstToken, "Incorrect number of args in constructor. Expected " + fieldCount + ", found " + this.Args.Length);
@@ -57,7 +57,7 @@ namespace Pastel.Nodes
                     for (int i = 0; i < fieldCount; ++i)
                     {
                         PType actualType = this.Args[i].ResolvedType;
-                        PType expectedType = this.StructType.ArgTypes[i];
+                        PType expectedType = this.StructType.FlatFieldTypes[i];
                         if (!PType.CheckAssignment(compiler, expectedType, actualType))
                         {
                             throw new ParserException(this.Args[i].FirstToken, "Cannot use an arg of this type for this struct field. Expected " + expectedType.ToString() + " but found " + actualType.ToString());

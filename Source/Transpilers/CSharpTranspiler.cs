@@ -833,16 +833,24 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
-            PType[] types = structDef.ArgTypes;
-            Pastel.Token[] fieldNames = structDef.ArgNames;
+            PType[] localTypes = structDef.LocalFieldTypes;
+            Token[] localNames = structDef.LocalFieldNames;
+            PType[] flatTypes = structDef.FlatFieldTypes;
+            Token[] flatNames = structDef.FlatFieldNames;
+
             string name = structDef.NameToken.Value;
             List<string> lines = new List<string>();
 
-            lines.Add("public class " + name);
-            lines.Add("{");
-            for (int i = 0; i < types.Length; ++i)
+            string defline = "public class " + name;
+            if (structDef.Parent != null)
             {
-                lines.Add("    public " + this.TranslateType(types[i]) + " " + fieldNames[i].Value + ";");
+                defline += " : " + structDef.ParentName.Value;
+            }
+            lines.Add(defline);
+            lines.Add("{");
+            for (int i = 0; i < localNames.Length; ++i)
+            {
+                lines.Add("    public " + this.TranslateType(localTypes[i]) + " " + localNames[i].Value + ";");
             }
             lines.Add("");
 
@@ -850,19 +858,32 @@ namespace Pastel.Transpilers
             constructorDeclaration.Append("    public ");
             constructorDeclaration.Append(name);
             constructorDeclaration.Append('(');
-            for (int i = 0; i < types.Length; ++i)
+            for (int i = 0; i < flatTypes.Length; ++i)
             {
                 if (i > 0) constructorDeclaration.Append(", ");
-                constructorDeclaration.Append(this.TranslateType(types[i]));
+                constructorDeclaration.Append(this.TranslateType(flatTypes[i]));
                 constructorDeclaration.Append(' ');
-                constructorDeclaration.Append(fieldNames[i].Value);
+                constructorDeclaration.Append(flatNames[i].Value);
             }
             constructorDeclaration.Append(')');
+
+            if (structDef.Parent != null)
+            {
+                Token[] parentFieldNames = structDef.Parent.FlatFieldNames;
+                constructorDeclaration.Append(" : base(");
+                for (int i = 0; i < parentFieldNames.Length; ++i)
+                {
+                    if (i > 0) constructorDeclaration.Append(", ");
+                    constructorDeclaration.Append(flatNames[i].Value);
+                }
+                constructorDeclaration.Append(')');
+            }
+
             lines.Add(constructorDeclaration.ToString());
             lines.Add("    {");
-            for (int i = 0; i < types.Length; ++i)
+            for (int i = 0; i < localTypes.Length; ++i)
             {
-                string fieldName = fieldNames[i].Value;
+                string fieldName = localNames[i].Value;
                 lines.Add("        this." + fieldName + " = " + fieldName + ";");
             }
             lines.Add("    }");

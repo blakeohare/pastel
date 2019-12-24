@@ -1181,21 +1181,34 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
+            string[] flatNames = structDef.FlatFieldNames.Select(token => token.Value).ToArray();
+            string[] flatTypes = structDef.FlatFieldTypes.Select(type => this.TranslateType(type)).ToArray();
+            string[] localNames = structDef.LocalFieldNames.Select(token => token.Value).ToArray();
+            string[] localTypes = structDef.LocalFieldTypes.Select(type => this.TranslateType(type)).ToArray();
+
             string name = structDef.NameToken.Value;
+
+            // TODO: This is a Crayon-ism that needs to be removed
+            // TODO: also this is dangerously likely to affect other projects. At least add a 
+            // hacky `if (structDef.NameToken.FileName == blah)` that'll be at least somewhat more 
+            // likely to not create false positives in the mean time.
             bool isValue = name == "Value";
-            sb.Append("public final class ");
+
+            sb.Append("public class ");
             sb.Append(name);
+            if (structDef.Parent != null)
+            {
+                sb.Append(" extends ");
+                sb.Append(structDef.ParentName.Value);
+            }
             sb.Append(" {");
             sb.Append(this.NewLine);
-            string[] types = structDef.ArgTypes.Select(type => this.TranslateType(type)).ToArray();
-            string[] names = structDef.ArgNames.Select(token => token.Value).ToArray();
-            int fieldCount = names.Length;
-            for (int i = 0; i < fieldCount; ++i)
+            for (int i = 0; i < localNames.Length; ++i)
             {
                 sb.Append("  public ");
-                sb.Append(types[i]);
+                sb.Append(localTypes[i]);
                 sb.Append(' ');
-                sb.Append(names[i]);
+                sb.Append(localNames[i]);
                 sb.Append(';');
                 sb.Append(this.NewLine);
             }
@@ -1219,21 +1232,33 @@ namespace Pastel.Transpilers
             sb.Append("  public ");
             sb.Append(structDef.NameToken.Value);
             sb.Append('(');
-            for (int i = 0; i < fieldCount; ++i)
+            for (int i = 0; i < flatNames.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append(types[i]);
+                sb.Append(flatTypes[i]);
                 sb.Append(' ');
-                sb.Append(names[i]);
+                sb.Append(flatNames[i]);
             }
             sb.Append(") {");
             sb.Append(this.NewLine);
-            for (int i = 0; i < fieldCount; ++i)
+            if (structDef.Parent != null)
+            {
+                sb.Append("    super(");
+                int parentFieldCount = structDef.Parent.FlatFieldNames.Length;
+                for (int i = 0; i < parentFieldCount; ++i)
+                {
+                    if (i > 0) sb.Append(", ");
+                    sb.Append(flatNames[i]);
+                }
+                sb.Append(");");
+                sb.Append(this.NewLine);
+            }
+            for (int i = 0; i < localNames.Length; ++i)
             {
                 sb.Append("    this.");
-                sb.Append(names[i]);
+                sb.Append(localNames[i]);
                 sb.Append(" = ");
-                sb.Append(names[i]);
+                sb.Append(localNames[i]);
                 sb.Append(';');
                 sb.Append(this.NewLine);
             }

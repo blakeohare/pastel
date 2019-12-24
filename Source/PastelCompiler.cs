@@ -175,23 +175,28 @@ namespace Pastel
         public void Resolve()
         {
             this.ResolveConstants();
+            this.ResolveStructTypes();
+            this.ResolveStructParentChain();
             this.ResolveNamesAndCullUnusedCode();
             this.ResolveSignatureTypes();
             this.ResolveTypes();
             this.ResolveWithTypeContext();
         }
 
-        private void ResolveSignatureTypes()
+        private void ResolveStructTypes()
         {
             foreach (string structName in this.StructDefinitions.Keys.OrderBy(t => t))
             {
                 StructDefinition structDef = this.StructDefinitions[structName];
-                for (int i = 0; i < structDef.ArgTypes.Length; ++i)
+                for (int i = 0; i < structDef.LocalFieldTypes.Length; ++i)
                 {
-                    structDef.ArgTypes[i].FinalizeType(this);
+                    structDef.LocalFieldTypes[i].FinalizeType(this);
                 }
             }
+        }
 
+        private void ResolveSignatureTypes()
+        {
             foreach (string funcName in this.FunctionDefinitions.Keys.OrderBy(t => t))
             {
                 FunctionDefinition funcDef = this.FunctionDefinitions[funcName];
@@ -223,6 +228,26 @@ namespace Pastel
                     constDef.DoConstantResolutions(cycleDetection, this);
                     cycleDetection.Remove(name);
                 }
+            }
+        }
+
+        private void ResolveStructParentChain()
+        {
+            Dictionary<StructDefinition, int> cycleCheck = new Dictionary<StructDefinition, int>();
+            StructDefinition[] structDefs = this.StructDefinitions.Values.ToArray(); 
+            foreach (StructDefinition sd in structDefs)
+            {
+                cycleCheck[sd] = 0;
+            }
+
+            foreach (StructDefinition sd in structDefs)
+            {
+                sd.ResolveParentChain(this.StructDefinitions, cycleCheck);
+            }
+
+            foreach (StructDefinition sd in structDefs)
+            {
+                sd.ResolveInheritedFields();
             }
         }
 

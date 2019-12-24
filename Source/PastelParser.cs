@@ -219,6 +219,13 @@ namespace Pastel
         {
             Token structToken = tokens.PopExpected("struct");
             Token nameToken = EnsureTokenIsValidName(tokens.Pop(), "Invalid struct name");
+
+            Token parentName = null;
+            if (tokens.PopIfPresent("extends"))
+            {
+                parentName = tokens.PopIdentifier();
+            }
+
             List<PType> structFieldTypes = new List<PType>();
             List<Token> structFieldNames = new List<Token>();
             tokens.PopExpected("{");
@@ -230,7 +237,7 @@ namespace Pastel
                 structFieldNames.Add(fieldName);
                 tokens.PopExpected(";");
             }
-            return new StructDefinition(structToken, nameToken, structFieldTypes, structFieldNames, this.context);
+            return new StructDefinition(structToken, nameToken, structFieldTypes, structFieldNames, parentName, this.context);
         }
 
         public FunctionDefinition ParseFunctionDefinition(TokenStream tokens)

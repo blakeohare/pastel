@@ -53,6 +53,21 @@ namespace Pastel
             throw new EofException();
         }
 
+        public Token PopIdentifier()
+        {
+            Token token = this.Pop();
+            string value = token.Value;
+            char c = value[0];
+            if ((c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') ||
+                (c >= '0' && c <= '9') ||
+                c == '_')
+            {
+                return token;
+            }
+            throw new ParserException(token, "Expected identifier. Found '" + value + "'");
+        }
+
         public string PeekValue()
         {
             if (this.index < this.length)

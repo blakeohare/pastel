@@ -158,7 +158,7 @@ namespace Pastel.Transpilers
             StructDefinition structDef = constructorInvocation.StructType;
             if (structDef == null) throw new NotImplementedException();
             sb.Append('[');
-            int args = structDef.ArgNames.Length;
+            int args = structDef.FlatFieldNames.Length;
             for (int i = 0; i < args; ++i)
             {
                 if (i > 0)
