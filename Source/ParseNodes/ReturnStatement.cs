@@ -30,7 +30,7 @@
             }
             else
             {
-                if (!this.Expression.ResolvedType.IsIdentical(compiler, PType.VOID))
+                if (!varScope.RootFunctionDefinition.ReturnType.IsIdentical(compiler, PType.VOID))
                 {
                     throw new ParserException(this.FirstToken, "Must return a value in this function.");
                 }
