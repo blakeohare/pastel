@@ -10,6 +10,7 @@ namespace Pastel.Nodes
 
         public Variable(Token token, ICompilationEntity owner) : base(token, owner)
         {
+            this.IsFunctionInvocation = false;
             this.ApplyPrefix = true;
             if (BANNED_NAMES.Contains(token.Value))
             {
@@ -22,6 +23,8 @@ namespace Pastel.Nodes
         public bool ApplyPrefix { get; set; }
 
         public string Name { get { return this.FirstToken.Value; } }
+
+        public bool IsFunctionInvocation { get; set; }
 
         public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
@@ -71,7 +74,9 @@ namespace Pastel.Nodes
             this.ResolvedType = type;
             if (type == null)
             {
-                throw new ParserException(this.FirstToken, "The variable '" + this.Name + "' is not defined.");
+                throw new ParserException(
+                    this.FirstToken,
+                    "The " + (this.IsFunctionInvocation ? "function" : "variable") + " '" + this.Name + "' is not defined.");
             }
 
             return this;

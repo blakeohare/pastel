@@ -15,6 +15,10 @@ namespace Pastel.Nodes
             Token openParen,
             IList<Expression> args) : base(root.FirstToken, root.Owner)
         {
+            if (root is Variable)
+            {
+                ((Variable)root).IsFunctionInvocation = true;
+            }
             this.Root = root;
             this.OpenParenToken = openParen;
             this.Args = args.ToArray();
