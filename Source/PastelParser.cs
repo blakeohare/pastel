@@ -131,17 +131,17 @@ namespace Pastel
 
             if (sourceFile != null)
             {
-                string code = this.importCodeLoader.LoadCode(sourceFile);
+                string code = this.importCodeLoader.LoadCode(atToken, sourceFile);
                 return this.ParseText(sourceFile, code);
             }
 
             return new ICompilationEntity[0];
         }
 
-        public Executable[] ParseImportedCode(string path)
+        public Executable[] ParseImportedCode(Token importToken, string path)
         {
             path = path.Replace(".cry", ".pst"); // lol TODO: fix this in the .pst code.
-            string code = this.importCodeLoader.LoadCode(path);
+            string code = this.importCodeLoader.LoadCode(importToken, path);
             TokenStream tokens = new TokenStream(Tokenizer.Tokenize(path, code));
             List<Executable> output = new List<Executable>();
             while (tokens.HasMore)

@@ -2,6 +2,6 @@
 {
     public interface IInlineImportCodeLoader
     {
-        string LoadCode(string path);
+        string LoadCode(Token throwLocation, string path);
     }
 }

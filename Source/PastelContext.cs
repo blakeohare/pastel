@@ -124,9 +124,9 @@ namespace Pastel
             return this;
         }
 
-        public PastelContext CompileFile(string filename)
+        public PastelContext CompileFile(Token throwLocation, string filename)
         {
-            return this.CompileCode(filename, this.CodeLoader.LoadCode(filename));
+            return this.CompileCode(filename, this.CodeLoader.LoadCode(throwLocation, filename));
         }
 
         public PastelContext FinalizeCompilation()
