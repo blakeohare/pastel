@@ -229,7 +229,7 @@ namespace Pastel.Nodes
             if (templatedType.Category == TypeCategory.OBJECT) return true;
 
             // Most cases, nothing to do
-            if (templatedType.IsIdentical(compiler, actualValue))
+            if (templatedType.IsIdenticalOrChildOf(compiler, actualValue))
             {
                 return true;
             }
@@ -240,7 +240,7 @@ namespace Pastel.Nodes
                 {
                     PType requiredType = output[templatedType.RootValue];
                     // if it's already encountered it better match the existing value
-                    if (actualValue.IsIdentical(compiler, requiredType))
+                    if (actualValue.IsIdenticalOrChildOf(compiler, requiredType))
                     {
                         return true;
                     }
@@ -311,7 +311,7 @@ namespace Pastel.Nodes
 
         internal static bool CheckReturnType(PastelCompiler compiler, PType returnType, PType value)
         {
-            if (returnType.IsIdentical(compiler, value)) return true;
+            if (value.IsIdenticalOrChildOf(compiler, returnType)) return true;
             if (returnType.Category == TypeCategory.OBJECT) return true;
             if (returnType.Category == TypeCategory.VOID) return false;
             if (value.Category == TypeCategory.NULL)
@@ -336,6 +336,21 @@ namespace Pastel.Nodes
 
             // All that's left are Arrays, Lists, and Dictionaries, which must match exactly.
             return this.IsIdentical(compiler, moreSpecificTypeOrSame);
+        }
+
+        internal bool IsIdenticalOrChildOf(PastelCompiler compiler, PType other)
+        {
+            if (this.IsIdentical(compiler, other)) return true;
+            if (!this.IsStruct || !other.IsStruct) return false;
+            if (this.StructDef == null || other.StructDef == null) throw new System.Exception("This check cannot occur without resolving struct information for PTypes.");
+            StructDefinition walker = this.StructDef;
+            StructDefinition target = other.StructDef;
+            while (walker != null)
+            {
+                if (walker == target) return true;
+                walker = walker.Parent;
+            }
+            return false;
         }
 
         internal bool IsIdentical(PastelCompiler compiler, PType other)
