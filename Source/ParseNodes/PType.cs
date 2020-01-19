@@ -311,6 +311,9 @@ namespace Pastel.Nodes
 
         internal static bool CheckReturnType(PastelCompiler compiler, PType returnType, PType value)
         {
+            // This is an assert, not a user-facing exception. Null should never appear here.
+            if (value == null) throw new ParserException(returnType.FirstToken, "This should not happen.");
+
             if (value.IsIdenticalOrChildOf(compiler, returnType)) return true;
             if (returnType.Category == TypeCategory.OBJECT) return true;
             if (returnType.Category == TypeCategory.VOID) return false;

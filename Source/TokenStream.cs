@@ -50,7 +50,7 @@ namespace Pastel
             {
                 return this.tokens[this.index++];
             }
-            throw new EofException();
+            throw new EofException(this.tokens[0].FileName);
         }
 
         public Token PopIdentifier()
