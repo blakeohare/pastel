@@ -18,7 +18,7 @@
 
         internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
         {
-            // no function pointeer type.
+            this.ResolvedType = PType.FunctionOf(this.FirstToken, this.Function.ReturnType, this.Function.ArgTypes);
             return this;
         }
 

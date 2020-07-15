@@ -55,6 +55,15 @@ namespace Pastel.Nodes
             }
         }
 
+        public static PType FunctionOf(Token tokenOfFunctionRefOccurence, PType returnType, IList<PType> argumentTypes)
+        {
+            List<PType> generics = new List<PType>();
+            generics.Add(returnType);
+            generics.AddRange(argumentTypes);
+
+            return new PType(tokenOfFunctionRefOccurence, null, "Func", generics.ToArray());
+        }
+
         public PType(Token firstToken, string namespaceName, string typeName, params PType[] generics) : this(firstToken, namespaceName, typeName, new List<PType>(generics)) { }
         public PType(Token firstToken, string namespaceName, string typeName, List<PType> generics)
         {
