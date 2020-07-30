@@ -83,6 +83,7 @@ namespace Pastel.Nodes
             {
                 if (this.RootValue == "List") this.Category = TypeCategory.LIST;
                 else if (this.RootValue == "Array") this.Category = TypeCategory.ARRAY;
+                else if (this.RootValue == "Func") this.Category = TypeCategory.FUNCTION;
                 else throw new ParserException(firstToken, "A generic cannot be applied to this type.");
             }
             else if (this.Generics.Length == 2)
