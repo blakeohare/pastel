@@ -184,6 +184,15 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray)
+        {
+            sb.Append("(PST$extCallbacks[");
+            this.TranslateExpression(sb, name);
+            sb.Append("] || ((o) => null))(");
+            this.TranslateExpression(sb, argsArray);
+            sb.Append(")");
+        }
+
         public override void TranslateFloatBuffer16(TranspilerContext sb)
         {
             sb.Append("PST$floatBuffer16");

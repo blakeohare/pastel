@@ -279,6 +279,17 @@ namespace Pastel.Transpilers
             sb.Append(".Values.ToArray()");
         }
 
+        public override void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray)
+        {
+            sb.Append("(PST_Callbacks.ContainsKey(");
+            this.TranslateExpression(sb, name);
+            sb.Append(") ? PST_Callbacks[");
+            this.TranslateExpression(sb, name);
+            sb.Append("].Invoke(");
+            this.TranslateExpression(sb, argsArray);
+            sb.Append(") : null)");
+        }
+
         public override void TranslateFloatBuffer16(TranspilerContext sb)
         {
             sb.Append("PST_FloatBuffer16");

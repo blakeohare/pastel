@@ -367,6 +367,11 @@ namespace Pastel.Transpilers
             throw new NotImplementedException();
         }
 
+        public override void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateFloatBuffer16(TranspilerContext sb)
         {
             throw new NotImplementedException();

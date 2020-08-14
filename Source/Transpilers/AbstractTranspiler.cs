@@ -282,6 +282,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.DICTIONARY_SIZE: this.TranslateDictionarySize(sb, args[0]); break;
                 case CoreFunction.DICTIONARY_VALUES: this.TranslateDictionaryValues(sb, args[0]); break;
                 case CoreFunction.EMIT_COMMENT: this.TranslateEmitComment(sb, ((InlineConstant)args[0]).Value.ToString()); break;
+                case CoreFunction.EXTENSIBLE_CALLBACK_INVOKE: this.TranslateExtensibleCallbackInvoke(sb, args[0], args[1]); break;
                 case CoreFunction.FLOAT_BUFFER_16: this.TranslateFloatBuffer16(sb); break;
                 case CoreFunction.FLOAT_DIVISION: this.TranslateFloatDivision(sb, args[0], args[1]); break;
                 case CoreFunction.FLOAT_TO_STRING: this.TranslateFloatToString(sb, args[0]); break;
@@ -454,6 +455,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateDictionaryTryGet(TranspilerContext sb, Expression dictionary, Expression key, Expression fallbackValue, Variable varOut);
         public abstract void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary);
         public abstract void TranslateEmitComment(TranspilerContext sb, string value);
+        public abstract void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray);
         public abstract void TranslateExpressionAsExecutable(TranspilerContext sb, Expression expression);
         public abstract void TranslateFloatBuffer16(TranspilerContext sb);
         public abstract void TranslateFloatConstant(TranspilerContext sb, double value);

@@ -353,6 +353,11 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateFloatBuffer16(TranspilerContext sb)
         {
             sb.Append("FLOAT_BUFFER_16");

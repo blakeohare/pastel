@@ -142,6 +142,7 @@ namespace Pastel.Nodes
                 case "Cos": return CoreFunction.MATH_COS;
                 case "CurrentTimeSeconds": return CoreFunction.CURRENT_TIME_SECONDS;
                 case "EmitComment": return CoreFunction.EMIT_COMMENT;
+                case "ExtensibleCallbackInvoke": return CoreFunction.EXTENSIBLE_CALLBACK_INVOKE;
                 case "FloatBuffer16": return CoreFunction.FLOAT_BUFFER_16;
                 case "FloatDivision": return CoreFunction.FLOAT_DIVISION;
                 case "FloatToString": return CoreFunction.FLOAT_TO_STRING;
