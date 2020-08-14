@@ -258,6 +258,9 @@ namespace Pastel
                 dependencies[marker] = FindUsedMarkers(code, nonPstPrefixThings, pstPrefixedThings, allMarkers, marker).ToArray();
             }
 
+            dependencies["PST_RegisterExtensibleCallback"] = new string[] { "PST_ExtCallbacks" };
+            dependencies[""] = dependencies[""].Concat(new string[] { "PST_RegisterExtensibleCallback" }).ToArray();
+
             List<string> orderedKeys = new List<string>();
 
             this.PopulateOrderedChunkKeys("", orderedKeys, dependencies, new Dictionary<string, int>());
@@ -313,6 +316,7 @@ namespace Pastel
                     usedMarkers.Add(markerName);
                 }
             }
+
             return usedMarkers;
         }
 

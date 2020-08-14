@@ -120,8 +120,8 @@ PST$floatBuffer16 = PST$multiplyList([0.0], 16);
 // PASTEL_ENTITY_ID: PST$stringBuffer16
 PST$stringBuffer16 = PST$multiplyList([''], 16);
 
-// PASTEL_ENTITY_ID: PST$extCallbacks
-PST$extCallbacks = null;
+// PASTEL_ENTITY_ID: PST_ExtCallbacks
+PST$extCallbacks = {};
 
-// PASTEL_ENTITY_ID: PST$registerExtensibleCallback
+// PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
 PST$registerExtensibleCallback = (name, fn) => { PST$extCallbacks[name] = fn; };

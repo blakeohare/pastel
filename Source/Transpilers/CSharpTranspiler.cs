@@ -281,9 +281,9 @@ namespace Pastel.Transpilers
 
         public override void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray)
         {
-            sb.Append("(PST_Callbacks.ContainsKey(");
+            sb.Append("(PST_ExtCallbacks.ContainsKey(");
             this.TranslateExpression(sb, name);
-            sb.Append(") ? PST_Callbacks[");
+            sb.Append(") ? PST_ExtCallbacks[");
             this.TranslateExpression(sb, name);
             sb.Append("].Invoke(");
             this.TranslateExpression(sb, argsArray);

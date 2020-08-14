@@ -134,10 +134,10 @@ private static void PST_ShuffleInPlace<T>(List<T> list)
     }
 }
 
-// PASTEL_ENTITY_ID: PST_Callbacks
-private static Dictionary<string, System.Func<object[], object>> PST_Callbacks = new Dictionary<string, System.Func<object[], object>>();
+// PASTEL_ENTITY_ID: PST_ExtCallbacks
+private static Dictionary<string, System.Func<object[], object>> PST_ExtCallbacks = new Dictionary<string, System.Func<object[], object>>();
 
 // PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
 public static void PST_RegisterExtensibleCallback(string name, System.Func<object[], object> func) {
-    PST_Callbacks[name] = func;
+    PST_ExtCallbacks[name] = func;
 }
