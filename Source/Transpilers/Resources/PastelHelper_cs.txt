@@ -138,6 +138,78 @@ private static void PST_ShuffleInPlace<T>(List<T> list)
 private static Dictionary<string, System.Func<object[], object>> PST_ExtCallbacks = new Dictionary<string, System.Func<object[], object>>();
 
 // PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
-public static void PST_RegisterExtensibleCallback(string name, System.Func<object[], object> func) {
+public static void PST_RegisterExtensibleCallback(string name, System.Func<object[], object> func)
+{
     PST_ExtCallbacks[name] = func;
+}
+
+// PASTEL_ENTITY_ID: PST_ToCodeString
+private static bool[] PST_ToCodeStringSafeChars = null;
+private static string[] PST_ToCodeStringSwapChars = null;
+private static string PST_ToCodeString(string str)
+{
+    int i;
+    if (PST_ToCodeStringSafeChars == null)
+    {
+        bool[] safe = new bool[128];
+        PST_ToCodeStringSafeChars = safe;
+        foreach (char sc in ".,/:;'[]{}|()!@#$%^&*-_=+`~<>? ".ToCharArray())
+        {
+            safe[(int)sc] = true;
+        }
+        for (i = 0; i < 10; ++i) safe['0' + i] = true;
+        for (i = 0; i < 26; ++i)
+        {
+            safe['A' + i] = true;
+            safe['a' + i] = true;
+        }
+        string[] swaps = new string[128];
+        swaps[0] = "\\0";
+        swaps['\n'] = "\\n";
+        swaps['\t'] = "\\t";
+        swaps['\r'] = "\\r";
+        swaps['\\'] = "\\\\";
+        swaps['"'] = "\\\"";
+        PST_ToCodeStringSwapChars = swaps;
+    }
+
+    char[] chars = str.ToCharArray();
+    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+    sb.Append('"');
+    int len = chars.Length;
+    char c;
+    int b;
+    string swap;
+    for (i = 0; i < len; ++i)
+    {
+        c = chars[i];
+        b = c;
+        if (b >= 0 && c < 128)
+        {
+            if (PST_ToCodeStringSafeChars[b])
+            {
+                sb.Append(c);
+            }
+            else
+            {
+                swap = PST_ToCodeStringSwapChars[b];
+                if (swap != null)
+                {
+                    sb.Append(swap);
+                }
+                else
+                {
+                    sb.Append("\\u");
+                    sb.Append(b.ToString("X4"));
+                }
+            }
+        }
+        else
+        {
+            sb.Append("\\u");
+            sb.Append(b.ToString("X4"));
+        }
+    }
+    sb.Append('"');
+    return sb.ToString();
 }

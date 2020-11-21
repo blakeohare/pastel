@@ -173,6 +173,7 @@ namespace Pastel.Nodes
                 case "StringFromCharCode": return CoreFunction.STRING_FROM_CHAR_CODE;
                 case "StrongReferenceEquality": return CoreFunction.STRONG_REFERENCE_EQUALITY;
                 case "Tan": return CoreFunction.MATH_TAN;
+                case "ToCodeString": return CoreFunction.TO_CODE_STRING;
                 case "TryParseFloat": return CoreFunction.TRY_PARSE_FLOAT;
 
                 // TODO: get this information from the parameter rather than having separate Core function

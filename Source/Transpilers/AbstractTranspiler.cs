@@ -351,6 +351,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.STRINGBUILDER_CLEAR: this.TranslateStringBuilderClear(sb, args[0]); break;
                 case CoreFunction.STRINGBUILDER_TOSTRING: this.TranslateStringBuilderToString(sb, args[0]); break;
                 case CoreFunction.STRONG_REFERENCE_EQUALITY: this.TranslateStrongReferenceEquality(sb, args[0], args[1]); break;
+                case CoreFunction.TO_CODE_STRING: this.TranslateToCodeString(sb, args[0]); break;
                 case CoreFunction.TRY_PARSE_FLOAT: this.TranslateTryParseFloat(sb, args[0], args[1]); break;
 
                 case CoreFunction.DICTIONARY_TRY_GET:
@@ -540,6 +541,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateStringTrimEnd(TranspilerContext sb, Expression str);
         public abstract void TranslateStringTrimStart(TranspilerContext sb, Expression str);
         public abstract void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right);
+        public abstract void TranslateToCodeString(TranspilerContext sb, Expression str);
         public abstract void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList);
         public abstract void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex);
         public abstract void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement);

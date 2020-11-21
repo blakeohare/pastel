@@ -726,6 +726,13 @@ namespace Pastel.Transpilers
             sb.Append(']');
         }
 
+        public override void TranslateToCodeString(TranspilerContext sb, Expression str)
+        {
+            sb.Append("JSON.stringify(");
+            this.TranslateExpression(sb, str);
+            sb.Append(')');
+        }
+
         public override void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList)
         {
             sb.Append("PST$floatParseHelper(");

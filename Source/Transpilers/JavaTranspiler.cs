@@ -1133,6 +1133,11 @@ namespace Pastel.Transpilers
             sb.Append(fieldName);
         }
 
+        public override void TranslateToCodeString(TranspilerContext sb, Expression str)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList)
         {
             sb.Append("PST_parseFloatOrReturnNull(");
