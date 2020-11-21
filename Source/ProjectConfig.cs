@@ -13,6 +13,7 @@ namespace Pastel
             this.DependenciesByPrefix = new Dictionary<string, ProjectConfig>();
             this.ExtensionTypeDefinitions = new List<string>();
             this.ExtensionPlatformValues = new Dictionary<string, string>();
+            this.ExtensionPlatformValuesDefinitionTokens = new Dictionary<string, Token>();
             this.Imports = new HashSet<string>();
             this.PhpFileIncludes = new List<string>();
             this.PhpFileIncludeIsOptional = new HashSet<string>();
@@ -41,6 +42,7 @@ namespace Pastel
         public string Source { get; set; }
         public List<string> ExtensionTypeDefinitions { get; set; }
         public Dictionary<string, string> ExtensionPlatformValues { get; set; }
+        public Dictionary<string, Token> ExtensionPlatformValuesDefinitionTokens { get; set; }
         public Dictionary<string, ProjectConfig> DependenciesByPrefix { get; set; }
         public string OutputDirStructs { get; set; }
         public string OutputFileFunctions { get; set; }
@@ -153,6 +155,7 @@ namespace Pastel
                     case "EXT":
                         parts = SplitOnColon(data);
                         config.ExtensionPlatformValues[parts[0]] = parts[1];
+                        config.ExtensionPlatformValuesDefinitionTokens[parts[0]] = new Token("", originalPath, i, 0, true);
                         break;
 
                     case "EXT-TYPE":
@@ -195,7 +198,8 @@ namespace Pastel
             {
                 if (!typeDefinitionsLookup.ContainsKey(exFunctionName))
                 {
-                    throw new InvalidOperationException("No type information defined for extensible function '" + exFunctionName + "'");
+                    Token throwToken = this.ExtensionPlatformValuesDefinitionTokens[exFunctionName];
+                    throw new ParserException(throwToken, "No type information defined for extensible function '" + exFunctionName + "'");
                 }
 
                 ExtensibleFunction exFn = typeDefinitionsLookup[exFunctionName];
