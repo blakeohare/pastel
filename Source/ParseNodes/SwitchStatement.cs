@@ -95,6 +95,7 @@ namespace Pastel.Nodes
         internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
         {
             this.Condition = this.Condition.ResolveWithTypeContext(compiler);
+            HashSet<int> values = new HashSet<int>();
             for (int i = 0; i < this.Chunks.Length; ++i)
             {
                 SwitchChunk chunk = this.Chunks[i];
@@ -103,6 +104,25 @@ namespace Pastel.Nodes
                     if (chunk.Cases[j] != null)
                     {
                         chunk.Cases[j] = chunk.Cases[j].ResolveWithTypeContext(compiler);
+                        InlineConstant ic = chunk.Cases[j] as InlineConstant;
+                        if (ic == null)
+                        {
+                            throw new ParserException(chunk.Cases[j].FirstToken, "Only constants may be used as switch cases.");
+                        }
+                        int value;
+                        if (ic.ResolvedType.RootValue == "char")
+                        {
+                            value = (char)ic.Value;
+                        }
+                        else
+                        {
+                            value = (int)ic.Value;
+                        }
+                        if (values.Contains(value))
+                        {
+                            throw new ParserException(chunk.Cases[j].FirstToken, "This cases appears multiple times.");
+                        }
+                        values.Add(value);
                     }
                 }
                 Executable.ResolveWithTypeContext(compiler, chunk.Code);
