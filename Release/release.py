@@ -1,7 +1,4 @@
-VERSION = '0.2.0'
-MSBUILD = r'C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe'
-XBUILD = 'xbuild'
-RELEASE_CONFIG = '/p:Configuration=Release'
+VERSION = '2.9.0'
 
 import shutil
 import os
@@ -22,23 +19,56 @@ def prepareCleanDirectory(d):
 def main(args):
 
 	if len(args) != 1:
-		print("usage: python release.py windows|mono")
-		return
-
-	platform = args[0]
-
-	if not platform in ('windows', 'mono'):
-		print ("Invalid platform: " + platform)
+		print("usage: python release.py windows|mac|linux")
 		return
 	
-	isMono = platform == 'mono'
-	BUILD_CMD = XBUILD if isMono else MSBUILD
-	SLN_PATH = os.path.join('..', 'Source', 'Pastel.sln')
-	print(runCommand(' '.join([BUILD_CMD, RELEASE_CONFIG, SLN_PATH])))
-	releaseDir = os.path.join('..', 'Source', 'bin', 'Release')
-	copyToDir = 'pastel-' + VERSION + '-' + platform
-	prepareCleanDirectory(copyToDir)
-	shutil.copyfile(os.path.join(releaseDir , 'Pastel.exe'), os.path.join(copyToDir, 'pastel.exe'))
-	print("Release directory created: " + copyToDir)
+	isWindows = False
+	isMac = False
+	isLinux = False
+
+	dotnet_platform = ''
+	platform_name = args[0]
+	if args[0] == 'windows':
+		isWindows = True
+		dotnet_platform = 'win-x64'
+	elif args[0] == 'mac':
+		isMac = True
+		dotnet_platform = 'osx-x64'
+	elif args[0] == 'linux':
+		isLinux = True
+		print("Linux support not quite tested yet.")
+		return
+	else:
+		print("Invalid platform: " + args[0])
+		return
+	
+	copy_to_dir = 'pastel-' + VERSION + '-' + platform_name
+	executable_path = ''
+	if isWindows:
+		executable_dir = os.path.join('..', 'Source', 'bin', 'Release', 'netcoreapp3.1', dotnet_platform, 'publish')
+		executable_path = os.path.join(executable_dir, 'Pastel.exe')
+	else:
+		print("This hasn't been tested yet.")
+		return
+	
+	prepareCleanDirectory(copy_to_dir)
+	
+	if os.path.exists(executable_dir):
+		shutil.rmtree(executable_dir)
+	
+	cmd = ' '.join([
+		'dotnet publish',
+		os.path.join('..', 'Source', 'Pastel.sln'),
+		'-c Release',
+		'-r', dotnet_platform,
+		'--self-contained true',
+		'-p:PublishTrimmed=true',
+		'-p:PublishSingleFile=true'
+	])
+	result = runCommand(cmd)
+	
+	shutil.copyfile(executable_path, os.path.join(copy_to_dir, 'pastel.exe'))
+	
+	print("Release directory created: " + copy_to_dir)
 
 main(sys.argv[1:])

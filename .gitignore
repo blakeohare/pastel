@@ -1,1 +1,4 @@
 *.pyc
+/Release/pastel-*-windows
+/Release/pastel-*-mac
+/Release/pastel-*-linux
