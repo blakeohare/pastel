@@ -155,19 +155,26 @@ namespace Pastel.Transpilers
 
         public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
         {
-            StructDefinition structDef = constructorInvocation.StructType;
-            if (structDef == null) throw new NotImplementedException();
-            sb.Append('[');
-            int args = structDef.FlatFieldNames.Length;
-            for (int i = 0; i < args; ++i)
+            StructDefinition structDef = constructorInvocation.StructDefinition;
+            ClassDefinition classDef = constructorInvocation.ClassDefinition;
+            if (structDef == null)
             {
-                if (i > 0)
-                {
-                    sb.Append(", ");
-                }
-                this.TranslateExpression(sb, constructorInvocation.Args[i]);
+                throw new NotImplementedException();
             }
-            sb.Append(']');
+            else
+            {
+                sb.Append('[');
+                int args = structDef.FlatFieldNames.Length;
+                for (int i = 0; i < args; ++i)
+                {
+                    if (i > 0)
+                    {
+                        sb.Append(", ");
+                    }
+                    this.TranslateExpression(sb, constructorInvocation.Args[i]);
+                }
+                sb.Append(']');
+            }
         }
 
         public override void TranslateCurrentTimeSeconds(TranspilerContext sb)
@@ -395,6 +402,13 @@ namespace Pastel.Transpilers
             throw new Pastel.ParserException(
                 innerExpression.FirstToken,
                 "Python does not support ++ or --. Please check all usages with if (@ext_boolean(\"HAS_INCREMENT\")) { ... }");
+        }
+
+        public override void TranslateInstanceFieldDereference(TranspilerContext sb, Expression root, ClassDefinition classDef, string fieldName)
+        {
+            this.TranslateExpression(sb, root);
+            sb.Append('.');
+            sb.Append(fieldName);
         }
 
         public override void TranslateIntBuffer16(TranspilerContext sb)
@@ -986,6 +1000,11 @@ namespace Pastel.Transpilers
             sb.SwitchStatements.Add(fakeSwitchStatement);
         }
 
+        public override void TranslateThis(TranspilerContext sb, ThisExpression thisExpr)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateToCodeString(TranspilerContext sb, Expression str)
         {
             throw new NotImplementedException();
@@ -1026,7 +1045,7 @@ namespace Pastel.Transpilers
             sb.TabDepth--;
         }
 
-        public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef)
+        public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
             sb.CurrentFunctionDefinition = funcDef;
 
@@ -1055,6 +1074,11 @@ namespace Pastel.Transpilers
             }
             sb.SwitchStatements.Clear();
             sb.CurrentFunctionDefinition = null;
+        }
+
+        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
+        {
+            throw new NotImplementedException();
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

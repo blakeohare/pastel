@@ -219,16 +219,23 @@ namespace Pastel.Transpilers
 
         public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
         {
-            sb.Append("new ");
-            sb.Append(constructorInvocation.StructType.NameToken.Value);
-            sb.Append('(');
-            Expression[] args = constructorInvocation.Args;
-            for (int i = 0; i < args.Length; ++i)
+            if (constructorInvocation.ClassDefinition != null)
             {
-                if (i > 0) sb.Append(", ");
-                this.TranslateExpression(sb, args[i]);
+                throw new NotImplementedException();
             }
-            sb.Append(')');
+            else
+            {
+                sb.Append("new ");
+                sb.Append(constructorInvocation.StructDefinition.NameToken.Value);
+                sb.Append('(');
+                Expression[] args = constructorInvocation.Args;
+                for (int i = 0; i < args.Length; ++i)
+                {
+                    if (i > 0) sb.Append(", ");
+                    this.TranslateExpression(sb, args[i]);
+                }
+                sb.Append(')');
+            }
         }
 
         public override void TranslateCurrentTimeSeconds(TranspilerContext sb)
@@ -405,6 +412,13 @@ namespace Pastel.Transpilers
             sb.Append("TranslationHelper_getFunction(");
             this.TranslateExpression(sb, name);
             sb.Append(')');
+        }
+
+        public override void TranslateInstanceFieldDereference(TranspilerContext sb, Expression root, ClassDefinition classDef, string fieldName)
+        {
+            this.TranslateExpression(sb, root);
+            sb.Append("->");
+            sb.Append(fieldName);
         }
 
         public override void TranslateIntBuffer16(TranspilerContext sb)
@@ -910,6 +924,11 @@ namespace Pastel.Transpilers
             sb.Append(fieldName);
         }
 
+        public override void TranslateThis(TranspilerContext sb, ThisExpression thisExpr)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateToCodeString(TranspilerContext sb, Expression str)
         {
             throw new NotImplementedException();
@@ -941,7 +960,7 @@ namespace Pastel.Transpilers
             sb.Append(this.NewLine);
         }
 
-        public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef)
+        public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
             sb.Append(this.NewLine);
             sb.Append(sb.CurrentTab);
@@ -966,7 +985,11 @@ namespace Pastel.Transpilers
             sb.Append('}');
             sb.Append(this.NewLine);
             sb.Append(this.NewLine);
+        }
 
+        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
+        {
+            throw new NotImplementedException();
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

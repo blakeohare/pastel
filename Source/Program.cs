@@ -61,6 +61,16 @@ namespace Pastel
         {
             Dictionary<string, string> output = new Dictionary<string, string>();
 
+            if (context.UsesClassDefinitions)
+            {
+                Dictionary<string, string> classDefinitions = context.GetCodeForClasses();
+                foreach (string className in classDefinitions.Keys.OrderBy(k => k))
+                {
+                    string classCode = classDefinitions[className];
+                    GenerateClassImplementation(config, className, classCode);
+                }
+            }
+
             if (context.UsesStructDefinitions)
             {
                 Dictionary<string, string> structDefinitions = context.GetCodeForStructs();
@@ -113,6 +123,15 @@ namespace Pastel
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, structName + fileExtension);
             System.IO.File.WriteAllText(path, structCode);
+        }
+
+        private static void GenerateClassImplementation(ProjectConfig config, string className, string classCode)
+        {
+            Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
+            classCode = transpiler.WrapCodeForClasses(config, classCode);
+            string fileExtension = LanguageUtil.GetFileExtension(config.Language);
+            string path = System.IO.Path.Combine(config.OutputDirStructs, className + fileExtension);
+            System.IO.File.WriteAllText(path, classCode);
         }
 
         private static void GenerateStructBundleImplementation(ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)

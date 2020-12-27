@@ -46,6 +46,7 @@ namespace Pastel
             this.EnumDefinitions = new Dictionary<string, EnumDefinition>();
             this.ConstantDefinitions = new Dictionary<string, VariableDeclaration>();
             this.FunctionDefinitions = new Dictionary<string, FunctionDefinition>();
+            this.ClassDefinitions = new Dictionary<string, ClassDefinition>();
             this.interpreterParser = new PastelParser(context, flattenedConstants, inlineImportCodeLoader);
         }
 
@@ -60,6 +61,15 @@ namespace Pastel
         internal Dictionary<string, EnumDefinition> EnumDefinitions { get; set; }
         internal Dictionary<string, VariableDeclaration> ConstantDefinitions { get; set; }
         public Dictionary<string, FunctionDefinition> FunctionDefinitions { get; set; }
+        public Dictionary<string, ClassDefinition> ClassDefinitions { get; set; }
+
+        public ClassDefinition[] GetClassDefinitions()
+        {
+            return this.ClassDefinitions.Keys
+                .OrderBy(k => k)
+                .Select(key => this.ClassDefinitions[key])
+                .ToArray();
+        }
 
         public StructDefinition[] GetStructDefinitions()
         {
@@ -94,6 +104,15 @@ namespace Pastel
             if (this.EnumDefinitions.ContainsKey(name))
             {
                 return this.EnumDefinitions[name];
+            }
+            return null;
+        }
+
+        internal ClassDefinition GetClassDefinition(string name)
+        {
+            if (this.ClassDefinitions.ContainsKey(name))
+            {
+                return this.ClassDefinitions[name];
             }
             return null;
         }
@@ -166,6 +185,16 @@ namespace Pastel
                         lookup[targetName] = assignment;
                         break;
 
+                    case CompilationEntityType.CLASS:
+                        ClassDefinition classDef = (ClassDefinition)entity;
+                        string className = classDef.NameToken.Value;
+                        if (this.ClassDefinitions.ContainsKey(className))
+                        {
+                            throw new ParserException(classDef.FirstToken, "Multiple classes named '" + className + "'");
+                        }
+                        this.ClassDefinitions[className] = classDef;
+                        break;
+
                     default:
                         throw new NotImplementedException();
                 }
@@ -174,6 +203,7 @@ namespace Pastel
 
         public void Resolve()
         {
+            this.ResolveClassHierarchy();
             this.ResolveConstants();
             this.ResolveStructTypes();
             this.ResolveStructParentChain();
@@ -181,6 +211,41 @@ namespace Pastel
             this.ResolveSignatureTypes();
             this.ResolveTypes();
             this.ResolveWithTypeContext();
+        }
+
+        private void ResolveClassHierarchy()
+        {
+            foreach (ClassDefinition cd in this.ClassDefinitions.Values)
+            {
+                if (cd.InheritTokens.Length > 1) throw new NotImplementedException(); // interfaces not implemented yet.
+                foreach (Token parent in cd.InheritTokens)
+                {
+                    if (!this.ClassDefinitions.ContainsKey(parent.Value))
+                        throw new ParserException(parent, "This is not a valid class.");
+
+                    if (cd.ParentClass != null) throw new ParserException(parent, "Cannot have multpile base classes.");
+                    cd.ParentClass = this.ClassDefinitions[parent.Value];
+                }
+            }
+
+            HashSet<ClassDefinition> cycleCheck = new HashSet<ClassDefinition>();
+            HashSet<ClassDefinition> safeClass = new HashSet<ClassDefinition>();
+            foreach (ClassDefinition cd in this.ClassDefinitions.Values)
+            {
+                ClassDefinition walker = cd;
+                while (walker != null && !safeClass.Contains(walker))
+                {
+                    if (cycleCheck.Contains(walker)) throw new ParserException(cd.FirstToken, "This class has a cycle in its inheritance chain.");
+                    cycleCheck.Add(walker);
+                    walker = walker.ParentClass;
+                }
+
+                foreach (ClassDefinition safe in cycleCheck)
+                {
+                    safeClass.Add(safe);
+                }
+                cycleCheck.Clear();
+            }
         }
 
         private void ResolveStructTypes()
@@ -197,14 +262,20 @@ namespace Pastel
 
         private void ResolveSignatureTypes()
         {
+            foreach (string className in this.ClassDefinitions.Keys.OrderBy(t => t))
+            {
+                ClassDefinition classDef = this.ClassDefinitions[className];
+                foreach (FunctionDefinition fd in classDef.Methods)
+                {
+                    fd.ResolveSignatureTypes(this);
+                }
+
+                classDef.Constructor.ResolveSignatureTypes(this);
+            }
+
             foreach (string funcName in this.FunctionDefinitions.Keys.OrderBy(t => t))
             {
-                FunctionDefinition funcDef = this.FunctionDefinitions[funcName];
-                funcDef.ReturnType.FinalizeType(this);
-                for (int i = 0; i < funcDef.ArgTypes.Length; ++i)
-                {
-                    funcDef.ArgTypes[i].FinalizeType(this);
-                }
+                this.FunctionDefinitions[funcName].ResolveSignatureTypes(this);
             }
         }
 
@@ -256,6 +327,11 @@ namespace Pastel
             this.ResolvedFunctions = new HashSet<string>();
             this.ResolutionQueue = new Queue<string>();
 
+            foreach (ClassDefinition cd in this.ClassDefinitions.Values)
+            {
+                cd.ResolveNamesAndCullUnusedCode(this);
+            }
+
             foreach (string functionName in this.FunctionDefinitions.Keys)
             {
                 this.ResolutionQueue.Enqueue(functionName);
@@ -290,6 +366,11 @@ namespace Pastel
 
         private void ResolveTypes()
         {
+            foreach (ClassDefinition cd in this.ClassDefinitions.Keys.OrderBy(s => s).Select(n => this.ClassDefinitions[n]))
+            {
+                cd.ResolveTypes(this);
+            }
+
             string[] functionNames = this.FunctionDefinitions.Keys.OrderBy(s => s).ToArray();
             foreach (string functionName in functionNames)
             {
@@ -326,7 +407,7 @@ namespace Pastel
         {
             foreach (FunctionDefinition fd in this.GetFunctionDefinitions())
             {
-                ctx.Transpiler.GenerateCodeForFunctionDeclaration(ctx, fd);
+                ctx.Transpiler.GenerateCodeForFunctionDeclaration(ctx, fd, true);
                 ctx.Append(ctx.Transpiler.NewLine);
             }
 
@@ -338,7 +419,7 @@ namespace Pastel
             Dictionary<string, string> output = new Dictionary<string, string>();
             foreach (FunctionDefinition fd in this.GetFunctionDefinitions())
             {
-                ctx.Transpiler.GenerateCodeForFunction(ctx, fd);
+                ctx.Transpiler.GenerateCodeForFunction(ctx, fd, true);
                 output[fd.NameToken.Value] = Indent(ctx.FlushAndClearBuffer().Trim(), ctx.Transpiler.NewLine, indent);
             }
 

@@ -12,6 +12,7 @@ namespace Pastel.Transpilers
         public string NewLine { get; private set; }
 
         public bool UsesStructDefinitions { get; protected set; }
+        public bool UsesClassDefinitions { get; protected set; }
         public bool UsesFunctionDeclarations { get; protected set; }
         public bool UsesStructDeclarations { get; protected set; }
         public bool HasStructsInSeparateFiles { get; protected set; }
@@ -22,6 +23,7 @@ namespace Pastel.Transpilers
         public AbstractTranspiler(string tab, string newLine)
         {
             this.UsesStructDefinitions = true;
+            this.UsesClassDefinitions = true;
             this.UsesFunctionDeclarations = false;
             this.UsesStructDeclarations = false;
             this.HasNewLineAtEndOfFile = true;
@@ -200,10 +202,21 @@ namespace Pastel.Transpilers
                 case "DotField":
                     DotField df = (DotField)expression;
                     StructDefinition structDef = df.StructType;
-                    if (structDef == null) throw new InvalidOperationException(); // should have been thrown by the compiler
+                    ClassDefinition classDef = df.ClassType;
                     string fieldName = df.FieldName.Value;
-                    int fieldIndex = structDef.FlatFieldIndexByName[fieldName];
-                    this.TranslateStructFieldDereference(sb, df.Root, structDef, fieldName, fieldIndex);
+                    if (classDef != null)
+                    {
+                        this.TranslateInstanceFieldDereference(sb, df.Root, classDef, fieldName);
+                    }
+                    else if (structDef != null)
+                    {
+                        int fieldIndex = structDef.FlatFieldIndexByName[fieldName];
+                        this.TranslateStructFieldDereference(sb, df.Root, structDef, fieldName, fieldIndex);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(); // should have been thrown by the compiler
+                    }
                     break;
 
                 case "InlineConstant":
@@ -218,6 +231,10 @@ namespace Pastel.Transpilers
                         case "string": this.TranslateStringConstant(sb, (string)ic.Value); break;
                         default: throw new NotImplementedException();
                     }
+                    break;
+
+                case "ThisExpression":
+                    this.TranslateThis(sb, (ThisExpression)expression);
                     break;
 
                 case "UnaryOp":
@@ -469,6 +486,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateGetFunction(TranspilerContext sb, Expression name);
         public abstract void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement);
         public abstract void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition);
+        public abstract void TranslateInstanceFieldDereference(TranspilerContext sb, Expression root, ClassDefinition classDef, string fieldName);
         public abstract void TranslateIntBuffer16(TranspilerContext sb);
         public abstract void TranslateIntegerConstant(TranspilerContext sb, int value);
         public abstract void TranslateIntegerDivision(TranspilerContext sb, Expression integerNumerator, Expression integerDenominator);
@@ -541,6 +559,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateStringTrimEnd(TranspilerContext sb, Expression str);
         public abstract void TranslateStringTrimStart(TranspilerContext sb, Expression str);
         public abstract void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right);
+        public abstract void TranslateThis(TranspilerContext sb, ThisExpression thisExpr);
         public abstract void TranslateToCodeString(TranspilerContext sb, Expression str);
         public abstract void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList);
         public abstract void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex);
@@ -549,8 +568,9 @@ namespace Pastel.Transpilers
         public abstract void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl);
         public abstract void TranslateWhileLoop(TranspilerContext sb, WhileLoop whileLoop);
 
+        public abstract void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef);
         public abstract void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef);
-        public abstract void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef);
+        public abstract void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic);
 
         public virtual void GenerateCodeForStructDeclaration(TranspilerContext sb, string structName)
         {
@@ -558,7 +578,7 @@ namespace Pastel.Transpilers
         }
 
         // Overridden in languages that require a function to be declared separately in order for declaration order to not matter, such as C.
-        public virtual void GenerateCodeForFunctionDeclaration(TranspilerContext sb, FunctionDefinition funcDef)
+        public virtual void GenerateCodeForFunctionDeclaration(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
             throw new NotSupportedException();
         }
@@ -573,6 +593,15 @@ namespace Pastel.Transpilers
         }
 
         internal string WrapCodeForStructs(ProjectConfig config, string code)
+        {
+            List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
+            WrapCodeImpl(config, lines, true);
+            string output = string.Join(this.NewLine, lines).Trim();
+            if (this.HasNewLineAtEndOfFile) output += this.NewLine;
+            return output;
+        }
+
+        internal string WrapCodeForClasses(ProjectConfig config, string code)
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
             WrapCodeImpl(config, lines, true);

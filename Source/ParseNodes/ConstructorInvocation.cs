@@ -8,7 +8,8 @@ namespace Pastel.Nodes
     {
         public PType Type { get; set; }
         public Expression[] Args { get; set; }
-        public StructDefinition StructType { get; set; }
+        public StructDefinition StructDefinition { get; set; }
+        public ClassDefinition ClassDefinition { get; set; }
 
         public ConstructorInvocation(Token firstToken, PType type, IList<Expression> args, ICompilationEntity owner)
             : base(firstToken, owner)
@@ -45,10 +46,25 @@ namespace Pastel.Nodes
                     break;
 
                 default:
-                    if (!this.Type.IsStruct) throw new ParserException(this.FirstToken, "Cannot instantiate this item.");
-                    StructDefinition sd = this.Type.StructDef;
-                    this.StructType = sd;
-                    int fieldCount = this.StructType.FlatFieldTypes.Length;
+                    PType[] resolvedArgTypes;
+
+                    if (this.Type.IsStruct)
+                    {
+                        StructDefinition sd = this.Type.StructDef;
+                        this.StructDefinition = sd;
+                        resolvedArgTypes = sd.FlatFieldTypes;
+                    }
+                    else if (this.Type.IsClass)
+                    {
+                        ClassDefinition cd = this.Type.ClassDef;
+                        this.ClassDefinition = cd;
+                        resolvedArgTypes = cd.Constructor.ArgTypes;
+                    }
+                    else
+                    {
+                        throw new ParserException(this.FirstToken, "Cannot instantiate this item.");
+                    }
+                    int fieldCount = resolvedArgTypes.Length;
                     if (fieldCount != this.Args.Length)
                     {
                         throw new ParserException(this.FirstToken, "Incorrect number of args in constructor. Expected " + fieldCount + ", found " + this.Args.Length);
@@ -57,10 +73,10 @@ namespace Pastel.Nodes
                     for (int i = 0; i < fieldCount; ++i)
                     {
                         PType actualType = this.Args[i].ResolvedType;
-                        PType expectedType = this.StructType.FlatFieldTypes[i];
+                        PType expectedType = resolvedArgTypes[i];
                         if (!PType.CheckAssignment(compiler, expectedType, actualType))
                         {
-                            throw new ParserException(this.Args[i].FirstToken, "Cannot use an arg of this type for this struct field. Expected " + expectedType.ToString() + " but found " + actualType.ToString());
+                            throw new ParserException(this.Args[i].FirstToken, "Cannot use an arg of this type for this " + (this.Type.IsClass ? "constructor argument" : "struct field") + ". Expected " + expectedType.ToString() + " but found " + actualType.ToString());
                         }
                     }
                     break;

@@ -5,21 +5,25 @@ namespace Pastel
 {
     internal class VariableScope
     {
-        public FunctionDefinition RootFunctionDefinition;
+        // TODO: this should go away. It's being used to determine if return statements are returning the correct type.
+        // Executables should KNOW what container they're in and not be relayed this information by the variable scope.
+        public ICompilationEntity RootFunctionOrConstructorDefinition;
+
         private VariableScope parent = null;
         private Dictionary<string, PType> type = new Dictionary<string, PType>();
 
         public VariableScope() { }
 
-        public VariableScope(FunctionDefinition functionDef)
+        public VariableScope(ICompilationEntity functionDef)
         {
-            this.RootFunctionDefinition = functionDef;
+            if (!(functionDef is FunctionDefinition) && !(functionDef is ConstructorDefinition)) throw new System.InvalidOperationException();
+            this.RootFunctionOrConstructorDefinition = functionDef;
         }
 
         public VariableScope(VariableScope parent)
         {
             this.parent = parent;
-            this.RootFunctionDefinition = parent.RootFunctionDefinition;
+            this.RootFunctionOrConstructorDefinition = parent.RootFunctionOrConstructorDefinition;
         }
 
         public void DeclareVariables(Token nameToken, PType type)

@@ -54,6 +54,22 @@ namespace Pastel.Nodes
             return this;
         }
 
+        private void VerifyArgTypes(PType[] expectedTypes, PastelCompiler compiler)
+        {
+            if (expectedTypes.Length != this.Args.Length)
+            {
+                throw new ParserException(this.OpenParenToken, "This function invocation has the wrong number of parameters. Expected " + expectedTypes.Length + " but found " + this.Args.Length + ".");
+            }
+
+            for (int i = 0; i < this.Args.Length; ++i)
+            {
+                if (!PType.CheckAssignment(compiler, expectedTypes[i], this.Args[i].ResolvedType))
+                {
+                    throw new ParserException(this.Args[i].FirstToken, "Wrong function arg type. Cannot convert a " + this.Args[i].ResolvedType + " to a " + expectedTypes[i]);
+                }
+            }
+        }
+
         internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
         {
             for (int i = 0; i < this.Args.Length; ++i)
@@ -66,20 +82,7 @@ namespace Pastel.Nodes
             if (this.Root is FunctionReference)
             {
                 FunctionDefinition functionDefinition = ((FunctionReference)this.Root).Function;
-                PType[] expectedTypes = functionDefinition.ArgTypes;
-                if (expectedTypes.Length != this.Args.Length)
-                {
-                    throw new ParserException(this.OpenParenToken, "This function invocation has the wrong number of parameters. Expected " + expectedTypes.Length + " but found " + this.Args.Length + ".");
-                }
-
-                for (int i = 0; i < this.Args.Length; ++i)
-                {
-                    if (!PType.CheckAssignment(compiler, expectedTypes[i], this.Args[i].ResolvedType))
-                    {
-                        throw new ParserException(this.Args[i].FirstToken, "Wrong function arg type. Cannot convert a " + this.Args[i].ResolvedType + " to a " + expectedTypes[i]);
-                    }
-                }
-
+                this.VerifyArgTypes(functionDefinition.ArgTypes, compiler);
                 this.ResolvedType = functionDefinition.ReturnType;
                 return this;
             }
@@ -112,10 +115,8 @@ namespace Pastel.Nodes
             {
                 return new FunctionPointerInvocation(compiler, this.FirstToken, this.Root, this.Args);
             }
-            else
-            {
-                throw new ParserException(this.OpenParenToken, "This expression cannot be invoked like a function.");
-            }
+
+            throw new ParserException(this.OpenParenToken, "This expression cannot be invoked like a function.");
         }
 
         internal override Expression ResolveWithTypeContext(PastelCompiler compiler)

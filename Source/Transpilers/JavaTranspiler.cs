@@ -68,7 +68,7 @@ namespace Pastel.Transpilers
                     return "org.crayonlang.interpreter.structs.ClassValue";
 
                 default:
-                    if (type.IsStruct)
+                    if (type.IsStructOrClass)
                     {
                         return type.TypeName;
                     }
@@ -317,39 +317,28 @@ namespace Pastel.Transpilers
 
         public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
         {
-            if (constructorInvocation.StructType.NameToken.Value == "Value")
+            if (constructorInvocation.ClassDefinition != null)
             {
-                Expression firstArg = constructorInvocation.Args[0];
-                if (!(firstArg is InlineConstant))
+                throw new NotImplementedException();
+            }
+            else
+            {
+                sb.Append("new ");
+                string structType = constructorInvocation.StructDefinition.NameToken.Value;
+                if (structType == "ClassValue")
                 {
-                    throw new InvalidOperationException("Cannot pass in non constant for first arg of Value construction.");
+                    structType = "org.crayonlang.interpreter.structs.ClassValue";
                 }
-
-                int type = (int)((InlineConstant)firstArg).Value;
-                if (type == 2 || type == 3)
+                sb.Append(structType);
+                sb.Append('(');
+                Expression[] args = constructorInvocation.Args;
+                for (int i = 0; i < args.Length; ++i)
                 {
-                    sb.Append("new Value(");
-                    this.TranslateExpression(sb, constructorInvocation.Args[1]);
-                    sb.Append(')');
-                    return;
+                    if (i > 0) sb.Append(", ");
+                    this.TranslateExpression(sb, args[i]);
                 }
+                sb.Append(')');
             }
-
-            sb.Append("new ");
-            string structType = constructorInvocation.StructType.NameToken.Value;
-            if (structType == "ClassValue")
-            {
-                structType = "org.crayonlang.interpreter.structs.ClassValue";
-            }
-            sb.Append(structType);
-            sb.Append('(');
-            Expression[] args = constructorInvocation.Args;
-            for (int i = 0; i < args.Length; ++i)
-            {
-                if (i > 0) sb.Append(", ");
-                this.TranslateExpression(sb, args[i]);
-            }
-            sb.Append(')');
         }
 
         public override void TranslateCurrentTimeSeconds(TranspilerContext sb)
@@ -535,6 +524,13 @@ namespace Pastel.Transpilers
             sb.Append("TranslationHelper.getFunction(");
             this.TranslateExpression(sb, name);
             sb.Append(')');
+        }
+
+        public override void TranslateInstanceFieldDereference(TranspilerContext sb, Expression root, ClassDefinition classDef, string fieldName)
+        {
+            this.TranslateExpression(sb, root);
+            sb.Append('.');
+            sb.Append(fieldName);
         }
 
         public override void TranslateIntBuffer16(TranspilerContext sb)
@@ -728,7 +724,7 @@ namespace Pastel.Transpilers
                 case "Array":
                     throw new NotImplementedException("not implemented: java list of arrays to array");
                 default:
-                    if (itemType.IsStruct)
+                    if (itemType.IsStructOrClass)
                     {
                         this.TranslateExpression(sb, list);
                         sb.Append(".toArray(");
@@ -1133,6 +1129,11 @@ namespace Pastel.Transpilers
             sb.Append(fieldName);
         }
 
+        public override void TranslateThis(TranspilerContext sb, ThisExpression thisExpr)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateToCodeString(TranspilerContext sb, Expression str)
         {
             throw new NotImplementedException();
@@ -1162,7 +1163,7 @@ namespace Pastel.Transpilers
             sb.Append(this.NewLine);
         }
 
-        public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef)
+        public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
             sb.Append(sb.CurrentTab);
             sb.Append("public static ");
@@ -1187,6 +1188,11 @@ namespace Pastel.Transpilers
             sb.Append(sb.CurrentTab);
             sb.Append('}');
             sb.Append(this.NewLine);
+        }
+
+        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
+        {
+            throw new NotImplementedException();
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

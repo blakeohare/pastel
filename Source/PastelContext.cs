@@ -41,6 +41,7 @@ namespace Pastel
 
         // TODO: refactor this all into a platform capabilities object.
         public bool UsesStructDefinitions { get { return this.Transpiler.UsesStructDefinitions; } }
+        public bool UsesClassDefinitions { get { return this.Transpiler.UsesClassDefinitions; } }
         public bool UsesFunctionDeclarations { get { return this.Transpiler.UsesFunctionDeclarations; } }
         public bool UsesStructDeclarations { get { return this.Transpiler.UsesStructDeclarations; } }
         public bool HasStructsInSeparateFiles { get { return this.Transpiler.HasStructsInSeparateFiles; } }
@@ -133,6 +134,18 @@ namespace Pastel
         {
             this.GetCompiler().Resolve();
             return this;
+        }
+
+        public Dictionary<string, string> GetCodeForClasses()
+        {
+            TranspilerContext ctx = this.GetTranspilerContext();
+            Dictionary<string, string> output = new Dictionary<string, string>();
+            foreach (ClassDefinition cd in this.GetCompiler().GetClassDefinitions())
+            {
+                this.Transpiler.GenerateCodeForClass(ctx, cd);
+                output[cd.NameToken.Value] = ctx.FlushAndClearBuffer();
+            }
+            return output;
         }
 
         public Dictionary<string, string> GetCodeForStructs()

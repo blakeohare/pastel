@@ -227,6 +227,13 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateInstanceFieldDereference(TranspilerContext sb, Expression root, ClassDefinition classDef, string fieldName)
+        {
+            this.TranslateExpression(sb, root);
+            sb.Append('.');
+            sb.Append(fieldName);
+        }
+
         public override void TranslateIntBuffer16(TranspilerContext sb)
         {
             sb.Append("PST$intBuffer16");
@@ -726,6 +733,11 @@ namespace Pastel.Transpilers
             sb.Append(']');
         }
 
+        public override void TranslateThis(TranspilerContext sb, ThisExpression thisExpr)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TranslateToCodeString(TranspilerContext sb, Expression str)
         {
             sb.Append("JSON.stringify(");
@@ -760,7 +772,7 @@ namespace Pastel.Transpilers
             sb.Append(this.NewLine);
         }
 
-        public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef)
+        public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
             sb.Append("var ");
             sb.Append(funcDef.NameToken.Value);
@@ -784,6 +796,11 @@ namespace Pastel.Transpilers
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
         {
             throw new NotImplementedException();
         }

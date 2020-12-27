@@ -7,7 +7,9 @@ namespace Pastel.Nodes
         private enum TypeCategory
         {
             PRIMITIVE,
+            STRUCT_OR_CLASS,
             STRUCT,
+            CLASS,
             LIST,
             ARRAY,
             DICTIONARY,
@@ -44,24 +46,52 @@ namespace Pastel.Nodes
         public bool IsNullable { get; set; }
 
         private TypeCategory Category { get; set; }
+        public bool IsStructOrClass
+        {
+            get
+            {
+                return this.Category == TypeCategory.STRUCT_OR_CLASS ||
+                    this.Category == TypeCategory.STRUCT ||
+                    this.Category == TypeCategory.CLASS;
+            }
+        }
         public bool IsStruct { get { return this.Category == TypeCategory.STRUCT; } }
+        public bool IsClass { get { return this.Category == TypeCategory.CLASS; } }
+
         internal StructDefinition StructDef
         {
             get
             {
-                if (this.IsStruct && this.structReference == null)
+                if (this.IsStructOrClass && this.structReference == null)
                     throw new System.InvalidOperationException();
                 return this.structReference;
             }
         }
 
-        public static PType FunctionOf(Token tokenOfFunctionRefOccurence, PType returnType, IList<PType> argumentTypes)
+        internal ClassDefinition ClassDef
+        {
+            get
+            {
+                if (this.IsClass && this.classReference == null) throw new System.InvalidOperationException();
+                return this.classReference;
+            }
+        }
+
+        internal static PType ForClass(Token tokenOfClassRefOccurrence, ClassDefinition cd)
+        {
+            PType type = new PType(tokenOfClassRefOccurrence, null, cd.NameToken.Value);
+            type.Category = TypeCategory.CLASS;
+            type.classReference = cd;
+            return type;
+        }
+
+        public static PType FunctionOf(Token tokenOfFunctionRefOccurrence, PType returnType, IList<PType> argumentTypes)
         {
             List<PType> generics = new List<PType>();
             generics.Add(returnType);
             generics.AddRange(argumentTypes);
 
-            return new PType(tokenOfFunctionRefOccurence, null, "Func", generics.ToArray());
+            return new PType(tokenOfFunctionRefOccurrence, null, "Func", generics.ToArray());
         }
 
         public PType(Token firstToken, string namespaceName, string typeName, params PType[] generics) : this(firstToken, namespaceName, typeName, new List<PType>(generics)) { }
@@ -140,7 +170,7 @@ namespace Pastel.Nodes
                         }
                         else
                         {
-                            this.Category = TypeCategory.STRUCT;
+                            this.Category = TypeCategory.STRUCT_OR_CLASS;
                         }
                         break;
                 }
@@ -148,7 +178,9 @@ namespace Pastel.Nodes
 
             switch (this.Category)
             {
+                case TypeCategory.STRUCT_OR_CLASS:
                 case TypeCategory.STRUCT:
+                case TypeCategory.CLASS:
                 case TypeCategory.ARRAY:
                 case TypeCategory.LIST:
                 case TypeCategory.DICTIONARY:
@@ -181,27 +213,43 @@ namespace Pastel.Nodes
 
         private bool isTypeFinalized = false;
         private StructDefinition structReference = null;
+        private ClassDefinition classReference = null;
         internal void FinalizeType(PastelCompiler compilerContext)
         {
             if (this.isTypeFinalized) return;
             this.isTypeFinalized = true;
 
-            if (this.Category == TypeCategory.STRUCT)
+            if (this.Category == TypeCategory.STRUCT_OR_CLASS)
             {
-                if (this.Namespace == null)
+                PastelCompiler targetContext = compilerContext;
+                if (this.Namespace != null)
                 {
-                    this.structReference = compilerContext.GetStructDefinition(this.TypeName);
+                    if (!compilerContext.IncludedScopeNamespacesToIndex.ContainsKey(this.Namespace)) targetContext = null;
+                    else
+                    {
+                        int index = compilerContext.IncludedScopeNamespacesToIndex[this.Namespace];
+                        targetContext = compilerContext.IncludedScopes[index];
+                    }
                 }
-                else if (compilerContext.IncludedScopeNamespacesToIndex.ContainsKey(this.Namespace))
+
+                if (targetContext != null)
                 {
-                    int index = compilerContext.IncludedScopeNamespacesToIndex[this.Namespace];
-                    this.structReference = compilerContext.IncludedScopes[index].GetStructDefinition(this.TypeName);
+                    this.structReference = targetContext.GetStructDefinition(this.TypeName);
+                    this.classReference = targetContext.GetClassDefinition(this.TypeName);
+                    this.Category = this.structReference == null ? TypeCategory.CLASS : TypeCategory.STRUCT;
                 }
-                if (this.structReference == null)
+
+                if (this.structReference == null && this.classReference == null)
                 {
-                    throw new ParserException(this.FirstToken, "Could not find struct by name of '" + this.RootValue + "'");
+                    throw new ParserException(this.FirstToken, "Could not find a class or struct by the name of '" + this.RootValue + "'");
+                }
+
+                if (this.structReference != null && this.classReference != null)
+                {
+                    throw new System.InvalidOperationException(); // this shouldn't happen. name conflicts should have been caught by now.
                 }
             }
+
             for (int i = 0; i < this.Generics.Length; ++i)
             {
                 this.Generics[i].FinalizeType(compilerContext);
@@ -331,7 +379,7 @@ namespace Pastel.Nodes
             {
                 if (returnType.Category == TypeCategory.PRIMITIVE && returnType.TypeName == "string") return true;
                 if (returnType.Generics.Length > 0) return true;
-                if (returnType.Category == TypeCategory.STRUCT) return true;
+                if (returnType.IsStructOrClass) return true;
             }
             return false;
         }
@@ -354,15 +402,27 @@ namespace Pastel.Nodes
         internal bool IsIdenticalOrChildOf(PastelCompiler compiler, PType other)
         {
             if (this.IsIdentical(compiler, other)) return true;
-            if (!this.IsStruct || !other.IsStruct) return false;
-            if (this.StructDef == null || other.StructDef == null) throw new System.Exception("This check cannot occur without resolving struct information for PTypes.");
-            StructDefinition walker = this.StructDef;
-            StructDefinition target = other.StructDef;
-            while (walker != null)
+
+            // only structs or classes should be here if this is to return true. If not, then it's a no.
+            if (!this.IsStructOrClass || !other.IsStructOrClass) return false;
+
+            if (this.IsStruct != other.IsStruct) return false;
+            if (this.IsStruct)
             {
-                if (walker == target) return true;
-                walker = walker.Parent;
+                if (this.StructDef == null || other.StructDef == null) throw new System.Exception("This check cannot occur without resolving struct information for PTypes.");
+                StructDefinition walker = this.StructDef;
+                StructDefinition target = other.StructDef;
+                while (walker != null)
+                {
+                    if (walker == target) return true;
+                    walker = walker.Parent;
+                }
             }
+            if (this.IsClass)
+            {
+                throw new System.NotImplementedException();
+            }
+
             return false;
         }
 
@@ -375,9 +435,9 @@ namespace Pastel.Nodes
 
             if (this.Generics.Length != other.Generics.Length) return false;
 
-            if (this.Category == TypeCategory.STRUCT)
+            if (this.IsStructOrClass)
             {
-                return this.structReference == other.structReference;
+                return this.structReference == other.structReference || this.classReference == other.classReference;
             }
 
             if (this.RootValue != other.RootValue)

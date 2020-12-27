@@ -20,19 +20,38 @@
 
         internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
         {
-            if (this.Expression != null)
+            // TODO: the variable scope should NOT be the messenger of this information.
+            ICompilationEntity ce = varScope.RootFunctionOrConstructorDefinition;
+            FunctionDefinition fd = ce as FunctionDefinition;
+
+            if (fd != null)
             {
-                this.Expression = this.Expression.ResolveType(varScope, compiler);
-                if (!PType.CheckReturnType(compiler, varScope.RootFunctionDefinition.ReturnType, this.Expression.ResolvedType))
+                if (this.Expression != null)
                 {
-                    throw new ParserException(this.Expression.FirstToken, "This expression is not the expected return type of this function.");
+                    this.Expression = this.Expression.ResolveType(varScope, compiler);
+                    if (!PType.CheckReturnType(compiler, fd.ReturnType, this.Expression.ResolvedType))
+                    {
+                        throw new ParserException(this.Expression.FirstToken, "This expression is not the expected return type of this function.");
+                    }
+                }
+                else
+                {
+                    if (!fd.ReturnType.IsIdentical(compiler, PType.VOID))
+                    {
+                        throw new ParserException(this.FirstToken, "Must return a value in this function.");
+                    }
                 }
             }
-            else
+            else // constructors
             {
-                if (!varScope.RootFunctionDefinition.ReturnType.IsIdentical(compiler, PType.VOID))
+                if (this.Expression == null)
                 {
-                    throw new ParserException(this.FirstToken, "Must return a value in this function.");
+                    // This is fine.
+                }
+                else
+                {
+                    // This isn't.
+                    throw new ParserException(this.FirstToken, "You cannot return a value from a constructor.");
                 }
             }
         }

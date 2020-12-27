@@ -324,6 +324,13 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateInstanceFieldDereference(TranspilerContext sb, Expression root, ClassDefinition classDef, string fieldName)
+        {
+            this.TranslateExpression(sb, root);
+            sb.Append('.');
+            sb.Append(fieldName);
+        }
+
         public override void TranslateIntBuffer16(TranspilerContext sb)
         {
             sb.Append("PST_IntBuffer16");
@@ -818,6 +825,11 @@ namespace Pastel.Transpilers
             sb.Append(fieldName);
         }
 
+        public override void TranslateThis(TranspilerContext sb, ThisExpression thisExpr)
+        {
+            sb.Append("this");
+        }
+
         public override void TranslateToCodeString(TranspilerContext sb, Expression str)
         {
             sb.Append("PST_ToCodeString(");
@@ -846,6 +858,72 @@ namespace Pastel.Transpilers
                 this.TranslateExpression(sb, varDecl.Value);
             }
             sb.Append(';');
+            sb.Append(this.NewLine);
+        }
+
+        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
+        {
+            string name = classDef.NameToken.Value;
+            
+
+            sb.Append("public class " + name);
+            if (classDef.ParentClass != null)
+            {
+                sb.Append(" : " + classDef.ParentClass.NameToken.Value);
+            }
+            sb.Append(this.NewLine);
+
+            sb.Append("{");
+            sb.Append(this.NewLine);
+            sb.TabDepth++;
+            foreach (FieldDefinition fd in classDef.Fields)
+            {
+                System.Text.StringBuilder line = new System.Text.StringBuilder();
+                sb.Append(sb.CurrentTab);
+                sb.Append("public ");
+                sb.Append(this.TranslateType(fd.FieldType));
+                sb.Append(' ');
+                sb.Append(fd.NameToken.Value);
+                sb.Append(" = ");
+                this.TranslateExpression(sb, fd.Value);
+                sb.Append(";");
+                sb.Append(this.NewLine);
+                sb.Append(this.NewLine);
+            }
+
+            ConstructorDefinition constructorDef = classDef.Constructor;
+            sb.Append("    public ");
+            sb.Append(name);
+            sb.Append('(');
+            for (int i = 0; i < constructorDef.ArgNames.Length; ++i)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append(this.TranslateType(constructorDef.ArgTypes[i]));
+                sb.Append(' ');
+                sb.Append(constructorDef.ArgNames[i].Value);
+            }
+            sb.Append(")");
+            sb.Append(this.NewLine);
+            sb.Append(sb.CurrentTab);
+            sb.Append("{");
+            sb.Append(this.NewLine);
+            sb.TabDepth++;
+            this.TranslateExecutables(sb, constructorDef.Code);
+            sb.TabDepth--;
+            sb.Append(sb.CurrentTab);
+            sb.Append("}");
+            sb.Append(this.NewLine);
+            sb.Append(this.NewLine);
+
+            foreach (FunctionDefinition fd in classDef.Methods)
+            {
+                this.GenerateCodeForFunction(sb, fd, false);
+                sb.Append(this.NewLine);
+            }
+
+            sb.TabDepth--;
+            sb.Append(this.NewLine);
+            sb.Append("}");
             sb.Append(this.NewLine);
         }
 
@@ -913,14 +991,16 @@ namespace Pastel.Transpilers
             sb.Append(string.Join("\r\n", lines));
         }
 
-        public override void GenerateCodeForFunction(TranspilerContext output, FunctionDefinition funcDef)
+        public override void GenerateCodeForFunction(TranspilerContext output, FunctionDefinition funcDef, bool isStatic)
         {
             PType returnType = funcDef.ReturnType;
             string funcName = funcDef.NameToken.Value;
             PType[] argTypes = funcDef.ArgTypes;
             Token[] argNames = funcDef.ArgNames;
 
-            output.Append("public static ");
+            output.Append(output.CurrentTab);
+            output.Append("public ");
+            if (isStatic) output.Append("static ");
             output.Append(this.TranslateType(returnType));
             output.Append(' ');
             output.Append(funcName);
@@ -934,11 +1014,13 @@ namespace Pastel.Transpilers
             }
             output.Append(")");
             output.Append(this.NewLine);
+            output.Append(output.CurrentTab);
             output.Append("{");
             output.Append(this.NewLine);
-            output.TabDepth = 1;
+            output.TabDepth++;
             this.TranslateExecutables(output, funcDef.Code);
-            output.TabDepth = 0;
+            output.TabDepth--;
+            output.Append(output.CurrentTab);
             output.Append("}");
         }
     }
