@@ -40,6 +40,7 @@ namespace Pastel
         }
 
         // TODO: refactor this all into a platform capabilities object.
+        public bool ClassDefinitionsInSeparateFiles {  get { return this.Transpiler.ClassDefinitionsInSeparateFiles; } }
         public bool UsesStructDefinitions { get { return this.Transpiler.UsesStructDefinitions; } }
         public bool UsesClassDefinitions { get { return this.Transpiler.UsesClassDefinitions; } }
         public bool UsesFunctionDeclarations { get { return this.Transpiler.UsesFunctionDeclarations; } }

@@ -11,6 +11,7 @@ namespace Pastel.Transpilers
         public string[] Tabs { get; set; }
         public string NewLine { get; private set; }
 
+        public bool ClassDefinitionsInSeparateFiles { get; protected set; }
         public bool UsesStructDefinitions { get; protected set; }
         public bool UsesClassDefinitions { get; protected set; }
         public bool UsesFunctionDeclarations { get; protected set; }
@@ -22,6 +23,7 @@ namespace Pastel.Transpilers
 
         public AbstractTranspiler(string tab, string newLine)
         {
+            this.ClassDefinitionsInSeparateFiles = true;
             this.UsesStructDefinitions = true;
             this.UsesClassDefinitions = true;
             this.UsesFunctionDeclarations = false;

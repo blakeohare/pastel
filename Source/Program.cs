@@ -67,7 +67,31 @@ namespace Pastel
                 foreach (string className in classDefinitions.Keys.OrderBy(k => k))
                 {
                     string classCode = classDefinitions[className];
-                    GenerateClassImplementation(config, className, classCode);
+                    if (context.ClassDefinitionsInSeparateFiles)
+                    {
+                        GenerateClassImplementation(config, className, classCode);
+                    }
+                    else
+                    {
+                        output["class_def:" + className] = classCode;
+                    }
+                }
+
+                if (!context.ClassDefinitionsInSeparateFiles)
+                {
+                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                    foreach (string key in output.Keys.Where(k=>k.StartsWith("class_def:")).OrderBy(k=>k))
+                    {
+                        sb.Append(output[key]);
+                        sb.Append("\n\n");
+                    }
+                    string code = sb.ToString().Trim();
+                    if (code.Length > 0)
+                    {
+                        string classOutputDir = System.IO.Path.GetDirectoryName(config.OutputFileFunctions);
+                        string path = System.IO.Path.Combine(classOutputDir, "Classes" + LanguageUtil.GetFileExtension(config.Language));
+                        System.IO.File.WriteAllText(path, code + "\n");
+                    }
                 }
             }
 

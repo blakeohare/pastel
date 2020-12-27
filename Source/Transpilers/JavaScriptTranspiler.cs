@@ -9,6 +9,7 @@ namespace Pastel.Transpilers
         public JavaScriptTranspiler() : base("\t", "\n", true)
         {
             this.UsesStructDefinitions = false;
+            this.ClassDefinitionsInSeparateFiles = false;
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.js"; } }
@@ -735,7 +736,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateThis(TranspilerContext sb, ThisExpression thisExpr)
         {
-            throw new NotImplementedException();
+            sb.Append("_PST_this");
         }
 
         public override void TranslateToCodeString(TranspilerContext sb, Expression str)
@@ -802,7 +803,51 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
         {
-            throw new NotImplementedException();
+            sb.Append(sb.CurrentTab);
+            sb.Append("function ");
+            sb.Append(classDef.NameToken.Value);
+            sb.Append("(");
+            ConstructorDefinition ctor = classDef.Constructor;
+            for (int i = 0; i < ctor.ArgNames.Length; ++i)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append(ctor.ArgNames[i].Value);
+            }
+            sb.Append(") {\n");
+            sb.TabDepth++;
+            sb.Append(sb.CurrentTab);
+            sb.Append("let _PST_this = this;\n");
+            foreach (FieldDefinition fd in classDef.Fields)
+            {
+                sb.Append(sb.CurrentTab);
+                sb.Append("this.");
+                sb.Append(fd.NameToken.Value);
+                sb.Append(" = ");
+                this.TranslateExpression(sb, fd.Value);
+                sb.Append(";\n");
+            }
+            this.TranslateExecutables(sb, ctor.Code);
+            foreach (FunctionDefinition func in classDef.Methods)
+            {
+                sb.Append(sb.CurrentTab);
+                sb.Append(classDef.NameToken.Value);
+                sb.Append(".prototype.");
+                sb.Append(func.Name);
+                sb.Append(" = function(");
+                for (int i = 0; i < func.ArgNames.Length; ++i)
+                {
+                    if (i > 0) sb.Append(", ");
+                    sb.Append(func.ArgNames[i].Value);
+                }
+                sb.Append(") {\n");
+                sb.TabDepth++;
+                this.TranslateExecutables(sb, func.Code);
+                sb.TabDepth--;
+                sb.Append(sb.CurrentTab);
+                sb.Append("};\n");
+            }
+            sb.TabDepth--;
+            sb.Append("}\n");
         }
     }
 }
