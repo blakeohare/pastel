@@ -864,7 +864,6 @@ namespace Pastel.Transpilers
         public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
         {
             string name = classDef.NameToken.Value;
-            
 
             sb.Append("public class " + name);
             if (classDef.ParentClass != null)

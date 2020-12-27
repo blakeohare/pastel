@@ -305,7 +305,7 @@ namespace Pastel
         private void ResolveStructParentChain()
         {
             Dictionary<StructDefinition, int> cycleCheck = new Dictionary<StructDefinition, int>();
-            StructDefinition[] structDefs = this.StructDefinitions.Values.ToArray(); 
+            StructDefinition[] structDefs = this.StructDefinitions.Values.ToArray();
             foreach (StructDefinition sd in structDefs)
             {
                 cycleCheck[sd] = 0;

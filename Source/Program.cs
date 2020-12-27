@@ -257,7 +257,7 @@ namespace Pastel
             {
                 path = System.IO.Path.Combine(this.root, path);
                 path = System.IO.Path.GetFullPath(path);
-                if (!System.IO.File.Exists(path)) throw new ParserException(throwLocation, "File does not exist: " + path); 
+                if (!System.IO.File.Exists(path)) throw new ParserException(throwLocation, "File does not exist: " + path);
                 return System.IO.File.ReadAllText(path);
             }
         }

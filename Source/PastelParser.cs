@@ -274,7 +274,7 @@ namespace Pastel
 
                     if (members.ContainsKey(entityName))
                     {
-                        throw new ParserException(memberName, 
+                        throw new ParserException(memberName,
                             "There are conflicting members in the class '" + cd.NameToken.Value + "' for the name '" + entityName + "'.");
                     }
 

@@ -1,0 +1,2 @@
+﻿# Add paths that you want to match. These are string matches, and so the asterisk refers to any possible path that includes /'s
+CSHARP: Source/*.cs

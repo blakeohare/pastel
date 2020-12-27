@@ -1205,8 +1205,8 @@ namespace Pastel.Transpilers
             string name = structDef.NameToken.Value;
 
             // TODO: This is a Crayon-ism that needs to be removed
-            // TODO: also this is dangerously likely to affect other projects. At least add a 
-            // hacky `if (structDef.NameToken.FileName == blah)` that'll be at least somewhat more 
+            // TODO: also this is dangerously likely to affect other projects. At least add a
+            // hacky `if (structDef.NameToken.FileName == blah)` that'll be at least somewhat more
             // likely to not create false positives in the mean time.
             bool isValue = name == "Value";
 
