@@ -31,9 +31,11 @@ def main(args):
 	if args[0] == 'windows':
 		isWindows = True
 		dotnet_platform = 'win-x64'
+		final_exec_name = 'pastel.exe'
 	elif args[0] == 'mac':
 		isMac = True
 		dotnet_platform = 'osx-x64'
+		final_exec_name = 'pastel'
 	elif args[0] == 'linux':
 		isLinux = True
 		print("Linux support not quite tested yet.")
@@ -47,6 +49,9 @@ def main(args):
 	if isWindows:
 		executable_dir = os.path.join('..', 'Source', 'bin', 'Release', 'netcoreapp3.1', dotnet_platform, 'publish')
 		executable_path = os.path.join(executable_dir, 'Pastel.exe')
+	elif isMac:
+		executable_dir = os.path.join('..', 'Source', 'bin', 'Release', 'netcoreapp3.1', dotnet_platform, 'publish')
+		executable_path = os.path.join(executable_dir, 'Pastel')
 	else:
 		print("This hasn't been tested yet.")
 		return
@@ -67,7 +72,7 @@ def main(args):
 	])
 	result = runCommand(cmd)
 	
-	shutil.copyfile(executable_path, os.path.join(copy_to_dir, 'pastel.exe'))
+	shutil.copyfile(executable_path, os.path.join(copy_to_dir, final_exec_name))
 	
 	print("Release directory created: " + copy_to_dir)
 
