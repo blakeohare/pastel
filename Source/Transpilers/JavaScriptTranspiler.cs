@@ -223,7 +223,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateGetFunction(TranspilerContext sb, Expression name)
         {
-            sb.Append("C$common$getFunction(");
+            sb.Append("PST$getFunction(");
             this.TranslateExpression(sb, name);
             sb.Append(')');
         }
@@ -471,14 +471,14 @@ namespace Pastel.Transpilers
 
         public override void TranslatePrintStdErr(TranspilerContext sb, Expression value)
         {
-            sb.Append("C$common$print(");
+            sb.Append("PST$stderr(");
             this.TranslateExpression(sb, value);
             sb.Append(')');
         }
 
         public override void TranslatePrintStdOut(TranspilerContext sb, Expression value)
         {
-            sb.Append("C$common$print(");
+            sb.Append("PST$stdout(");
             this.TranslateExpression(sb, value);
             sb.Append(')');
         }
