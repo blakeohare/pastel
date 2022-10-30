@@ -11,16 +11,24 @@ namespace Pastel
 #if DEBUG
             if (actualArgs.Length == 0)
             {
-                string crayonHome = Environment.GetEnvironmentVariable("CRAYON_HOME");
-                if (crayonHome != null)
+                string dirWalker = System.IO.Path.GetFullPath(System.IO.Directory.GetCurrentDirectory());
+                string debugArgsPath = null;
+                while (dirWalker != null && dirWalker.Length >= 3)
                 {
-                    string debugPastelFile = System.IO.Path.Combine(crayonHome, "DEBUG_PASTEL.txt");
-                    if (System.IO.File.Exists(debugPastelFile))
+                    string debugPastel = System.IO.Path.Combine(dirWalker, "DEBUG_PASTEL.txt");
+                    if (System.IO.File.Exists(debugPastel))
                     {
-                        string[] lines = System.IO.File.ReadAllText(debugPastelFile).Trim().Split('\n');
-                        string lastLine = lines[lines.Length - 1].Trim();
-                        return lastLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        debugArgsPath = debugPastel;
+                        break;
                     }
+                    dirWalker = System.IO.Path.GetDirectoryName(dirWalker);
+                }
+
+                if (debugArgsPath != null)
+                {
+                    string[] lines = System.IO.File.ReadAllText(debugArgsPath).Trim().Split('\n');
+                    string lastLine = lines[lines.Length - 1].Trim();
+                    return lastLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 }
             }
 #endif
@@ -80,7 +88,7 @@ namespace Pastel
                 if (!context.ClassDefinitionsInSeparateFiles)
                 {
                     System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                    foreach (string key in output.Keys.Where(k=>k.StartsWith("class_def:")).OrderBy(k=>k))
+                    foreach (string key in output.Keys.Where(k => k.StartsWith("class_def:")).OrderBy(k => k))
                     {
                         sb.Append(output[key]);
                         sb.Append("\n\n");
