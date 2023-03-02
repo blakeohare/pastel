@@ -202,6 +202,11 @@ namespace Pastel.Nodes
                     case "int-int": this.Expressions[0] = CreateInteger(left.FirstToken, (int)leftValue - (int)rightValue); break;
                     case "int*int": this.Expressions[0] = CreateInteger(left.FirstToken, (int)leftValue * (int)rightValue); break;
                     case "int/int": this.Expressions[0] = CreateInteger(left.FirstToken, (int)leftValue / (int)rightValue); break;
+                    case "int&int": this.Expressions[0] = CreateInteger(left.FirstToken, (int)leftValue & (int)rightValue); break;
+                    case "int|int": this.Expressions[0] = CreateInteger(left.FirstToken, (int)leftValue | (int)rightValue); break;
+                    case "int^int": this.Expressions[0] = CreateInteger(left.FirstToken, (int)leftValue ^ (int)rightValue); break;
+                    case "int<<int": this.Expressions[0] = CreateInteger(left.FirstToken, (int)leftValue << (int)rightValue); break;
+                    case "int>>int": this.Expressions[0] = CreateInteger(left.FirstToken, (int)leftValue >> (int)rightValue); break;
                     case "int+double": this.Expressions[0] = CreateFloat(left.FirstToken, (int)leftValue + (double)rightValue); break;
                     case "int-double": this.Expressions[0] = CreateFloat(left.FirstToken, (int)leftValue - (double)rightValue); break;
                     case "int*double": this.Expressions[0] = CreateFloat(left.FirstToken, (int)leftValue * (double)rightValue); break;
