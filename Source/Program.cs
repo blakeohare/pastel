@@ -145,6 +145,10 @@ namespace Pastel
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
             funcCode = transpiler.WrapCodeForFunctions(config, funcCode);
+            if (config.OutputFileFunctionsSuffix != null)
+            {
+                funcCode += "\n" + config.OutputFileFunctionsSuffix + "\n";
+            }
             System.IO.File.WriteAllText(config.OutputFileFunctions, funcCode);
         }
 

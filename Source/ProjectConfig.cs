@@ -46,6 +46,7 @@ namespace Pastel
         public Dictionary<string, ProjectConfig> DependenciesByPrefix { get; set; }
         public string OutputDirStructs { get; set; }
         public string OutputFileFunctions { get; set; }
+        public string OutputFileFunctionsSuffix { get; set; }
         public string WrappingClassNameForFunctions { get; set; }
         public string NamespaceForStructs { get; set; }
         public string NamespaceForFunctions { get; set; }
@@ -136,6 +137,10 @@ namespace Pastel
 
                     case "OUTPUT-FUNCTIONS":
                         config.OutputFileFunctions = CanonicalizeDirectory(directory, data);
+                        break;
+
+                    case "OUTPUT-FUNCTIONS-SUFFIX":
+                        config.OutputFileFunctionsSuffix = data;
                         break;
 
                     // TODO: I have not found value in distinguishing these two aside from this is just how
