@@ -93,3 +93,11 @@ private static function PST_tryParseFloat($s, $outValue) {
 private static function PST_assignIndexHack($list, $index, $value) {
 	$list->arr[$index] = $value;
 }
+
+// PASTEL_ENTITY_ID: PST_ExtCallbacks
+private static $PST_ExtCallbacks = array();
+
+// PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
+private static function PST_RegisterExtensibleCallback($name, $fnObj) {
+	static::$PST_ExtCallbacks[$name] = $fnObj;
+}
