@@ -47,13 +47,13 @@
         {
             if (this.Target is BracketIndex)
             {
-                if (this.OpToken.Value != "=")
+                BracketIndex bi = (BracketIndex)this.Target;
+                if (this.OpToken.Value != "=" && bi.Root.ResolvedType.RootValue != "Array")
                 {
                     // Java will need to be special as it will require things to be broken down into a get-then-set.
                     throw new ParserException(this.OpToken, "Incremental assignment on a key/index is not currently supported (although it really ought to be).");
                 }
 
-                BracketIndex bi = (BracketIndex)this.Target;
                 string rootType = bi.Root.ResolvedType.RootValue;
                 Expression[] args = new Expression[] { bi.Root, bi.Index, this.Value };
                 CoreFunction nf;
