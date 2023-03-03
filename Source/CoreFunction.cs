@@ -11,6 +11,7 @@
         ARRAY_JOIN,
         ARRAY_LENGTH,
         ARRAY_SET,
+        BASE64_TO_BYTES,
         BASE64_TO_STRING,
         CHAR_TO_STRING,
         CHR,
@@ -87,6 +88,7 @@
         STRING_SUBSTRING_IS_EQUAL_TO,
         STRING_TO_LOWER,
         STRING_TO_UPPER,
+        STRING_TO_UTF8_BYTES,
         STRING_TRIM,
         STRING_TRIM_END,
         STRING_TRIM_START,
@@ -96,5 +98,6 @@
         STRONG_REFERENCE_EQUALITY,
         TO_CODE_STRING,
         TRY_PARSE_FLOAT,
+        UTF8_BYTES_TO_STRING,
     }
 }

@@ -135,6 +135,13 @@ namespace Pastel.Transpilers
             }
         }
 
+        public override void TranslateBase64ToBytes(TranspilerContext sb, Expression base64String)
+        {
+            sb.Append("TranslationHelper_base64ToBytes(");
+            this.TranslateExpression(sb, base64String);
+            sb.Append(')');
+        }
+
         public override void TranslateBase64ToString(TranspilerContext sb, Expression base64String)
         {
             sb.Append("TranslationHelper_base64ToString(");
@@ -915,6 +922,13 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateStringToUtf8Bytes(TranspilerContext sb, Expression str)
+        {
+            sb.Append("PST_stringToUtf8Bytes(");
+            this.TranslateExpression(sb, str);
+            sb.Append(')');
+        }
+
         public override void TranslateStringTrim(TranspilerContext sb, Expression str)
         {
             sb.Append("String_trim(");
@@ -1020,6 +1034,13 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, stringValue);
             sb.Append(", ");
             this.TranslateExpression(sb, floatOutList);
+            sb.Append(')');
+        }
+
+        public override void TranslateUtf8BytesToString(TranspilerContext sb, Expression bytes)
+        {
+            sb.Append("TranslationHelper_utf8_bytes_to_string(");
+            this.TranslateExpression(sb, bytes);
             sb.Append(')');
         }
 

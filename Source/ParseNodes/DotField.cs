@@ -160,6 +160,7 @@ namespace Pastel.Nodes
                 case "ArcCos": return CoreFunction.MATH_ARCCOS;
                 case "ArcSin": return CoreFunction.MATH_ARCSIN;
                 case "ArcTan": return CoreFunction.MATH_ARCTAN;
+                case "Base64ToBytes": return CoreFunction.BASE64_TO_BYTES;
                 case "Base64ToString": return CoreFunction.BASE64_TO_STRING;
                 case "CharToString": return CoreFunction.CHAR_TO_STRING;
                 case "Chr": return CoreFunction.CHR;
@@ -199,6 +200,7 @@ namespace Pastel.Nodes
                 case "Tan": return CoreFunction.MATH_TAN;
                 case "ToCodeString": return CoreFunction.TO_CODE_STRING;
                 case "TryParseFloat": return CoreFunction.TRY_PARSE_FLOAT;
+                case "Utf8BytesToString": return CoreFunction.UTF8_BYTES_TO_STRING;
 
                 // TODO: get this information from the parameter rather than having separate Core function
                 case "SortedCopyOfStringArray": return CoreFunction.SORTED_COPY_OF_STRING_ARRAY;
@@ -230,6 +232,7 @@ namespace Pastel.Nodes
                         case "SubStringIsEqualTo": return CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO;
                         case "ToLower": return CoreFunction.STRING_TO_LOWER;
                         case "ToUpper": return CoreFunction.STRING_TO_UPPER;
+                        case "ToUtf8Bytes": return CoreFunction.STRING_TO_UTF8_BYTES;
                         case "Trim": return CoreFunction.STRING_TRIM;
                         case "TrimEnd": return CoreFunction.STRING_TRIM_END;
                         case "TrimStart": return CoreFunction.STRING_TRIM_START;

@@ -105,6 +105,13 @@ namespace Pastel.Transpilers
             sb.Append(this.NewLine);
         }
 
+        public override void TranslateBase64ToBytes(TranspilerContext sb, Expression base64String)
+        {
+            sb.Append("PST_base64ToBytes(");
+            this.TranslateExpression(sb, base64String);
+            sb.Append(')');
+        }
+
         public override void TranslateBase64ToString(TranspilerContext sb, Expression base64String)
         {
             sb.Append("PST_base64ToString(");
@@ -909,6 +916,13 @@ namespace Pastel.Transpilers
             sb.Append(".upper()");
         }
 
+        public override void TranslateStringToUtf8Bytes(TranspilerContext sb, Expression str)
+        {
+            sb.Append("PST_stringToUtf8Bytes(");
+            this.TranslateExpression(sb, str);
+            sb.Append(')');
+        }
+
         public override void TranslateStringTrim(TranspilerContext sb, Expression str)
         {
             this.TranslateExpression(sb, str);
@@ -1017,6 +1031,13 @@ namespace Pastel.Transpilers
             sb.Append(", ");
             this.TranslateExpression(sb, floatOutList);
             sb.Append(')');
+        }
+
+        public override void TranslateUtf8BytesToString(TranspilerContext sb, Expression bytes)
+        {
+            sb.Append("bytes(");
+            this.TranslateExpression(sb, bytes);
+            sb.Append(").decode('utf-8')");
         }
 
         public override void TranslateVariable(TranspilerContext sb, Variable variable)

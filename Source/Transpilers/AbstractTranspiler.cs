@@ -288,6 +288,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.ARRAY_JOIN: this.TranslateArrayJoin(sb, args[0], args[1]); break;
                 case CoreFunction.ARRAY_LENGTH: this.TranslateArrayLength(sb, args[0]); break;
                 case CoreFunction.ARRAY_SET: this.TranslateArraySet(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.BASE64_TO_BYTES: this.TranslateBase64ToBytes(sb, args[0]); break;
                 case CoreFunction.BASE64_TO_STRING: this.TranslateBase64ToString(sb, args[0]); break;
                 case CoreFunction.CHAR_TO_STRING: this.TranslateCharToString(sb, args[0]); break;
                 case CoreFunction.CHR: this.TranslateChr(sb, args[0]); break;
@@ -363,6 +364,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO: this.TranslateStringSubstringIsEqualTo(sb, args[0], args[1], args[2]); break;
                 case CoreFunction.STRING_TO_LOWER: this.TranslateStringToLower(sb, args[0]); break;
                 case CoreFunction.STRING_TO_UPPER: this.TranslateStringToUpper(sb, args[0]); break;
+                case CoreFunction.STRING_TO_UTF8_BYTES: this.TranslateStringToUtf8Bytes(sb, args[0]); break;
                 case CoreFunction.STRING_TRIM: this.TranslateStringTrim(sb, args[0]); break;
                 case CoreFunction.STRING_TRIM_END: this.TranslateStringTrimEnd(sb, args[0]); break;
                 case CoreFunction.STRING_TRIM_START: this.TranslateStringTrimStart(sb, args[0]); break;
@@ -372,6 +374,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.STRONG_REFERENCE_EQUALITY: this.TranslateStrongReferenceEquality(sb, args[0], args[1]); break;
                 case CoreFunction.TO_CODE_STRING: this.TranslateToCodeString(sb, args[0]); break;
                 case CoreFunction.TRY_PARSE_FLOAT: this.TranslateTryParseFloat(sb, args[0], args[1]); break;
+                case CoreFunction.UTF8_BYTES_TO_STRING: this.TranslateUtf8BytesToString(sb, args[0]); break;
 
                 case CoreFunction.DICTIONARY_TRY_GET:
                     throw new ParserException(coreFuncInvocation.FirstToken, "Dictionary's TryGet method cannot be called like this. It must be assigned to a variable directly. This is due to a restriction in how this can get transpiled to certain languages.");
@@ -455,6 +458,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateArrayNew(TranspilerContext sb, PType arrayType, Expression lengthExpression);
         public abstract void TranslateArraySet(TranspilerContext sb, Expression array, Expression index, Expression value);
         public abstract void TranslateAssignment(TranspilerContext sb, Assignment assignment);
+        public abstract void TranslateBase64ToBytes(TranspilerContext sb, Expression base64String);
         public abstract void TranslateBase64ToString(TranspilerContext sb, Expression base64String);
         public abstract void TranslateBooleanConstant(TranspilerContext sb, bool value);
         public abstract void TranslateBooleanNot(TranspilerContext sb, UnaryOp unaryOp);
@@ -557,15 +561,17 @@ namespace Pastel.Transpilers
         public abstract void TranslateStringSubstringIsEqualTo(TranspilerContext sb, Expression haystack, Expression startIndex, Expression needle);
         public abstract void TranslateStringToLower(TranspilerContext sb, Expression str);
         public abstract void TranslateStringToUpper(TranspilerContext sb, Expression str);
+        public abstract void TranslateStringToUtf8Bytes(TranspilerContext sb, Expression str);
         public abstract void TranslateStringTrim(TranspilerContext sb, Expression str);
         public abstract void TranslateStringTrimEnd(TranspilerContext sb, Expression str);
         public abstract void TranslateStringTrimStart(TranspilerContext sb, Expression str);
         public abstract void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right);
+        public abstract void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex);
+        public abstract void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement);
         public abstract void TranslateThis(TranspilerContext sb, ThisExpression thisExpr);
         public abstract void TranslateToCodeString(TranspilerContext sb, Expression str);
         public abstract void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList);
-        public abstract void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex);
-        public abstract void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement);
+        public abstract void TranslateUtf8BytesToString(TranspilerContext sb, Expression bytes);
         public abstract void TranslateVariable(TranspilerContext sb, Variable variable);
         public abstract void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl);
         public abstract void TranslateWhileLoop(TranspilerContext sb, WhileLoop whileLoop);
