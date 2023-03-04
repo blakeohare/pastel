@@ -432,11 +432,9 @@ namespace Pastel.Transpilers
 
         public override void TranslateListPop(TranspilerContext sb, Expression list)
         {
-            // No megusta
+            sb.Append("PST_ListPop(");
             this.TranslateExpression(sb, list);
-            sb.Append(".RemoveAt(");
-            this.TranslateExpression(sb, list);
-            sb.Append(".Count - 1)");
+            sb.Append(')');
         }
 
         public override void TranslateListRemoveAt(TranspilerContext sb, Expression list, Expression index)

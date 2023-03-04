@@ -224,3 +224,13 @@ private static string PST_ToCodeString(string str)
     sb.Append('"');
     return sb.ToString();
 }
+
+// PASTEL_ENTITY_ID: PST_ListPop
+private static T PST_ListPop<T>(List<T> list)
+{
+    if (list.Count == 0) throw new System.InvalidOperationException();
+    int lastIndex = list.Count - 1;
+    T val = list[lastIndex];
+    list.RemoveAt(lastIndex);
+    return val;
+}
