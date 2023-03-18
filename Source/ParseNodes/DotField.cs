@@ -275,6 +275,7 @@ namespace Pastel.Nodes
                 case "Dictionary":
                     switch (field)
                     {
+                        case "Add": throw new ParserException(this.FieldName, "Use bracket notation instead of .Add() to add values to a dictionary.");
                         case "Contains": return CoreFunction.DICTIONARY_CONTAINS_KEY;
                         case "Keys": return CoreFunction.DICTIONARY_KEYS;
                         case "Remove": return CoreFunction.DICTIONARY_REMOVE;
