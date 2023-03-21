@@ -700,6 +700,14 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateStringLastIndexOf(TranspilerContext sb, Expression haystack, Expression needle)
+        {
+            this.TranslateExpression(sb, haystack);
+            sb.Append(".LastIndexOf(");
+            this.TranslateExpression(sb, needle);
+            sb.Append(')');
+        }
+
         public override void TranslateStringLength(TranspilerContext sb, Expression str)
         {
             this.TranslateExpression(sb, str);

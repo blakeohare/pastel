@@ -844,6 +844,15 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
+        public override void TranslateStringLastIndexOf(TranspilerContext sb, Expression haystack, Expression needle)
+        {
+            sb.Append("String_last_index_of(");
+            this.TranslateExpression(sb, haystack);
+            sb.Append(", ");
+            this.TranslateExpression(sb, needle);
+            sb.Append(')');
+        }
+
         public override void TranslateStringLength(TranspilerContext sb, Expression str)
         {
             this.TranslateExpression(sb, str);

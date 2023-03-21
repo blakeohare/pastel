@@ -803,6 +803,15 @@ namespace Pastel.Transpilers
             sb.Append(")");
         }
 
+        public override void TranslateStringLastIndexOf(TranspilerContext sb, Expression haystack, Expression needle)
+        {
+            sb.Append("self::PST_stringLastIndexOf(");
+            this.TranslateExpression(sb, haystack);
+            sb.Append(", ");
+            this.TranslateExpression(sb, needle);
+            sb.Append(", 0)");
+        }
+
         public override void TranslateStringLength(TranspilerContext sb, Expression str)
         {
             sb.Append("strlen(");

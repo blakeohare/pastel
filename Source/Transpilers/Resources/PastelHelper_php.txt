@@ -21,6 +21,13 @@ private static function PST_stringIndexOf($haystack, $needle, $index) {
 	return $o;
 }
 
+// PASTEL_ENTITY_ID: PST_stringLastIndexOf
+private static function PST_stringLastIndexOf($haystack, $needle) {
+	$o = strrpos($haystack, $needle, 0);
+	if ($o === false) return -1;
+	return $o;
+}
+
 // PASTEL_ENTITY_ID: PST_dictGetKeys
 private static function PST_dictGetKeys($d, $isIntDict) {
 	$keys = new PastelPtrArray();

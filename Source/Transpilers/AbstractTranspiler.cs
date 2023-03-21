@@ -355,6 +355,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.STRING_EQUALS: this.TranslateStringEquals(sb, args[0], args[1]); break;
                 case CoreFunction.STRING_FROM_CHAR_CODE: this.TranslateStringFromCharCode(sb, args[0]); break;
                 case CoreFunction.STRING_INDEX_OF: if (args.Length == 2) this.TranslateStringIndexOf(sb, args[0], args[1]); else this.TranslateStringIndexOfWithStart(sb, args[0], args[1], args[2]); break;
+                case CoreFunction.STRING_LAST_INDEX_OF: this.TranslateStringLastIndexOf(sb, args[0], args[1]); break;
                 case CoreFunction.STRING_LENGTH: this.TranslateStringLength(sb, args[0]); break;
                 case CoreFunction.STRING_REPLACE: this.TranslateStringReplace(sb, args[0], args[1], args[2]); break;
                 case CoreFunction.STRING_REVERSE: this.TranslateStringReverse(sb, args[0]); break;
@@ -551,6 +552,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateStringEquals(TranspilerContext sb, Expression left, Expression right);
         public abstract void TranslateStringFromCharCode(TranspilerContext sb, Expression charCode);
         public abstract void TranslateStringIndexOf(TranspilerContext sb, Expression haystack, Expression needle);
+        public abstract void TranslateStringLastIndexOf(TranspilerContext sb, Expression haystack, Expression needle);
         public abstract void TranslateStringIndexOfWithStart(TranspilerContext sb, Expression haystack, Expression needle, Expression startIndex);
         public abstract void TranslateStringLength(TranspilerContext sb, Expression str);
         public abstract void TranslateStringReplace(TranspilerContext sb, Expression haystack, Expression needle, Expression newNeedle);

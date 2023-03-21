@@ -222,6 +222,7 @@ namespace Pastel.Nodes
                         case "Contains": return CoreFunction.STRING_CONTAINS;
                         case "EndsWith": return CoreFunction.STRING_ENDS_WITH;
                         case "IndexOf": return CoreFunction.STRING_INDEX_OF;
+                        case "LastIndexOf": return CoreFunction.STRING_LAST_INDEX_OF;
                         case "Length": throw new ParserException(this.FieldName, "String uses .Size() for its length.");
                         case "Replace": return CoreFunction.STRING_REPLACE;
                         case "Reverse": return CoreFunction.STRING_REVERSE;
