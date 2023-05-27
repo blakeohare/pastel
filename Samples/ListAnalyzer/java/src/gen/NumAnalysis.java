@@ -1,6 +1,6 @@
 package gen;
 
-public final class NumAnalysis {
+public class NumAnalysis {
   public int count;
   public int min;
   public int max;

@@ -19,7 +19,7 @@ def PST_base64ToString(value):
   if type(u_value) == PST_StringType:
     return u_value
   return u_value.decode('utf8')
-  
+
 # PASTEL_ENTITY_ID: PST_isValidInteger
 def PST_isValidInteger(value):
   if len(value) == 0: return False
@@ -31,7 +31,7 @@ def PST_sortedCopyOfList(t):
   t = t[:]
   t.sort()
   return t
-  
+
 # PASTEL_ENTITY_ID: PST_tryParseFloat
 def PST_tryParseFloat(value, floatOut):
   try:
@@ -39,13 +39,20 @@ def PST_tryParseFloat(value, floatOut):
     floatOut[0] = 1.0
   except:
     floatOut[0] = -1.0
-	
+
 # PASTEL_ENTITY_ID: PST_stringCheckSlice
 def PST_stringCheckSlice(haystack, i, needle):
   return haystack[i:i + len(needle)] == needle
-  
+
 # PASTEL_ENTITY_ID: always_true
 def always_true(): return True
 
 # PASTEL_ENTITY_ID: always_false
 def always_false(): return False
+
+# PASTEL_ENTITY_ID: PST_ExtCallbacks
+PST_ExtCallbacks = {}
+
+# PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
+def PST_RegisterExtensibleCallback(name, fn):
+  PST_ExtCallbacks[name] = fn;

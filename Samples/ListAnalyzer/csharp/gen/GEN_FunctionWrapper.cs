@@ -5,6 +5,13 @@ namespace PastelGeneratedNamespace
 {
     public static class FunctionWrapper
     {
+        private static Dictionary<string, System.Func<object[], object>> PST_ExtCallbacks = new Dictionary<string, System.Func<object[], object>>();
+
+        public static void PST_RegisterExtensibleCallback(string name, System.Func<object[], object> func)
+        {
+            PST_ExtCallbacks[name] = func;
+        }
+
         public static double calculate_standard_deviation(int[] nums, int length, double mean)
         {
             double total_dev = 0.0;

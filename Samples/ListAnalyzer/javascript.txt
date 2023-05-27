@@ -1,0 +1,5 @@
+IMPORT: base.txt
+
+LANGUAGE: javascript
+
+OUTPUT-FUNCTIONS: javascript/pastel_generated.js

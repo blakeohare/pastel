@@ -4,7 +4,7 @@
 	// parameters for a variable called nums, using spaces (which are +'s in an escaped URL).
 	// e.g. mysite.com/listanalyzer/index.php?nums=4+5+6
 
-	require 'gen/NumAnalysis.php';
+	require 'gen/gen_classes.php';
 	require 'gen/functions.php';
 	
 	$nums_raw = explode(' ', $_GET['nums']);

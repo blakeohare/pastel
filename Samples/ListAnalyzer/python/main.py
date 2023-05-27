@@ -1,6 +1,6 @@
 import sys
 
-from gen import *
+from gen import perform_analysis
 
 def main():
 	if len(sys.argv) == 1:

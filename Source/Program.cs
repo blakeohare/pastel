@@ -178,9 +178,20 @@ namespace Pastel
             {
                 finalCode.Add(transpiler.WrapCodeForStructs(config, structCodeByName[structName]));
             }
-            finalCode.Insert(0, "<?php");
-            finalCode.Add("?>");
-            System.IO.File.WriteAllText(config.OutputDirStructs, string.Join(transpiler.NewLine, finalCode));
+            string dir = config.OutputDirStructs;
+            string path;
+            switch (config.Language)
+            {
+                case Language.PHP:
+                    finalCode.Insert(0, "<?php");
+                    finalCode.Add("?>");
+                    path = System.IO.Path.Combine(dir, "gen_classes.php");
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+            System.IO.File.WriteAllText(path, string.Join(transpiler.NewLine, finalCode));
         }
 
         private static PastelContext CompilePastelContexts(ProjectConfig rootConfig)
