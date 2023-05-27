@@ -1,6 +1,0 @@
-IMPORT: base.txt
-
-LANGUAGE: python
-
-OUTPUT-STRUCTS: python/gen
-OUTPUT-FUNCTIONS: python/gen/__init__.py

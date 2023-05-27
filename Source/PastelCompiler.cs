@@ -7,6 +7,7 @@ namespace Pastel
 {
     internal class PastelCompiler
     {
+        // TODO: remove IncludedScopes. This is too hard to maintain.
         internal PastelCompiler[] IncludedScopes { get; private set; }
         internal Dictionary<string, int> IncludedScopeNamespacesToIndex { get; private set; }
 

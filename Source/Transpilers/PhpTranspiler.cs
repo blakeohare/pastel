@@ -26,7 +26,7 @@ namespace Pastel.Transpilers
             {
                 PastelUtil.IndentLines(this.TabChar + this.TabChar, lines);
 
-                List<string> prefixes = config.IncludePublicPastelUtil ? new List<string>()
+                List<string> prefixes = config.IncludePublicPastelUtil_DELETE ? new List<string>()
                 {
                     "// ensures array's pointer behavior behaves according to Pastel standards.",
                     "class PastelPtrArray {",
@@ -72,11 +72,11 @@ namespace Pastel.Transpilers
                     lines.Add(this.TabChar + "PastelGeneratedCode::$PST_intBuffer16 = pastelWrapList(array_fill(0, 16, 0));");
                 }
 
-                foreach (string phpFileInclude in config.PhpFileIncludes)
+                foreach (string phpFileInclude in config.PhpFileIncludes_DELETE)
                 {
                     if (!System.IO.File.Exists(phpFileInclude))
                     {
-                        if (config.PhpFileIncludeIsOptional.Contains(phpFileInclude))
+                        if (config.PhpFileIncludeIsOptional_DELETE.Contains(phpFileInclude))
                         {
                             continue;
                         }

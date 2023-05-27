@@ -39,9 +39,9 @@ namespace Pastel
         {
             args = GetEffectiveArgs(args);
 
-            if (args.Length != 1)
+            if (args.Length == 0 || args.Length > 2)
             {
-                Console.WriteLine("Incorrect usage. Please provide a path to a Pastel project config file.");
+                Console.WriteLine("Incorrect usage. Please provide a path to a Pastel project config file (required) and a build target (optional).");
                 return;
             }
 
@@ -54,12 +54,12 @@ namespace Pastel
 
             projectPath = System.IO.Path.GetFullPath(projectPath);
 
-            BuildProject(projectPath);
+            BuildProject(projectPath, args.Length == 2 ? args[1] : null);
         }
 
-        private static void BuildProject(string projectPath)
+        private static void BuildProject(string projectPath, string targetId)
         {
-            ProjectConfig config = ProjectConfig.Parse(projectPath);
+            ProjectConfig config = ProjectConfig.Parse(projectPath, targetId);
             if (config.Language == Language.NONE) throw new InvalidOperationException("Language not defined in " + projectPath);
             PastelContext context = CompilePastelContexts(config);
             GenerateFiles(config, context);
@@ -145,9 +145,9 @@ namespace Pastel
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
             funcCode = transpiler.WrapCodeForFunctions(config, funcCode);
-            if (config.OutputFileFunctionsSuffix != null)
+            if (config.OutputFileFunctionsSuffix_DELETE != null)
             {
-                funcCode += "\n" + config.OutputFileFunctionsSuffix + "\n";
+                funcCode += "\n" + config.OutputFileFunctionsSuffix_DELETE + "\n";
             }
             System.IO.File.WriteAllText(config.OutputFileFunctions, funcCode);
         }
@@ -223,7 +223,7 @@ namespace Pastel
         {
             if (configLookupOut.ContainsKey(current.Path)) return;
 
-            foreach (ProjectConfig dep in current.DependenciesByPrefix.Values)
+            foreach (ProjectConfig dep in current.DependenciesByPrefix_DELETE.Values)
             {
                 AddConfigsInDependencyOrder(dep, paths, configLookupOut);
             }
@@ -247,7 +247,7 @@ namespace Pastel
 
             recursionCheck.Add(config.Path);
 
-            ProjectConfig[] requiredScopes = config.DependenciesByPrefix.Values.ToArray();
+            ProjectConfig[] requiredScopes = config.DependenciesByPrefix_DELETE.Values.ToArray();
             for (int i = 0; i < requiredScopes.Length; ++i)
             {
                 string path = requiredScopes[i].Path;
@@ -260,9 +260,9 @@ namespace Pastel
             string sourceRootDir = System.IO.Path.GetDirectoryName(config.Source);
             PastelContext context = new PastelContext(sourceRootDir, config.Language, new CodeLoader(sourceRootDir));
 
-            foreach (string prefix in config.DependenciesByPrefix.Keys)
+            foreach (string prefix in config.DependenciesByPrefix_DELETE.Keys)
             {
-                ProjectConfig depConfig = config.DependenciesByPrefix[prefix];
+                ProjectConfig depConfig = config.DependenciesByPrefix_DELETE[prefix];
 
                 // TODO: make this a little more generic for other possible languages
                 string funcNs = depConfig.NamespaceForFunctions;

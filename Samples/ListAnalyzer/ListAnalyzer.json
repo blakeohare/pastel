@@ -1,0 +1,49 @@
+{
+	"source": "source.pst",
+	"targets": [
+		{
+			"name": "csharp",
+			"language": "c#",
+			"imports": [
+				"System.Collections.Generic"
+			],
+			"output": {
+				"namespace": "PastelGeneratedNamespace",
+				"structs-path": "csharp/gen",
+				"functions-path": "csharp/gen/GEN_FunctionWrapper.cs",
+				"functions-wrapper-class": "FunctionWrapper"
+			}
+		}, {
+			"name": "java",
+			"language": "java",
+			"output": {
+				"namespace": "gen",
+				"structs-path": "java/src/gen",
+				"functions-path": "java/src/gen/FunctionWrapper.java",
+				"functions-wrapper-class": "FunctionWrapper"
+			}
+		}, {
+			"name": "javascript",
+			"language": "javascript",
+			"output": {
+				"functions-path": "javascript/pastel_generated.js"
+			}
+		}, {
+			"name": "php",
+			"language": "php",
+			"output": {
+				"structs-path": "php/gen",
+				"namespace": "PastelGeneratedCode",
+				"functions-path": "php/gen/functions.php",
+				"functions-wrapper-class": "FunctionWrapper"
+			}
+		}, {
+			"name": "python",
+			"language": "python",
+			"output": {
+				"structs-path": "python/gen",
+				"functions-path": "python/gen/__init__.py"
+			}
+		}
+	]
+}

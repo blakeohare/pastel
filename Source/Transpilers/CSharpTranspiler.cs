@@ -29,10 +29,10 @@ namespace Pastel.Transpilers
                     return "System.Text.StringBuilder";
 
                 case "List":
-                    return "List<" + this.TranslateType(type.Generics[0]) + ">";
+                    return "System.Collections.Generic.List<" + this.TranslateType(type.Generics[0]) + ">";
 
                 case "Dictionary":
-                    return "Dictionary<" + this.TranslateType(type.Generics[0]) + ", " + this.TranslateType(type.Generics[1]) + ">";
+                    return "System.Collections.Generic.Dictionary<" + this.TranslateType(type.Generics[0]) + ", " + this.TranslateType(type.Generics[1]) + ">";
 
                 case "Array":
                     return this.TranslateType(type.Generics[0]) + "[]";
@@ -75,11 +75,13 @@ namespace Pastel.Transpilers
                 lines.Add("}");
             }
 
-            if (config.Imports.Count > 0)
+            HashSet<string> importSet = new HashSet<string>(config.Imports);
+            if (!isForStruct) importSet.Add("System.Linq");
+            string[] imports = importSet.OrderBy(t => t).ToArray();
+            if (imports.Length > 0)
             {
                 lines.InsertRange(0,
-                    config.Imports
-                        .OrderBy(t => t)
+                    imports
                         .Select(t => "using " + t + ";")
                         .Concat(new string[] { "" }));
             }
