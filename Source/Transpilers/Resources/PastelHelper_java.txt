@@ -378,3 +378,15 @@ private static String[] PST_sortedCopyOfStringArray(String[] values) {
   java.util.Arrays.sort(output);
   return output;
 }
+
+// PASTEL_ENTITY_ID: PST_ExtCallbacks
+static abstract class PstExtWrapper {
+  public abstract Object run(Object[] args);
+}
+private static final HashMap<String, PstExtWrapper> PST_ExtCallbacks = new HashMap<>();
+
+// PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
+public static void PST_RegisterExtensibleCallback(String name, PstExtWrapper func)
+{
+    PST_ExtCallbacks.put(name, func);
+}

@@ -8,6 +8,16 @@ public final class FunctionWrapper {
     return output;
   }
 
+  static abstract class PstExtWrapper {
+    public abstract Object run(Object[] args);
+  }
+  private static final HashMap<String, PstExtWrapper> PST_ExtCallbacks = new HashMap<>();
+
+  public static void PST_RegisterExtensibleCallback(String name, PstExtWrapper func)
+  {
+      PST_ExtCallbacks.put(name, func);
+  }
+
   public static double calculate_standard_deviation(int[] nums, int length, double mean) {
     double total_dev = 0.0;
     int i = 0;
