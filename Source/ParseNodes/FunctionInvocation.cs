@@ -39,6 +39,13 @@ namespace Pastel.Nodes
                             parser.GetParseTimeBooleanConstant(argName.Value.ToString()),
                             this.Owner);
 
+                    case "pastel_flag":
+                        return new InlineConstant(
+                            PType.BOOL,
+                            this.FirstToken,
+                            parser.GetPastelFlagConstant(constFunc.NameToken, argName.Value.ToString()),
+                            this.Owner);
+
                     default:
                         return this;
                 }

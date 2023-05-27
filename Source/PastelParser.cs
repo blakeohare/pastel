@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Pastel.Nodes;
 
 namespace Pastel
@@ -26,7 +27,7 @@ namespace Pastel
             IInlineImportCodeLoader importCodeLoader)
         {
             this.context = context;
-            this.constants = constants;
+            this.constants = new Dictionary<string, object>(constants);
             this.importCodeLoader = importCodeLoader;
         }
 
@@ -38,6 +39,42 @@ namespace Pastel
                 return output;
             }
             return defaultValue;
+        }
+
+        internal bool GetPastelFlagConstant(Token throwToken, string name)
+        {
+            string lang = LanguageUtil.GetFileExtension(this.context.Language).Substring(1);
+            Func<string, string, bool> yesNo = (yeses, nos) =>
+            {
+                if (yeses.Split(' ').Contains(lang)) return true;
+                if (nos.Split(' ').Contains(lang)) return false;
+                throw new InvalidOperationException("Unaccounted @pastel_flag+lang combination: " + name + "/" + lang);
+            };
+            switch (name)
+            {
+                // Deprecated in favor of adding more specific flags for language limitation
+                // If it's the user's intention to add specific behavior to a specific platform for 
+                // application-feature reasons, ext_boolean is still available for that.
+                case "IS_CSHARP": return yesNo("cs", "java js php py");
+                case "IS_JAVA": return yesNo("java", "cs js php py");
+                case "IS_JAVASCRIPT": return yesNo("js", "cs java php py");
+                case "IS_PHP": return yesNo("php", "cs java js py");
+                case "IS_PYTHON": return yesNo("py", "cs java js php");
+
+                // deprecated in favor of STATICALLY_TYPED
+                case "STRONGLY_TYPED": return yesNo("cs java", "js php py");
+
+                case "ARRAY_IS_LIST": return yesNo("js php py", "cs java");
+                case "DYNAMICALLY_TYPED": return yesNo("js php py", "cs java");
+                case "HAS_INCREMENT": return yesNo("cs java js php", "py");
+                case "INT_IS_FLOOR": return yesNo("js", "cs java php py");
+                case "IS_CHAR_A_NUMBER": return yesNo("cs java", "php js py");
+                case "PLATFORM_SUPPORTS_LIST_CLEAR": return yesNo("cs java php", "js py");
+                case "STATICALLY_TYPED": return yesNo("cs java", "js php py");
+
+                default:
+                    throw new ParserException(throwToken, "Unknown @pastel_flag constant: '" + name + "'.");
+            }
         }
 
         internal bool GetParseTimeBooleanConstant(string name)
@@ -216,8 +253,8 @@ namespace Pastel
                 }
                 else
                 {
-                    ICompilationEntity entity ;
-                    string entityName ;
+                    ICompilationEntity entity;
+                    string entityName;
                     PType memberType = PType.TryParse(tokens);
                     Token memberName = tokens.PopIdentifier();
                     bool isMethod = tokens.IsNext("(");

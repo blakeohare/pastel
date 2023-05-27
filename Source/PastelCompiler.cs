@@ -28,12 +28,6 @@ namespace Pastel
             ICollection<ExtensibleFunction> extensibleFunctions)
         {
             this.Context = context;
-            Dictionary<string, object> langConstants = LanguageUtil.GetLanguageConstants(language);
-            Dictionary<string, object> flattenedConstants = new Dictionary<string, object>(langConstants);
-            foreach (string key in constants.Keys)
-            {
-                flattenedConstants[key] = constants[key];
-            }
 
             this.CodeLoader = inlineImportCodeLoader;
             this.Transpiler = LanguageUtil.GetTranspiler(language);
@@ -47,7 +41,7 @@ namespace Pastel
             this.ConstantDefinitions = new Dictionary<string, VariableDeclaration>();
             this.FunctionDefinitions = new Dictionary<string, FunctionDefinition>();
             this.ClassDefinitions = new Dictionary<string, ClassDefinition>();
-            this.interpreterParser = new PastelParser(context, flattenedConstants, inlineImportCodeLoader);
+            this.interpreterParser = new PastelParser(context, constants, inlineImportCodeLoader);
         }
 
         public override string ToString()
