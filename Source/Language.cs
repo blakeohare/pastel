@@ -7,10 +7,8 @@ namespace Pastel
     {
         NONE,
 
-        C,
         CSHARP,
         JAVA,
-        JAVA6,
         JAVASCRIPT,
         PHP,
         PYTHON,
@@ -24,10 +22,8 @@ namespace Pastel
         {
             switch (lang)
             {
-                case Language.C: return ".c";
                 case Language.CSHARP: return ".cs";
-                case Language.JAVA:
-                case Language.JAVA6: return ".java";
+                case Language.JAVA: return ".java";
                 case Language.JAVASCRIPT: return ".js";
                 case Language.PHP: return ".php";
                 case Language.PYTHON: return ".py";
@@ -42,7 +38,6 @@ namespace Pastel
         {
             switch (value.ToLower())
             {
-                case "c": return Language.C;
                 case "csharp": return Language.CSHARP;
                 case "java": return Language.JAVA;
                 case "javascript": return Language.JAVASCRIPT;
@@ -62,10 +57,8 @@ namespace Pastel
             AbstractTranspiler t;
             switch (language)
             {
-                case Language.C: t = new CTranspiler(); break;
                 case Language.CSHARP: t = new CSharpTranspiler(); break;
-                case Language.JAVA: t = new JavaTranspiler(false); break;
-                case Language.JAVA6: t = new JavaTranspiler(true); break;
+                case Language.JAVA: t = new JavaTranspiler(); break;
                 case Language.JAVASCRIPT: t = new JavaScriptTranspiler(); break;
                 case Language.PHP: t = new PhpTranspiler(); break;
                 case Language.PYTHON: t = new PythonTranspiler(); break;
@@ -81,13 +74,12 @@ namespace Pastel
 
             output["ARRAY_IS_LIST"] = lang == Language.PYTHON || lang == Language.JAVASCRIPT || lang == Language.PHP;
             output["HAS_INCREMENT"] = lang != Language.PYTHON;
-            output["INT_IS_FLOOR"] = lang == Language.JAVASCRIPT || lang == Language.C;
-            output["IS_C"] = lang == Language.C;
-            output["IS_CHAR_A_NUMBER"] = lang == Language.C || lang == Language.CSHARP || lang == Language.JAVA || lang == Language.JAVA6;
+            output["INT_IS_FLOOR"] = lang == Language.JAVASCRIPT;
+            output["IS_CHAR_A_NUMBER"] = lang == Language.CSHARP || lang == Language.JAVA;
             output["IS_JAVASCRIPT"] = lang == Language.JAVASCRIPT;
             output["IS_PYTHON"] = lang == Language.PYTHON;
             output["PLATFORM_SUPPORTS_LIST_CLEAR"] = lang != Language.PYTHON;
-            output["STRONGLY_TYPED"] = lang == Language.C || lang == Language.CSHARP || lang == Language.JAVA || lang == Language.JAVA6;
+            output["STRONGLY_TYPED"] = lang == Language.CSHARP || lang == Language.JAVA;
 
             return output;
         }

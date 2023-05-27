@@ -7,12 +7,9 @@ namespace Pastel.Transpilers
 {
     internal class JavaTranspiler : CurlyBraceTranspiler
     {
-        private readonly bool isJava6;
-
-        public JavaTranspiler(bool isJava6) : base("  ", "\n", true)
-        {
-            this.isJava6 = isJava6;
-        }
+        public JavaTranspiler()
+            : base("  ", "\n", true)
+        { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.java"; } }
 
@@ -246,56 +243,7 @@ namespace Pastel.Transpilers
                 }
             }
 
-            sb.Append('(');
-            if (this.isJava6) // "(int) object" vs "(Integer) object"
-            {
-                string castRootType = this.TranslateType(type);
-                if (expression is CastExpression)
-                {
-                    CastExpression ce = (CastExpression)expression;
-                    string outerType = castRootType;
-                    string innerType = this.TranslateType(expression.ResolvedType);
-
-                    if ((outerType == "int" || outerType == "double") &&
-                        (innerType == "int" || innerType == "double"))
-                    {
-                        switch (outerType + "+" + innerType)
-                        {
-                            case "int+double":
-                                sb.Append("(int) (double) (Double) ");
-                                this.TranslateExpression(sb, ce.Expression);
-                                sb.Append(')');
-                                return;
-                            case "double+int":
-                                sb.Append("(double) (int) (Integer) ");
-                                this.TranslateExpression(sb, ce.Expression);
-                                sb.Append(')');
-                                return;
-                            default:
-                                break;
-                        }
-                    }
-                }
-
-                switch (castRootType)
-                {
-                    case "bool":
-                    case "int":
-                    case "double":
-                    case "char":
-                        sb.Append('(');
-                        sb.Append(this.TranslateType(type));
-                        sb.Append(") (");
-                        sb.Append(this.TranslateJavaNestedType(type));
-                        sb.Append(") ");
-                        this.TranslateExpression(sb, expression);
-                        sb.Append(')');
-                        return;
-                    default:
-                        break;
-                }
-            }
-            sb.Append('(');
+            sb.Append("((");
             sb.Append(this.TranslateType(type));
             sb.Append(") ");
 
@@ -821,49 +769,6 @@ namespace Pastel.Transpilers
         {
             sb.Append("null");
         }
-
-        /*
-        public override void TranslateOpChain(TranspilerContext sb, OpChain opChain)
-        {
-            if (this.isJava6 && opChain.Expressions.Length == 2)
-            {
-                string op = opChain.Ops[0].Value;
-                switch (op)
-                {
-                    case "==":
-                    case "!=":
-                        Expression left = opChain.Expressions[0];
-                        Expression right = opChain.Expressions[1];
-                        if (left is CastExpression || right is CastExpression)
-                        {
-                            if (!(left is CastExpression))
-                            {
-                                Expression t = left;
-                                left = right;
-                                right = t;
-                            }
-                            if (op == "!=")
-                            {
-                                sb.Append('!');
-                            }
-                            sb.Append('(');
-                            this.TranslateExpression(sb, left);
-                            sb.Append(").equals(");
-                            this.TranslateExpression(sb, right);
-                            sb.Append(')');
-                            return;
-                        }
-                        break;
-
-                    default:
-                        // fall back to regular behavior
-                        break;
-                }
-            }
-
-            base.TranslateOpChain(sb, opChain);
-        }
-        //*/
 
         public override void TranslateOrd(TranspilerContext sb, Expression charValue)
         {
