@@ -131,23 +131,7 @@ namespace Pastel.Transpilers
 
                 case "FunctionInvocation":
                     FunctionInvocation funcInvocation = (FunctionInvocation)expression;
-                    string prefix = null;
-                    FunctionDefinition funcDef = ((FunctionReference)funcInvocation.Root).Function;
-                    PastelContext targetContext = funcDef.Context;
-                    PastelContext callerContext = funcInvocation.Owner.Context;
-                    if (targetContext != callerContext)
-                    {
-                        prefix = callerContext.GetDependencyExportPrefix(targetContext);
-                    }
-
-                    if (prefix != null)
-                    {
-                        this.TranslateFunctionInvocationWithPrefix(sb, prefix, (FunctionReference)funcInvocation.Root, funcInvocation.Args);
-                    }
-                    else
-                    {
-                        this.TranslateFunctionInvocation(sb, (FunctionReference)funcInvocation.Root, funcInvocation.Args);
-                    }
+                    this.TranslateFunctionInvocation(sb, (FunctionReference)funcInvocation.Root, funcInvocation.Args);
                     break;
 
                 case "Variable":
@@ -487,7 +471,6 @@ namespace Pastel.Transpilers
         public abstract void TranslateFloatDivision(TranspilerContext sb, Expression floatNumerator, Expression floatDenominator);
         public abstract void TranslateFloatToInt(TranspilerContext sb, Expression floatExpr);
         public abstract void TranslateFloatToString(TranspilerContext sb, Expression floatExpr);
-        public abstract void TranslateFunctionInvocationWithPrefix(TranspilerContext sb, string prefix, FunctionReference funcRef, Expression[] args);
         public abstract void TranslateFunctionInvocation(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
         public abstract void TranslateFunctionReference(TranspilerContext sb, FunctionReference funcRef);
         public abstract void TranslateGetFunction(TranspilerContext sb, Expression name);

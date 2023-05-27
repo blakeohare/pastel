@@ -328,15 +328,6 @@ namespace Pastel.Transpilers
             sb.Append(')');
         }
 
-        public override void TranslateFunctionInvocationWithPrefix(TranspilerContext sb, string prefix, FunctionReference funcRef, Expression[] args)
-        {
-            sb.Append(prefix);
-            this.TranslateFunctionReference(sb, funcRef);
-            sb.Append('(');
-            this.TranslateCommaDelimitedExpressions(sb, args);
-            sb.Append(')');
-        }
-
         public override void TranslateFunctionInvocation(TranspilerContext sb, FunctionReference funcRef, Expression[] args)
         {
             this.TranslateFunctionReference(sb, funcRef);

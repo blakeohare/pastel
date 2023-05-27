@@ -15,17 +15,14 @@ namespace Pastel.Nodes
         public Token[] ArgNames { get; set; }
         public Executable[] Code { get; set; }
         public ClassDefinition ClassDef { get; set; }
-        public PastelContext Context { get; private set; }
 
         public FunctionDefinition(
             Token nameToken,
             PType returnType,
             IList<PType> argTypes,
             IList<Token> argNames,
-            PastelContext context,
             ClassDefinition nullableClassOwner) // null if not associated with a class
         {
-            this.Context = context;
             this.FirstToken = returnType.FirstToken;
             this.NameToken = nameToken;
             this.ReturnType = returnType;

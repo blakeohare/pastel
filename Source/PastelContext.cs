@@ -8,11 +8,7 @@ namespace Pastel
     public class PastelContext
     {
         private PastelCompiler lazyInitCompiler = null;
-        private bool dependenciesFinalized = false;
         public Language Language { get; private set; }
-        private List<PastelCompiler> dependencies = new List<PastelCompiler>();
-        private List<string> dependencyReferenceExportPrefixes = new List<string>();
-        private Dictionary<string, int> dependencyReferenceNamespacesToDependencyIndex = new Dictionary<string, int>();
         private Dictionary<string, object> constants = new Dictionary<string, object>();
         private List<ExtensibleFunction> extensibleFunctions = new List<ExtensibleFunction>();
         private Dictionary<string, string> extensibleFunctionTranslations = new Dictionary<string, string>();
@@ -57,36 +53,6 @@ namespace Pastel
             return this.tc;
         }
 
-        public PastelContext AddDependency(PastelContext context, string pastelNamespace, string referencePrefix)
-        {
-            this.dependencyReferenceNamespacesToDependencyIndex[pastelNamespace] = this.dependencies.Count;
-            this.dependencies.Add(context.GetCompiler());
-            this.dependencyReferenceExportPrefixes.Add(referencePrefix);
-            return this;
-        }
-
-        public PastelContext MarkDependenciesAsFinalized()
-        {
-            this.dependenciesFinalized = true;
-            return this;
-        }
-
-        public string GetDependencyExportPrefix(PastelContext context)
-        {
-            if (context == this) return null;
-            for (int i = 0; i < this.dependencies.Count; ++i)
-            {
-                if (this.dependencies[i].Context == context)
-                {
-                    return this.dependencyReferenceExportPrefixes[i];
-                }
-            }
-            // This is a hard crash, not a ParserException, as this is currently only accessible when
-            // you have a resolved function definition, and so it would be impossible to get that
-            // reference if you didn't already list it as a dependency.
-            throw new System.Exception("This is not a dependency of this context.");
-        }
-
         public PastelContext SetConstant(string key, object value)
         {
             this.constants[key] = value;
@@ -104,15 +70,9 @@ namespace Pastel
         {
             if (this.lazyInitCompiler == null)
             {
-                if (!this.dependenciesFinalized)
-                {
-                    throw new System.Exception("Cannot get compiler before dependencies are finalized.");
-                }
                 this.lazyInitCompiler = new PastelCompiler(
                     this,
                     this.Language,
-                    this.dependencies,
-                    this.dependencyReferenceNamespacesToDependencyIndex,
                     this.constants,
                     this.CodeLoader,
                     this.extensibleFunctions);

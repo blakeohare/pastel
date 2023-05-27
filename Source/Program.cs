@@ -145,10 +145,6 @@ namespace Pastel
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
             funcCode = transpiler.WrapCodeForFunctions(config, funcCode);
-            if (config.OutputFileFunctionsSuffix_DELETE != null)
-            {
-                funcCode += "\n" + config.OutputFileFunctionsSuffix_DELETE + "\n";
-            }
             System.IO.File.WriteAllText(config.OutputFileFunctions, funcCode);
         }
 
@@ -222,14 +218,6 @@ namespace Pastel
         private static void AddConfigsInDependencyOrder(ProjectConfig current, List<string> paths, Dictionary<string, ProjectConfig> configLookupOut)
         {
             if (configLookupOut.ContainsKey(current.Path)) return;
-
-            foreach (ProjectConfig dep in current.DependenciesByPrefix_DELETE.Values)
-            {
-                AddConfigsInDependencyOrder(dep, paths, configLookupOut);
-            }
-
-            if (configLookupOut.ContainsKey(current.Path)) throw new Exception(); // This shouldn't happen.
-
             paths.Add(current.Path);
             configLookupOut[current.Path] = current;
         }
@@ -247,33 +235,8 @@ namespace Pastel
 
             recursionCheck.Add(config.Path);
 
-            ProjectConfig[] requiredScopes = config.DependenciesByPrefix_DELETE.Values.ToArray();
-            for (int i = 0; i < requiredScopes.Length; ++i)
-            {
-                string path = requiredScopes[i].Path;
-                if (!contexts.ContainsKey(path))
-                {
-                    throw new Exception(); // This shouldn't happen. These are run in dependency order.
-                }
-            }
-
             string sourceRootDir = System.IO.Path.GetDirectoryName(config.Source);
             PastelContext context = new PastelContext(sourceRootDir, config.Language, new CodeLoader(sourceRootDir));
-
-            foreach (string prefix in config.DependenciesByPrefix_DELETE.Keys)
-            {
-                ProjectConfig depConfig = config.DependenciesByPrefix_DELETE[prefix];
-
-                // TODO: make this a little more generic for other possible languages
-                string funcNs = depConfig.NamespaceForFunctions;
-                string classWrapper = depConfig.WrappingClassNameForFunctions;
-                string outputPrefix = "";
-                if (funcNs != null) outputPrefix = funcNs + ".";
-                if (classWrapper != null) outputPrefix += classWrapper + ".";
-
-                context.AddDependency(contexts[depConfig.Path], prefix, outputPrefix);
-            }
-            context.MarkDependenciesAsFinalized();
 
             foreach (string constantName in config.Flags.Keys)
             {

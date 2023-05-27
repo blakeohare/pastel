@@ -58,13 +58,6 @@ namespace Pastel.Nodes
                 return new EnumReference(this.FirstToken, enumDefinition, this.Owner);
             }
 
-            if (compiler.IncludedScopeNamespacesToIndex.ContainsKey(name))
-            {
-                int index = compiler.IncludedScopeNamespacesToIndex[name];
-                PastelCompiler referencedScope = compiler.IncludedScopes[index];
-                return new DependencyNamespaceReference(this.FirstToken, referencedScope, this.Owner);
-            }
-
             return this;
         }
 

@@ -31,31 +31,6 @@ namespace Pastel.Nodes
                 return enumValue.CloneWithNewToken(this.FirstToken);
             }
 
-            if (this.Root is DependencyNamespaceReference)
-            {
-                PastelCompiler dependencyScope = ((DependencyNamespaceReference)this.Root).Scope;
-                string field = this.FieldName.Value;
-                FunctionDefinition funcDef = dependencyScope.GetFunctionDefinition(field);
-                if (funcDef != null)
-                {
-                    return new FunctionReference(this.FirstToken, funcDef, this.Owner);
-                }
-
-                EnumDefinition enumDef = dependencyScope.GetEnumDefinition(field);
-                if (enumDef != null)
-                {
-                    return new EnumReference(this.FirstToken, enumDef, this.Owner);
-                }
-
-                InlineConstant constValue = dependencyScope.GetConstantDefinition(field);
-                if (constValue != null)
-                {
-                    return constValue.CloneWithNewTokenAndOwner(this.FirstToken, this.Owner);
-                }
-
-                throw new ParserException(this.FieldName, "The namespace '" + ((DependencyNamespaceReference)this.Root).FirstToken.Value + "' does not have a member called '" + field + "'");
-            }
-
             if (this.Root is CoreNamespaceReference)
             {
                 CoreFunction coreFunction = this.GetCoreFunction(this.FieldName.Value);

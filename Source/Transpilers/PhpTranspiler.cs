@@ -26,22 +26,7 @@ namespace Pastel.Transpilers
             {
                 PastelUtil.IndentLines(this.TabChar + this.TabChar, lines);
 
-                List<string> prefixes = config.IncludePublicPastelUtil_DELETE ? new List<string>()
-                {
-                    "// ensures array's pointer behavior behaves according to Pastel standards.",
-                    "class PastelPtrArray {",
-                    this.TabChar + "var $arr = array();",
-                    "}",
-                    "class PastelPtr {",
-                    this.TabChar + "var $value = null;",
-                    this.TabChar + "function __constructor($value) { $this->value = $value; }",
-                    "}",
-                    "function _pastelWrapValue($value) { $o = new PastelPtrArray(); $o->arr = $value; return $o; }",
-                    "// redundant-but-pleasantly-named helper methods for external callers",
-                    "function pastelWrapList($arr) { return _pastelWrapValue($arr); }",
-                    "function pastelWrapDictionary($arr) { return _pastelWrapValue($arr); }",
-                    "",
-                } : new List<string>();
+                List<string> prefixes = new List<string>();
 
                 string className = config.WrappingClassNameForFunctions ?? "PastelGeneratedCode";
 
@@ -72,22 +57,6 @@ namespace Pastel.Transpilers
                     lines.Add(this.TabChar + "PastelGeneratedCode::$PST_intBuffer16 = pastelWrapList(array_fill(0, 16, 0));");
                 }
 
-                foreach (string phpFileInclude in config.PhpFileIncludes_DELETE)
-                {
-                    if (!System.IO.File.Exists(phpFileInclude))
-                    {
-                        if (config.PhpFileIncludeIsOptional_DELETE.Contains(phpFileInclude))
-                        {
-                            continue;
-                        }
-                        throw new InvalidOperationException(phpFileInclude + " does not exist");
-                    }
-                    string fileContents = System.IO.File.ReadAllText(phpFileInclude);
-                    IList<string> phpLines = GetPhpLinesWithoutWrapper(phpFileInclude, fileContents);
-
-                    lines.Add("");
-                    lines.AddRange(phpLines);
-                }
 
                 lines.Add("");
                 lines.Add("?>");

@@ -222,15 +222,6 @@ namespace Pastel.Nodes
             if (this.Category == TypeCategory.STRUCT_OR_CLASS)
             {
                 PastelCompiler targetContext = compilerContext;
-                if (this.Namespace != null)
-                {
-                    if (!compilerContext.IncludedScopeNamespacesToIndex.ContainsKey(this.Namespace)) targetContext = null;
-                    else
-                    {
-                        int index = compilerContext.IncludedScopeNamespacesToIndex[this.Namespace];
-                        targetContext = compilerContext.IncludedScopes[index];
-                    }
-                }
 
                 if (targetContext != null)
                 {

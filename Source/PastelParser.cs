@@ -269,7 +269,7 @@ namespace Pastel
                             argTypes.Add(PType.Parse(tokens));
                             argNames.Add(tokens.PopIdentifier());
                         }
-                        FunctionDefinition fd = new FunctionDefinition(memberName, memberType, argTypes, argNames, this.context, cd);
+                        FunctionDefinition fd = new FunctionDefinition(memberName, memberType, argTypes, argNames, cd);
                         this.currentCodeOwner = fd;
                         List<Executable> code = this.ParseCodeBlock(tokens, true);
                         fd.Code = code.ToArray();
@@ -405,7 +405,7 @@ namespace Pastel
                 argTypes.Add(PType.Parse(tokens));
                 argNames.Add(EnsureTokenIsValidName(tokens.Pop(), "Invalid function arg name"));
             }
-            FunctionDefinition funcDef = new FunctionDefinition(nameToken, returnType, argTypes, argNames, this.context, null);
+            FunctionDefinition funcDef = new FunctionDefinition(nameToken, returnType, argTypes, argNames, null);
             this.currentCodeOwner = funcDef;
             List<Executable> code = this.ParseCodeBlock(tokens, true);
             this.currentCodeOwner = null;

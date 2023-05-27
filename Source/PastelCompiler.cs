@@ -7,14 +7,8 @@ namespace Pastel
 {
     internal class PastelCompiler
     {
-        // TODO: remove IncludedScopes. This is too hard to maintain.
-        internal PastelCompiler[] IncludedScopes { get; private set; }
-        internal Dictionary<string, int> IncludedScopeNamespacesToIndex { get; private set; }
-
         internal IDictionary<string, ExtensibleFunction> ExtensibleFunctions { get; private set; }
-
         internal Transpilers.AbstractTranspiler Transpiler { get; set; }
-
         public IInlineImportCodeLoader CodeLoader { get; private set; }
 
         public PastelContext Context { get; private set; }
@@ -22,8 +16,6 @@ namespace Pastel
         public PastelCompiler(
             PastelContext context,
             Language language,
-            IList<PastelCompiler> includedScopes,
-            Dictionary<string, int> namespaceToScopeIndex,
             IDictionary<string, object> constants,
             IInlineImportCodeLoader inlineImportCodeLoader,
             ICollection<ExtensibleFunction> extensibleFunctions)
@@ -32,8 +24,6 @@ namespace Pastel
 
             this.CodeLoader = inlineImportCodeLoader;
             this.Transpiler = LanguageUtil.GetTranspiler(language);
-            this.IncludedScopes = includedScopes.ToArray();
-            this.IncludedScopeNamespacesToIndex = new Dictionary<string, int>(namespaceToScopeIndex);
             this.ExtensibleFunctions = extensibleFunctions == null
                 ? new Dictionary<string, ExtensibleFunction>()
                 : extensibleFunctions.ToDictionary(ef => ef.Name);
