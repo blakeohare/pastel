@@ -18,23 +18,78 @@ In Java and C# these map directly to their natural counterparts.
 
 ## How collections are transpiled:
 
-|   | Array<Thing> | List<Thing> | Dictionary<Key, Thing> |
+|   | `Array<Thing>` | `List<Thing>` | `Dictionary<Key, Thing>` |
 | --: | :-: | :-: | :-: |
-| C# | Thing[] | List<Thing> | Dictionary<Key, Thing> |
-| Java | Thing[] | ArrayList<Thing> | HashMap<Key, Thing> |
-| JavaScript | array | array | object |
-| Python | list | list | dictionary |
-| PHP* | obj-wrapped array | obj-wrapped array | obj-wrapped associative array |
+| C# | `Thing[]` | `List<Thing>` | `Dictionary<Key, Thing>` |
+| Java | `Thing[]` | `ArrayList<Thing>` | `HashMap<Key, Thing>` |
+| JavaScript | `Array` | `Array` | `Object` |
+| Python | `list` | `list` | `dict` |
+| PHP* | obj-wrapped `array` | obj-wrapped `array` | obj-wrapped associative `array` |
 
 > * PHP note: because arrays are value and not reference types in PHP, all
 > collections are wrapped in an object instance to ensure all collections are
 > treated as references.
 
+## Creating Collections
+
+To create an array, the size must be provided as an argument to its constructor.
+
+```
+Array<int> numbers = new Array<int>(3);
+```
+
+This creates an empty array of size 3. 
+
+> The starting values are not necessarily defined. 
+> This is currently a [bug](https://github.com/blakeohare/pastel/issues/6).
+
+Note that the type must be provided in brackets. No other type of item can be
+stored in this array.
+
+To create a list, it is the same, except you cannot provide a starting length.
+
+```
+List<int> numbers = new List<int>();
+```
+
+All lists start as empty.
+
+Creating Dictionaries is also similar, except there must be a key type and a
+value type provided.
+
+```
+Dictionary<string, int> numbers = new Dictionary<string, int>();
+```
+
+Dictionaries only support integer and string key types.
+
+## Accessing and Setting items
+
+Accessing and Modifying items by key and index is done by using bracket
+notation. All indices are 0-indexed.
+
+```
+array[3] = 42; // sets the 4th item in the array to 42
+int num = array[0]; // sets the variable num to the first item in the array.
+```
+
+```
+dict["foo"] = 42; // sets the key at "foo" to 42, overwriting it if necessary
+int num = dict["bar"]; // gets the key at num. 
+```
+
+If a key is accessed on a dictionary but it doesn't exist, the behavior is not
+defined, as this is a direct call to the platform's implementation of its
+dictionary-like value.
+
+If you need to check if a key exists, use the `.TryGet()` or `.ContainsKey()` 
+methods mentioned below.
+
 ## List methods
 
 - `list.Add(item)` - adds `item` to the end of `list`.
 - `list.Concat(otherList)` - creates a new list as a combination of `list` and
-  `otherList`.
+  `otherList` and returns the new list. The input lists are unaffected by this.
 - `list.Clear()` - removes all items from the list.
 - `list.Size()` - returns the size of the list as an integer.
 - `list.Shuffle()` - shuffles the list randomly. Shuffle is in-place and so
