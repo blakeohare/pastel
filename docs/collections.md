@@ -26,7 +26,7 @@ In Java and C# these map directly to their natural counterparts.
 | Python | `list` | `list` | `dict` |
 | PHP* | obj-wrapped `array` | obj-wrapped `array` | obj-wrapped associative `array` |
 
-> * PHP note: because arrays are value and not reference types in PHP, all
+> \* PHP note: because arrays are value and not reference types in PHP, all
 > collections are wrapped in an object instance to ensure all collections are
 > treated as references.
 
