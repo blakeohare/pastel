@@ -39,17 +39,35 @@ namespace Pastel
         {
             args = GetEffectiveArgs(args);
 
+#if DEBUG
+            MainWrapped(args);
+#else
+            try
+            {
+                MainWrapped(args);
+            }
+            catch (InvalidOperationException ioe)
+            {
+                System.Console.WriteLine(ioe.Message);
+            }
+            catch (ParserException pe)
+            {
+                System.Console.WriteLine(pe.Message);
+            }
+#endif
+        }
+
+        public static void MainWrapped(string[] args)
+        {
             if (args.Length == 0 || args.Length > 2)
             {
-                Console.WriteLine("Incorrect usage. Please provide a path to a Pastel project config file (required) and a build target (optional).");
-                return;
+                throw new InvalidOperationException("Incorrect usage. Please provide a path to a Pastel project config file (required) and a build target (optional).");
             }
 
             string projectPath = args[0];
             if (!System.IO.File.Exists(projectPath))
             {
-                Console.WriteLine("Project file does not exist: '" + projectPath + "'");
-                return;
+                throw new InvalidOperationException("Project file does not exist: '" + projectPath + "'");
             }
 
             projectPath = System.IO.Path.GetFullPath(projectPath);
@@ -199,7 +217,9 @@ namespace Pastel
             {
                 ProjectConfig config = configsLookup[contextPath];
                 PastelContext context = GetContextForConfigImpl(config, contexts, new HashSet<string>());
-                context.CompileCode(config.Source, System.IO.File.ReadAllText(config.Source));
+                string source = PastelUtil.TryReadTextFile(config.Source);
+                if (source == null) throw new InvalidOperationException("Source file not found: " + config.Source);
+                context.CompileCode(config.Source, source);
                 context.FinalizeCompilation();
             }
             return contexts[rootConfig.Path];
