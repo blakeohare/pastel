@@ -210,7 +210,7 @@ namespace Pastel.Transpilers
                     switch (ic.ResolvedType.RootValue)
                     {
                         case "bool": this.TranslateBooleanConstant(sb, (bool)ic.Value); break;
-                        case "char": this.TranslateCharConstant(sb, ((string)ic.Value)[0]); break;
+                        case "char": this.TranslateCharConstant(sb, ((char)ic.Value)); break;
                         case "double": this.TranslateFloatConstant(sb, (double)ic.Value); break;
                         case "int": this.TranslateIntegerConstant(sb, (int)ic.Value); break;
                         case "null": this.TranslateNullConstant(sb); break;

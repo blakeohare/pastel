@@ -49,6 +49,15 @@ namespace Pastel.Nodes
         internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
         {
             this.ResolvedType = this.Type;
+            if (this.ResolvedType.RootValue == "char")
+            {
+                string strValue = this.Value.ToString();
+                if (strValue.Length > 1)
+                {
+                    throw new ParserException(this.FirstToken, "Character constant with a coded value longer than 1 actual character.");
+                }
+                this.Value = strValue[0];
+            }
             return this;
         }
 

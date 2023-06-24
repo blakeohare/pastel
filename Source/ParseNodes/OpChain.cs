@@ -221,6 +221,9 @@ namespace Pastel.Nodes
                     case "double/double": this.Expressions[0] = CreateFloat(left.FirstToken, (double)leftValue / (double)rightValue); break;
                     case "bool&&bool": this.Expressions[0] = CreateBoolean(left.FirstToken, (bool)leftValue && (bool)rightValue); break;
                     case "bool||bool": this.Expressions[0] = CreateBoolean(left.FirstToken, (bool)leftValue || (bool)rightValue); break;
+                    case "string+string": this.Expressions[0] = CreateString(left.FirstToken, (string)leftValue + (string)rightValue); break;
+                    case "string+char": this.Expressions[0] = CreateString(left.FirstToken, (string)leftValue + (char)rightValue); break;
+                    case "char+string": this.Expressions[0] = CreateString(left.FirstToken, (char)leftValue + (string)rightValue); break;
                     default:
                         if (this.Ops[0].Value == "%")
                         {
