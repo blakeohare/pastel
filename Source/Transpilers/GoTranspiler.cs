@@ -11,18 +11,23 @@ namespace Pastel.Transpilers
             : base("  ", "\n")
         {
             this.UsesStructDefinitions = true;
+            this.HasStructsInSeparateFiles = false;
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.go"; } }
 
         public override string TranslateType(PType type)
         {
+            switch (type.RootValue) {
+                case "int": return "int";
+                case "double": return "float64";
+            }
             throw new NotImplementedException();
         }
 
         protected override void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct)
         {
-            throw new NotImplementedException();
+            lines.Insert(0, "package main\n");
         }
 
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
@@ -647,7 +652,9 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
-            throw new NotImplementedException();
+            sb.Append("// TODO: gen function");
+            sb.Append(this.NewLine);
+            // throw new NotImplementedException();
         }
 
         public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
@@ -657,7 +664,43 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
-            throw new NotImplementedException();
+            sb
+                .Append("type S_")
+                .Append(structDef.NameToken.Value)
+                .Append(" struct {")
+                .Append(this.NewLine);
+                
+            sb.TabDepth++;
+            
+            string[] fieldNames = PastelUtil.PadStringsToSameLength(structDef.LocalFieldNames.Select(n => n.Value));
+            for (int i = 0; i < fieldNames.Length; i++) {
+                sb.Append(sb.CurrentTab);
+                sb.Append("f_");
+                sb.Append(fieldNames[i]);
+                sb.Append(" ");
+                sb.Append(this.TranslateType(structDef.LocalFieldTypes[i]));
+                sb.Append(this.NewLine);
+            }
+            sb.TabDepth--;
+
+            sb
+                .Append("}")
+                .Append(this.NewLine);
+            sb
+                .Append("type PtrBox_")
+                .Append(structDef.NameToken.Value)
+                .Append(" struct {")
+                .Append(this.NewLine);
+            sb.TabDepth++;
+            sb
+                .Append(sb.CurrentTab)
+                .Append("o *S_")
+                .Append(structDef.NameToken.Value)
+                .Append(this.NewLine);
+            sb.TabDepth--;
+            sb
+                .Append("}")
+                .Append(this.NewLine);
         }
     }
 }

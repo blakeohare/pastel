@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Pastel
 {
@@ -189,6 +190,7 @@ namespace Pastel
                             .Replace("_cs.txt", ".cs")
                             .Replace("_csproj.txt", ".csproj")
                             .Replace("_sln.txt", ".sln")
+                            .Replace("_go.txt", ".go")
                             .Replace("_java.txt", ".java")
                             .Replace("_js.txt", ".js")
                             .Replace("_php.txt", ".php")
@@ -259,6 +261,23 @@ namespace Pastel
                 return data;
             }
             return null;
+        }
+
+        private static string padTemplate = " ";
+        internal static string[] PadStringsToSameLength(IEnumerable<string> strs)
+        {
+            string[] output = strs.ToArray();
+            int maxLen = output.Select(s => s.Length).Max();
+            while (padTemplate.Length < maxLen)
+            {
+                padTemplate = padTemplate + padTemplate;
+            }
+            string pad = padTemplate.Substring(0, maxLen);
+            for (int i = 0; i < output.Length; i++)
+            {
+                output[i] += padTemplate.Substring(0, maxLen - output[i].Length);
+            }
+            return output;
         }
     }
 }

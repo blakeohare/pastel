@@ -202,6 +202,10 @@ namespace Pastel
                     path = System.IO.Path.Combine(dir, "gen_classes.php");
                     break;
 
+                case Language.GO:
+                    path = System.IO.Path.Combine(dir, "genstructs.go");
+                    break;
+
                 default:
                     throw new NotImplementedException();
             }

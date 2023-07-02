@@ -180,6 +180,10 @@ namespace Pastel
                 case "c#":
                     config.Language = Language.CSHARP;
                     break;
+                case "go":
+                case "golang":
+                    config.Language = Language.GO;
+                    break;
                 case "java":
                     config.Language = Language.JAVA;
                     break;

@@ -1,1 +1,9 @@
 ﻿
+// PASTEL_ENTITY_ID: PST_ExtCallbacks
+type ExtFunc func(array[]interface{})interface{}
+var PST_ExtCallbacks map[string]ExtFunc 
+
+// PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
+func PST_RegisterExtensibleCallback(name string, fn ExtFunc) {
+    PST_ExtCallbacks[name] = fn
+}
