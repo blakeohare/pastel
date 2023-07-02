@@ -87,7 +87,7 @@ namespace Pastel.Transpilers
             }
         }
 
-        protected override void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct)
+        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
             if (!isForStruct && config.WrappingClassNameForFunctions != null)
             {

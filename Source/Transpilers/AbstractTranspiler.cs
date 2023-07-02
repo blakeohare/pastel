@@ -576,33 +576,33 @@ namespace Pastel.Transpilers
             throw new NotSupportedException();
         }
 
-        internal string WrapCodeForFunctions(ProjectConfig config, string code)
+        internal string WrapCodeForFunctions(TranspilerContext ctx, ProjectConfig config, string code)
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
-            WrapCodeImpl(config, lines, false);
+            WrapCodeImpl(ctx, config, lines, false);
             string output = string.Join(this.NewLine, lines).Trim();
             if (this.HasNewLineAtEndOfFile) output += this.NewLine;
             return output;
         }
 
-        internal string WrapCodeForStructs(ProjectConfig config, string code)
+        internal string WrapCodeForStructs(TranspilerContext ctx, ProjectConfig config, string code)
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
-            WrapCodeImpl(config, lines, true);
+            WrapCodeImpl(ctx, config, lines, true);
             string output = string.Join(this.NewLine, lines).Trim();
             if (this.HasNewLineAtEndOfFile) output += this.NewLine;
             return output;
         }
 
-        internal string WrapCodeForClasses(ProjectConfig config, string code)
+        internal string WrapCodeForClasses(TranspilerContext ctx, ProjectConfig config, string code)
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
-            WrapCodeImpl(config, lines, true);
+            WrapCodeImpl(ctx, config, lines, true);
             string output = string.Join(this.NewLine, lines).Trim();
             if (this.HasNewLineAtEndOfFile) output += this.NewLine;
             return output;
         }
 
-        protected abstract void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct);
+        protected abstract void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct);
     }
 }

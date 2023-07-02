@@ -1,5 +1,6 @@
 ﻿using Pastel.Nodes;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pastel.Transpilers
 {
@@ -19,6 +20,7 @@ namespace Pastel.Transpilers
         public string CurrentTab { get; private set; }
         internal AbstractTranspiler Transpiler { get; private set; }
         public Dictionary<string, string> ExtensibleFunctionLookup { get; private set; }
+        private HashSet<string> featureUsage = new HashSet<string>();
 
         internal TranspilerContext(Language language, Dictionary<string, string> extensibleFunctions)
         {
@@ -30,6 +32,16 @@ namespace Pastel.Transpilers
                 this.SwitchStatements = new List<PythonFakeSwitchStatement>();
             }
             this.TabDepth = 0;
+        }
+
+        public void MarkFeatureAsBeingUsed(string value) 
+        {
+            this.featureUsage.Add(value);
+        }
+
+        public string[] GetFeatures() 
+        {
+            return this.featureUsage.ToArray();
         }
 
         public int TabDepth
