@@ -14,6 +14,13 @@
 				"functions-wrapper-class": "FunctionWrapper"
 			}
 		}, {
+			"name": "go",
+			"language": "go",
+			"output": {
+				"namespace": "gen",
+				"functions-path": "go/genpastel.go"
+			}
+		}, {
 			"name": "java",
 			"language": "java",
 			"output": {
