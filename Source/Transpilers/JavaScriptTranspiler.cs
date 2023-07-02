@@ -14,7 +14,7 @@ namespace Pastel.Transpilers
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.js"; } }
 
-        protected override void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct)
+        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
             // do nothing
         }

@@ -33,9 +33,33 @@ namespace Pastel.Transpilers
             throw new NotImplementedException();
         }
 
-        protected override void WrapCodeImpl(ProjectConfig config, List<string> lines, bool isForStruct)
+        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
-            lines.Insert(0, "package main\n");
+            List<string> headerLines = new List<string>() { "package main", ""};
+            string[] imports = ctx.GetFeatures()
+                .Where(f => f.StartsWith("IMPORT:"))
+                .Select(f => f.Substring("IMPORT:".Length))
+                .OrderBy(v => v)
+                .ToArray();
+
+            if (imports.Length > 0)
+            {
+                if (imports.Length == 1)
+                {
+                    headerLines.Add("import \"" + imports[0] + "\"");
+                }
+                else
+                {
+                    headerLines.Add("import (");
+                    foreach (string impt in imports)
+                    {
+                        headerLines.Add("  \"" + impt + "\"");
+                    }
+                    headerLines.Add(")");
+                }
+                headerLines.Add("");
+            }
+            lines.InsertRange(0, headerLines);
         }
 
         public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
@@ -272,14 +296,14 @@ namespace Pastel.Transpilers
             sb.TabDepth++;
             this.TranslateExecutables(sb, ifStatement.IfCode);
             sb.TabDepth--;
-            sb.Append("}");
+            sb.Append(sb.CurrentTab).Append("}");
             if (ifStatement.ElseCode != null && ifStatement.ElseCode.Length > 0)
             {
                 sb.Append(" else {").Append(this.NewLine);
                 sb.TabDepth++;
                 this.TranslateExecutables(sb, ifStatement.ElseCode);
                 sb.TabDepth--;
-                sb.Append("}");
+                sb.Append(sb.CurrentTab).Append("}");
             }
             sb.Append(this.NewLine);
         }
@@ -425,6 +449,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateMathPow(TranspilerContext sb, Expression expBase, Expression exponent)
         {
+            sb.MarkFeatureAsBeingUsed("IMPORT:math");
             sb.Append("math.Pow(");
             this.TranslateExpression(sb, expBase);
             sb.Append(", ");
@@ -525,16 +550,18 @@ namespace Pastel.Transpilers
 
         public override void TranslateReturnStatemnt(TranspilerContext sb, ReturnStatement returnStatement)
         {
-            sb.Append("return");
+            sb.Append(sb.CurrentTab).Append("return");
             if (returnStatement.Expression != null)
             {
                 sb.Append(' ');
                 this.TranslateExpression(sb, returnStatement.Expression);
             }
+            sb.Append(this.NewLine);
         }
 
         public override void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray)
         {
+            sb.MarkFeatureAsBeingUsed("IMPORT:sort");
             sb.Append("PST_SortedIntArrayCopy(");
             this.TranslateExpression(sb, intArray);
             sb.Append(')');

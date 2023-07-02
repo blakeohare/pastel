@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pastel.Transpilers;
 
 namespace Pastel
 {
@@ -95,7 +96,7 @@ namespace Pastel
                     string classCode = classDefinitions[className];
                     if (context.ClassDefinitionsInSeparateFiles)
                     {
-                        GenerateClassImplementation(config, className, classCode);
+                        GenerateClassImplementation(context, config, className, classCode);
                     }
                     else
                     {
@@ -129,12 +130,12 @@ namespace Pastel
                 {
                     foreach (string structName in structOrder)
                     {
-                        GenerateStructImplementation(config, structName, structDefinitions[structName]);
+                        GenerateStructImplementation(context, config, structName, structDefinitions[structName]);
                     }
                 }
                 else
                 {
-                    GenerateStructBundleImplementation(config, structOrder, structDefinitions);
+                    GenerateStructBundleImplementation(context.GetTranspilerContext(), config, structOrder, structDefinitions);
                 }
 
                 if (context.UsesStructDeclarations)
@@ -154,43 +155,43 @@ namespace Pastel
                 throw new NotImplementedException();
             }
 
-            GenerateFunctionImplementation(config, context.GetCodeForFunctions());
+            GenerateFunctionImplementation(context, config, context.GetCodeForFunctions());
 
             return output;
         }
 
-        private static void GenerateFunctionImplementation(ProjectConfig config, string funcCode)
+        private static void GenerateFunctionImplementation(PastelContext ctx, ProjectConfig config, string funcCode)
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
-            funcCode = transpiler.WrapCodeForFunctions(config, funcCode);
+            funcCode = transpiler.WrapCodeForFunctions(ctx.GetTranspilerContext(), config, funcCode);
             System.IO.File.WriteAllText(config.OutputFileFunctions, funcCode);
         }
 
-        private static void GenerateStructImplementation(ProjectConfig config, string structName, string structCode)
+        private static void GenerateStructImplementation(PastelContext ctx, ProjectConfig config, string structName, string structCode)
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
-            structCode = transpiler.WrapCodeForStructs(config, structCode);
+            structCode = transpiler.WrapCodeForStructs(ctx.GetTranspilerContext(), config, structCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, structName + fileExtension);
             System.IO.File.WriteAllText(path, structCode);
         }
 
-        private static void GenerateClassImplementation(ProjectConfig config, string className, string classCode)
+        private static void GenerateClassImplementation(PastelContext ctx, ProjectConfig config, string className, string classCode)
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
-            classCode = transpiler.WrapCodeForClasses(config, classCode);
+            classCode = transpiler.WrapCodeForClasses(ctx.GetTranspilerContext(), config, classCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, className + fileExtension);
             System.IO.File.WriteAllText(path, classCode);
         }
 
-        private static void GenerateStructBundleImplementation(ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)
+        private static void GenerateStructBundleImplementation(Transpilers.TranspilerContext ctx, ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
             List<string> finalCode = new List<string>();
             foreach (string structName in structOrder)
             {
-                finalCode.Add(transpiler.WrapCodeForStructs(config, structCodeByName[structName]));
+                finalCode.Add(transpiler.WrapCodeForStructs(ctx, config, structCodeByName[structName]));
             }
             string dir = config.OutputDirStructs;
             string path;
