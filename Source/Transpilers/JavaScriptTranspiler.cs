@@ -376,9 +376,9 @@ namespace Pastel.Transpilers
         {
             // TODO: go through and figure out which list to array conversions are necessary to copy and which ones are just ensuring that the type is compatible
             // For example, JS and Python can just no-op in situations where a throwaway list builder is being made.
-            sb.Append("PST$multiplyList(");
+            sb.Append("[...(");
             this.TranslateExpression(sb, list);
-            sb.Append(", 1)");
+            sb.Append(")]");
         }
 
         public override void TranslateMathArcCos(TranspilerContext sb, Expression ratio)
@@ -666,11 +666,11 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, str);
             sb.Append(".substring(");
             this.TranslateExpression(sb, start);
-            sb.Append(", ");
+            sb.Append(", (");
             this.TranslateExpression(sb, start);
-            sb.Append(" + ");
+            sb.Append(") + (");
             this.TranslateExpression(sb, length);
-            sb.Append(')');
+            sb.Append("))");
         }
 
         public override void TranslateStringSubstringIsEqualTo(TranspilerContext sb, Expression haystack, Expression startIndex, Expression needle)

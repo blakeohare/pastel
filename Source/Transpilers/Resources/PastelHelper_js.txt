@@ -1,22 +1,13 @@
 ﻿// PASTEL_ENTITY_ID: PST$sortedCopyOfArray
-PST$sortedCopyOfArray = function(n) {
-	var a = n.concat([]);
-	a.sort();
-	return a;
-};
+PST$sortedCopyOfArray = v => [...v].sort(typeof v[0] === 'number' ? (a, b) => a - b : undefined);
 
 // PASTEL_ENTITY_ID: PST$multiplyList
-PST$multiplyList = function(l, n) {
-	var o = [];
-	var s = l.length;
-	var i;
-	while (n-- > 0) {
-		for (i = 0; i < s; ++i) {
-			o.push(l[i]);
-		}
-	}
-	return o;
-};
+PST$multiplyList = (l, n) => {
+	if (n < 2) return n < 1 ? [] : [...l];
+	let a = [];
+	while (n-- > 0) a.push(...l);
+	return a;
+}
 
 // PASTEL_ENTITY_ID: PST$checksubstring
 PST$checksubstring = function(s, index, lookfor) { return s.substring(index, index + lookfor.length) === lookfor; };
@@ -141,3 +132,6 @@ PST$stdout = v => { console.log(v); };
 
 // PASTEL_ENTITY_ID: PST$stderr
 PST$stderr = v => { console.error(v); };
+
+// PASTEL_ENTITY_ID: PST$stringToUtf8Bytes
+PST$stringToUtf8Bytes = s => Array.from(new TextEncoder().encode(s));
