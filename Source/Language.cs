@@ -8,6 +8,7 @@ namespace Pastel
         NONE,
 
         CSHARP,
+        GO,
         JAVA,
         JAVASCRIPT,
         PHP,
@@ -23,6 +24,7 @@ namespace Pastel
             switch (lang)
             {
                 case Language.CSHARP: return ".cs";
+                case Language.GO: return ".go";
                 case Language.JAVA: return ".java";
                 case Language.JAVASCRIPT: return ".js";
                 case Language.PHP: return ".php";
@@ -39,6 +41,7 @@ namespace Pastel
             switch (value.ToLower())
             {
                 case "csharp": return Language.CSHARP;
+                case "go": return Language.GO;
                 case "java": return Language.JAVA;
                 case "javascript": return Language.JAVASCRIPT;
                 case "php": return Language.PHP;
@@ -58,6 +61,7 @@ namespace Pastel
             switch (language)
             {
                 case Language.CSHARP: t = new CSharpTranspiler(); break;
+                case Language.GO: t = new GoTranspiler(); break;
                 case Language.JAVA: t = new JavaTranspiler(); break;
                 case Language.JAVASCRIPT: t = new JavaScriptTranspiler(); break;
                 case Language.PHP: t = new PhpTranspiler(); break;
@@ -73,13 +77,13 @@ namespace Pastel
             Dictionary<string, object> output = new Dictionary<string, object>();
 
             output["ARRAY_IS_LIST"] = lang == Language.PYTHON || lang == Language.JAVASCRIPT || lang == Language.PHP;
-            output["HAS_INCREMENT"] = lang != Language.PYTHON;
+            output["HAS_INCREMENT"] = !(lang == Language.PYTHON || lang == Language.GO);
             output["INT_IS_FLOOR"] = lang == Language.JAVASCRIPT;
-            output["IS_CHAR_A_NUMBER"] = lang == Language.CSHARP || lang == Language.JAVA;
+            output["IS_CHAR_A_NUMBER"] = lang == Language.CSHARP || lang == Language.GO || lang == Language.JAVA;
             output["IS_JAVASCRIPT"] = lang == Language.JAVASCRIPT;
             output["IS_PYTHON"] = lang == Language.PYTHON;
             output["PLATFORM_SUPPORTS_LIST_CLEAR"] = lang != Language.PYTHON;
-            output["STRONGLY_TYPED"] = lang == Language.CSHARP || lang == Language.JAVA;
+            output["STRONGLY_TYPED"] = lang == Language.CSHARP || lang == Language.GO || lang == Language.JAVA;
 
             return output;
         }
