@@ -7,3 +7,9 @@ var PST_ExtCallbacks map[string]ExtFunc
 func PST_RegisterExtensibleCallback(name string, fn ExtFunc) {
     PST_ExtCallbacks[name] = fn
 }
+
+func PST_SortedIntArrayCopy(nums []int) []int {
+    copied := nums[:]
+    sort.Ints(copied)
+    return copied
+}
