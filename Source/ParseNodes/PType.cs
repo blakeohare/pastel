@@ -452,13 +452,9 @@ namespace Pastel.Nodes
 
         internal static PType Parse(TokenStream tokens)
         {
-            Token firstToken = tokens.Peek();
-            PType type = ParseImpl(tokens);
-            if (type == null)
-            {
-                throw new ParserException(firstToken, "Expected a type here.");
-            }
-            return type;
+            PType type = TryParse(tokens);
+            if (type != null) return type;
+            throw new ParserException(tokens.Peek(), "Expected a type here.");
         }
 
         internal static PType TryParse(TokenStream tokens)
@@ -468,7 +464,14 @@ namespace Pastel.Nodes
             if (type == null)
             {
                 tokens.RevertState(index);
+                return null;
             }
+
+            if (tokens.IsNext("[") && tokens.PeekAhead(1) == "]")
+            {
+                throw new ParserException(tokens.Peek(), "Array types are defined with the Array class, not square brackets.");
+            }
+
             return type;
         }
 
