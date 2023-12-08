@@ -1,8 +1,8 @@
 ﻿// PASTEL_ENTITY_ID: PST$sortedCopyOfArray
-PST$sortedCopyOfArray = v => [...v].sort(typeof v[0] === 'number' ? (a, b) => a - b : undefined);
+let PST$sortedCopyOfArray = v => [...v].sort(typeof v[0] === 'number' ? (a, b) => a - b : undefined);
 
 // PASTEL_ENTITY_ID: PST$multiplyList
-PST$multiplyList = (l, n) => {
+let PST$multiplyList = (l, n) => {
 	if (n < 2) return n < 1 ? [] : [...l];
 	let a = [];
 	while (n-- > 0) a.push(...l);
@@ -10,10 +10,10 @@ PST$multiplyList = (l, n) => {
 }
 
 // PASTEL_ENTITY_ID: PST$checksubstring
-PST$checksubstring = function(s, index, lookfor) { return s.substring(index, index + lookfor.length) === lookfor; };
+let PST$checksubstring = function(s, index, lookfor) { return s.substring(index, index + lookfor.length) === lookfor; };
 
 // PASTEL_ENTITY_ID: PST$stringTrimOneSide
-PST$stringTrimOneSide = function(s, isLeft) {
+let PST$stringTrimOneSide = function(s, isLeft) {
 	var i = isLeft ? 0 : s.length - 1;
 	var end = isLeft ? s.length : -1;
 	var step = isLeft ? 1 : -1;
@@ -38,7 +38,7 @@ PST$stringTrimOneSide = function(s, isLeft) {
 };
 
 // PASTEL_ENTITY_ID: PST$floatParseHelper
-PST$floatParseHelper = function(o, s) {
+let PST$floatParseHelper = function(o, s) {
 	var t = parseFloat(s);
 	if (t + '' == 'NaN') {
 		o[0] = -1;
@@ -49,14 +49,14 @@ PST$floatParseHelper = function(o, s) {
 };
 
 // PASTEL_ENTITY_ID: PST$createNewArray
-PST$createNewArray = function(s) {
+let PST$createNewArray = function(s) {
 	var o = [];
 	while (s-- > 0) o.push(null);
 	return o;
 };
 
 // PASTEL_ENTITY_ID: PST$dictionaryKeys
-PST$dictionaryKeys = function(d) {
+let PST$dictionaryKeys = function(d) {
 	var o = [];
 	for (var k in d) {
 		o.push(k);
@@ -65,7 +65,7 @@ PST$dictionaryKeys = function(d) {
 };
 
 // PASTEL_ENTITY_ID: PST$dictionaryValues
-PST$dictionaryValues = function(d) {
+let PST$dictionaryValues = function(d) {
 	var o = [];
 	for (var k in d) {
 		o.push(d[k]);
@@ -74,18 +74,18 @@ PST$dictionaryValues = function(d) {
 };
 
 // PASTEL_ENTITY_ID: PST$is_valid_integer
-PST$is_valid_integer = function(n) {
+let PST$is_valid_integer = function(n) {
 	var t = parseInt(n);
 	return t < 0 || t >= 0;
 };
 
 // PASTEL_ENTITY_ID: PST$clearList
-PST$clearList = function(v) {
+let PST$clearList = function(v) {
 	v.length = 0;
 };
 
 // PASTEL_ENTITY_ID: PST$shuffle
-PST$shuffle = function(v) {
+let PST$shuffle = function(v) {
 	var t;
 	var len = v.length;
 	var sw;
@@ -98,27 +98,27 @@ PST$shuffle = function(v) {
 };
 
 // PASTEL_ENTITY_ID: PST$stringEndsWith
-PST$stringEndsWith = function(s, v) {
+let PST$stringEndsWith = function(s, v) {
 	return s.indexOf(v, s.length - v.length) !== -1;
 };
 
 // PASTEL_ENTITY_ID: PST$intBuffer16
-PST$intBuffer16 = PST$multiplyList([0], 16);
+let PST$intBuffer16 = PST$multiplyList([0], 16);
 
 // PASTEL_ENTITY_ID: PST$floatBuffer16
-PST$floatBuffer16 = PST$multiplyList([0.0], 16);
+let PST$floatBuffer16 = PST$multiplyList([0.0], 16);
 
 // PASTEL_ENTITY_ID: PST$stringBuffer16
-PST$stringBuffer16 = PST$multiplyList([''], 16);
+let PST$stringBuffer16 = PST$multiplyList([''], 16);
 
 // PASTEL_ENTITY_ID: PST_ExtCallbacks
-PST$extCallbacks = {};
+let PST$extCallbacks = {};
 
 // PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
-PST$registerExtensibleCallback = (name, fn) => { PST$extCallbacks[name] = fn; };
+let PST$registerExtensibleCallback = (name, fn) => { PST$extCallbacks[name] = fn; };
 
 // PASTEL_ENTITY_ID: PST$getFunction
-PST$getFunction = (name) => {
+let PST$getFunction = (name) => {
 	let p = name.split(',');
 	let check = p[p.length - 1];
 	if (window[check] !== undefined) {
@@ -128,10 +128,10 @@ PST$getFunction = (name) => {
 };
 
 // PASTEL_ENTITY_ID: PST$stdout
-PST$stdout = v => { console.log(v); };
+let PST$stdout = v => { console.log(v); };
 
 // PASTEL_ENTITY_ID: PST$stderr
-PST$stderr = v => { console.error(v); };
+let PST$stderr = v => { console.error(v); };
 
 // PASTEL_ENTITY_ID: PST$stringToUtf8Bytes
-PST$stringToUtf8Bytes = s => Array.from(new TextEncoder().encode(s));
+let PST$stringToUtf8Bytes = s => Array.from(new TextEncoder().encode(s));
