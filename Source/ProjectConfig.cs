@@ -113,10 +113,13 @@ namespace Pastel
             {
                 platformValues = ((root["targets"] as object[]) ?? new object[0])
                                     .OfType<Dictionary<string, object>>()
-                                    .Where(target =>
+                                    .FirstOrDefault(target =>
                                         target.ContainsKey("name") &&
-                                        target["name"] as string == targetId)
-                                    .FirstOrDefault();
+                                        (target["name"] as string) == targetId);
+                if (platformValues == null)
+                {
+                    throw new InvalidOperationException("Target not found: '" + targetId + "'");
+                }
                 root.Remove("targets");
             }
 
@@ -127,7 +130,7 @@ namespace Pastel
                     case "flags":
                         if (!root.ContainsKey(key) || !(root[key] is object[]))
                         {
-                            root[key] = new object[0];
+                            root[key] = Array.Empty<object>();
                         }
                         root[key] = ((object[])root[key]).Concat(platformValues[key] as object[] ?? new object[0]).ToArray();
                         break;
