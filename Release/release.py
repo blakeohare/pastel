@@ -1,4 +1,5 @@
 VERSION = '2.9.0'
+DOT_NET_VER = 'net8.0'
 
 import shutil
 import os
@@ -56,7 +57,7 @@ def main(args):
 
 	copy_to_dir = 'pastel-' + VERSION + '-' + platform_name
 	executable_path = ''
-	net_dir = 'netcoreapp3.1' if use_dotnet_core_31 else 'net7.0'
+	net_dir = 'netcoreapp3.1' if use_dotnet_core_31 else DOT_NET_VER
 	sln_name = 'PastelLegacy.sln' if use_dotnet_core_31 else 'Pastel.sln'
 	if isWindows:
 		executable_dir = os.path.join('..', 'Source', 'bin', 'Release', net_dir, dotnet_platform, 'publish')
