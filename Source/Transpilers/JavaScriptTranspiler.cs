@@ -585,7 +585,7 @@ namespace Pastel.Transpilers
         public override void TranslateStringEquals(TranspilerContext sb, Expression left, Expression right)
         {
             this.TranslateExpression(sb, left);
-            sb.Append(" == ");
+            sb.Append(" === ");
             this.TranslateExpression(sb, right);
         }
 
@@ -787,7 +787,7 @@ namespace Pastel.Transpilers
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append("var ");
+            sb.Append("let ");
             sb.Append(varDecl.VariableNameToken.Value);
             sb.Append(" = ");
             if (varDecl.Value == null)
@@ -804,7 +804,7 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
-            sb.Append("var ");
+            sb.Append("let ");
             sb.Append(funcDef.NameToken.Value);
             sb.Append(" = function(");
             Token[] args = funcDef.ArgNames;
