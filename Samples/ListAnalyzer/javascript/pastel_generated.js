@@ -1,12 +1,13 @@
-PST$sortedCopyOfArray = function(n) {
-	var a = n.concat([]);
-	a.sort();
-	return a;
+let PST$sortedCopyOfArray = v => {
+	let o = [...v];
+	if (o.length < 2) return o;
+	if (typeof(o[0]) === 'number') return o.sort((a, b) => a - b);
+	return o.sort();
 };
 
-PST$extCallbacks = {};
+let PST$extCallbacks = {};
 
-PST$registerExtensibleCallback = (name, fn) => { PST$extCallbacks[name] = fn; };
+let PST$registerExtensibleCallback = (name, fn) => { PST$extCallbacks[name] = fn; };
 
 var calculate_standard_deviation = function(nums, length, mean) {
 	var total_dev = 0.0;
@@ -17,6 +18,34 @@ var calculate_standard_deviation = function(nums, length, mean) {
 		i += 1;
 	}
 	return Math.pow((total_dev / length), 0.5);
+};
+
+var NumAnalysis_getCount = function(na) {
+	return na[0];
+};
+
+var NumAnalysis_getMax = function(na) {
+	return na[2];
+};
+
+var NumAnalysis_getMean = function(na) {
+	return na[4];
+};
+
+var NumAnalysis_getMedian = function(na) {
+	return na[5];
+};
+
+var NumAnalysis_getMin = function(na) {
+	return na[1];
+};
+
+var NumAnalysis_getStdDev = function(na) {
+	return na[6];
+};
+
+var NumAnalysis_getTotal = function(na) {
+	return na[3];
 };
 
 var perform_analysis = function(nums, length) {

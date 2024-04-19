@@ -1,112 +1,60 @@
 ﻿// PASTEL_ENTITY_ID: PST$sortedCopyOfArray
-let PST$sortedCopyOfArray = v => [...v].sort(typeof v[0] === 'number' ? (a, b) => a - b : undefined);
+let PST$sortedCopyOfArray = v => {
+	let o = [...v];
+	if (o.length < 2) return o;
+	if (typeof(o[0]) === 'number') return o.sort((a, b) => a - b);
+	return o.sort();
+};
 
 // PASTEL_ENTITY_ID: PST$multiplyList
 let PST$multiplyList = (l, n) => {
-	if (n < 2) return n < 1 ? [] : [...l];
 	let a = [];
 	while (n-- > 0) a.push(...l);
 	return a;
 }
 
 // PASTEL_ENTITY_ID: PST$checksubstring
-let PST$checksubstring = function(s, index, lookfor) { return s.substring(index, index + lookfor.length) === lookfor; };
-
-// PASTEL_ENTITY_ID: PST$stringTrimOneSide
-let PST$stringTrimOneSide = function(s, isLeft) {
-	var i = isLeft ? 0 : s.length - 1;
-	var end = isLeft ? s.length : -1;
-	var step = isLeft ? 1 : -1;
-	var c;
-	var trimming = true;
-	while (trimming && i != end) {
-		c = s.charAt(i);
-		switch (c) {
-			case ' ':
-			case '\n':
-			case '\t':
-			case '\r':
-				i += step;
-				break;
-			default:
-				trimming = false;
-				break;
-		}
-	}
-
-	return isLeft ? s.substring(i) : s.substring(0, i + 1);
-};
+let PST$checksubstring = (s, index, lookfor) => s.substring(index, index + lookfor.length) === lookfor; };
 
 // PASTEL_ENTITY_ID: PST$floatParseHelper
-let PST$floatParseHelper = function(o, s) {
-	var t = parseFloat(s);
-	if (t + '' == 'NaN') {
-		o[0] = -1;
-	} else {
-		o[0] = 1;
-		o[1] = t;
-	}
+let PST$floatParseHelper = (o, s) => {
+	o[0] = -1;
+	let t = parseFloat(s);
+	if (isNaN(t) || !isFinite(t)) return;
+	o[0] = 1;
+	o[1] = t;
 };
 
 // PASTEL_ENTITY_ID: PST$createNewArray
-let PST$createNewArray = function(s) {
-	var o = [];
-	while (s-- > 0) o.push(null);
+let PST$createNewArray = s => {
+	let o = [];
+	while (s --> 0) o.push(null);
 	return o;
-};
-
-// PASTEL_ENTITY_ID: PST$dictionaryKeys
-let PST$dictionaryKeys = function(d) {
-	var o = [];
-	for (var k in d) {
-		o.push(k);
-	}
-	return o;
-};
-
-// PASTEL_ENTITY_ID: PST$dictionaryValues
-let PST$dictionaryValues = function(d) {
-	var o = [];
-	for (var k in d) {
-		o.push(d[k]);
-	}
-	return o;
-};
-
-// PASTEL_ENTITY_ID: PST$is_valid_integer
-let PST$is_valid_integer = function(n) {
-	var t = parseInt(n);
-	return t < 0 || t >= 0;
 };
 
 // PASTEL_ENTITY_ID: PST$clearList
-let PST$clearList = function(v) {
-	v.length = 0;
+let PST$clearList = a => {
+	while (a.length) a.pop();
 };
 
 // PASTEL_ENTITY_ID: PST$shuffle
-let PST$shuffle = function(v) {
-	var t;
-	var len = v.length;
-	var sw;
-	for (i = len - 1; i >= 0; --i) {
-		sw = Math.floor(Math.random() * len);
-		t = v[sw];
-		v[sw] = v[i];
-		v[i] = t;
+let PST$shuffle = arr => {
+	let len = arr.length;
+	let j;
+	let t;
+	for (let i = 0; i < len; i++) {
+		j = Math.floor(Math.random() * len);
+		t = arr[j];
+		arr[j] = arr[i];
+		arr[i] = t;
 	}
-};
-
-// PASTEL_ENTITY_ID: PST$stringEndsWith
-let PST$stringEndsWith = function(s, v) {
-	return s.indexOf(v, s.length - v.length) !== -1;
 };
 
 // PASTEL_ENTITY_ID: PST$intBuffer16
 let PST$intBuffer16 = PST$multiplyList([0], 16);
 
 // PASTEL_ENTITY_ID: PST$floatBuffer16
-let PST$floatBuffer16 = PST$multiplyList([0.0], 16);
+let PST$floatBuffer16 = PST$multiplyList([0], 16);
 
 // PASTEL_ENTITY_ID: PST$stringBuffer16
 let PST$stringBuffer16 = PST$multiplyList([''], 16);

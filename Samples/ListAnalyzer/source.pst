@@ -8,6 +8,14 @@ struct NumAnalysis {
 	double std_dev;
 }
 
+int NumAnalysis_getCount(NumAnalysis na) { return na.count; }
+int NumAnalysis_getMin(NumAnalysis na) { return na.min; }
+int NumAnalysis_getMax(NumAnalysis na) { return na.max; }
+int NumAnalysis_getTotal(NumAnalysis na) { return na.total; }
+double NumAnalysis_getMean(NumAnalysis na) { return na.mean; }
+double NumAnalysis_getMedian(NumAnalysis na) { return na.median; }
+double NumAnalysis_getStdDev(NumAnalysis na) { return na.std_dev; }
+
 NumAnalysis perform_analysis(Array<int> nums, int length) {
 	NumAnalysis output = new NumAnalysis(0, 0, 0, 0, 0.0, 0.0, 0.0);
 	output.count = length;

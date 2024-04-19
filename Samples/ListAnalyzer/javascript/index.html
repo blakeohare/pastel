@@ -1,27 +1,30 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>List Analyzer</title>
 		<script src="pastel_generated.js"></script>
 		<script>
-function init() {
-	var nums = [5, 9, 1, 3, 11, 13, 2];
-	var result = perform_analysis(nums, nums.length);
-	getElement('output_nums').innerHTML = nums.join(' ');
-	getElement('output_count').innerHTML = result.count;
-	getElement('output_total').innerHTML = result.total;
-	getElement('output_min').innerHTML = result.min;
-	getElement('output_max').innerHTML = result.max;
-	getElement('output_mean').innerHTML = result.mean;
-	getElement('output_median').innerHTML = result.median;
-	getElement('output_stddev').innerHTML = result.std_dev;
-}
+			window.addEventListener('load', () => {
+				let nums = [5, 9, 1, 3, 11, 13, 2];
+				let result = perform_analysis(nums, nums.length);
 
-function getElement(id) {
-	return document.getElementById(id);
-}
+				let emit = (id, value) => { document.getElementById(id).innerText = `${value}`; };
+
+				emit('output_nums', nums.join(', '));
+				emit('output_count', NumAnalysis_getCount(result));
+				emit('output_total', NumAnalysis_getTotal(result));
+				emit('output_min', NumAnalysis_getMin(result));
+				emit('output_max', NumAnalysis_getMax(result));
+				emit('output_mean', NumAnalysis_getMean(result));
+				emit('output_median', NumAnalysis_getMedian(result));
+				emit('output_stddev', NumAnalysis_getStdDev(result));
+			});
 		</script>
 	</head>
-	<body onload="init()">
+
+	<body>
 		<table>
 			<tr><td>Numbers</td><td id="output_nums"></td></tr>
 			<tr><td>Count</td><td id="output_count"></td></tr>

@@ -129,7 +129,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateDictionaryKeys(TranspilerContext sb, Expression dictionary)
         {
-            sb.Append("PST$dictionaryKeys(");
+            sb.Append("Object.keys(");
             this.TranslateExpression(sb, dictionary);
             sb.Append(')');
         }
@@ -187,7 +187,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary)
         {
-            sb.Append("PST$dictionaryValues(");
+            sb.Append("Object.values(");
             this.TranslateExpression(sb, dictionary);
             sb.Append(')');
         }
@@ -265,9 +265,9 @@ namespace Pastel.Transpilers
 
         public override void TranslateIsValidInteger(TranspilerContext sb, Expression stringValue)
         {
-            sb.Append("PST$is_valid_integer(");
+            sb.Append("!isNaN(parseInt(");
             this.TranslateExpression(sb, stringValue);
-            sb.Append(')');
+            sb.Append("))");
         }
 
         public override void TranslateListAdd(TranspilerContext sb, Expression list, Expression item)
@@ -575,9 +575,9 @@ namespace Pastel.Transpilers
 
         public override void TranslateStringEndsWith(TranspilerContext sb, Expression haystack, Expression needle)
         {
-            sb.Append("PST$stringEndsWith(");
+            sb.Append("(");
             this.TranslateExpression(sb, haystack);
-            sb.Append(", ");
+            sb.Append(").endsWith(");
             this.TranslateExpression(sb, needle);
             sb.Append(')');
         }
@@ -656,9 +656,9 @@ namespace Pastel.Transpilers
         {
             sb.Append('(');
             this.TranslateExpression(sb, haystack);
-            sb.Append(".indexOf(");
+            sb.Append(").startsWith(");
             this.TranslateExpression(sb, needle);
-            sb.Append(") == 0)");
+            sb.Append(")");
         }
 
         public override void TranslateStringSubstring(TranspilerContext sb, Expression str, Expression start, Expression length)
@@ -711,16 +711,16 @@ namespace Pastel.Transpilers
 
         public override void TranslateStringTrimEnd(TranspilerContext sb, Expression str)
         {
-            sb.Append("PST$stringTrimOneSide(");
+            sb.Append('(');
             this.TranslateExpression(sb, str);
-            sb.Append(", false)");
+            sb.Append(").trimEnd()");
         }
 
         public override void TranslateStringTrimStart(TranspilerContext sb, Expression str)
         {
-            sb.Append("PST$stringTrimOneSide(");
+            sb.Append('(');
             this.TranslateExpression(sb, str);
-            sb.Append(", true)");
+            sb.Append(").trimStart()");
         }
 
         public override void TranslateStringBuilderAdd(TranspilerContext sb, Expression sbInst, Expression obj)
