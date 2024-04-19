@@ -1,3 +1,4 @@
+const [calculate_standard_deviation, NumAnalysis_getCount, NumAnalysis_getMax, NumAnalysis_getMean, NumAnalysis_getMedian, NumAnalysis_getMin, NumAnalysis_getStdDev, NumAnalysis_getTotal, perform_analysis] = (() => {
 let PST$sortedCopyOfArray = v => {
 	let o = [...v];
 	if (o.length < 2) return o;
@@ -78,3 +79,6 @@ let perform_analysis = function(nums, length) {
 	}
 	return output;
 };
+
+return [calculate_standard_deviation, NumAnalysis_getCount, NumAnalysis_getMax, NumAnalysis_getMean, NumAnalysis_getMedian, NumAnalysis_getMin, NumAnalysis_getStdDev, NumAnalysis_getTotal, perform_analysis];
+})();

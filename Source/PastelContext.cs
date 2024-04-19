@@ -66,7 +66,7 @@ namespace Pastel
             return this;
         }
 
-        private PastelCompiler GetCompiler()
+        internal PastelCompiler GetCompiler()
         {
             if (this.lazyInitCompiler == null)
             {

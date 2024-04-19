@@ -164,6 +164,7 @@ namespace Pastel
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
             funcCode = transpiler.WrapCodeForFunctions(ctx.GetTranspilerContext(), config, funcCode);
+            funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
             System.IO.File.WriteAllText(config.OutputFileFunctions, funcCode);
         }
 

@@ -54,6 +54,11 @@ namespace Pastel.Transpilers
             }
         }
 
+        public virtual string WrapFinalExportedCode(string code, FunctionDefinition[] functions)
+        {
+            return code;
+        }
+
         public void TranslateExecutable(TranspilerContext sb, Executable executable)
         {
             string typeName = executable.GetType().Name;
