@@ -60,6 +60,16 @@ namespace Pastel.Transpilers
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
+            if (!isForStruct)
+            {
+                lines.InsertRange(0, new string[] {
+                    "#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.",
+                    "#pragma warning disable CS8602 // Dereference of a possibly null reference.",
+                    "#pragma warning disable CS8603 // Possible null reference return.",
+                    "#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.",
+                });
+            }
+
             if (!isForStruct && config.WrappingClassNameForFunctions != null)
             {
                 PastelUtil.IndentLines(this.TabChar, lines);
