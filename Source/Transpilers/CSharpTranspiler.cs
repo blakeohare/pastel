@@ -882,7 +882,7 @@ namespace Pastel.Transpilers
         {
             sb.Append("System.Text.Encoding.UTF8.GetString((");
             this.TranslateExpression(sb, bytes);
-            sb.Append(").Cast<byte>().ToArray())");
+            sb.Append(").Select(v => (byte)v).ToArray())");
         }
 
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
