@@ -2,6 +2,16 @@
 	"source": "source.pst",
 	"targets": [
 		{
+			"name": "c",
+			"language": "c",
+			"imports": [
+				
+			],
+			"output": {
+				"namespace": "PastelGeneratedNamespace",
+				"functions-path": "c/pastel_generated.h"
+			}
+		}, {
 			"name": "csharp",
 			"language": "c#",
 			"imports": [

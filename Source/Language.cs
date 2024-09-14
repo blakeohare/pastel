@@ -7,6 +7,7 @@ namespace Pastel
     {
         NONE,
 
+        C,
         CSHARP,
         GO,
         JAVA,
@@ -60,6 +61,7 @@ namespace Pastel
             AbstractTranspiler t;
             switch (language)
             {
+                case Language.C: t = new CTranspiler(); break;
                 case Language.CSHARP: t = new CSharpTranspiler(); break;
                 case Language.GO: t = new GoTranspiler(); break;
                 case Language.JAVA: t = new JavaTranspiler(); break;

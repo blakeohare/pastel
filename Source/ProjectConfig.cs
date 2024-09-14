@@ -178,6 +178,9 @@ namespace Pastel
 
             switch (((data.ContainsKey("language") ? data["language"] : null) as string ?? "").ToLower())
             {
+                case "c":
+                    config.Language = Language.C;
+                    break;
                 case "cs":
                 case "csharp":
                 case "c#":
