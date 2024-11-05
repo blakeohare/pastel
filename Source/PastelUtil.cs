@@ -158,7 +158,11 @@ namespace Pastel
             {
                 return null;
             }
-            return MysteryTextDecoder.DecodeArbitraryBytesAsAppropriatelyAsPossible(bytes);
+            if (bytes.Length >= 3 && bytes[0] == 239 && bytes[1] == 187 && bytes[2] == 191)
+            {
+                bytes = bytes.Skip(3).ToArray();
+            }
+            return System.Text.Encoding.UTF8.GetString(bytes);
         }
 
         private static Dictionary<System.Reflection.Assembly, Dictionary<string, string>> caseInsensitiveLookup =
