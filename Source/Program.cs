@@ -7,39 +7,8 @@ namespace Pastel
 {
     public class Program
     {
-        private static string[] GetEffectiveArgs(string[] actualArgs)
-        {
-#if DEBUG
-            if (actualArgs.Length == 0)
-            {
-                string dirWalker = System.IO.Path.GetFullPath(System.IO.Directory.GetCurrentDirectory());
-                string debugArgsPath = null;
-                while (dirWalker != null && dirWalker.Length >= 3)
-                {
-                    string debugPastel = System.IO.Path.Combine(dirWalker, "DEBUG_PASTEL.txt");
-                    if (System.IO.File.Exists(debugPastel))
-                    {
-                        debugArgsPath = debugPastel;
-                        break;
-                    }
-                    dirWalker = System.IO.Path.GetDirectoryName(dirWalker);
-                }
-
-                if (debugArgsPath != null)
-                {
-                    string[] lines = System.IO.File.ReadAllText(debugArgsPath).Trim().Split('\n');
-                    string lastLine = lines[lines.Length - 1].Trim();
-                    return lastLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                }
-            }
-#endif
-            return actualArgs;
-        }
-
         public static void Main(string[] args)
         {
-            args = GetEffectiveArgs(args);
-
 #if DEBUG
             MainWrapped(args);
 #else
