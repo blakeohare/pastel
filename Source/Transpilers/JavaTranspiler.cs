@@ -8,7 +8,7 @@ namespace Pastel.Transpilers
     internal class JavaTranspiler : CurlyBraceTranspiler
     {
         public JavaTranspiler()
-            : base("  ", "\n", true)
+            : base("  ", true)
         { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.java"; } }
@@ -386,8 +386,7 @@ namespace Pastel.Transpilers
                 sb.Append(keyVar);
                 sb.Append(" = ");
                 this.TranslateExpression(sb, key);
-                sb.Append(";");
-                sb.Append(this.NewLine);
+                sb.Append(";\n");
             }
 
             string lookupVar = "_PST_dictLookup" + sb.SwitchCounter++;
@@ -406,8 +405,7 @@ namespace Pastel.Transpilers
             {
                 sb.Append(keyVar);
             }
-            sb.Append(");");
-            sb.Append(this.NewLine);
+            sb.Append(");\n");
             sb.Append(sb.CurrentTab);
             sb.Append(varOut.Name);
             sb.Append(" = ");
@@ -433,8 +431,7 @@ namespace Pastel.Transpilers
             }
             sb.Append(") : ");
             sb.Append(lookupVar);
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary)
@@ -1091,8 +1088,7 @@ namespace Pastel.Transpilers
                 sb.Append(" = ");
                 this.TranslateExpression(sb, varDecl.Value);
             }
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
@@ -1112,14 +1108,12 @@ namespace Pastel.Transpilers
                 sb.Append(' ');
                 sb.Append(argNames[i].Value);
             }
-            sb.Append(") {");
-            sb.Append(this.NewLine);
+            sb.Append(") {\n");
             sb.TabDepth++;
             this.TranslateExecutables(sb, funcDef.Code);
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
-            sb.Append('}');
-            sb.Append(this.NewLine);
+            sb.Append("}\n");
         }
 
         public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
@@ -1149,35 +1143,30 @@ namespace Pastel.Transpilers
                 sb.Append(" extends ");
                 sb.Append(structDef.ParentName.Value);
             }
-            sb.Append(" {");
-            sb.Append(this.NewLine);
+            sb.Append(" {\n");
             for (int i = 0; i < localNames.Length; ++i)
             {
                 sb.Append("  public ");
                 sb.Append(localTypes[i]);
                 sb.Append(' ');
                 sb.Append(localNames[i]);
-                sb.Append(';');
-                sb.Append(this.NewLine);
+                sb.Append(";\n");
             }
 
             sb.Append("  public static final ");
             sb.Append(name);
             sb.Append("[] EMPTY_ARRAY = new ");
             sb.Append(name);
-            sb.Append("[0];");
-            sb.Append(this.NewLine);
+            sb.Append("[0];\n");
 
             if (isValue)
             {
                 // The overhead of having extra fields on each Value is much less than the overhead
                 // of Java's casting. Particularly on Android.
-                sb.Append("  public int intValue;");
-                sb.Append(this.NewLine);
+                sb.Append("  public int intValue;\n");
             }
 
-            sb.Append(this.NewLine);
-            sb.Append("  public ");
+            sb.Append("\n  public ");
             sb.Append(structDef.NameToken.Value);
             sb.Append('(');
             for (int i = 0; i < flatNames.Length; ++i)
@@ -1187,8 +1176,7 @@ namespace Pastel.Transpilers
                 sb.Append(' ');
                 sb.Append(flatNames[i]);
             }
-            sb.Append(") {");
-            sb.Append(this.NewLine);
+            sb.Append(") {\n");
             if (structDef.Parent != null)
             {
                 sb.Append("    super(");
@@ -1198,8 +1186,7 @@ namespace Pastel.Transpilers
                     if (i > 0) sb.Append(", ");
                     sb.Append(flatNames[i]);
                 }
-                sb.Append(");");
-                sb.Append(this.NewLine);
+                sb.Append(");\n");
             }
             for (int i = 0; i < localNames.Length; ++i)
             {
@@ -1207,39 +1194,27 @@ namespace Pastel.Transpilers
                 sb.Append(localNames[i]);
                 sb.Append(" = ");
                 sb.Append(localNames[i]);
-                sb.Append(';');
-                sb.Append(this.NewLine);
+                sb.Append(";\n");
             }
             sb.Append("  }");
 
             if (isValue)
             {
-                sb.Append(this.NewLine);
-                sb.Append(this.NewLine);
-                sb.Append("  public Value(int intValue) {");
-                sb.Append(this.NewLine);
-                sb.Append("    this.type = 3;");
-                sb.Append(this.NewLine);
-                sb.Append("    this.intValue = intValue;");
-                sb.Append(this.NewLine);
-                sb.Append("    this.internalValue = intValue;");
-                sb.Append(this.NewLine);
-                sb.Append("  }");
-                sb.Append(this.NewLine);
-                sb.Append(this.NewLine);
-                sb.Append("  public Value(boolean boolValue) {");
-                sb.Append(this.NewLine);
-                sb.Append("    this.type = 2;");
-                sb.Append(this.NewLine);
-                sb.Append("    this.intValue = boolValue ? 1 : 0;");
-                sb.Append(this.NewLine);
-                sb.Append("    this.internalValue = boolValue;");
-                sb.Append(this.NewLine);
+                // TODO: Yikes! Crayon Runtime specific hack! Remove this!
+                sb.Append("\n\n");
+                sb.Append("  public Value(int intValue) {\n");
+                sb.Append("    this.type = 3;\n");
+                sb.Append("    this.intValue = intValue;\n");
+                sb.Append("    this.internalValue = intValue;\n");
+                sb.Append("  }\n\n");
+                sb.Append("  public Value(boolean boolValue) {\n");
+                sb.Append("    this.type = 2;\n");
+                sb.Append("    this.intValue = boolValue ? 1 : 0;\n");
+                sb.Append("    this.internalValue = boolValue;\n");
                 sb.Append("  }");
             }
 
-            sb.Append(this.NewLine);
-            sb.Append("}");
+            sb.Append("\n}");
         }
     }
 }

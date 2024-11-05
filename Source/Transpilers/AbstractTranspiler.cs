@@ -9,7 +9,6 @@ namespace Pastel.Transpilers
     {
         public string TabChar { get; private set; }
         public string[] Tabs { get; set; }
-        public string NewLine { get; private set; }
 
         public bool ClassDefinitionsInSeparateFiles { get; protected set; }
         public bool UsesStructDefinitions { get; protected set; }
@@ -21,7 +20,7 @@ namespace Pastel.Transpilers
 
         public virtual string HelperCodeResourcePath { get { return null; } }
 
-        public AbstractTranspiler(string tab, string newLine)
+        public AbstractTranspiler(string tab)
         {
             this.ClassDefinitionsInSeparateFiles = true;
             this.UsesStructDefinitions = true;
@@ -31,7 +30,6 @@ namespace Pastel.Transpilers
             this.HasNewLineAtEndOfFile = true;
             this.HasStructsInSeparateFiles = true;
 
-            this.NewLine = newLine;
             this.TabChar = tab;
             this.Tabs = new string[20];
             this.Tabs[0] = "";
@@ -585,8 +583,8 @@ namespace Pastel.Transpilers
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
             WrapCodeImpl(ctx, config, lines, false);
-            string output = string.Join(this.NewLine, lines).Trim();
-            if (this.HasNewLineAtEndOfFile) output += this.NewLine;
+            string output = string.Join('\n', lines).Trim();
+            if (this.HasNewLineAtEndOfFile) output += "\n";
             return output;
         }
 
@@ -594,8 +592,8 @@ namespace Pastel.Transpilers
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
             WrapCodeImpl(ctx, config, lines, true);
-            string output = string.Join(this.NewLine, lines).Trim();
-            if (this.HasNewLineAtEndOfFile) output += this.NewLine;
+            string output = string.Join('\n', lines).Trim();
+            if (this.HasNewLineAtEndOfFile) output += "\n";
             return output;
         }
 
@@ -603,8 +601,8 @@ namespace Pastel.Transpilers
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
             WrapCodeImpl(ctx, config, lines, true);
-            string output = string.Join(this.NewLine, lines).Trim();
-            if (this.HasNewLineAtEndOfFile) output += this.NewLine;
+            string output = string.Join('\n', lines).Trim();
+            if (this.HasNewLineAtEndOfFile) output += "\n";
             return output;
         }
 

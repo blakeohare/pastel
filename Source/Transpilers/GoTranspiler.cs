@@ -8,7 +8,7 @@ namespace Pastel.Transpilers
     internal class GoTranspiler : AbstractTranspiler
     {
         public GoTranspiler()
-            : base("  ", "\n")
+            : base("  ")
         {
             this.UsesStructDefinitions = true;
             this.HasStructsInSeparateFiles = false;
@@ -35,7 +35,7 @@ namespace Pastel.Transpilers
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
-            List<string> headerLines = new List<string>() { "package main", ""};
+            List<string> headerLines = new List<string>() { "package main", "" };
             string[] imports = ctx.GetFeatures()
                 .Where(f => f.StartsWith("IMPORT:"))
                 .Select(f => f.Substring("IMPORT:".Length))
@@ -96,7 +96,7 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, assignment.Target);
             sb.Append(' ').Append(assignment.OpToken.Value).Append(' ');
             this.TranslateExpression(sb, assignment.Value);
-            sb.Append(this.NewLine);
+            sb.Append('\n');
         }
 
         public override void TranslateBase64ToBytes(TranspilerContext sb, Expression base64String)
@@ -292,20 +292,20 @@ namespace Pastel.Transpilers
             sb.Append(sb.CurrentTab);
             sb.Append("if ");
             this.TranslateExpression(sb, ifStatement.Condition);
-            sb.Append(" {").Append(this.NewLine);
+            sb.Append(" {\n");
             sb.TabDepth++;
             this.TranslateExecutables(sb, ifStatement.IfCode);
             sb.TabDepth--;
             sb.Append(sb.CurrentTab).Append("}");
             if (ifStatement.ElseCode != null && ifStatement.ElseCode.Length > 0)
             {
-                sb.Append(" else {").Append(this.NewLine);
+                sb.Append(" else {\n");
                 sb.TabDepth++;
                 this.TranslateExecutables(sb, ifStatement.ElseCode);
                 sb.TabDepth--;
                 sb.Append(sb.CurrentTab).Append("}");
             }
-            sb.Append(this.NewLine);
+            sb.Append("\n");
         }
 
         public override void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition)
@@ -556,7 +556,7 @@ namespace Pastel.Transpilers
                 sb.Append(' ');
                 this.TranslateExpression(sb, returnStatement.Expression);
             }
-            sb.Append(this.NewLine);
+            sb.Append("\n");
         }
 
         public override void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray)
@@ -783,7 +783,7 @@ namespace Pastel.Transpilers
                 .Append(this.TranslateType(varDecl.Type))
                 .Append(" = ");
             this.TranslateExpression(sb, varDecl.Value);
-            sb.Append(this.NewLine);
+            sb.Append("\n");
         }
 
         public override void TranslateWhileLoop(TranspilerContext sb, WhileLoop whileLoop)
@@ -791,11 +791,11 @@ namespace Pastel.Transpilers
             sb.Append(sb.CurrentTab);
             sb.Append("for ");
             this.TranslateExpression(sb, whileLoop.Condition);
-            sb.Append(" {").Append(this.NewLine);
+            sb.Append(" {\n");
             sb.TabDepth++;
             this.TranslateExecutables(sb, whileLoop.Code);
             sb.TabDepth--;
-            sb.Append(sb.CurrentTab).Append("}").Append(this.NewLine);
+            sb.Append(sb.CurrentTab).Append("}\n");
         }
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
@@ -818,16 +818,11 @@ namespace Pastel.Transpilers
             {
                 sb.Append(" ").Append(this.TranslateType(funcDef.ReturnType));
             }
-            sb
-                .Append(" {")
-                .Append(this.NewLine);
+            sb.Append(" {\n");
             sb.TabDepth++;
             this.TranslateExecutables(sb, funcDef.Code);
             sb.TabDepth--;
-            sb
-                .Append('}')
-                .Append(this.NewLine)
-                .Append(this.NewLine);
+            sb.Append("}\n\n");
         }
 
         public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
@@ -840,8 +835,7 @@ namespace Pastel.Transpilers
             sb
                 .Append("type S_")
                 .Append(structDef.NameToken.Value)
-                .Append(" struct {")
-                .Append(this.NewLine);
+                .Append(" struct {\n");
 
             sb.TabDepth++;
 
@@ -853,28 +847,24 @@ namespace Pastel.Transpilers
                 sb.Append(fieldNames[i]);
                 sb.Append(" ");
                 sb.Append(this.TranslateType(structDef.LocalFieldTypes[i]));
-                sb.Append(this.NewLine);
+                sb.Append('\n');
             }
             sb.TabDepth--;
 
             sb
-                .Append("}")
-                .Append(this.NewLine);
-            sb
+                .Append("}\n")
                 .Append("type PtrBox_")
                 .Append(structDef.NameToken.Value)
-                .Append(" struct {")
-                .Append(this.NewLine);
+                .Append(" struct {\n");
             sb.TabDepth++;
             sb
                 .Append(sb.CurrentTab)
                 .Append("o *S_")
                 .Append(structDef.NameToken.Value)
-                .Append(this.NewLine);
+                .Append("\n");
             sb.TabDepth--;
             sb
-                .Append("}")
-                .Append(this.NewLine);
+                .Append("}\n");
         }
     }
 }

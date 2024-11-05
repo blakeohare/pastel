@@ -7,7 +7,7 @@ namespace Pastel.Transpilers
 {
     internal class PhpTranspiler : CurlyBraceTranspiler
     {
-        public PhpTranspiler() : base("\t", "\n", true)
+        public PhpTranspiler() : base("\t", true)
         {
             this.HasNewLineAtEndOfFile = false;
             this.HasStructsInSeparateFiles = false;
@@ -310,8 +310,7 @@ namespace Pastel.Transpilers
                 sb.Append(keyVar);
                 sb.Append(" = ");
                 TranslateDictionaryKeyExpression(sb, key);
-                sb.Append(";");
-                sb.Append(this.NewLine);
+                sb.Append(";\n");
                 sb.Append(sb.CurrentTab);
             }
 
@@ -341,8 +340,7 @@ namespace Pastel.Transpilers
             }
             sb.Append("] : (");
             this.TranslateExpression(sb, fallbackValue);
-            sb.Append(");");
-            sb.Append(this.NewLine);
+            sb.Append(");\n");
         }
 
         public override void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary)
@@ -955,13 +953,12 @@ namespace Pastel.Transpilers
             sb.Append(varDecl.VariableNameToken.Value);
             sb.Append(" = ");
             this.TranslateExpression(sb, varDecl.Value);
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
-            sb.Append(this.NewLine);
+            sb.Append("\n");
             sb.Append(sb.CurrentTab);
             sb.Append("public static function ");
             sb.Append(funcDef.NameToken.Value);
@@ -973,17 +970,14 @@ namespace Pastel.Transpilers
                 sb.Append('$');
                 sb.Append(arg.Value);
             }
-            sb.Append(") {");
-            sb.Append(this.NewLine);
+            sb.Append(") {\n");
             sb.TabDepth++;
 
             this.TranslateExecutables(sb, funcDef.Code);
 
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
-            sb.Append('}');
-            sb.Append(this.NewLine);
-            sb.Append(this.NewLine);
+            sb.Append("}\n\n");
         }
 
         public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
@@ -996,8 +990,7 @@ namespace Pastel.Transpilers
             string name = structDef.NameToken.Value;
             sb.Append("class ");
             sb.Append(name);
-            sb.Append(" {");
-            sb.Append(this.NewLine);
+            sb.Append(" {\n");
             sb.TabDepth++;
 
             string[] localNames = structDef.LocalFieldNames.Select(a => a.Value).ToArray();
@@ -1008,8 +1001,7 @@ namespace Pastel.Transpilers
                 sb.Append(sb.CurrentTab);
                 sb.Append("var $");
                 sb.Append(fieldName);
-                sb.Append(';');
-                sb.Append(this.NewLine);
+                sb.Append(";\n");
             }
             sb.Append(sb.CurrentTab);
             sb.Append("function __construct(");
@@ -1019,8 +1011,7 @@ namespace Pastel.Transpilers
                 sb.Append("$a");
                 sb.Append(i);
             }
-            sb.Append(") {");
-            sb.Append(this.NewLine);
+            sb.Append(") {\n");
             sb.TabDepth++;
             for (int i = 0; i < flatNames.Length; ++i)
             {
@@ -1029,18 +1020,15 @@ namespace Pastel.Transpilers
                 sb.Append(flatNames[i]);
                 sb.Append(" = $a");
                 sb.Append(i);
-                sb.Append(';');
-                sb.Append(this.NewLine);
+                sb.Append(";\n");
             }
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
-            sb.Append('}');
-            sb.Append(this.NewLine);
+            sb.Append("}\n");
 
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
-            sb.Append('}');
-            sb.Append(this.NewLine);
+            sb.Append("}\n");
         }
     }
 }

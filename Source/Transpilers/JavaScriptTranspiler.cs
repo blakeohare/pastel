@@ -7,7 +7,7 @@ namespace Pastel.Transpilers
 {
     internal class JavaScriptTranspiler : CurlyBraceTranspiler
     {
-        public JavaScriptTranspiler() : base("\t", "\n", true)
+        public JavaScriptTranspiler() : base("\t", true)
         {
             this.UsesStructDefinitions = false;
             this.ClassDefinitionsInSeparateFiles = false;
@@ -204,8 +204,7 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, dictionary);
             sb.Append('[');
             this.TranslateExpression(sb, key);
-            sb.Append("];");
-            sb.Append(this.NewLine);
+            sb.Append("];\n");
             sb.Append(sb.CurrentTab);
             sb.Append("if (");
             sb.Append(varOut.Name);
@@ -213,8 +212,7 @@ namespace Pastel.Transpilers
             sb.Append(varOut.Name);
             sb.Append(" = ");
             this.TranslateExpression(sb, fallbackValue);
-            sb.Append(";");
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary)
@@ -830,8 +828,7 @@ namespace Pastel.Transpilers
             {
                 this.TranslateExpression(sb, varDecl.Value);
             }
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
@@ -845,16 +842,13 @@ namespace Pastel.Transpilers
                 if (i > 0) sb.Append(", ");
                 sb.Append(args[i].Value);
             }
-            sb.Append(") {");
-            sb.Append(this.NewLine);
+            sb.Append(") {\n");
 
             sb.TabDepth = 1;
             this.TranslateExecutables(sb, funcDef.Code);
             sb.TabDepth = 0;
 
-            sb.Append("};");
-            sb.Append(this.NewLine);
-            sb.Append(this.NewLine);
+            sb.Append("};\n\n");
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

@@ -143,15 +143,13 @@ namespace Pastel
         public string GetCodeForFunctions()
         {
             TranspilerContext ctx = this.GetTranspilerContext();
-            string nl = ctx.Transpiler.NewLine;
-            string nl2 = nl + nl;
             Dictionary<string, string> output = this.GetCodeForFunctionsLookup();
 
             System.Text.StringBuilder userCodeBuilder = new System.Text.StringBuilder();
 
             foreach (string fnName in output.Keys.OrderBy(s => s))
             {
-                userCodeBuilder.Append(nl2);
+                userCodeBuilder.Append("\n\n");
                 userCodeBuilder.Append(output[fnName]);
             }
 
@@ -166,7 +164,7 @@ namespace Pastel
                 finalCodeBuilder.Add(codeChunks[chunkId]);
             }
 
-            string finalCode = string.Join(nl2, finalCodeBuilder);
+            string finalCode = string.Join("\n\n", finalCodeBuilder);
             return finalCode;
         }
 

@@ -180,7 +180,12 @@ namespace Pastel
                 default:
                     throw new NotImplementedException();
             }
-            System.IO.File.WriteAllText(path, string.Join(transpiler.NewLine, finalCode));
+            string codeString = string.Join('\n', finalCode);
+            if (config.Language == Language.CSHARP)
+            {
+                codeString = codeString.Replace("\n", "\r\n");
+            }
+            System.IO.File.WriteAllText(path, codeString);
         }
 
         private static PastelContext CompilePastelContexts(ProjectConfig rootConfig)

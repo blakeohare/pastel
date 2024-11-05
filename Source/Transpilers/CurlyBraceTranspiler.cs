@@ -6,8 +6,8 @@ namespace Pastel.Transpilers
     {
         private bool isEgyptian;
 
-        public CurlyBraceTranspiler(string tabChar, string newline, bool isEgyptian)
-            : base(tabChar, newline)
+        public CurlyBraceTranspiler(string tabChar, bool isEgyptian)
+            : base(tabChar)
         {
             this.isEgyptian = isEgyptian;
         }
@@ -20,8 +20,7 @@ namespace Pastel.Transpilers
             sb.Append(assignment.OpToken.Value);
             sb.Append(' ');
             this.TranslateExpression(sb, assignment.Value);
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void TranslateBooleanConstant(TranspilerContext sb, bool value)
@@ -38,8 +37,7 @@ namespace Pastel.Transpilers
         public override void TranslateBreak(TranspilerContext sb)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append("break;");
-            sb.Append(this.NewLine);
+            sb.Append("break;\n");
         }
 
         public override void TranslateEmitComment(TranspilerContext sb, string value)
@@ -52,8 +50,7 @@ namespace Pastel.Transpilers
         {
             sb.Append(sb.CurrentTab);
             this.TranslateExpression(sb, expression);
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void TranslateFloatConstant(TranspilerContext sb, double value)
@@ -86,16 +83,13 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, ifStatement.Condition);
             if (this.isEgyptian)
             {
-                sb.Append(") {");
-                sb.Append(this.NewLine);
+                sb.Append(") {\n");
             }
             else
             {
-                sb.Append(")");
-                sb.Append(this.NewLine);
+                sb.Append(")\n");
                 sb.Append(sb.CurrentTab);
-                sb.Append("{");
-                sb.Append(this.NewLine);
+                sb.Append("{\n");
             }
 
             sb.TabDepth++;
@@ -114,14 +108,12 @@ namespace Pastel.Transpilers
 
                     if (!isIfElseChain)
                     {
-                        sb.Append("{");
-                        sb.Append(this.NewLine);
+                        sb.Append("{\n");
                     }
                 }
                 else
                 {
-                    sb.Append(this.NewLine);
-
+                    sb.Append('\n');
                     sb.Append(sb.CurrentTab);
                     sb.Append("else");
 
@@ -131,11 +123,10 @@ namespace Pastel.Transpilers
                     }
                     else
                     {
-                        sb.Append(this.NewLine);
+                        sb.Append('\n');
 
                         sb.Append(sb.CurrentTab);
-                        sb.Append("{");
-                        sb.Append(this.NewLine);
+                        sb.Append("{\n");
                     }
                 }
 
@@ -154,7 +145,7 @@ namespace Pastel.Transpilers
                 }
             }
 
-            if (includeInitialTab) sb.Append(this.NewLine);
+            if (includeInitialTab) sb.Append("\n");
         }
 
         public override void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition)
@@ -201,8 +192,7 @@ namespace Pastel.Transpilers
                 sb.Append(' ');
                 this.TranslateExpression(sb, returnStatement.Expression);
             }
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void TranslateStringConstant(TranspilerContext sb, string value)
@@ -222,11 +212,11 @@ namespace Pastel.Transpilers
             }
             else
             {
-                sb.Append(this.NewLine);
+                sb.Append("\n");
                 sb.Append(sb.CurrentTab);
                 sb.Append('{');
             }
-            sb.Append(this.NewLine);
+            sb.Append("\n");
 
             sb.TabDepth++;
 
@@ -246,7 +236,7 @@ namespace Pastel.Transpilers
                         this.TranslateExpression(sb, c);
                         sb.Append(':');
                     }
-                    sb.Append(this.NewLine);
+                    sb.Append("\n");
                     sb.TabDepth++;
                     this.TranslateExecutables(sb, chunk.Code);
                     sb.TabDepth--;
@@ -255,8 +245,7 @@ namespace Pastel.Transpilers
 
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
-            sb.Append('}');
-            sb.Append(this.NewLine);
+            sb.Append("}\n");
         }
 
         public override void TranslateVariable(TranspilerContext sb, Variable variable)
@@ -272,22 +261,19 @@ namespace Pastel.Transpilers
             sb.Append(')');
             if (this.isEgyptian)
             {
-                sb.Append(" {");
-                sb.Append(this.NewLine);
+                sb.Append(" {\n");
             }
             else
             {
-                sb.Append(this.NewLine);
+                sb.Append("\n");
                 sb.Append(sb.CurrentTab);
-                sb.Append("{");
-                sb.Append(this.NewLine);
+                sb.Append("{\n");
             }
             sb.TabDepth++;
             this.TranslateExecutables(sb, whileLoop.Code);
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
-            sb.Append("}");
-            sb.Append(this.NewLine);
+            sb.Append("}\n");
         }
     }
 }

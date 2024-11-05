@@ -7,7 +7,7 @@ namespace Pastel.Transpilers
 {
     internal class CTranspiler : CurlyBraceTranspiler
     {
-        public CTranspiler() : base("    ", "\r\n", false)
+        public CTranspiler() : base("    ", false)
         { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.c"; } }

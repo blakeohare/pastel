@@ -7,7 +7,7 @@ namespace Pastel.Transpilers
 {
     internal class CSharpTranspiler : CurlyBraceTranspiler
     {
-        public CSharpTranspiler() : base("    ", "\r\n", false)
+        public CSharpTranspiler() : base("    ", false)
         { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.cs"; } }
@@ -288,8 +288,7 @@ namespace Pastel.Transpilers
             sb.Append(varOut.Name);
             sb.Append(" = ");
             this.TranslateExpression(sb, fallbackValue);
-            sb.Append(";");
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary)
@@ -896,8 +895,7 @@ namespace Pastel.Transpilers
                 sb.Append(" = ");
                 this.TranslateExpression(sb, varDecl.Value);
             }
-            sb.Append(';');
-            sb.Append(this.NewLine);
+            sb.Append(";\n");
         }
 
         public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
@@ -909,10 +907,9 @@ namespace Pastel.Transpilers
             {
                 sb.Append(" : " + classDef.ParentClass.NameToken.Value);
             }
-            sb.Append(this.NewLine);
+            sb.Append('\n');
 
-            sb.Append("{");
-            sb.Append(this.NewLine);
+            sb.Append("{\n");
             sb.TabDepth++;
             foreach (FieldDefinition fd in classDef.Fields)
             {
@@ -924,9 +921,7 @@ namespace Pastel.Transpilers
                 sb.Append(fd.NameToken.Value);
                 sb.Append(" = ");
                 this.TranslateExpression(sb, fd.Value);
-                sb.Append(";");
-                sb.Append(this.NewLine);
-                sb.Append(this.NewLine);
+                sb.Append(";\n\n");
             }
 
             ConstructorDefinition constructorDef = classDef.Constructor;
@@ -940,29 +935,23 @@ namespace Pastel.Transpilers
                 sb.Append(' ');
                 sb.Append(constructorDef.ArgNames[i].Value);
             }
-            sb.Append(")");
-            sb.Append(this.NewLine);
+            sb.Append(")\n");
             sb.Append(sb.CurrentTab);
-            sb.Append("{");
-            sb.Append(this.NewLine);
+            sb.Append("{\n");
             sb.TabDepth++;
             this.TranslateExecutables(sb, constructorDef.Code);
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
-            sb.Append("}");
-            sb.Append(this.NewLine);
-            sb.Append(this.NewLine);
+            sb.Append("}\n\n");
 
             foreach (FunctionDefinition fd in classDef.Methods)
             {
                 this.GenerateCodeForFunction(sb, fd, false);
-                sb.Append(this.NewLine);
+                sb.Append("\n");
             }
 
             sb.TabDepth--;
-            sb.Append(this.NewLine);
-            sb.Append("}");
-            sb.Append(this.NewLine);
+            sb.Append("\n}\n");
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
@@ -1050,11 +1039,9 @@ namespace Pastel.Transpilers
                 output.Append(' ');
                 output.Append(argNames[i].Value);
             }
-            output.Append(")");
-            output.Append(this.NewLine);
+            output.Append(")\n");
             output.Append(output.CurrentTab);
-            output.Append("{");
-            output.Append(this.NewLine);
+            output.Append("{\n");
             output.TabDepth++;
             this.TranslateExecutables(output, funcDef.Code);
             output.TabDepth--;

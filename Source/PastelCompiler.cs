@@ -393,10 +393,10 @@ namespace Pastel
             foreach (FunctionDefinition fd in this.GetFunctionDefinitions())
             {
                 ctx.Transpiler.GenerateCodeForFunctionDeclaration(ctx, fd, true);
-                ctx.Append(ctx.Transpiler.NewLine);
+                ctx.Append('\n');
             }
 
-            return Indent(ctx.FlushAndClearBuffer().Trim(), ctx.Transpiler.NewLine, indent);
+            return Indent(ctx.FlushAndClearBuffer().Trim(), indent);
         }
 
         internal Dictionary<string, string> GetFunctionCodeAsLookupTEMP(Transpilers.TranspilerContext ctx, string indent)
@@ -405,17 +405,17 @@ namespace Pastel
             foreach (FunctionDefinition fd in this.GetFunctionDefinitions())
             {
                 ctx.Transpiler.GenerateCodeForFunction(ctx, fd, true);
-                output[fd.NameToken.Value] = Indent(ctx.FlushAndClearBuffer().Trim(), ctx.Transpiler.NewLine, indent);
+                output[fd.NameToken.Value] = Indent(ctx.FlushAndClearBuffer().Trim(), indent);
             }
 
             return output;
         }
 
-        private static string Indent(string code, string newline, string indent)
+        private static string Indent(string code, string indent)
         {
             if (indent.Length == 0) return code;
 
-            return string.Join(newline, code
+            return string.Join('\n', code
                 .Split('\n')
                 .Select(s => s.Trim())
                 .Select(s => s.Length > 0 ? indent + s : ""));
