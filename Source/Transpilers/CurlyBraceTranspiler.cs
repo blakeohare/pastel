@@ -4,12 +4,14 @@ namespace Pastel.Transpilers
 {
     internal abstract class CurlyBraceTranspiler : AbstractTranspiler
     {
-        private bool isEgyptian;
+        private bool IsAllmanBraces { get; set; }
+        private bool IsKRBraces { get; set; }
 
-        public CurlyBraceTranspiler(string tabChar, bool isEgyptian)
+        public CurlyBraceTranspiler(string tabChar, bool isKRBraces)
             : base(tabChar)
         {
-            this.isEgyptian = isEgyptian;
+            this.IsKRBraces = isKRBraces;
+            this.IsAllmanBraces = !isKRBraces;
         }
 
         public override void TranslateAssignment(TranspilerContext sb, Assignment assignment)
@@ -81,7 +83,7 @@ namespace Pastel.Transpilers
             if (includeInitialTab) sb.Append(sb.CurrentTab);
             sb.Append("if (");
             this.TranslateExpression(sb, ifStatement.Condition);
-            if (this.isEgyptian)
+            if (this.IsKRBraces)
             {
                 sb.Append(") {\n");
             }
@@ -102,7 +104,7 @@ namespace Pastel.Transpilers
             {
                 bool isIfElseChain = ifStatement.ElseCode.Length == 1 && ifStatement.ElseCode[0] is IfStatement;
 
-                if (this.isEgyptian)
+                if (this.IsKRBraces)
                 {
                     sb.Append(" else ");
 
@@ -206,7 +208,7 @@ namespace Pastel.Transpilers
             sb.Append("switch (");
             this.TranslateExpression(sb, switchStatement.Condition);
             sb.Append(")");
-            if (this.isEgyptian)
+            if (this.IsKRBraces)
             {
                 sb.Append(" {");
             }
@@ -259,7 +261,7 @@ namespace Pastel.Transpilers
             sb.Append("while (");
             this.TranslateExpression(sb, whileLoop.Condition);
             sb.Append(')');
-            if (this.isEgyptian)
+            if (this.IsKRBraces)
             {
                 sb.Append(" {\n");
             }
