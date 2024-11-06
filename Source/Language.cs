@@ -18,8 +18,6 @@ namespace Pastel
 
     internal static class LanguageUtil
     {
-        private static readonly Dictionary<Language, AbstractTranspiler> singletons = new Dictionary<Language, AbstractTranspiler>();
-
         internal static string GetFileExtension(Language lang)
         {
             switch (lang)

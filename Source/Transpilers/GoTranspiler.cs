@@ -452,7 +452,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateMathPow(TranspilerContext sb, Expression expBase, Expression exponent)
         {
-            sb.MarkFeatureAsBeingUsed("IMPORT:math");
+            this.transpilerCtx.MarkFeatureAsBeingUsed("IMPORT:math");
             sb.Append("math.Pow(");
             this.TranslateExpression(sb, expBase);
             sb.Append(", ");
@@ -564,7 +564,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray)
         {
-            sb.MarkFeatureAsBeingUsed("IMPORT:sort");
+            this.transpilerCtx.MarkFeatureAsBeingUsed("IMPORT:sort");
             sb.Append("PST_SortedIntArrayCopy(");
             this.TranslateExpression(sb, intArray);
             sb.Append(')');

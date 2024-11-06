@@ -13,6 +13,7 @@ namespace Pastel
         private Dictionary<string, object> constants = new Dictionary<string, object>();
         internal ExtensionSet ExtensionSet { get; private set; }
         internal AbstractTranspiler Transpiler { get; private set; }
+        public TranspilerContext TranspilerContext { get; private set; }
         public IInlineImportCodeLoader CodeLoader { get; private set; }
 
         private string dir;
@@ -46,9 +47,6 @@ namespace Pastel
         public bool UsesFunctionDeclarations { get { return this.Transpiler.UsesFunctionDeclarations; } }
         public bool UsesStructDeclarations { get { return this.Transpiler.UsesStructDeclarations; } }
         public bool HasStructsInSeparateFiles { get { return this.Transpiler.HasStructsInSeparateFiles; } }
-
-        public TranspilerContext TranspilerContext { get; private set; }
-        
 
         public PastelContext SetConstant(string key, object value)
         {

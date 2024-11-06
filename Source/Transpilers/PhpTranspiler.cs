@@ -310,7 +310,7 @@ namespace Pastel.Transpilers
             sb.Append(sb.CurrentTab);
             if (!keyExpressionIsSimple)
             {
-                keyVar = "$_PST_dictKey" + sb.SwitchCounter++;
+                keyVar = "$_PST_dictKey" + this.transpilerCtx.SwitchCounter++;
                 sb.Append(keyVar);
                 sb.Append(" = ");
                 TranslateDictionaryKeyExpression(sb, key);

@@ -991,8 +991,8 @@ namespace Pastel.Transpilers
 
         public override void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement)
         {
-            string functionName = sb.CurrentFunctionDefinition.NameToken.Value;
-            int switchId = sb.SwitchCounter++;
+            string functionName = this.transpilerCtx.CurrentFunctionDefinition.NameToken.Value;
+            int switchId = this.transpilerCtx.SwitchCounter++;
             PythonFakeSwitchStatement fakeSwitchStatement = PythonFakeSwitchStatement.Build(switchStatement, switchId, functionName);
 
             sb.Append(sb.CurrentTab);
@@ -1063,7 +1063,7 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
-            sb.CurrentFunctionDefinition = funcDef;
+            this.transpilerCtx.CurrentFunctionDefinition = funcDef;
 
             sb.Append(sb.CurrentTab);
             sb.Append("def ");
@@ -1081,14 +1081,14 @@ namespace Pastel.Transpilers
             sb.TabDepth--;
             sb.Append("\n");
 
-            foreach (PythonFakeSwitchStatement switchStatement in sb.SwitchStatements)
+            foreach (PythonFakeSwitchStatement switchStatement in this.transpilerCtx.SwitchStatements)
             {
                 sb.Append(sb.CurrentTab);
                 sb.Append(switchStatement.GenerateGlobalDictionaryLookup());
                 sb.Append("\n");
             }
-            sb.SwitchStatements.Clear();
-            sb.CurrentFunctionDefinition = null;
+            this.transpilerCtx.SwitchStatements.Clear();
+            this.transpilerCtx.CurrentFunctionDefinition = null;
         }
 
         public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)

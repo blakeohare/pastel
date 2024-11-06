@@ -12,8 +12,6 @@ namespace Pastel.Parser
         
         private IDictionary<string, object> constants;
 
-        private IInlineImportCodeLoader importCodeLoader;
-
         internal ICompilationEntity ActiveEntity { get; set; } = null;
 
         internal PastelContext Context { get; private set; }
@@ -25,7 +23,6 @@ namespace Pastel.Parser
         {
             this.Context = context;
             this.constants = new Dictionary<string, object>(constants);
-            this.importCodeLoader = importCodeLoader;
             this.ExpressionParser = new ExpressionParser(this);
             this.StatementParser = new StatementParser(this);
             this.EntityParser = new EntityParser(this);
@@ -33,7 +30,7 @@ namespace Pastel.Parser
 
         public string LoadCode(Token throwToken, string path)
         {
-            return this.importCodeLoader.LoadCode(throwToken, path);
+            return this.Context.CodeLoader.LoadCode(throwToken, path);
         }
 
         public ExpressionParser ExpressionParser { get; private set; }
