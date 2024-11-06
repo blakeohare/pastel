@@ -6,7 +6,8 @@ namespace Pastel.Transpilers
 {
     internal class CTranspiler : CurlyBraceTranspiler
     {
-        public CTranspiler() : base(false)
+        public CTranspiler(TranspilerContext transpilerCtx) 
+            : base(transpilerCtx, false)
         { }
 
         public override string PreferredTab => "    ";

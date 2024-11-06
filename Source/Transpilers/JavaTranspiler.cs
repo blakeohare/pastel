@@ -8,8 +8,8 @@ namespace Pastel.Transpilers
 {
     internal class JavaTranspiler : CurlyBraceTranspiler
     {
-        public JavaTranspiler()
-            : base(true)
+        public JavaTranspiler(TranspilerContext transpilerCtx)
+            : base(transpilerCtx, true)
         { }
 
         public override string PreferredTab => "  ";

@@ -18,8 +18,8 @@ namespace Pastel.Transpilers
             }
         }
 
-        public PythonTranspiler()
-            : base()
+        public PythonTranspiler(TranspilerContext transpilerCtx)
+            : base(transpilerCtx)
         {
             this.UsesStructDefinitions = false;
         }

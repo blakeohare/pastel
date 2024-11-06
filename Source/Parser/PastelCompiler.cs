@@ -7,7 +7,7 @@ namespace Pastel.Parser
 {
     internal class PastelCompiler
     {
-        internal IDictionary<string, ExtensibleFunction> ExtensibleFunctions { get; private set; }
+        internal ExtensionSet ExtensionSet { get; private set; }
         internal Transpilers.AbstractTranspiler Transpiler { get; set; }
         public IInlineImportCodeLoader CodeLoader { get; private set; }
 
@@ -18,15 +18,13 @@ namespace Pastel.Parser
             Language language,
             IDictionary<string, object> constants,
             IInlineImportCodeLoader inlineImportCodeLoader,
-            ICollection<ExtensibleFunction> extensibleFunctions)
+            ExtensionSet extensionSet)
         {
             Context = context;
 
             CodeLoader = inlineImportCodeLoader;
             Transpiler = context.Transpiler;
-            ExtensibleFunctions = extensibleFunctions == null
-                ? new Dictionary<string, ExtensibleFunction>()
-                : extensibleFunctions.ToDictionary(ef => ef.Name);
+            this.ExtensionSet = extensionSet;
             StructDefinitions = new Dictionary<string, StructDefinition>();
             EnumDefinitions = new Dictionary<string, EnumDefinition>();
             ConstantDefinitions = new Dictionary<string, VariableDeclaration>();

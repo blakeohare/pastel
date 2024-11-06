@@ -22,8 +22,11 @@ namespace Pastel.Transpilers
 
         public virtual string HelperCodeResourcePath { get { return null; } }
 
-        public AbstractTranspiler()
+        protected TranspilerContext transpilerCtx;
+
+        public AbstractTranspiler(TranspilerContext transpilerCtx)
         {
+            this.transpilerCtx = transpilerCtx;
             this.ClassDefinitionsInSeparateFiles = true;
             this.UsesStructDefinitions = true;
             this.UsesClassDefinitions = true;
@@ -377,7 +380,7 @@ namespace Pastel.Transpilers
             Expression[] args = funcInvocation.Args;
             Token throwToken = funcInvocation.FunctionRef.FirstToken;
             string functionName = funcInvocation.FunctionRef.Name;
-            Dictionary<string, string> extLookup = sb.ExtensibleFunctionLookup;
+            Dictionary<string, string> extLookup = sb.PastelContext.ExtensionSet.ExtensibleFunctionTranslations;
 
             if (!extLookup.ContainsKey(functionName) || extLookup[functionName] == null)
             {

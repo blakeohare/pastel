@@ -30,7 +30,7 @@ namespace Pastel.Parser.ParseNodes
 
             string name = FunctionRef.Name;
             ExtensibleFunction extensibleFunction;
-            if (!compiler.ExtensibleFunctions.TryGetValue(name, out extensibleFunction))
+            if (!compiler.ExtensionSet.ExtensionLookup.TryGetValue(name, out extensibleFunction))
             {
                 throw new ParserException(FirstToken, "Type information for '" + name + "' extensible function is not defined.");
             }

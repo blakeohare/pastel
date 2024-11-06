@@ -9,7 +9,7 @@ namespace Pastel.Transpilers
 {
     internal class JavaScriptTranspiler : CurlyBraceTranspiler
     {
-        public JavaScriptTranspiler() : base(true)
+        public JavaScriptTranspiler(TranspilerContext transpilerCtx) : base(transpilerCtx, true)
         {
             this.UsesStructDefinitions = false;
             this.ClassDefinitionsInSeparateFiles = false;

@@ -7,8 +7,8 @@ namespace Pastel.Transpilers
 {
     internal class GoTranspiler : AbstractTranspiler
     {
-        public GoTranspiler()
-            : base()
+        public GoTranspiler(TranspilerContext transpilerCtx)
+            : base(transpilerCtx)
         {
             this.UsesStructDefinitions = true;
             this.HasStructsInSeparateFiles = false;

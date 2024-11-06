@@ -8,7 +8,8 @@ namespace Pastel.Transpilers
 {
     internal class PhpTranspiler : CurlyBraceTranspiler
     {
-        public PhpTranspiler() : base(true)
+        public PhpTranspiler(TranspilerContext transpilerCtx) 
+            : base(transpilerCtx, true)
         {
             this.HasNewLineAtEndOfFile = false;
             this.HasStructsInSeparateFiles = false;

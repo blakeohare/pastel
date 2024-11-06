@@ -11,9 +11,7 @@ namespace Pastel
         private PastelCompiler lazyInitCompiler = null;
         public Language Language { get; private set; }
         private Dictionary<string, object> constants = new Dictionary<string, object>();
-        private List<ExtensibleFunction> extensibleFunctions = new List<ExtensibleFunction>();
-        private Dictionary<string, string> extensibleFunctionTranslations = new Dictionary<string, string>();
-
+        internal ExtensionSet ExtensionSet { get; private set; }
         internal AbstractTranspiler Transpiler { get; private set; }
         public IInlineImportCodeLoader CodeLoader { get; private set; }
 
@@ -24,7 +22,12 @@ namespace Pastel
             this.dir = dir;
             this.CodeLoader = codeLoader;
             this.Language = language;
-            this.Transpiler = LanguageUtil.CreateTranspiler(language);
+            this.ExtensionSet = new ExtensionSet();
+
+            // TODO: do something about this weird cycle.
+            this.TranspilerContext = new TranspilerContext(this);
+            this.Transpiler = LanguageUtil.CreateTranspiler(this.Language, this.TranspilerContext);
+            this.TranspilerContext.Transpiler = this.Transpiler;
         }
 
         public PastelContext(string dir, string languageId, IInlineImportCodeLoader codeLoader)
@@ -44,26 +47,12 @@ namespace Pastel
         public bool UsesStructDeclarations { get { return this.Transpiler.UsesStructDeclarations; } }
         public bool HasStructsInSeparateFiles { get { return this.Transpiler.HasStructsInSeparateFiles; } }
 
-        private TranspilerContext tc = null;
-        public TranspilerContext GetTranspilerContext()
-        {
-            if (this.tc == null)
-            {
-                this.tc = new TranspilerContext(this, this.extensibleFunctionTranslations);
-            }
-            return this.tc;
-        }
+        public TranspilerContext TranspilerContext { get; private set; }
+        
 
         public PastelContext SetConstant(string key, object value)
         {
             this.constants[key] = value;
-            return this;
-        }
-
-        public PastelContext AddExtensibleFunction(ExtensibleFunction fn, string translation)
-        {
-            this.extensibleFunctions.Add(fn);
-            this.extensibleFunctionTranslations[fn.Name] = translation;
             return this;
         }
 
@@ -76,7 +65,7 @@ namespace Pastel
                     this.Language,
                     this.constants,
                     this.CodeLoader,
-                    this.extensibleFunctions);
+                    this.ExtensionSet);
             }
             return this.lazyInitCompiler;
         }
@@ -100,7 +89,7 @@ namespace Pastel
 
         public Dictionary<string, string> GetCodeForClasses()
         {
-            TranspilerContext ctx = this.GetTranspilerContext();
+            TranspilerContext ctx = this.TranspilerContext;
             Dictionary<string, string> output = new Dictionary<string, string>();
             foreach (ClassDefinition cd in this.GetCompiler().GetClassDefinitions())
             {
@@ -112,7 +101,7 @@ namespace Pastel
 
         public Dictionary<string, string> GetCodeForStructs()
         {
-            TranspilerContext ctx = this.GetTranspilerContext();
+            TranspilerContext ctx = this.TranspilerContext;
             Dictionary<string, string> output = new Dictionary<string, string>();
             foreach (StructDefinition sd in this.GetCompiler().GetStructDefinitions())
             {
@@ -124,26 +113,26 @@ namespace Pastel
 
         public string GetCodeForStructDeclaration(string structName)
         {
-            TranspilerContext ctx = this.GetTranspilerContext();
+            TranspilerContext ctx = this.TranspilerContext;
             this.Transpiler.GenerateCodeForStructDeclaration(ctx, structName);
             return ctx.FlushAndClearBuffer();
         }
 
         public Dictionary<string, string> GetCodeForFunctionsLookup()
         {
-            TranspilerContext ctx = this.GetTranspilerContext();
+            TranspilerContext ctx = this.TranspilerContext;
             return this.GetCompiler().GetFunctionCodeAsLookupTEMP(ctx, "");
         }
 
         public string GetCodeForFunctionDeclarations()
         {
-            TranspilerContext ctx = this.GetTranspilerContext();
+            TranspilerContext ctx = this.TranspilerContext;
             return this.GetCompiler().GetFunctionDeclarationsTEMP(ctx, "");
         }
 
         public string GetCodeForFunctions()
         {
-            TranspilerContext ctx = this.GetTranspilerContext();
+            TranspilerContext ctx = this.TranspilerContext;
             Dictionary<string, string> output = this.GetCodeForFunctionsLookup();
 
             System.Text.StringBuilder userCodeBuilder = new System.Text.StringBuilder();

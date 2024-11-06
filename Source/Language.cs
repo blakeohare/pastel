@@ -51,17 +51,17 @@ namespace Pastel
             }
         }
 
-        internal static AbstractTranspiler CreateTranspiler(Language language)
+        internal static AbstractTranspiler CreateTranspiler(Language lang, TranspilerContext ctx)
         {
-            switch (language)
+            switch (lang)
             {
-                case Language.C: return new CTranspiler();
-                case Language.CSHARP: return new CSharpTranspiler();
-                case Language.GO: return new GoTranspiler();
-                case Language.JAVA: return new JavaTranspiler();
-                case Language.JAVASCRIPT: return new JavaScriptTranspiler();
-                case Language.PHP: return new PhpTranspiler();
-                case Language.PYTHON: return new PythonTranspiler();
+                case Language.C: return new CTranspiler(ctx);
+                case Language.CSHARP: return new CSharpTranspiler(ctx);
+                case Language.GO: return new GoTranspiler(ctx);
+                case Language.JAVA: return new JavaTranspiler(ctx);
+                case Language.JAVASCRIPT: return new JavaScriptTranspiler(ctx);
+                case Language.PHP: return new PhpTranspiler(ctx);
+                case Language.PYTHON: return new PythonTranspiler(ctx);
                 default: throw new System.InvalidOperationException();
             }
         }

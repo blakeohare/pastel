@@ -102,7 +102,7 @@ namespace Pastel
                 }
                 else
                 {
-                    GenerateStructBundleImplementation(context.GetTranspilerContext(), config, structOrder, structDefinitions);
+                    GenerateStructBundleImplementation(context.TranspilerContext, config, structOrder, structDefinitions);
                 }
 
                 if (context.UsesStructDeclarations)
@@ -130,7 +130,7 @@ namespace Pastel
         private static void GenerateFunctionImplementation(PastelContext ctx, ProjectConfig config, string funcCode)
         {
             Transpilers.AbstractTranspiler transpiler = ctx.Transpiler;
-            funcCode = transpiler.WrapCodeForFunctions(ctx.GetTranspilerContext(), config, funcCode);
+            funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
             funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
             System.IO.File.WriteAllText(config.OutputFileFunctions, funcCode);
@@ -138,7 +138,7 @@ namespace Pastel
 
         private static void GenerateStructImplementation(PastelContext ctx, ProjectConfig config, string structName, string structCode)
         {
-            structCode = ctx.Transpiler.WrapCodeForStructs(ctx.GetTranspilerContext(), config, structCode);
+            structCode = ctx.Transpiler.WrapCodeForStructs(ctx.TranspilerContext, config, structCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, structName + fileExtension);
             structCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(structCode, ctx.Transpiler);
@@ -147,7 +147,7 @@ namespace Pastel
 
         private static void GenerateClassImplementation(PastelContext ctx, ProjectConfig config, string className, string classCode)
         {
-            classCode = ctx.Transpiler.WrapCodeForClasses(ctx.GetTranspilerContext(), config, classCode);
+            classCode = ctx.Transpiler.WrapCodeForClasses(ctx.TranspilerContext, config, classCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, className + fileExtension);
             classCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(classCode, ctx.Transpiler);
@@ -243,8 +243,9 @@ namespace Pastel
             {
                 // TODO(pastel-split): Translation is already set on the extensible function in the
                 // new codepath, so the 2nd parameter here ought to be removed.
-                context.AddExtensibleFunction(exFn, exFn.Translation);
+                context.ExtensionSet.AddExtensibleFunction(exFn, exFn.Translation);
             }
+            context.ExtensionSet.LockExtensibleFunctions();
 
             contexts[config.Path] = context;
             recursionCheck.Remove(config.Path);

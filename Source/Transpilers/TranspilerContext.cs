@@ -16,16 +16,15 @@ namespace Pastel.Transpilers
         // This reference is updated in TranslateFunctionDefinition.
         internal FunctionDefinition PY_HACK_CurrentFunctionDef { get; set; }
         public int SwitchCounter { get; set; }
-        private int currentTab = 0;
+        private int currentIndentDepth = 0;
         public string CurrentTab { get; private set; }
-        internal AbstractTranspiler Transpiler { get; private set; }
-        public Dictionary<string, string> ExtensibleFunctionLookup { get; private set; }
+        internal AbstractTranspiler Transpiler { get; set; }
         private HashSet<string> featureUsage = new HashSet<string>();
+        public PastelContext PastelContext { get; private set; }
 
-        internal TranspilerContext(PastelContext ctx, Dictionary<string, string> extensibleFunctions)
+        internal TranspilerContext(PastelContext ctx)
         {
-            this.ExtensibleFunctionLookup = extensibleFunctions;
-            this.Transpiler = ctx.Transpiler;
+            this.PastelContext = ctx;
             if (ctx.Language == Language.PYTHON)
             {
                 this.SwitchCounter = 0;
@@ -44,29 +43,22 @@ namespace Pastel.Transpilers
             return this.featureUsage.ToArray();
         }
 
+        private List<string> tabCache = ["", "\t"];
         public int TabDepth
         {
             get
             {
-                return this.currentTab;
+                return this.currentIndentDepth;
             }
             set
             {
-                this.currentTab = value;
-
-                while (this.currentTab >= this.Transpiler.Tabs.Length)
+                this.currentIndentDepth = value;
+                while (this.currentIndentDepth >= this.tabCache.Count)
                 {
-                    // Conciseness, not efficiency. Deeply nested stuff is rare.
-                    List<string> tabsBuilder = new List<string>(this.Transpiler.Tabs);
-                    for (int i = 0; i < 20; ++i)
-                    {
-                        tabsBuilder.Add(tabsBuilder[tabsBuilder.Count - 1] + "\t");
-                    }
-                    this.Transpiler.Tabs = tabsBuilder.ToArray();
+                    this.tabCache.Add(this.tabCache.Last() + '\t');
                 }
-                this.CurrentTab = this.Transpiler.Tabs[this.currentTab];
+                this.CurrentTab = this.tabCache[this.currentIndentDepth];
             }
-
         }
 
         public TranspilerContext Append(char c)

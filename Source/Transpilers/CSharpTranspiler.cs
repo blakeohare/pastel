@@ -8,7 +8,8 @@ namespace Pastel.Transpilers
 {
     internal class CSharpTranspiler : CurlyBraceTranspiler
     {
-        public CSharpTranspiler() : base(false)
+        public CSharpTranspiler(TranspilerContext transpilerCtx) 
+            : base(transpilerCtx, false)
         { }
 
         public override string PreferredTab => "    ";
