@@ -14,7 +14,8 @@ namespace Pastel.Transpilers
             this.HasStructsInSeparateFiles = false;
         }
 
-        public override string CanonicalTab => "  ";
+        public override string PreferredTab => "  ";
+        public override string PreferredNewline => "\n";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.go"; } }
 

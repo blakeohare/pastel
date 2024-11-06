@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Pastel.Transpilers;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Pastel
 {
     internal static class CodeUtil
     {
-        public static string ConvertWhitespaceFromCanonicalFormToPreferred(string code, string tab, string newline)
+        public static string ConvertWhitespaceFromCanonicalFormToPreferred(string code, AbstractTranspiler transpiler)
         {
+            string newline = transpiler.PreferredNewline;
+            string tab = transpiler.PreferredTab;
             if (newline != "\n") code = code.Replace("\n", newline);
             if (tab != "\t") code = code.Replace("\t", tab);
             return code;

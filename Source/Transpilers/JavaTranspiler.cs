@@ -12,7 +12,8 @@ namespace Pastel.Transpilers
             : base(true)
         { }
 
-        public override string CanonicalTab => "  ";
+        public override string PreferredTab => "  ";
+        public override string PreferredNewline => "\n";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.java"; } }
 

@@ -11,7 +11,8 @@ namespace Pastel.Transpilers
         public CSharpTranspiler() : base(false)
         { }
 
-        public override string CanonicalTab => "    ";
+        public override string PreferredTab => "    ";
+        public override string PreferredNewline => "\r\n";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.cs"; } }
 

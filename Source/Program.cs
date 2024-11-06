@@ -82,7 +82,9 @@ namespace Pastel
                     {
                         string classOutputDir = System.IO.Path.GetDirectoryName(config.OutputFileFunctions);
                         string path = System.IO.Path.Combine(classOutputDir, "Classes" + LanguageUtil.GetFileExtension(config.Language));
-                        System.IO.File.WriteAllText(path, code + "\n");
+                        code += "\n";
+                        code = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(code, context.Transpiler);
+                        System.IO.File.WriteAllText(path, code);
                     }
                 }
             }
@@ -130,6 +132,7 @@ namespace Pastel
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
             funcCode = transpiler.WrapCodeForFunctions(ctx.GetTranspilerContext(), config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
+            funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
             System.IO.File.WriteAllText(config.OutputFileFunctions, funcCode);
         }
 
@@ -139,6 +142,7 @@ namespace Pastel
             structCode = transpiler.WrapCodeForStructs(ctx.GetTranspilerContext(), config, structCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, structName + fileExtension);
+            structCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(structCode, transpiler);
             System.IO.File.WriteAllText(path, structCode);
         }
 
@@ -148,6 +152,7 @@ namespace Pastel
             classCode = transpiler.WrapCodeForClasses(ctx.GetTranspilerContext(), config, classCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, className + fileExtension);
+            classCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(classCode, transpiler);
             System.IO.File.WriteAllText(path, classCode);
         }
 
@@ -178,10 +183,7 @@ namespace Pastel
             }
 
             string codeString = string.Join('\n', codeLines);
-            codeString = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(
-                codeString,
-                transpiler.CanonicalTab,
-                config.Language == Language.CSHARP ? "\r\n" : "\n");
+            codeString = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(codeString, transpiler);
             System.IO.File.WriteAllText(path, codeString);
         }
 

@@ -15,7 +15,8 @@ namespace Pastel.Transpilers
             this.ClassDefinitionsInSeparateFiles = false;
         }
 
-        public override string CanonicalTab => "\t";
+        public override string PreferredTab => "\t";
+        public override string PreferredNewline => "\n";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.js"; } }
 
