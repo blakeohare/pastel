@@ -121,7 +121,7 @@ namespace Pastel.Parser
                         }
                         FunctionDefinition fd = new FunctionDefinition(memberName, memberType, argTypes, argNames, cd);
                         this.parser.ActiveEntity = fd;
-                        List<Executable> code = this.StatementParser.ParseCodeBlock(tokens, true);
+                        List<Statement> code = this.StatementParser.ParseCodeBlock(tokens, true);
                         fd.Code = code.ToArray();
                         entity = fd;
                         entityName = fd.Name;
@@ -257,7 +257,7 @@ namespace Pastel.Parser
             }
             FunctionDefinition funcDef = new FunctionDefinition(nameToken, returnType, argTypes, argNames, null);
             this.parser.ActiveEntity = funcDef;
-            List<Executable> code = this.StatementParser.ParseCodeBlock(tokens, true);
+            List<Statement> code = this.StatementParser.ParseCodeBlock(tokens, true);
             this.parser.ActiveEntity = null;
             funcDef.Code = code.ToArray();
             return funcDef;

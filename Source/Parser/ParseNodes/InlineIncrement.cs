@@ -34,7 +34,7 @@
         {
             // TODO: check if this is either:
             // - exporting to a platform that supports this OR
-            // - is running as the direct descendant of ExpressionAsExecutable, and then swap out with += 1
+            // - is running as the direct descendant of ExpressionAsStatement, and then swap out with += 1
             return this;
         }
     }

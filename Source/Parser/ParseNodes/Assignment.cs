@@ -1,6 +1,6 @@
 ﻿namespace Pastel.Parser.ParseNodes
 {
-    internal class Assignment : Executable
+    internal class Assignment : Statement
     {
         public Expression Target { get; set; }
         public Token OpToken { get; set; }
@@ -16,7 +16,7 @@
             Value = value;
         }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             Target = Target.ResolveNamesAndCullUnusedCode(compiler);
             Value = Value.ResolveNamesAndCullUnusedCode(compiler);
@@ -43,7 +43,7 @@
             }
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
             if (Target is BracketIndex)
             {
@@ -73,7 +73,7 @@
                 {
                     throw new ParserException(bi.BracketToken, "Can't use brackets here.");
                 }
-                return new ExpressionAsExecutable(new CoreFunctionInvocation(
+                return new ExpressionAsStatement(new CoreFunctionInvocation(
                     FirstToken,
                     nf,
                     args,

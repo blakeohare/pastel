@@ -13,7 +13,7 @@ namespace Pastel.Parser.ParseNodes
         public string Name { get { return NameToken.Value; } }
         public PType[] ArgTypes { get; set; }
         public Token[] ArgNames { get; set; }
-        public Executable[] Code { get; set; }
+        public Statement[] Code { get; set; }
         public ClassDefinition ClassDef { get; set; }
 
         public FunctionDefinition(
@@ -33,7 +33,7 @@ namespace Pastel.Parser.ParseNodes
 
         public void ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
-            Code = Executable.ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
+            Code = Statement.ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
         }
 
         public void ResolveSignatureTypes(PastelCompiler compiler)
@@ -61,7 +61,7 @@ namespace Pastel.Parser.ParseNodes
 
         public void ResolveWithTypeContext(PastelCompiler compiler)
         {
-            Executable.ResolveWithTypeContext(compiler, Code);
+            Statement.ResolveWithTypeContext(compiler, Code);
         }
     }
 }

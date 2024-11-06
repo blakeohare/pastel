@@ -6,7 +6,7 @@ namespace Pastel.Parser
     internal class VariableScope
     {
         // TODO: this should go away. It's being used to determine if return statements are returning the correct type.
-        // Executables should KNOW what container they're in and not be relayed this information by the variable scope.
+        // Statements should KNOW what container they're in and not be relayed this information by the variable scope.
         public ICompilationEntity RootFunctionOrConstructorDefinition;
 
         private VariableScope parent = null;
@@ -39,8 +39,7 @@ namespace Pastel.Parser
 
         public PType GetTypeOfVariable(string name)
         {
-            PType output;
-            if (type.TryGetValue(name, out output))
+            if (type.TryGetValue(name, out PType output))
             {
                 return output;
             }

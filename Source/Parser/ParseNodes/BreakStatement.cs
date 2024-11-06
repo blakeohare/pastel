@@ -1,11 +1,11 @@
 ﻿namespace Pastel.Parser.ParseNodes
 {
-    internal class BreakStatement : Executable
+    internal class BreakStatement : Statement
     {
         public BreakStatement(Token breakToken) : base(breakToken)
         { }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             return this;
         }
@@ -15,7 +15,7 @@
             // nothing to do
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
             return this;
         }

@@ -3,21 +3,21 @@ using System.Linq;
 
 namespace Pastel.Parser.ParseNodes
 {
-    internal class WhileLoop : Executable
+    internal class WhileLoop : Statement
     {
         public Expression Condition { get; set; }
-        public Executable[] Code { get; set; }
+        public Statement[] Code { get; set; }
 
         public WhileLoop(
             Token whileToken,
             Expression condition,
-            IList<Executable> code) : base(whileToken)
+            IList<Statement> code) : base(whileToken)
         {
             Condition = condition;
             Code = code.ToArray();
         }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             Condition = Condition.ResolveNamesAndCullUnusedCode(compiler);
             Code = ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
@@ -35,7 +35,7 @@ namespace Pastel.Parser.ParseNodes
             ResolveTypes(Code, varScope, compiler);
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
             Condition = Condition.ResolveWithTypeContext(compiler);
             ResolveWithTypeContext(compiler, Code);

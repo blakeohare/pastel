@@ -1113,7 +1113,7 @@ namespace Pastel.Transpilers
             }
             sb.Append(") {\n");
             sb.TabDepth++;
-            this.TranslateExecutables(sb, funcDef.Code);
+            this.TranslateStatements(sb, funcDef.Code);
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
             sb.Append("}\n");

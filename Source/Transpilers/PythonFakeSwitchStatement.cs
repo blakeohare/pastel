@@ -31,7 +31,7 @@ namespace Pastel.Transpilers
         private int switchId;
         private ICompilationEntity owner;
         private Dictionary<InlineConstant, int> expressionsToChunkIds;
-        private Dictionary<int, Executable[]> chunkIdsToCode;
+        private Dictionary<int, Statement[]> chunkIdsToCode;
 
         public int DefaultId { get; set; }
 
@@ -65,9 +65,9 @@ namespace Pastel.Transpilers
         {
             ICompilationEntity owner = switchStatement.Condition.Owner;
             Dictionary<InlineConstant, int> expressionToId = new Dictionary<InlineConstant, int>();
-            Dictionary<int, Executable[]> codeById = new Dictionary<int, Executable[]>();
+            Dictionary<int, Statement[]> codeById = new Dictionary<int, Statement[]>();
             int? nullableDefaultId = null;
-            Executable[] defaultCode = null;
+            Statement[] defaultCode = null;
             for (int i = 0; i < switchStatement.Chunks.Length; ++i)
             {
                 SwitchStatement.SwitchChunk chunk = switchStatement.Chunks[i];
@@ -102,7 +102,7 @@ namespace Pastel.Transpilers
             else
             {
                 defaultId = codeById.Count;
-                codeById[defaultId] = new Executable[0];
+                codeById[defaultId] = new Statement[0];
             }
 
             return new PythonFakeSwitchStatement(functionName, switchId, defaultId, expressionToId, codeById, owner);
@@ -113,7 +113,7 @@ namespace Pastel.Transpilers
             int switchId,
             int defaultChunkId,
             Dictionary<InlineConstant, int> expressionsToChunkIds,
-            Dictionary<int, Executable[]> chunkIdsToCode,
+            Dictionary<int, Statement[]> chunkIdsToCode,
             ICompilationEntity owner)
         {
             this.owner = owner;
@@ -165,7 +165,7 @@ namespace Pastel.Transpilers
             return this.GenerateIfStatementBinarySearchTree(0, this.chunkIdsToCode.Count - 1, this.chunkIdsToCode);
         }
 
-        private IfStatement GenerateIfStatementBinarySearchTree(int lowId, int highId, Dictionary<int, Executable[]> codeById)
+        private IfStatement GenerateIfStatementBinarySearchTree(int lowId, int highId, Dictionary<int, Statement[]> codeById)
         {
             if (lowId + 2 == highId)
             {
@@ -180,7 +180,7 @@ namespace Pastel.Transpilers
 
                 int midId = lowId + 1;
                 IfStatement inner = BuildIfStatement(midId, "==", codeById[midId], codeById[highId]);
-                IfStatement outer = BuildIfStatement(lowId, "==", codeById[lowId], new Executable[] { inner });
+                IfStatement outer = BuildIfStatement(lowId, "==", codeById[lowId], new Statement[] { inner });
                 return outer;
             }
 
@@ -208,10 +208,10 @@ namespace Pastel.Transpilers
 
             IfStatement lower = GenerateIfStatementBinarySearchTree(lowId, midId1, codeById);
             IfStatement upper = GenerateIfStatementBinarySearchTree(midId2, highId, codeById);
-            return BuildIfStatement(midId2, "<", new Executable[] { lower }, new Executable[] { upper });
+            return BuildIfStatement(midId2, "<", new Statement[] { lower }, new Statement[] { upper });
         }
 
-        private IfStatement BuildIfStatement(int id, string op, Executable[] trueCode, Executable[] falseCode)
+        private IfStatement BuildIfStatement(int id, string op, Statement[] trueCode, Statement[] falseCode)
         {
             Token equalsToken = Token.CreateDummyToken(op);
             Variable variable = new Variable(Token.CreateDummyToken(this.ConditionVariableName), this.owner);
@@ -226,24 +226,24 @@ namespace Pastel.Transpilers
                 TrimBreak(falseCode));
         }
 
-        private Executable[] TrimBreak(Executable[] executables)
+        private Statement[] TrimBreak(Statement[] statements)
         {
             // TODO: compile time check for absence of break in switch statement code
             // aside from the one at the end of each case. This will simply be a limitation
             // of Pastel for the sake of Python compatibility.
-            int length = executables.Length;
-            if (length == 0) return executables;
-            Executable last = executables[length - 1];
+            int length = statements.Length;
+            if (length == 0) return statements;
+            Statement last = statements[length - 1];
             if (last is BreakStatement)
             {
-                Executable[] trimmed = new Executable[length - 1];
+                Statement[] trimmed = new Statement[length - 1];
                 for (int i = length - 2; i >= 0; --i)
                 {
-                    trimmed[i] = executables[i];
+                    trimmed[i] = statements[i];
                 }
                 return trimmed;
             }
-            return executables;
+            return statements;
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Pastel.Parser.ParseNodes
 {
-    internal class VariableDeclaration : Executable, ICompilationEntity
+    internal class VariableDeclaration : Statement, ICompilationEntity
     {
         public CompilationEntityType EntityType
         {
@@ -36,7 +36,7 @@ namespace Pastel.Parser.ParseNodes
             Value = assignmentValue;
         }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             if (Value == null)
             {
@@ -64,7 +64,7 @@ namespace Pastel.Parser.ParseNodes
             varScope.DeclareVariables(VariableNameToken, Type);
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
             if (Value != null)
             {

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Pastel.Parser.ParseNodes
 {
-    internal class SwitchStatement : Executable
+    internal class SwitchStatement : Statement
     {
         public Expression Condition { get; set; }
         public SwitchChunk[] Chunks { get; set; }
@@ -19,9 +19,9 @@ namespace Pastel.Parser.ParseNodes
             public Token[] CaseAndDefaultTokens { get; set; }
             public Expression[] Cases { get; set; }
             public bool HasDefault { get; set; }
-            public Executable[] Code { get; set; }
+            public Statement[] Code { get; set; }
 
-            public SwitchChunk(IList<Token> caseAndDefaultTokens, IList<Expression> caseExpressionsOrNullForDefault, IList<Executable> code)
+            public SwitchChunk(IList<Token> caseAndDefaultTokens, IList<Expression> caseExpressionsOrNullForDefault, IList<Statement> code)
             {
                 CaseAndDefaultTokens = caseAndDefaultTokens.ToArray();
                 Cases = caseExpressionsOrNullForDefault.ToArray();
@@ -39,7 +39,7 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             Condition = Condition.ResolveNamesAndCullUnusedCode(compiler);
             for (int i = 0; i < Chunks.Length; ++i)
@@ -92,7 +92,7 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
             Condition = Condition.ResolveWithTypeContext(compiler);
             HashSet<int> values = new HashSet<int>();

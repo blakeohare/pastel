@@ -44,11 +44,11 @@ namespace Pastel.Transpilers
             throw new InvalidOperationException(); // This platform does not support types.
         }
 
-        public virtual void TranslateExecutables(TranspilerContext sb, Executable[] executables)
+        public virtual void TranslateStatements(TranspilerContext sb, Statement[] statements)
         {
-            for (int i = 0; i < executables.Length; ++i)
+            for (int i = 0; i < statements.Length; ++i)
             {
-                this.TranslateExecutable(sb, executables[i]);
+                this.TranslateStatement(sb, statements[i]);
             }
         }
 
@@ -57,13 +57,13 @@ namespace Pastel.Transpilers
             return code;
         }
 
-        public void TranslateExecutable(TranspilerContext sb, Executable executable)
+        public void TranslateStatement(TranspilerContext sb, Statement stmnt)
         {
-            string typeName = executable.GetType().Name;
+            string typeName = stmnt.GetType().Name;
             switch (typeName)
             {
                 case "Assignment":
-                    Assignment asgn = (Assignment)executable;
+                    Assignment asgn = (Assignment)stmnt;
                     if (asgn.Value is CoreFunctionInvocation &&
                         asgn.Target is Variable &&
                         ((CoreFunctionInvocation)asgn.Value).Function == CoreFunction.DICTIONARY_TRY_GET)
@@ -82,17 +82,17 @@ namespace Pastel.Transpilers
                     break;
 
                 case "BreakStatement": this.TranslateBreak(sb); break;
-                case "ExpressionAsExecutable": this.TranslateExpressionAsExecutable(sb, ((ExpressionAsExecutable)executable).Expression); break;
-                case "IfStatement": this.TranslateIfStatement(sb, (IfStatement)executable); break;
-                case "ReturnStatement": this.TranslateReturnStatemnt(sb, (ReturnStatement)executable); break;
-                case "SwitchStatement": this.TranslateSwitchStatement(sb, (SwitchStatement)executable); break;
-                case "VariableDeclaration": this.TranslateVariableDeclaration(sb, (VariableDeclaration)executable); break;
-                case "WhileLoop": this.TranslateWhileLoop(sb, (WhileLoop)executable); break;
-                case "ExecutableBatch":
-                    Executable[] execs = ((ExecutableBatch)executable).Executables;
-                    for (int i = 0; i < execs.Length; ++i)
+                case "ExpressionAsStatement": this.TranslateExpressionAsStatement(sb, ((ExpressionAsStatement)stmnt).Expression); break;
+                case "IfStatement": this.TranslateIfStatement(sb, (IfStatement)stmnt); break;
+                case "ReturnStatement": this.TranslateReturnStatemnt(sb, (ReturnStatement)stmnt); break;
+                case "SwitchStatement": this.TranslateSwitchStatement(sb, (SwitchStatement)stmnt); break;
+                case "VariableDeclaration": this.TranslateVariableDeclaration(sb, (VariableDeclaration)stmnt); break;
+                case "WhileLoop": this.TranslateWhileLoop(sb, (WhileLoop)stmnt); break;
+                case "StatementBatch":
+                    Statement[] stmnts = ((StatementBatch)stmnt).Statements;
+                    for (int i = 0; i < stmnts.Length; ++i)
                     {
-                        this.TranslateExecutable(sb, execs[i]);
+                        this.TranslateStatement(sb, stmnts[i]);
                     }
                     break;
 
@@ -468,7 +468,7 @@ namespace Pastel.Transpilers
         public abstract void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary);
         public abstract void TranslateEmitComment(TranspilerContext sb, string value);
         public abstract void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray);
-        public abstract void TranslateExpressionAsExecutable(TranspilerContext sb, Expression expression);
+        public abstract void TranslateExpressionAsStatement(TranspilerContext sb, Expression expression);
         public abstract void TranslateFloatBuffer16(TranspilerContext sb);
         public abstract void TranslateFloatConstant(TranspilerContext sb, double value);
         public abstract void TranslateFloatDivision(TranspilerContext sb, Expression floatNumerator, Expression floatDenominator);

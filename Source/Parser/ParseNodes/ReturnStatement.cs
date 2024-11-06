@@ -1,6 +1,6 @@
 ﻿namespace Pastel.Parser.ParseNodes
 {
-    internal class ReturnStatement : Executable
+    internal class ReturnStatement : Statement
     {
         public Expression Expression { get; set; }
 
@@ -9,7 +9,7 @@
             Expression = expression;
         }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             if (Expression != null)
             {
@@ -56,7 +56,7 @@
             }
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
             if (Expression != null)
             {

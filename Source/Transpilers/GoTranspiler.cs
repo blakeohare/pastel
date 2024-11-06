@@ -216,15 +216,15 @@ namespace Pastel.Transpilers
             throw new NotImplementedException();
         }
 
-        public override void TranslateExecutables(TranspilerContext sb, Executable[] executables)
+        public override void TranslateStatements(TranspilerContext sb, Statement[] statements)
         {
-            for (int i = 0; i < executables.Length; i++)
+            for (int i = 0; i < statements.Length; i++)
             {
-                this.TranslateExecutable(sb, executables[i]);
+                this.TranslateStatement(sb, statements[i]);
             }
         }
 
-        public override void TranslateExpressionAsExecutable(TranspilerContext sb, Expression expression)
+        public override void TranslateExpressionAsStatement(TranspilerContext sb, Expression expression)
         {
             throw new NotImplementedException();
         }
@@ -296,14 +296,14 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, ifStatement.Condition);
             sb.Append(" {\n");
             sb.TabDepth++;
-            this.TranslateExecutables(sb, ifStatement.IfCode);
+            this.TranslateStatements(sb, ifStatement.IfCode);
             sb.TabDepth--;
             sb.Append(sb.CurrentTab).Append("}");
             if (ifStatement.ElseCode != null && ifStatement.ElseCode.Length > 0)
             {
                 sb.Append(" else {\n");
                 sb.TabDepth++;
-                this.TranslateExecutables(sb, ifStatement.ElseCode);
+                this.TranslateStatements(sb, ifStatement.ElseCode);
                 sb.TabDepth--;
                 sb.Append(sb.CurrentTab).Append("}");
             }
@@ -795,7 +795,7 @@ namespace Pastel.Transpilers
             this.TranslateExpression(sb, whileLoop.Condition);
             sb.Append(" {\n");
             sb.TabDepth++;
-            this.TranslateExecutables(sb, whileLoop.Code);
+            this.TranslateStatements(sb, whileLoop.Code);
             sb.TabDepth--;
             sb.Append(sb.CurrentTab).Append("}\n");
         }
@@ -822,7 +822,7 @@ namespace Pastel.Transpilers
             }
             sb.Append(" {\n");
             sb.TabDepth++;
-            this.TranslateExecutables(sb, funcDef.Code);
+            this.TranslateStatements(sb, funcDef.Code);
             sb.TabDepth--;
             sb.Append("}\n\n");
         }

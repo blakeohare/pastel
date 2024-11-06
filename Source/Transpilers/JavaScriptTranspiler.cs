@@ -849,7 +849,7 @@ namespace Pastel.Transpilers
             sb.Append(") {\n");
 
             sb.TabDepth = 1;
-            this.TranslateExecutables(sb, funcDef.Code);
+            this.TranslateStatements(sb, funcDef.Code);
             sb.TabDepth = 0;
 
             sb.Append("};\n\n");
@@ -885,7 +885,7 @@ namespace Pastel.Transpilers
                 this.TranslateExpression(sb, fd.Value);
                 sb.Append(";\n");
             }
-            this.TranslateExecutables(sb, ctor.Code);
+            this.TranslateStatements(sb, ctor.Code);
             foreach (FunctionDefinition func in classDef.Methods)
             {
                 sb.Append(sb.CurrentTab);
@@ -900,7 +900,7 @@ namespace Pastel.Transpilers
                 }
                 sb.Append(") {\n");
                 sb.TabDepth++;
-                this.TranslateExecutables(sb, func.Code);
+                this.TranslateStatements(sb, func.Code);
                 sb.TabDepth--;
                 sb.Append(sb.CurrentTab);
                 sb.Append("};\n");

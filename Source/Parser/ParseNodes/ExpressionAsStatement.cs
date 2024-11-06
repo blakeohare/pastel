@@ -2,22 +2,22 @@
 
 namespace Pastel.Parser.ParseNodes
 {
-    internal class ExpressionAsExecutable : Executable
+    internal class ExpressionAsStatement : Statement
     {
         public Expression Expression { get; set; }
 
-        public ExpressionAsExecutable(Expression expression) : base(expression.FirstToken)
+        public ExpressionAsStatement(Expression expression) : base(expression.FirstToken)
         {
-            Expression = expression;
+            this.Expression = expression;
         }
 
-        internal Executable[] ImmediateResolveMaybe(PastelParser parser)
+        internal Statement[] ImmediateResolveMaybe(PastelParser parser)
         {
-            if (Expression is FunctionInvocation)
+            if (this.Expression is FunctionInvocation)
             {
-                if (((FunctionInvocation)Expression).Root is CompileTimeFunctionReference)
+                if (((FunctionInvocation)this.Expression).Root is CompileTimeFunctionReference)
                 {
-                    FunctionInvocation functionInvocation = (FunctionInvocation)Expression;
+                    FunctionInvocation functionInvocation = (FunctionInvocation)this.Expression;
                     CompileTimeFunctionReference compileTimeFunction = (CompileTimeFunctionReference)functionInvocation.Root;
                     switch (compileTimeFunction.NameToken.Value)
                     {
@@ -33,20 +33,20 @@ namespace Pastel.Parser.ParseNodes
             return null;
         }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
-            Expression = Expression.ResolveNamesAndCullUnusedCode(compiler);
+            this.Expression = this.Expression.ResolveNamesAndCullUnusedCode(compiler);
             return this;
         }
 
         internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
         {
-            Expression = Expression.ResolveType(varScope, compiler);
+            this.Expression = this.Expression.ResolveType(varScope, compiler);
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
-            Expression = Expression.ResolveWithTypeContext(compiler);
+            this.Expression = this.Expression.ResolveWithTypeContext(compiler);
             return this;
         }
     }

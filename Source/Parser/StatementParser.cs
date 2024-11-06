@@ -14,7 +14,7 @@ namespace Pastel.Parser
         public ExpressionParser ExpressionParser { get { return this.parser.ExpressionParser; } }
         public EntityParser EntityParser { get { return this.parser.EntityParser; } }
 
-        public List<Executable> ParseCodeBlock(TokenStream tokens, bool curlyBracesRequired)
+        public List<Statement> ParseCodeBlock(TokenStream tokens, bool curlyBracesRequired)
         {
             bool hasCurlyBrace = false;
             if (curlyBracesRequired)
@@ -27,7 +27,7 @@ namespace Pastel.Parser
                 hasCurlyBrace = tokens.PopIfPresent("{");
             }
 
-            List<Executable> code = new List<Executable>();
+            List<Statement> code = new List<Statement>();
             if (hasCurlyBrace)
             {
                 while (!tokens.PopIfPresent("}"))
@@ -43,13 +43,13 @@ namespace Pastel.Parser
             return code;
         }
 
-        private void ParseCodeLine(List<Executable> codeOut, TokenStream tokens)
+        private void ParseCodeLine(List<Statement> codeOut, TokenStream tokens)
         {
-            Executable line = ParseExecutable(tokens, false);
-            Executable[] lines = null;
-            if (line is ExpressionAsExecutable)
+            Statement line = ParseStatement(tokens, false);
+            Statement[] lines = null;
+            if (line is ExpressionAsStatement)
             {
-                lines = ((ExpressionAsExecutable)line).ImmediateResolveMaybe(this.parser);
+                lines = ((ExpressionAsStatement)line).ImmediateResolveMaybe(this.parser);
             }
 
             if (lines == null)
@@ -62,7 +62,7 @@ namespace Pastel.Parser
             }
         }
 
-        public Executable ParseExecutable(TokenStream tokens, bool isForLoop)
+        public Statement ParseStatement(TokenStream tokens, bool isForLoop)
         {
             if (!isForLoop)
             {
@@ -102,12 +102,12 @@ namespace Pastel.Parser
 
             if (!isForLoop && tokens.PopIfPresent(";"))
             {
-                return new ExpressionAsExecutable(expression);
+                return new ExpressionAsStatement(expression);
             }
 
             if (isForLoop && (tokens.IsNext(";") || tokens.IsNext(",") || tokens.IsNext(")")))
             {
-                return new ExpressionAsExecutable(expression);
+                return new ExpressionAsStatement(expression);
             }
 
             if (PastelParser.OP_TOKENS.Contains(tokens.PeekValue()))
@@ -130,11 +130,11 @@ namespace Pastel.Parser
             return null; // unreachable code
         }
 
-        public Executable[] ParseImportedCode(Token importToken, string path)
+        public Statement[] ParseImportedCode(Token importToken, string path)
         {
             string code = this.parser.LoadCode(importToken, path);
             TokenStream tokens = new TokenStream(Tokenizer.Tokenize(path, code));
-            List<Executable> output = new List<Executable>();
+            List<Statement> output = new List<Statement>();
             while (tokens.HasMore)
             {
                 ParseCodeLine(output, tokens);
@@ -142,15 +142,15 @@ namespace Pastel.Parser
             return output.ToArray();
         }
 
-        public Executable ParseIfStatement(TokenStream tokens)
+        public Statement ParseIfStatement(TokenStream tokens)
         {
             Token ifToken = tokens.PopExpected("if");
             tokens.PopExpected("(");
             Expression condition = this.ExpressionParser.ParseExpression(tokens);
             tokens.PopExpected(")");
-            IList<Executable> ifCode = ParseCodeBlock(tokens, false);
+            IList<Statement> ifCode = ParseCodeBlock(tokens, false);
             Token elseToken = null;
-            IList<Executable> elseCode = [];
+            IList<Statement> elseCode = [];
             if (tokens.IsNext("else"))
             {
                 elseToken = tokens.Pop();
@@ -162,7 +162,7 @@ namespace Pastel.Parser
                 InlineConstant ic = (InlineConstant)condition;
                 if (ic.Value is bool)
                 {
-                    return new ExecutableBatch(ifToken, (bool)ic.Value ? ifCode : elseCode);
+                    return new StatementBatch(ifToken, (bool)ic.Value ? ifCode : elseCode);
                 }
             }
 
@@ -172,16 +172,16 @@ namespace Pastel.Parser
         public ForLoop ParseForLoop(TokenStream tokens)
         {
             Token forToken = tokens.PopExpected("for");
-            List<Executable> initCode = new List<Executable>();
+            List<Statement> initCode = new List<Statement>();
             Expression condition = null;
-            List<Executable> stepCode = new List<Executable>();
+            List<Statement> stepCode = new List<Statement>();
             tokens.PopExpected("(");
             if (!tokens.PopIfPresent(";"))
             {
-                initCode.Add(ParseExecutable(tokens, true));
+                initCode.Add(ParseStatement(tokens, true));
                 while (tokens.PopIfPresent(","))
                 {
-                    initCode.Add(ParseExecutable(tokens, true));
+                    initCode.Add(ParseStatement(tokens, true));
                 }
                 tokens.PopExpected(";");
             }
@@ -194,15 +194,15 @@ namespace Pastel.Parser
 
             if (!tokens.PopIfPresent(")"))
             {
-                stepCode.Add(ParseExecutable(tokens, true));
+                stepCode.Add(ParseStatement(tokens, true));
                 while (tokens.PopIfPresent(","))
                 {
-                    stepCode.Add(ParseExecutable(tokens, true));
+                    stepCode.Add(ParseStatement(tokens, true));
                 }
                 tokens.PopExpected(")");
             }
 
-            List<Executable> code = ParseCodeBlock(tokens, false);
+            List<Statement> code = ParseCodeBlock(tokens, false);
             return new ForLoop(forToken, initCode, condition, stepCode, code);
         }
 
@@ -212,7 +212,7 @@ namespace Pastel.Parser
             tokens.PopExpected("(");
             Expression condition = this.ExpressionParser.ParseExpression(tokens);
             tokens.PopExpected(")");
-            List<Executable> code = ParseCodeBlock(tokens, false);
+            List<Statement> code = ParseCodeBlock(tokens, false);
             return new WhileLoop(whileToken, condition, code);
         }
 
@@ -253,7 +253,7 @@ namespace Pastel.Parser
                     }
                 }
 
-                List<Executable> chunkCode = new List<Executable>();
+                List<Statement> chunkCode = new List<Statement>();
                 string next = tokens.PeekValue();
                 while (next != "}" && next != "default" && next != "case")
                 {
@@ -289,8 +289,8 @@ namespace Pastel.Parser
 
         public VariableDeclaration ParseAssignmentWithNewFirstToken(Token newToken, TokenStream tokens)
         {
-            Executable executable = ParseExecutable(tokens, false);
-            VariableDeclaration assignment = executable as VariableDeclaration;
+            Statement stmnt = ParseStatement(tokens, false);
+            VariableDeclaration assignment = stmnt as VariableDeclaration;
             if (assignment == null)
             {
                 throw new ParserException(newToken, "Expected an assignment here.");

@@ -11,7 +11,7 @@ namespace Pastel.Parser.ParseNodes
         public Token FirstToken { get; private set; }
         public PType[] ArgTypes { get; private set; }
         public Token[] ArgNames { get; private set; }
-        public Executable[] Code { get; set; }
+        public Statement[] Code { get; set; }
         public ClassDefinition ClassDef { get; private set; }
 
         public ConstructorDefinition(PastelContext context, Token constructorToken, IList<PType> argTypes, IList<Token> argNames, ClassDefinition classDef)
@@ -25,7 +25,7 @@ namespace Pastel.Parser.ParseNodes
 
         public void ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
-            Code = Executable.ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
+            Code = Statement.ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
         }
 
         public void ResolveSignatureTypes(PastelCompiler compiler)

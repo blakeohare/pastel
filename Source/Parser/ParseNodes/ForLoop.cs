@@ -3,19 +3,19 @@ using System.Linq;
 
 namespace Pastel.Parser.ParseNodes
 {
-    internal class ForLoop : Executable
+    internal class ForLoop : Statement
     {
-        public Executable[] InitCode { get; set; }
+        public Statement[] InitCode { get; set; }
         public Expression Condition { get; set; }
-        public Executable[] StepCode { get; set; }
-        public Executable[] Code { get; set; }
+        public Statement[] StepCode { get; set; }
+        public Statement[] Code { get; set; }
 
         public ForLoop(
             Token forToken,
-            IList<Executable> initCode,
+            IList<Statement> initCode,
             Expression condition,
-            IList<Executable> stepCode,
-            IList<Executable> code) : base(forToken)
+            IList<Statement> stepCode,
+            IList<Statement> code) : base(forToken)
         {
             InitCode = initCode.ToArray();
             Condition = condition;
@@ -23,7 +23,7 @@ namespace Pastel.Parser.ParseNodes
             Code = code.ToArray();
         }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             InitCode = ResolveNamesAndCullUnusedCodeForBlock(InitCode, compiler).ToArray();
             Condition = Condition.ResolveNamesAndCullUnusedCode(compiler);
@@ -47,7 +47,7 @@ namespace Pastel.Parser.ParseNodes
             ResolveTypes(Code, innerScope, compiler);
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
             ResolveWithTypeContext(compiler, InitCode);
             Condition = Condition.ResolveWithTypeContext(compiler);
@@ -55,12 +55,12 @@ namespace Pastel.Parser.ParseNodes
             ResolveWithTypeContext(compiler, Code);
 
             // Canonialize the for loop into a while loop.
-            List<Executable> loopCode = new List<Executable>(Code);
+            List<Statement> loopCode = new List<Statement>(Code);
             loopCode.AddRange(StepCode);
             WhileLoop whileLoop = new WhileLoop(FirstToken, Condition, loopCode);
-            loopCode = new List<Executable>(InitCode);
+            loopCode = new List<Statement>(InitCode);
             loopCode.Add(whileLoop);
-            return new ExecutableBatch(FirstToken, loopCode);
+            return new StatementBatch(FirstToken, loopCode);
         }
     }
 }

@@ -3,19 +3,19 @@ using System.Linq;
 
 namespace Pastel.Parser.ParseNodes
 {
-    internal class IfStatement : Executable
+    internal class IfStatement : Statement
     {
         public Expression Condition { get; set; }
-        public Executable[] IfCode { get; set; }
+        public Statement[] IfCode { get; set; }
         public Token ElseToken { get; set; }
-        public Executable[] ElseCode { get; set; }
+        public Statement[] ElseCode { get; set; }
 
         public IfStatement(
             Token ifToken,
             Expression condition,
-            IList<Executable> ifCode,
+            IList<Statement> ifCode,
             Token elseToken,
-            IList<Executable> elseCode) : base(ifToken)
+            IList<Statement> elseCode) : base(ifToken)
         {
             Condition = condition;
             IfCode = ifCode.ToArray();
@@ -23,7 +23,7 @@ namespace Pastel.Parser.ParseNodes
             ElseCode = elseCode.ToArray();
         }
 
-        public override Executable ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
         {
             Condition = Condition.ResolveNamesAndCullUnusedCode(compiler);
 
@@ -32,7 +32,7 @@ namespace Pastel.Parser.ParseNodes
                 object value = ((InlineConstant)Condition).Value;
                 if (value is bool)
                 {
-                    return new ExecutableBatch(FirstToken, ResolveNamesAndCullUnusedCodeForBlock(
+                    return new StatementBatch(FirstToken, ResolveNamesAndCullUnusedCodeForBlock(
                         (bool)value ? IfCode : ElseCode,
                         compiler));
                 }
@@ -55,7 +55,7 @@ namespace Pastel.Parser.ParseNodes
             ResolveTypes(ElseCode, new VariableScope(varScope), compiler);
         }
 
-        internal override Executable ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
         {
             Condition = Condition.ResolveWithTypeContext(compiler);
             ResolveWithTypeContext(compiler, IfCode);
@@ -64,7 +64,7 @@ namespace Pastel.Parser.ParseNodes
             if (Condition is InlineConstant)
             {
                 bool condition = (bool)((InlineConstant)Condition).Value;
-                return new ExecutableBatch(FirstToken, condition ? IfCode : ElseCode);
+                return new StatementBatch(FirstToken, condition ? IfCode : ElseCode);
             }
 
             return this;
