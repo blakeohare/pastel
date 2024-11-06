@@ -24,7 +24,7 @@ namespace Pastel
             this.dir = dir;
             this.CodeLoader = codeLoader;
             this.Language = language;
-            this.Transpiler = LanguageUtil.GetTranspiler(language);
+            this.Transpiler = LanguageUtil.CreateTranspiler(language);
         }
 
         public PastelContext(string dir, string languageId, IInlineImportCodeLoader codeLoader)
@@ -49,7 +49,7 @@ namespace Pastel
         {
             if (this.tc == null)
             {
-                this.tc = new TranspilerContext(this.Language, this.extensibleFunctionTranslations);
+                this.tc = new TranspilerContext(this, this.extensibleFunctionTranslations);
             }
             return this.tc;
         }

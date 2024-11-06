@@ -23,7 +23,7 @@ namespace Pastel.Parser
             Context = context;
 
             CodeLoader = inlineImportCodeLoader;
-            Transpiler = LanguageUtil.GetTranspiler(language);
+            Transpiler = context.Transpiler;
             ExtensibleFunctions = extensibleFunctions == null
                 ? new Dictionary<string, ExtensibleFunction>()
                 : extensibleFunctions.ToDictionary(ef => ef.Name);

@@ -51,27 +51,19 @@ namespace Pastel
             }
         }
 
-        internal static AbstractTranspiler GetTranspiler(Language language)
+        internal static AbstractTranspiler CreateTranspiler(Language language)
         {
-            if (singletons.ContainsKey(language))
-            {
-                return singletons[language];
-            }
-
-            AbstractTranspiler t;
             switch (language)
             {
-                case Language.C: t = new CTranspiler(); break;
-                case Language.CSHARP: t = new CSharpTranspiler(); break;
-                case Language.GO: t = new GoTranspiler(); break;
-                case Language.JAVA: t = new JavaTranspiler(); break;
-                case Language.JAVASCRIPT: t = new JavaScriptTranspiler(); break;
-                case Language.PHP: t = new PhpTranspiler(); break;
-                case Language.PYTHON: t = new PythonTranspiler(); break;
-                default: throw new System.Exception();
+                case Language.C: return new CTranspiler();
+                case Language.CSHARP: return new CSharpTranspiler();
+                case Language.GO: return new GoTranspiler();
+                case Language.JAVA: return new JavaTranspiler();
+                case Language.JAVASCRIPT: return new JavaScriptTranspiler();
+                case Language.PHP: return new PhpTranspiler();
+                case Language.PYTHON: return new PythonTranspiler();
+                default: throw new System.InvalidOperationException();
             }
-            singletons[language] = t;
-            return t;
         }
 
         internal static Dictionary<string, object> GetLanguageConstants(Language lang)

@@ -22,11 +22,11 @@ namespace Pastel.Transpilers
         public Dictionary<string, string> ExtensibleFunctionLookup { get; private set; }
         private HashSet<string> featureUsage = new HashSet<string>();
 
-        internal TranspilerContext(Language language, Dictionary<string, string> extensibleFunctions)
+        internal TranspilerContext(PastelContext ctx, Dictionary<string, string> extensibleFunctions)
         {
             this.ExtensibleFunctionLookup = extensibleFunctions;
-            this.Transpiler = LanguageUtil.GetTranspiler(language);
-            if (language == Language.PYTHON)
+            this.Transpiler = ctx.Transpiler;
+            if (ctx.Language == Language.PYTHON)
             {
                 this.SwitchCounter = 0;
                 this.SwitchStatements = new List<PythonFakeSwitchStatement>();
