@@ -7,8 +7,8 @@ namespace Pastel.Transpilers
         private bool IsAllmanBraces { get; set; }
         private bool IsKRBraces { get; set; }
 
-        public CurlyBraceTranspiler(string tabChar, bool isKRBraces)
-            : base(tabChar)
+        public CurlyBraceTranspiler(bool isKRBraces)
+            : base()
         {
             this.IsKRBraces = isKRBraces;
             this.IsAllmanBraces = !isKRBraces;

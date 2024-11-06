@@ -8,11 +8,13 @@ namespace Pastel.Transpilers
     internal class GoTranspiler : AbstractTranspiler
     {
         public GoTranspiler()
-            : base("  ")
+            : base()
         {
             this.UsesStructDefinitions = true;
             this.HasStructsInSeparateFiles = false;
         }
+
+        public override string CanonicalTab => "  ";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.go"; } }
 

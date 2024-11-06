@@ -7,8 +7,8 @@ namespace Pastel.Transpilers
 {
     internal abstract class AbstractTranspiler
     {
-        public string TabChar { get; private set; }
         public string[] Tabs { get; set; }
+        public abstract string CanonicalTab { get; }
 
         public bool ClassDefinitionsInSeparateFiles { get; protected set; }
         public bool UsesStructDefinitions { get; protected set; }
@@ -20,7 +20,7 @@ namespace Pastel.Transpilers
 
         public virtual string HelperCodeResourcePath { get { return null; } }
 
-        public AbstractTranspiler(string tab)
+        public AbstractTranspiler()
         {
             this.ClassDefinitionsInSeparateFiles = true;
             this.UsesStructDefinitions = true;
@@ -30,12 +30,11 @@ namespace Pastel.Transpilers
             this.HasNewLineAtEndOfFile = true;
             this.HasStructsInSeparateFiles = true;
 
-            this.TabChar = tab;
             this.Tabs = new string[20];
             this.Tabs[0] = "";
             for (int i = 1; i < 20; ++i)
             {
-                this.Tabs[i] = this.Tabs[i - 1] + this.TabChar;
+                this.Tabs[i] = this.Tabs[i - 1] + "\t";
             }
         }
 

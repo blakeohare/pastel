@@ -18,10 +18,12 @@ namespace Pastel.Transpilers
         }
 
         public PythonTranspiler()
-            : base("  ")
+            : base()
         {
             this.UsesStructDefinitions = false;
         }
+
+        public override string CanonicalTab => "  ";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.py"; } }
 
@@ -38,7 +40,7 @@ namespace Pastel.Transpilers
                     config.Imports
                         .OrderBy(t => t)
                         .Select(t => "import " + t)
-                        .Concat(new string[] { "" }));
+                        .Append(""));
             }
         }
 

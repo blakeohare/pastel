@@ -8,11 +8,13 @@ namespace Pastel.Transpilers
 {
     internal class JavaScriptTranspiler : CurlyBraceTranspiler
     {
-        public JavaScriptTranspiler() : base("\t", true)
+        public JavaScriptTranspiler() : base(true)
         {
             this.UsesStructDefinitions = false;
             this.ClassDefinitionsInSeparateFiles = false;
         }
+
+        public override string CanonicalTab => "\t";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.js"; } }
 

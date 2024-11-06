@@ -184,6 +184,7 @@ namespace Pastel
             {
                 codeString = codeString.Replace("\n", "\r\n");
             }
+            codeString = codeString.Replace("\t", transpiler.CanonicalTab);
             System.IO.File.WriteAllText(path, codeString);
         }
 

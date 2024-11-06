@@ -7,8 +7,10 @@ namespace Pastel.Transpilers
 {
     internal class CSharpTranspiler : CurlyBraceTranspiler
     {
-        public CSharpTranspiler() : base("    ", false)
+        public CSharpTranspiler() : base(false)
         { }
+
+        public override string CanonicalTab => "    ";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.cs"; } }
 
@@ -72,7 +74,7 @@ namespace Pastel.Transpilers
 
             if (!isForStruct && config.WrappingClassNameForFunctions != null)
             {
-                PastelUtil.IndentLines(this.TabChar, lines);
+                PastelUtil.IndentLines(lines);
                 lines.InsertRange(0, new string[] { "public static class " + config.WrappingClassNameForFunctions, "{" });
                 lines.Add("}");
             }
@@ -80,7 +82,7 @@ namespace Pastel.Transpilers
             string nsValue = isForStruct ? config.NamespaceForStructs : config.NamespaceForFunctions;
             if (nsValue != null)
             {
-                PastelUtil.IndentLines(this.TabChar, lines);
+                PastelUtil.IndentLines(lines);
                 lines.InsertRange(0, new string[] { "namespace " + nsValue, "{" });
                 lines.Add("}");
             }

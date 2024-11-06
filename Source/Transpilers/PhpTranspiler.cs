@@ -7,11 +7,13 @@ namespace Pastel.Transpilers
 {
     internal class PhpTranspiler : CurlyBraceTranspiler
     {
-        public PhpTranspiler() : base("\t", true)
+        public PhpTranspiler() : base(true)
         {
             this.HasNewLineAtEndOfFile = false;
             this.HasStructsInSeparateFiles = false;
         }
+
+        public override string CanonicalTab => "\t";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.php"; } }
 
@@ -24,7 +26,7 @@ namespace Pastel.Transpilers
         {
             if (!isForStruct)
             {
-                PastelUtil.IndentLines(this.TabChar + this.TabChar, lines);
+                PastelUtil.IndentLines(2, lines);
 
                 List<string> prefixes = new List<string>();
 
@@ -32,7 +34,7 @@ namespace Pastel.Transpilers
 
                 prefixes.Add("class " + className + " {");
 
-                PastelUtil.IndentLines(this.TabChar, prefixes);
+                PastelUtil.IndentLines(prefixes);
 
                 prefixes.InsertRange(0, new string[] {
                     "<?php",
@@ -50,13 +52,12 @@ namespace Pastel.Transpilers
                     }
                 }
 
-                lines.Add(this.TabChar + "}");
+                lines.Add("\t}");
 
                 if (hasIntBuffer)
                 {
-                    lines.Add(this.TabChar + "PastelGeneratedCode::$PST_intBuffer16 = pastelWrapList(array_fill(0, 16, 0));");
+                    lines.Add("\tPastelGeneratedCode::$PST_intBuffer16 = pastelWrapList(array_fill(0, 16, 0));");
                 }
-
 
                 lines.Add("");
                 lines.Add("?>");

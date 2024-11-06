@@ -6,8 +6,10 @@ namespace Pastel.Transpilers
 {
     internal class CTranspiler : CurlyBraceTranspiler
     {
-        public CTranspiler() : base("    ", false)
+        public CTranspiler() : base(false)
         { }
+
+        public override string CanonicalTab => "    ";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.c"; } }
 

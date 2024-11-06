@@ -8,8 +8,10 @@ namespace Pastel.Transpilers
     internal class JavaTranspiler : CurlyBraceTranspiler
     {
         public JavaTranspiler()
-            : base("  ", true)
+            : base(true)
         { }
+
+        public override string CanonicalTab => "  ";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.java"; } }
 
@@ -91,7 +93,7 @@ namespace Pastel.Transpilers
         {
             if (!isForStruct && config.WrappingClassNameForFunctions != null)
             {
-                PastelUtil.IndentLines(this.TabChar, lines);
+                PastelUtil.IndentLines(lines);
                 lines.InsertRange(0, new string[] { "public final class " + config.WrappingClassNameForFunctions + " {", "" });
                 lines.Add("}");
             }

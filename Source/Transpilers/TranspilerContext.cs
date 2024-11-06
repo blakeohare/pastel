@@ -34,12 +34,12 @@ namespace Pastel.Transpilers
             this.TabDepth = 0;
         }
 
-        public void MarkFeatureAsBeingUsed(string value) 
+        public void MarkFeatureAsBeingUsed(string value)
         {
             this.featureUsage.Add(value);
         }
 
-        public string[] GetFeatures() 
+        public string[] GetFeatures()
         {
             return this.featureUsage.ToArray();
         }
@@ -60,7 +60,7 @@ namespace Pastel.Transpilers
                     List<string> tabsBuilder = new List<string>(this.Transpiler.Tabs);
                     for (int i = 0; i < 20; ++i)
                     {
-                        tabsBuilder.Add(tabsBuilder[tabsBuilder.Count - 1] + this.Transpiler.TabChar);
+                        tabsBuilder.Add(tabsBuilder[tabsBuilder.Count - 1] + "\t");
                     }
                     this.Transpiler.Tabs = tabsBuilder.ToArray();
                 }

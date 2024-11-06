@@ -240,12 +240,19 @@ namespace Pastel
             return output.ToArray();
         }
 
-        public static void IndentLines(string indention, List<string> lines)
+        public static void IndentLines(List<string> lines)
         {
+            IndentLines(1, lines);
+        }
+
+        public static void IndentLines(int amount, List<string> lines)
+        {
+            string prefix = "";
+            for (int i = 0; i < amount; i++) prefix += "\t";
             int length = lines.Count;
             for (int i = 0; i < length; ++i)
             {
-                lines[i] = (indention + lines[i]).TrimEnd();
+                lines[i] = (prefix + lines[i]).TrimEnd();
             }
         }
 
