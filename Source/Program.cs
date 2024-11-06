@@ -16,13 +16,9 @@ namespace Pastel
             {
                 MainWrapped(args);
             }
-            catch (InvalidOperationException ioe)
+            catch (UserErrorException uee)
             {
-                System.Console.WriteLine(ioe.Message);
-            }
-            catch (ParserException pe)
-            {
-                System.Console.WriteLine(pe.Message);
+                System.Console.WriteLine(uee.Message);
             }
 #endif
         }
@@ -31,13 +27,13 @@ namespace Pastel
         {
             if (args.Length == 0 || args.Length > 2)
             {
-                throw new InvalidOperationException("Incorrect usage. Please provide a path to a Pastel project config file (required) and a build target (optional).");
+                throw new UserErrorException("Incorrect usage. Please provide a path to a Pastel project config file (required) and a build target (optional).");
             }
 
             string projectPath = args[0];
             if (!System.IO.File.Exists(projectPath))
             {
-                throw new InvalidOperationException("Project file does not exist: '" + projectPath + "'");
+                throw new UserErrorException("Project file does not exist: '" + projectPath + "'");
             }
 
             projectPath = System.IO.Path.GetFullPath(projectPath);
@@ -48,7 +44,7 @@ namespace Pastel
         private static void BuildProject(string projectPath, string targetId)
         {
             ProjectConfig config = ProjectConfig.Parse(projectPath, targetId);
-            if (config.Language == Language.NONE) throw new InvalidOperationException("Language not defined in " + projectPath);
+            if (config.Language == Language.NONE) throw new UserErrorException("Language not defined in " + projectPath);
             PastelContext context = CompilePastelContexts(config);
             GenerateFiles(config, context);
         }
@@ -199,7 +195,7 @@ namespace Pastel
                 ProjectConfig config = configsLookup[contextPath];
                 PastelContext context = GetContextForConfigImpl(config, contexts, new HashSet<string>());
                 string source = DiskUtil.TryReadTextFile(config.Source);
-                if (source == null) throw new InvalidOperationException("Source file not found: " + config.Source);
+                if (source == null) throw new UserErrorException("Source file not found: " + config.Source);
                 context.CompileCode(config.Source, source);
                 context.FinalizeCompilation();
             }
@@ -231,7 +227,7 @@ namespace Pastel
             if (contexts.ContainsKey(config.Path)) return contexts[config.Path];
             if (recursionCheck.Contains(config.Path))
             {
-                throw new InvalidOperationException("Project config dependencies have a cycle involving: " + config.Path);
+                throw new UserErrorException("Project config dependencies have a cycle involving: " + config.Path);
             }
 
             recursionCheck.Add(config.Path);

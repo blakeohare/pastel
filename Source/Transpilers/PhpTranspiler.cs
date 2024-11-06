@@ -85,7 +85,7 @@ namespace Pastel.Transpilers
                     return lines;
                 }
             }
-            throw new InvalidOperationException(filename + " must begin with '<?php'/'<?' and end with '?>' on their own lines.");
+            throw new UserErrorException(filename + " must begin with '<?php'/'<?' and end with '?>' on their own lines.");
         }
 
         public override void TranslateFunctionInvocation(TranspilerContext sb, FunctionReference funcRef, Expression[] args)

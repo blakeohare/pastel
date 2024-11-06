@@ -119,7 +119,7 @@ namespace Pastel
                                         (target["name"] as string) == targetId);
                 if (platformValues == null)
                 {
-                    throw new InvalidOperationException("Target not found: '" + targetId + "'");
+                    throw new UserErrorException("Target not found: '" + targetId + "'");
                 }
                 root.Remove("targets");
             }
@@ -148,10 +148,10 @@ namespace Pastel
         {
             string directory = System.IO.Path.GetFullPath(System.IO.Path.GetDirectoryName(originalPath));
             Dictionary<string, object> data = ParseConfigFile(targetId, configContents);
-            if (data == null) throw new InvalidOperationException("Invalid JSON document: " + originalPath);
+            if (data == null) throw new UserErrorException("Invalid JSON document: " + originalPath);
 
             string source = data.ContainsKey("source") ? data["source"] as string : null;
-            if (source == null) throw new InvalidOperationException("Build file is missing a string 'source' field.");
+            if (source == null) throw new UserErrorException("Build file is missing a string 'source' field.");
             config.Source = System.IO.Path.IsPathFullyQualified(source)
                 ? source
                 : System.IO.Path.GetFullPath(System.IO.Path.Combine(originalPath, "..", source));
@@ -206,7 +206,7 @@ namespace Pastel
                     config.Language = Language.PYTHON;
                     break;
                 default:
-                    throw new InvalidOperationException("No valid language was defined in the build file. Choices: c# java javascript php python");
+                    throw new UserErrorException("No valid language was defined in the build file. Choices: c# java javascript php python");
             }
 
             if (outputInfo.ContainsKey("structs-path"))

@@ -48,7 +48,7 @@ namespace Pastel.Parser
             {
                 if (yeses.Split(' ').Contains(lang)) return true;
                 if (nos.Split(' ').Contains(lang)) return false;
-                throw new InvalidOperationException("Unaccounted @pastel_flag+lang combination: " + name + "/" + lang);
+                throw new UserErrorException("Unaccounted @pastel_flag+lang combination: " + name + "/" + lang);
             };
             switch (name)
             {

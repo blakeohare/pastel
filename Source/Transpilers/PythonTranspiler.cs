@@ -30,7 +30,7 @@ namespace Pastel.Transpilers
 
         public override string TranslateType(PType type)
         {
-            throw new InvalidOperationException("Python does not support types.");
+            throw new InvalidOperationException(); // Python does not support types.
         }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
@@ -1097,7 +1097,7 @@ namespace Pastel.Transpilers
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
-            throw new InvalidOperationException("This function should not be called. Python uses lists as structs.");
+            throw new InvalidOperationException(); // This function should not be called. Python uses lists as structs.
         }
     }
 }

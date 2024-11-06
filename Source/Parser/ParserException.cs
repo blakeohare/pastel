@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Pastel.Parser
+﻿namespace Pastel.Parser
 {
-    public class ParserException : Exception
+    internal class ParserException : UserErrorException
     {
         internal ParserException(Token token, string message)
             : base(InterpretToken(token) + message)

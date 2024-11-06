@@ -41,7 +41,7 @@ namespace Pastel.Transpilers
 
         public virtual string TranslateType(PType type)
         {
-            throw new InvalidOperationException("This platform does not support types.");
+            throw new InvalidOperationException(); // This platform does not support types.
         }
 
         public virtual void TranslateExecutables(TranspilerContext sb, Executable[] executables)
