@@ -174,7 +174,7 @@ namespace Pastel
             Dictionary<string, string> output = new Dictionary<string, string>();
             if (resourcePath == null) return output;
 
-            string helperCode = PastelUtil.ReadAssemblyFileText(typeof(AbstractTranspiler).Assembly, resourcePath);
+            string helperCode = ResourceReader.ReadTextFile(resourcePath);
 
             string currentId = null;
             List<string> currentChunk = new List<string>();

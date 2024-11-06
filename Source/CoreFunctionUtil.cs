@@ -95,7 +95,7 @@ namespace Pastel
 
         private static string GetCoreFunctionSignatureManifest()
         {
-            return PastelUtil.ReadAssemblyFileText(typeof(CoreFunctionUtil).Assembly, "CoreFunctionSignatures.txt");
+            return ResourceReader.ReadTextFile("CoreFunctionSignatures.txt");
         }
     }
 }

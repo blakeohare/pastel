@@ -53,7 +53,7 @@ namespace Pastel
             switch (name)
             {
                 // Deprecated in favor of adding more specific flags for language limitation
-                // If it's the user's intention to add specific behavior to a specific platform for 
+                // If it's the user's intention to add specific behavior to a specific platform for
                 // application-feature reasons, ext_boolean is still available for that.
                 case "IS_CSHARP": return yesNo("cs", "java js php py");
                 case "IS_JAVA": return yesNo("java", "cs js php py");
@@ -137,7 +137,7 @@ namespace Pastel
                     Token stringToken = tokens.Pop();
                     tokens.PopExpected(")");
                     tokens.PopExpected(";");
-                    sourceFile = PastelUtil.ConvertStringTokenToValue(stringToken.Value);
+                    sourceFile = CodeUtil.ConvertStringTokenToValue(stringToken.Value);
                     break;
 
                 case "importIfTrue":
@@ -145,7 +145,7 @@ namespace Pastel
                     tokens.Pop();
                     tokens.PopExpected("(");
                     Token constantExpression = tokens.Pop();
-                    string constantValue = PastelUtil.ConvertStringTokenToValue(constantExpression.Value);
+                    string constantValue = CodeUtil.ConvertStringTokenToValue(constantExpression.Value);
                     tokens.PopExpected(",");
                     Token pathToken = tokens.Pop();
                     tokens.PopExpected(")");
@@ -160,7 +160,7 @@ namespace Pastel
 
                     if (valueBool)
                     {
-                        sourceFile = PastelUtil.ConvertStringTokenToValue(pathToken.Value);
+                        sourceFile = CodeUtil.ConvertStringTokenToValue(pathToken.Value);
                     }
                     break;
 
@@ -863,9 +863,9 @@ namespace Pastel
             switch (firstChar)
             {
                 case '\'':
-                    return new InlineConstant(PType.CHAR, tokens.Pop(), PastelUtil.ConvertStringTokenToValue(next), this.currentCodeOwner);
+                    return new InlineConstant(PType.CHAR, tokens.Pop(), CodeUtil.ConvertStringTokenToValue(next), this.currentCodeOwner);
                 case '"':
-                    return new InlineConstant(PType.STRING, tokens.Pop(), PastelUtil.ConvertStringTokenToValue(next), this.currentCodeOwner);
+                    return new InlineConstant(PType.STRING, tokens.Pop(), CodeUtil.ConvertStringTokenToValue(next), this.currentCodeOwner);
                 case '@':
                     Token atToken = tokens.PopExpected("@");
                     Token compileTimeFunction = EnsureTokenIsValidName(tokens.Pop(), "Expected compile time function name.");

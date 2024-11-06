@@ -26,7 +26,7 @@ namespace Pastel.Transpilers
         {
             if (!isForStruct)
             {
-                PastelUtil.IndentLines(2, lines);
+                CodeUtil.IndentLines(2, lines);
 
                 List<string> prefixes = new List<string>();
 
@@ -34,7 +34,7 @@ namespace Pastel.Transpilers
 
                 prefixes.Add("class " + className + " {");
 
-                PastelUtil.IndentLines(prefixes);
+                CodeUtil.IndentLines(prefixes);
 
                 prefixes.InsertRange(0, new string[] {
                     "<?php",
@@ -179,7 +179,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateCharConstant(TranspilerContext sb, char value)
         {
-            sb.Append(PastelUtil.ConvertStringValueToCode(value.ToString()));
+            sb.Append(CodeUtil.ConvertStringValueToCode(value.ToString()));
         }
 
         public override void TranslateCharToString(TranspilerContext sb, Expression charValue)

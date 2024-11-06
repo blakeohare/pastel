@@ -57,7 +57,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateFloatConstant(TranspilerContext sb, double value)
         {
-            sb.Append(PastelUtil.FloatToString(value));
+            sb.Append(CodeUtil.FloatToString(value));
         }
 
         public override void TranslateFunctionInvocation(TranspilerContext sb, FunctionReference funcRef, Expression[] args)
@@ -199,7 +199,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateStringConstant(TranspilerContext sb, string value)
         {
-            sb.Append(PastelUtil.ConvertStringValueToCode(value));
+            sb.Append(CodeUtil.ConvertStringValueToCode(value));
         }
 
         public override void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement)

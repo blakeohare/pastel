@@ -150,7 +150,7 @@ namespace Pastel.Transpilers
                 }
                 else
                 {
-                    dictionaryBuilder.Append(PastelUtil.ConvertStringValueToCode((string)ic.Value));
+                    dictionaryBuilder.Append(CodeUtil.ConvertStringValueToCode((string)ic.Value));
                 }
                 dictionaryBuilder.Append(": ");
                 dictionaryBuilder.Append(this.expressionsToChunkIds[ic]);

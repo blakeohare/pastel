@@ -93,7 +93,7 @@ namespace Pastel.Transpilers
         {
             if (!isForStruct && config.WrappingClassNameForFunctions != null)
             {
-                PastelUtil.IndentLines(lines);
+                CodeUtil.IndentLines(lines);
                 lines.InsertRange(0, new string[] { "public final class " + config.WrappingClassNameForFunctions + " {", "" });
                 lines.Add("}");
             }
@@ -255,7 +255,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateCharConstant(TranspilerContext sb, char value)
         {
-            sb.Append(PastelUtil.ConvertCharToCharConstantCode(value));
+            sb.Append(CodeUtil.ConvertCharToCharConstantCode(value));
         }
 
         public override void TranslateCharToString(TranspilerContext sb, Expression charValue)

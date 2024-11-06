@@ -157,18 +157,18 @@ namespace Pastel
         private static void GenerateStructBundleImplementation(Transpilers.TranspilerContext ctx, ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)
         {
             Transpilers.AbstractTranspiler transpiler = LanguageUtil.GetTranspiler(config.Language);
-            List<string> finalCode = new List<string>();
+            List<string> codeLines = new List<string>();
             foreach (string structName in structOrder)
             {
-                finalCode.Add(transpiler.WrapCodeForStructs(ctx, config, structCodeByName[structName]));
+                codeLines.Add(transpiler.WrapCodeForStructs(ctx, config, structCodeByName[structName]));
             }
             string dir = config.OutputDirStructs;
             string path;
             switch (config.Language)
             {
                 case Language.PHP:
-                    finalCode.Insert(0, "<?php");
-                    finalCode.Add("?>");
+                    codeLines.Insert(0, "<?php");
+                    codeLines.Add("?>");
                     path = System.IO.Path.Combine(dir, "gen_classes.php");
                     break;
 
@@ -179,12 +179,12 @@ namespace Pastel
                 default:
                     throw new NotImplementedException();
             }
-            string codeString = string.Join('\n', finalCode);
-            if (config.Language == Language.CSHARP)
-            {
-                codeString = codeString.Replace("\n", "\r\n");
-            }
-            codeString = codeString.Replace("\t", transpiler.CanonicalTab);
+
+            string codeString = string.Join('\n', codeLines);
+            codeString = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(
+                codeString,
+                transpiler.CanonicalTab,
+                config.Language == Language.CSHARP ? "\r\n" : "\n");
             System.IO.File.WriteAllText(path, codeString);
         }
 
@@ -197,7 +197,7 @@ namespace Pastel
             {
                 ProjectConfig config = configsLookup[contextPath];
                 PastelContext context = GetContextForConfigImpl(config, contexts, new HashSet<string>());
-                string source = PastelUtil.TryReadTextFile(config.Source);
+                string source = DiskUtil.TryReadTextFile(config.Source);
                 if (source == null) throw new InvalidOperationException("Source file not found: " + config.Source);
                 context.CompileCode(config.Source, source);
                 context.FinalizeCompilation();
@@ -267,8 +267,9 @@ namespace Pastel
             {
                 path = System.IO.Path.Combine(this.root, path);
                 path = System.IO.Path.GetFullPath(path);
-                if (!System.IO.File.Exists(path)) throw new ParserException(throwLocation, "File does not exist: " + path);
-                return System.IO.File.ReadAllText(path);
+                string code = DiskUtil.TryReadTextFile(path);
+                if (code == null) throw new ParserException(throwLocation, "File does not exist: " + path);
+                return code;
             }
         }
     }

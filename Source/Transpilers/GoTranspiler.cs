@@ -241,7 +241,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateFloatConstant(TranspilerContext sb, double value)
         {
-            sb.Append(PastelUtil.FloatToString(value));
+            sb.Append(CodeUtil.FloatToString(value));
         }
 
         public override void TranslateFloatDivision(TranspilerContext sb, Expression floatNumerator, Expression floatDenominator)
@@ -841,7 +841,7 @@ namespace Pastel.Transpilers
 
             sb.TabDepth++;
 
-            string[] fieldNames = PastelUtil.PadStringsToSameLength(structDef.LocalFieldNames.Select(n => n.Value));
+            string[] fieldNames = CodeUtil.PadStringsToSameLength(structDef.LocalFieldNames.Select(n => n.Value));
             for (int i = 0; i < fieldNames.Length; i++)
             {
                 sb.Append(sb.CurrentTab);
