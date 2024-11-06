@@ -11,18 +11,18 @@ namespace Pastel.Parser.ParseNodes
             TypeToConstruct = type;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             return this;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             // no function pointer type
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             throw new NotImplementedException();
         }

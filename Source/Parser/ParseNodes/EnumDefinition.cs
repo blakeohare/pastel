@@ -86,7 +86,7 @@ namespace Pastel.Parser.ParseNodes
             throw new ParserException(name, "The enum value '" + name.Value + "' does not exist in the definition of '" + NameToken.Value + "'.");
         }
 
-        internal void DoConstantResolutions(HashSet<string> cycleDetection, PastelCompiler compiler)
+        internal void DoConstantResolutions(HashSet<string> cycleDetection, Resolver resolver)
         {
             string prefix = NameToken.Value + ".";
             foreach (string name in UnresolvedValues)
@@ -98,7 +98,7 @@ namespace Pastel.Parser.ParseNodes
                 }
                 cycleDetection.Add(cycleKey);
 
-                InlineConstant ic = ValuesByName[cycleKey].DoConstantResolution(cycleDetection, compiler);
+                InlineConstant ic = ValuesByName[cycleKey].DoConstantResolution(cycleDetection, resolver);
                 if (!(ic.Value is int))
                 {
                     throw new ParserException(ic.FirstToken, "Enum values must resolve into integers. This does not.");

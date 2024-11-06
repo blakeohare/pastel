@@ -11,9 +11,9 @@
             OpToken = op;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Expression = Expression.ResolveNamesAndCullUnusedCode(compiler);
+            Expression = Expression.ResolveNamesAndCullUnusedCode(resolver);
 
             if (Expression is InlineConstant)
             {
@@ -38,21 +38,21 @@
             return this;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Expression = Expression.ResolveType(varScope, compiler);
+            Expression = Expression.ResolveType(varScope, resolver);
             ResolvedType = Expression.ResolvedType;
 
             if (OpToken.Value == "-")
             {
-                if (!(ResolvedType.IsIdentical(compiler, PType.INT) || ResolvedType.IsIdentical(compiler, PType.DOUBLE)))
+                if (!(ResolvedType.IsIdentical(resolver, PType.INT) || ResolvedType.IsIdentical(resolver, PType.DOUBLE)))
                 {
                     throw new ParserException(OpToken, "Cannot apply '-' to type: " + ResolvedType.ToString());
                 }
             }
             else // '!'
             {
-                if (!ResolvedType.IsIdentical(compiler, PType.BOOL))
+                if (!ResolvedType.IsIdentical(resolver, PType.BOOL))
                 {
                     throw new ParserException(OpToken, "Cannot apply '!' to type: " + ResolvedType.ToString());
                 }
@@ -60,9 +60,9 @@
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Expression = Expression.ResolveWithTypeContext(compiler);
+            Expression = Expression.ResolveWithTypeContext(resolver);
             return this;
         }
     }

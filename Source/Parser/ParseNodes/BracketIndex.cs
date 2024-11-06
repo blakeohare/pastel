@@ -15,17 +15,17 @@ namespace Pastel.Parser.ParseNodes
             Index = index;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Root = Root.ResolveNamesAndCullUnusedCode(compiler);
-            Index = Index.ResolveNamesAndCullUnusedCode(compiler);
+            Root = Root.ResolveNamesAndCullUnusedCode(resolver);
+            Index = Index.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Root = Root.ResolveType(varScope, compiler);
-            Index = Index.ResolveType(varScope, compiler);
+            Root = Root.ResolveType(varScope, resolver);
+            Index = Index.ResolveType(varScope, resolver);
 
             PType rootType = Root.ResolvedType;
             PType indexType = Index.ResolvedType;
@@ -33,23 +33,23 @@ namespace Pastel.Parser.ParseNodes
             bool badIndex = false;
             if (rootType.RootValue == "List" || rootType.RootValue == "Array")
             {
-                badIndex = !indexType.IsIdentical(compiler, PType.INT);
+                badIndex = !indexType.IsIdentical(resolver, PType.INT);
                 ResolvedType = rootType.Generics[0];
             }
             else if (rootType.RootValue == "Dictionary")
             {
-                badIndex = !indexType.IsIdentical(compiler, rootType.Generics[0]);
+                badIndex = !indexType.IsIdentical(resolver, rootType.Generics[0]);
                 ResolvedType = rootType.Generics[1];
             }
             else if (rootType.RootValue == "string")
             {
-                badIndex = !indexType.IsIdentical(compiler, PType.INT);
+                badIndex = !indexType.IsIdentical(resolver, PType.INT);
                 ResolvedType = PType.CHAR;
                 if (Root is InlineConstant && Index is InlineConstant)
                 {
                     string c = ((string)((InlineConstant)Root).Value)[(int)((InlineConstant)Index).Value].ToString();
                     InlineConstant newValue = new InlineConstant(PType.CHAR, FirstToken, c, Owner);
-                    newValue.ResolveType(varScope, compiler);
+                    newValue.ResolveType(varScope, resolver);
                     return newValue;
                 }
             }
@@ -66,10 +66,10 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Root = Root.ResolveWithTypeContext(compiler);
-            Index = Index.ResolveWithTypeContext(compiler);
+            Root = Root.ResolveWithTypeContext(resolver);
+            Index = Index.ResolveWithTypeContext(resolver);
 
             Expression[] args = new Expression[] { Root, Index };
             CoreFunction nf;

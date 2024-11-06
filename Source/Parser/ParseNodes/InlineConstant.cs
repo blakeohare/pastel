@@ -26,7 +26,7 @@ namespace Pastel.Parser.ParseNodes
             Value = value;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             return this;
         }
@@ -41,12 +41,12 @@ namespace Pastel.Parser.ParseNodes
             return new InlineConstant(Type, token, Value, owner);
         }
 
-        internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, PastelCompiler compiler)
+        internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
         {
             return this;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             ResolvedType = Type;
             if (ResolvedType.RootValue == "char")
@@ -61,7 +61,7 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             return this;
         }

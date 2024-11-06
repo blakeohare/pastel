@@ -16,23 +16,23 @@
             Value = value;
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Target = Target.ResolveNamesAndCullUnusedCode(compiler);
-            Value = Value.ResolveNamesAndCullUnusedCode(compiler);
+            Target = Target.ResolveNamesAndCullUnusedCode(resolver);
+            Value = Value.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            Value = Value.ResolveType(varScope, compiler);
-            Target = Target.ResolveType(varScope, compiler);
+            Value = Value.ResolveType(varScope, resolver);
+            Target = Target.ResolveType(varScope, resolver);
 
-            if (!PType.CheckAssignment(compiler, Target.ResolvedType, Value.ResolvedType))
+            if (!PType.CheckAssignment(resolver, Target.ResolvedType, Value.ResolvedType))
             {
                 if (OpToken.Value != "=" &&
-                    Target.ResolvedType.IsIdentical(compiler, PType.DOUBLE) &&
-                    Value.ResolvedType.IsIdentical(compiler, PType.INT))
+                    Target.ResolvedType.IsIdentical(resolver, PType.DOUBLE) &&
+                    Value.ResolvedType.IsIdentical(resolver, PType.INT))
                 {
                     // You can apply incremental ops such as += with an int to a float and that is fine without explicit conversion in any platform.
                 }
@@ -43,7 +43,7 @@
             }
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
             if (Target is BracketIndex)
             {
@@ -77,11 +77,11 @@
                     FirstToken,
                     nf,
                     args,
-                    bi.Owner)).ResolveWithTypeContext(compiler);
+                    bi.Owner)).ResolveWithTypeContext(resolver);
             }
 
-            Target = Target.ResolveWithTypeContext(compiler);
-            Value = Value.ResolveWithTypeContext(compiler);
+            Target = Target.ResolveWithTypeContext(resolver);
+            Value = Value.ResolveWithTypeContext(resolver);
 
             return this;
         }

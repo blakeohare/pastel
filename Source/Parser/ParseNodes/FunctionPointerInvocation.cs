@@ -10,7 +10,7 @@ namespace Pastel.Parser.ParseNodes
         public Expression[] Args { get; private set; }
 
         // Note that this class is instantiated in the ResolveType phase.
-        public FunctionPointerInvocation(PastelCompiler compiler, Token firstToken, Expression root, IList<Expression> Args)
+        public FunctionPointerInvocation(Resolver resolver, Token firstToken, Expression root, IList<Expression> Args)
             : base(firstToken, root.Owner)
         {
             Root = root;
@@ -26,28 +26,28 @@ namespace Pastel.Parser.ParseNodes
             {
                 PType expectedArgType = Root.ResolvedType.Generics[i + 1];
                 PType actualArgType = this.Args[i].ResolvedType;
-                if (!actualArgType.IsIdentical(compiler, expectedArgType))
+                if (!actualArgType.IsIdentical(resolver, expectedArgType))
                 {
                     throw new ParserException(this.Args[i].FirstToken, "Incorrect argument type. Expected " + expectedArgType + " but found " + actualArgType + ".");
                 }
             }
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             for (int i = 0; i < Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(compiler);
+                Args[i] = Args[i].ResolveWithTypeContext(resolver);
             }
             return this;
         }

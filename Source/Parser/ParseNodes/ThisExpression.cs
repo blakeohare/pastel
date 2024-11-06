@@ -13,12 +13,12 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             return this;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             ClassDefinition cd;
             if (Owner is FunctionDefinition funcDef)
@@ -41,7 +41,7 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             throw new NotImplementedException();
         }

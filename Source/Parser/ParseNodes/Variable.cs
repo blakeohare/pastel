@@ -26,11 +26,11 @@ namespace Pastel.Parser.ParseNodes
 
         public bool IsFunctionInvocation { get; set; }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             string name = Name;
 
-            InlineConstant constantValue = compiler.GetConstantDefinition(name);
+            InlineConstant constantValue = resolver.CompilerContext.GetConstantDefinition(name);
             if (constantValue != null)
             {
                 return constantValue.CloneWithNewToken(FirstToken);
@@ -46,13 +46,13 @@ namespace Pastel.Parser.ParseNodes
                 return new ExtensibleNamespaceReference(FirstToken, Owner);
             }
 
-            FunctionDefinition functionDefinition = compiler.GetFunctionDefinition(name);
+            FunctionDefinition functionDefinition = resolver.GetFunctionDefinition(name);
             if (functionDefinition != null)
             {
                 return new FunctionReference(FirstToken, functionDefinition, Owner);
             }
 
-            EnumDefinition enumDefinition = compiler.GetEnumDefinition(name);
+            EnumDefinition enumDefinition = resolver.GetEnumDefinition(name);
             if (enumDefinition != null)
             {
                 return new EnumReference(FirstToken, enumDefinition, Owner);
@@ -61,7 +61,7 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             PType type = varScope.GetTypeOfVariable(Name);
             ResolvedType = type;
@@ -75,7 +75,7 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             return this;
         }

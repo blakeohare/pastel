@@ -11,14 +11,14 @@ namespace Pastel.Parser.ParseNodes
             FirstToken = firstToken;
         }
 
-        public abstract Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler);
+        public abstract Statement ResolveNamesAndCullUnusedCode(Resolver resolver);
 
-        internal static IList<Statement> ResolveNamesAndCullUnusedCodeForBlock(IList<Statement> code, PastelCompiler compiler)
+        internal static IList<Statement> ResolveNamesAndCullUnusedCodeForBlock(IList<Statement> code, Resolver resolver)
         {
             List<Statement> output = new List<Statement>();
             for (int i = 0; i < code.Count; ++i)
             {
-                Statement line = code[i].ResolveNamesAndCullUnusedCode(compiler);
+                Statement line = code[i].ResolveNamesAndCullUnusedCode(resolver);
                 if (line is StatementBatch)
                 {
                     // StatementBatch is always flattened
@@ -50,24 +50,24 @@ namespace Pastel.Parser.ParseNodes
             return output;
         }
 
-        internal static void ResolveTypes(Statement[] statements, VariableScope varScope, PastelCompiler compiler)
+        internal static void ResolveTypes(Statement[] statements, VariableScope varScope, Resolver resolver)
         {
             for (int i = 0; i < statements.Length; ++i)
             {
-                statements[i].ResolveTypes(varScope, compiler);
+                statements[i].ResolveTypes(varScope, resolver);
             }
         }
 
-        internal static void ResolveWithTypeContext(PastelCompiler compiler, Statement[] statements)
+        internal static void ResolveWithTypeContext(Resolver resolver, Statement[] statements)
         {
             for (int i = 0; i < statements.Length; ++i)
             {
-                statements[i] = statements[i].ResolveWithTypeContext(compiler);
+                statements[i] = statements[i].ResolveWithTypeContext(resolver);
             }
         }
 
-        internal abstract void ResolveTypes(VariableScope varScope, PastelCompiler compiler);
+        internal abstract void ResolveTypes(VariableScope varScope, Resolver resolver);
 
-        internal abstract Statement ResolveWithTypeContext(PastelCompiler compiler);
+        internal abstract Statement ResolveWithTypeContext(Resolver resolver);
     }
 }

@@ -11,19 +11,19 @@ namespace Pastel.Parser.ParseNodes
             EnumDef = enumDef;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             // created by this phase
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             // should be resolved out by now
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             throw new NotImplementedException();
         }

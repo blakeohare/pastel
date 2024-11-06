@@ -21,13 +21,13 @@ namespace Pastel.Parser.ParseNodes
             ArgTypesIsRepeated = CoreFunctionUtil.GetCoreFunctionIsArgTypeRepeated(CoreFunctionId);
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             // Introduced in ResolveTypes phase
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             if (Context != null)
             {
@@ -37,7 +37,7 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             throw new ParserException(FirstToken, "Core Functions must be invoked and cannot be passed as function pointers in this manner.");
         }

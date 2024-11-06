@@ -15,15 +15,15 @@ namespace Pastel.Parser.ParseNodes
 
         public DotField(Expression root, Token dotToken, Token fieldName) : base(root.FirstToken, root.Owner)
         {
-            Root = root;
-            DotToken = dotToken;
-            FieldName = fieldName;
-            CoreFunctionId = CoreFunction.NONE;
+            this.Root = root;
+            this.DotToken = dotToken;
+            this.FieldName = fieldName;
+            this.CoreFunctionId = CoreFunction.NONE;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Root = Root.ResolveNamesAndCullUnusedCode(compiler);
+            Root = Root.ResolveNamesAndCullUnusedCode(resolver);
 
             if (Root is EnumReference)
             {
@@ -62,29 +62,29 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, PastelCompiler compiler)
+        internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
         {
-            Variable varRoot = Root as Variable;
-            if (varRoot == null) throw new ParserException(FirstToken, "Not able to resolve this constant.");
+            Variable varRoot = this.Root as Variable;
+            if (varRoot == null) throw new ParserException(this.FirstToken, "Not able to resolve this constant.");
             string enumName = varRoot.Name;
-            EnumDefinition enumDef;
-            if (!compiler.EnumDefinitions.TryGetValue(enumName, out enumDef))
+            EnumDefinition enumDef = resolver.GetEnumDefinition(enumName);
+            if (enumDef == null)
             {
-                throw new ParserException(FirstToken, "Not able to resolve this constant.");
+                throw new ParserException(this.FirstToken, "Not able to resolve this constant.");
             }
 
-            return enumDef.GetValue(FieldName);
+            return enumDef.GetValue(this.FieldName);
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Root = Root.ResolveType(varScope, compiler);
+            Root = Root.ResolveType(varScope, resolver);
 
             PType rootType = Root.ResolvedType;
             if (rootType.IsStructOrClass)
             {
                 string fieldName = FieldName.Value;
-                rootType.FinalizeType(compiler);
+                rootType.FinalizeType(resolver);
                 if (rootType.IsStruct)
                 {
                     StructType = rootType.StructDef;
@@ -275,9 +275,9 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Root = Root.ResolveWithTypeContext(compiler);
+            Root = Root.ResolveWithTypeContext(resolver);
             return this;
         }
     }

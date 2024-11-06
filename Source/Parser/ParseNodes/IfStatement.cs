@@ -23,9 +23,9 @@ namespace Pastel.Parser.ParseNodes
             ElseCode = elseCode.ToArray();
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Condition = Condition.ResolveNamesAndCullUnusedCode(compiler);
+            Condition = Condition.ResolveNamesAndCullUnusedCode(resolver);
 
             if (Condition is InlineConstant)
             {
@@ -34,37 +34,37 @@ namespace Pastel.Parser.ParseNodes
                 {
                     return new StatementBatch(FirstToken, ResolveNamesAndCullUnusedCodeForBlock(
                         (bool)value ? IfCode : ElseCode,
-                        compiler));
+                        resolver));
                 }
             }
-            IfCode = ResolveNamesAndCullUnusedCodeForBlock(IfCode, compiler).ToArray();
-            ElseCode = ResolveNamesAndCullUnusedCodeForBlock(ElseCode, compiler).ToArray();
+            IfCode = ResolveNamesAndCullUnusedCodeForBlock(IfCode, resolver).ToArray();
+            ElseCode = ResolveNamesAndCullUnusedCodeForBlock(ElseCode, resolver).ToArray();
 
             return this;
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            Condition = Condition.ResolveType(varScope, compiler);
-            if (Condition.ResolvedType.RootValue != "bool")
+            this.Condition = this.Condition.ResolveType(varScope, resolver);
+            if (this.Condition.ResolvedType.RootValue != "bool")
             {
-                throw new ParserException(Condition.FirstToken, "Only booleans can be used in if statements.");
+                throw new ParserException(this.Condition.FirstToken, "Only booleans can be used in if statements.");
             }
 
-            ResolveTypes(IfCode, new VariableScope(varScope), compiler);
-            ResolveTypes(ElseCode, new VariableScope(varScope), compiler);
+            ResolveTypes(this.IfCode, new VariableScope(varScope), resolver);
+            ResolveTypes(this.ElseCode, new VariableScope(varScope), resolver);
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            Condition = Condition.ResolveWithTypeContext(compiler);
-            ResolveWithTypeContext(compiler, IfCode);
-            if (ElseCode.Length > 0) ResolveWithTypeContext(compiler, ElseCode);
+            this.Condition = this.Condition.ResolveWithTypeContext(resolver);
+            ResolveWithTypeContext(resolver, this.IfCode);
+            if (this.ElseCode.Length > 0) ResolveWithTypeContext(resolver, this.ElseCode);
 
-            if (Condition is InlineConstant)
+            if (this.Condition is InlineConstant)
             {
                 bool condition = (bool)((InlineConstant)Condition).Value;
-                return new StatementBatch(FirstToken, condition ? IfCode : ElseCode);
+                return new StatementBatch(FirstToken, condition ? this.IfCode : this.ElseCode);
             }
 
             return this;

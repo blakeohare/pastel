@@ -26,12 +26,12 @@ namespace Pastel.Parser.ParseNodes
             return expressions;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             // The args were already resolved.
             // This ensures that they match the core function definition
@@ -57,7 +57,7 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = 0; i < verificationLength; ++i)
             {
-                if (!PType.CheckAssignmentWithTemplateOutput(compiler, expectedTypes[i], Args[i].ResolvedType, templateLookup))
+                if (!PType.CheckAssignmentWithTemplateOutput(resolver, expectedTypes[i], Args[i].ResolvedType, templateLookup))
                 {
                     PType expectedType = expectedTypes[i];
                     if (templateLookup.ContainsKey(expectedType.ToString()))
@@ -75,7 +75,7 @@ namespace Pastel.Parser.ParseNodes
                     PType expectedType = expectedTypes[expectedTypes.Length - 1];
                     for (int i = expectedTypes.Length; i < Args.Length; ++i)
                     {
-                        if (!PType.CheckAssignment(compiler, expectedType, Args[i].ResolvedType))
+                        if (!PType.CheckAssignment(resolver, expectedType, Args[i].ResolvedType))
                         {
                             throw new ParserException(Args[i].FirstToken, "Incorrect type. Expected " + expectedTypes[i] + " but found " + Args[i].ResolvedType + ".");
                         }
@@ -99,11 +99,11 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             for (int i = 0; i < Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(compiler);
+                Args[i] = Args[i].ResolveWithTypeContext(resolver);
             }
             return this;
         }

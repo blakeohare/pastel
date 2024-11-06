@@ -9,16 +9,16 @@
             Expression = expression;
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             if (Expression != null)
             {
-                Expression = Expression.ResolveNamesAndCullUnusedCode(compiler);
+                Expression = Expression.ResolveNamesAndCullUnusedCode(resolver);
             }
             return this;
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
             // TODO: the variable scope should NOT be the messenger of this information.
             ICompilationEntity ce = varScope.RootFunctionOrConstructorDefinition;
@@ -28,15 +28,15 @@
             {
                 if (Expression != null)
                 {
-                    Expression = Expression.ResolveType(varScope, compiler);
-                    if (!PType.CheckReturnType(compiler, fd.ReturnType, Expression.ResolvedType))
+                    Expression = Expression.ResolveType(varScope, resolver);
+                    if (!PType.CheckReturnType(resolver, fd.ReturnType, Expression.ResolvedType))
                     {
                         throw new ParserException(Expression.FirstToken, "This expression is not the expected return type of this function.");
                     }
                 }
                 else
                 {
-                    if (!fd.ReturnType.IsIdentical(compiler, PType.VOID))
+                    if (!fd.ReturnType.IsIdentical(resolver, PType.VOID))
                     {
                         throw new ParserException(FirstToken, "Must return a value in this function.");
                     }
@@ -56,11 +56,11 @@
             }
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
             if (Expression != null)
             {
-                Expression = Expression.ResolveWithTypeContext(compiler);
+                Expression = Expression.ResolveWithTypeContext(resolver);
             }
             return this;
         }

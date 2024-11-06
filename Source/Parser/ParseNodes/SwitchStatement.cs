@@ -39,9 +39,9 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Condition = Condition.ResolveNamesAndCullUnusedCode(compiler);
+            Condition = Condition.ResolveNamesAndCullUnusedCode(resolver);
             for (int i = 0; i < Chunks.Length; ++i)
             {
                 SwitchChunk chunk = Chunks[i];
@@ -49,21 +49,21 @@ namespace Pastel.Parser.ParseNodes
                 {
                     if (chunk.Cases[j] != null)
                     {
-                        chunk.Cases[j] = chunk.Cases[j].ResolveNamesAndCullUnusedCode(compiler);
+                        chunk.Cases[j] = chunk.Cases[j].ResolveNamesAndCullUnusedCode(resolver);
                     }
                 }
 
-                chunk.Code = ResolveNamesAndCullUnusedCodeForBlock(chunk.Code, compiler).ToArray();
+                chunk.Code = ResolveNamesAndCullUnusedCodeForBlock(chunk.Code, resolver).ToArray();
             }
             return this;
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            Condition = Condition.ResolveType(varScope, compiler);
+            Condition = Condition.ResolveType(varScope, resolver);
             PType conditionType = Condition.ResolvedType;
-            bool isInt = conditionType.IsIdentical(compiler, PType.INT);
-            bool isChar = !isInt && conditionType.IsIdentical(compiler, PType.CHAR);
+            bool isInt = conditionType.IsIdentical(resolver, PType.INT);
+            bool isChar = !isInt && conditionType.IsIdentical(resolver, PType.CHAR);
             if (!isInt && !isChar)
             {
                 throw new ParserException(Condition.FirstToken, "Only ints and chars can be used in switch statements.");
@@ -78,7 +78,7 @@ namespace Pastel.Parser.ParseNodes
                     Expression ex = chunk.Cases[j];
                     if (ex != null)
                     {
-                        ex = ex.ResolveType(varScope, compiler);
+                        ex = ex.ResolveType(varScope, resolver);
                         chunk.Cases[j] = ex;
                         if (isInt && ex.ResolvedType.RootValue != "int" ||
                             isChar && ex.ResolvedType.RootValue != "char")
@@ -88,13 +88,13 @@ namespace Pastel.Parser.ParseNodes
                     }
                 }
 
-                ResolveTypes(chunk.Code, varScope, compiler);
+                ResolveTypes(chunk.Code, varScope, resolver);
             }
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            Condition = Condition.ResolveWithTypeContext(compiler);
+            Condition = Condition.ResolveWithTypeContext(resolver);
             HashSet<int> values = new HashSet<int>();
             for (int i = 0; i < Chunks.Length; ++i)
             {
@@ -103,7 +103,7 @@ namespace Pastel.Parser.ParseNodes
                 {
                     if (chunk.Cases[j] != null)
                     {
-                        chunk.Cases[j] = chunk.Cases[j].ResolveWithTypeContext(compiler);
+                        chunk.Cases[j] = chunk.Cases[j].ResolveWithTypeContext(resolver);
                         InlineConstant ic = chunk.Cases[j] as InlineConstant;
                         if (ic == null)
                         {
@@ -125,7 +125,7 @@ namespace Pastel.Parser.ParseNodes
                         values.Add(value);
                     }
                 }
-                ResolveWithTypeContext(compiler, chunk.Code);
+                ResolveWithTypeContext(resolver, chunk.Code);
             }
             return this;
         }

@@ -12,19 +12,19 @@ namespace Pastel.Parser.ParseNodes
             ResolvedType = expression.ResolvedType;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Expression = Expression.ResolveWithTypeContext(compiler);
+            Expression = Expression.ResolveWithTypeContext(resolver);
             return this;
         }
     }

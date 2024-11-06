@@ -36,27 +36,27 @@ namespace Pastel.Parser.ParseNodes
             Value = assignmentValue;
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             if (Value == null)
             {
                 throw new ParserException(FirstToken, "Cannot have variable declaration without a value.");
             }
-            Value = Value.ResolveNamesAndCullUnusedCode(compiler);
+            Value = Value.ResolveNamesAndCullUnusedCode(resolver);
 
             return this;
         }
 
-        public void DoConstantResolutions(HashSet<string> cycleDetection, PastelCompiler compiler)
+        public void DoConstantResolutions(HashSet<string> cycleDetection, Resolver resolver)
         {
-            Value = Value.DoConstantResolution(cycleDetection, compiler);
+            Value = Value.DoConstantResolution(cycleDetection, resolver);
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            Value = Value.ResolveType(varScope, compiler);
+            Value = Value.ResolveType(varScope, resolver);
 
-            if (!PType.CheckAssignment(compiler, Type, Value.ResolvedType))
+            if (!PType.CheckAssignment(resolver, Type, Value.ResolvedType))
             {
                 throw new ParserException(Value.FirstToken, "Cannot assign this type to a " + Type);
             }
@@ -64,11 +64,11 @@ namespace Pastel.Parser.ParseNodes
             varScope.DeclareVariables(VariableNameToken, Type);
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
             if (Value != null)
             {
-                Value = Value.ResolveWithTypeContext(compiler);
+                Value = Value.ResolveWithTypeContext(resolver);
             }
             return this;
         }

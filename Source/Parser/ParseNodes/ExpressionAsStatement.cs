@@ -33,20 +33,20 @@ namespace Pastel.Parser.ParseNodes
             return null;
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            this.Expression = this.Expression.ResolveNamesAndCullUnusedCode(compiler);
+            this.Expression = this.Expression.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            this.Expression = this.Expression.ResolveType(varScope, compiler);
+            this.Expression = this.Expression.ResolveType(varScope, resolver);
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            this.Expression = this.Expression.ResolveWithTypeContext(compiler);
+            this.Expression = this.Expression.ResolveWithTypeContext(resolver);
             return this;
         }
     }

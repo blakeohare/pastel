@@ -14,31 +14,31 @@ namespace Pastel.Parser.ParseNodes
             IList<Statement> code) : base(whileToken)
         {
             Condition = condition;
-            Code = code.ToArray();
+            this.Code = code.ToArray();
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Condition = Condition.ResolveNamesAndCullUnusedCode(compiler);
-            Code = ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
+            Condition = Condition.ResolveNamesAndCullUnusedCode(resolver);
+            this.Code = ResolveNamesAndCullUnusedCodeForBlock(this.Code, resolver).ToArray();
             return this;
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            Condition = Condition.ResolveType(varScope, compiler);
-            if (!Condition.ResolvedType.IsIdentical(compiler, PType.BOOL))
+            Condition = Condition.ResolveType(varScope, resolver);
+            if (!Condition.ResolvedType.IsIdentical(resolver, PType.BOOL))
             {
                 throw new ParserException(Condition.FirstToken, "While loop must have a boolean condition.");
             }
 
-            ResolveTypes(Code, varScope, compiler);
+            ResolveTypes(this.Code, varScope, resolver);
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            Condition = Condition.ResolveWithTypeContext(compiler);
-            ResolveWithTypeContext(compiler, Code);
+            Condition = Condition.ResolveWithTypeContext(resolver);
+            ResolveWithTypeContext(resolver, this.Code);
             return this;
         }
     }

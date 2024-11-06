@@ -13,16 +13,16 @@
             IsPrefix = isPrefix;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Expression = Expression.ResolveNamesAndCullUnusedCode(compiler);
+            Expression = Expression.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Expression = Expression.ResolveType(varScope, compiler);
-            if (!Expression.ResolvedType.IsIdentical(compiler, PType.INT))
+            Expression = Expression.ResolveType(varScope, resolver);
+            if (!Expression.ResolvedType.IsIdentical(resolver, PType.INT))
             {
                 throw new ParserException(IncrementToken, "++ and -- can only be applied to integer types.");
             }
@@ -30,7 +30,7 @@
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             // TODO: check if this is either:
             // - exporting to a platform that supports this OR

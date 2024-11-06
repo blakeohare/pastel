@@ -214,6 +214,12 @@ namespace Pastel.Parser.ParseNodes
         private bool isTypeFinalized = false;
         private StructDefinition structReference = null;
         private ClassDefinition classReference = null;
+
+        internal void FinalizeType(Resolver resolver)
+        {
+            this.FinalizeType(resolver.CompilerContext);
+        }
+
         internal void FinalizeType(PastelCompiler compilerContext)
         {
             if (isTypeFinalized) return;
@@ -273,12 +279,12 @@ namespace Pastel.Parser.ParseNodes
         }
 
         // when a templated type coincides with an actual value, add that template key to the lookup output param.
-        internal static bool CheckAssignmentWithTemplateOutput(PastelCompiler compiler, PType templatedType, PType actualValue, Dictionary<string, PType> output)
+        internal static bool CheckAssignmentWithTemplateOutput(Resolver resolver, PType templatedType, PType actualValue, Dictionary<string, PType> output)
         {
             if (templatedType.Category == TypeCategory.OBJECT) return true;
 
             // Most cases, nothing to do
-            if (templatedType.IsIdenticalOrChildOf(compiler, actualValue))
+            if (templatedType.IsIdenticalOrChildOf(resolver, actualValue))
             {
                 return true;
             }
@@ -289,7 +295,7 @@ namespace Pastel.Parser.ParseNodes
                 {
                     PType requiredType = output[templatedType.RootValue];
                     // if it's already encountered it better match the existing value
-                    if (actualValue.IsIdenticalOrChildOf(compiler, requiredType))
+                    if (actualValue.IsIdenticalOrChildOf(resolver, requiredType))
                     {
                         return true;
                     }
@@ -319,7 +325,7 @@ namespace Pastel.Parser.ParseNodes
                     if (output.ContainsKey(templatedType.RootValue))
                     {
                         // if it's already encountered it better match the existing value
-                        if (actualValue.IsIdentical(compiler, output[templatedType.RootValue]))
+                        if (actualValue.IsIdentical(resolver, output[templatedType.RootValue]))
                         {
                             // yup, that's okay
                         }
@@ -343,7 +349,7 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = 0; i < templatedType.Generics.Length; ++i)
             {
-                if (!CheckAssignmentWithTemplateOutput(compiler, templatedType.Generics[i], actualValue.Generics[i], output))
+                if (!CheckAssignmentWithTemplateOutput(resolver, templatedType.Generics[i], actualValue.Generics[i], output))
                 {
                     return false;
                 }
@@ -352,18 +358,18 @@ namespace Pastel.Parser.ParseNodes
             return true;
         }
 
-        internal static bool CheckAssignment(PastelCompiler compiler, PType targetType, PType value)
+        internal static bool CheckAssignment(Resolver resolver, PType targetType, PType value)
         {
             if (targetType.Category == TypeCategory.VOID) return false;
-            return CheckReturnType(compiler, targetType, value);
+            return CheckReturnType(resolver, targetType, value);
         }
 
-        internal static bool CheckReturnType(PastelCompiler compiler, PType returnType, PType value)
+        internal static bool CheckReturnType(Resolver resolver, PType returnType, PType value)
         {
             // This is an assert, not a user-facing exception. Null should never appear here.
             if (value == null) throw new ParserException(returnType.FirstToken, "This should not happen.");
 
-            if (value.IsIdenticalOrChildOf(compiler, returnType)) return true;
+            if (value.IsIdenticalOrChildOf(resolver, returnType)) return true;
             if (returnType.Category == TypeCategory.OBJECT) return true;
             if (returnType.Category == TypeCategory.VOID) return false;
             if (value.Category == TypeCategory.NULL)
@@ -375,7 +381,7 @@ namespace Pastel.Parser.ParseNodes
             return false;
         }
 
-        private bool IsParentOf(PastelCompiler compiler, PType moreSpecificTypeOrSame)
+        private bool IsParentOf(Resolver resolver, PType moreSpecificTypeOrSame)
         {
             if (moreSpecificTypeOrSame == this) return true;
             if (Category == TypeCategory.OBJECT) return true;
@@ -387,12 +393,12 @@ namespace Pastel.Parser.ParseNodes
             }
 
             // All that's left are Arrays, Lists, and Dictionaries, which must match exactly.
-            return IsIdentical(compiler, moreSpecificTypeOrSame);
+            return IsIdentical(resolver, moreSpecificTypeOrSame);
         }
 
-        internal bool IsIdenticalOrChildOf(PastelCompiler compiler, PType other)
+        internal bool IsIdenticalOrChildOf(Resolver resolver, PType other)
         {
-            if (IsIdentical(compiler, other)) return true;
+            if (IsIdentical(resolver, other)) return true;
 
             // only structs or classes should be here if this is to return true. If not, then it's a no.
             if (!IsStructOrClass || !other.IsStructOrClass) return false;
@@ -417,10 +423,10 @@ namespace Pastel.Parser.ParseNodes
             return false;
         }
 
-        internal bool IsIdentical(PastelCompiler compiler, PType other)
+        internal bool IsIdentical(Resolver resolver, PType other)
         {
-            if (!isTypeFinalized) FinalizeType(compiler);
-            if (!other.isTypeFinalized) other.FinalizeType(compiler);
+            if (!isTypeFinalized) FinalizeType(resolver);
+            if (!other.isTypeFinalized) other.FinalizeType(resolver);
 
             if (Category != other.Category) return false;
 
@@ -442,7 +448,7 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = Generics.Length - 1; i >= 0; --i)
             {
-                if (!Generics[i].IsIdentical(compiler, other.Generics[i]))
+                if (!Generics[i].IsIdentical(resolver, other.Generics[i]))
                 {
                     return false;
                 }

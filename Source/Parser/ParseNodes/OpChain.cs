@@ -36,18 +36,18 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            ResolveNamesAndCullUnusedCodeInPlace(Expressions, compiler);
+            ResolveNamesAndCullUnusedCodeInPlace(Expressions, resolver);
             // Don't do short-circuiting yet for && and ||
             return this;
         }
 
-        internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, PastelCompiler compiler)
+        internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
         {
             for (int i = 0; i < Expressions.Length; ++i)
             {
-                Expressions[i] = Expressions[i].DoConstantResolution(cycleDetection, compiler);
+                Expressions[i] = Expressions[i].DoConstantResolution(cycleDetection, resolver);
             }
 
             InlineConstant current = (InlineConstant)Expressions[0];
@@ -73,11 +73,11 @@ namespace Pastel.Parser.ParseNodes
             return current;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             for (int i = 0; i < Expressions.Length; ++i)
             {
-                Expressions[i] = Expressions[i].ResolveType(varScope, compiler);
+                Expressions[i] = Expressions[i].ResolveType(varScope, resolver);
             }
 
             ResolvedType = Expressions[0].ResolvedType;
@@ -182,11 +182,11 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             for (int i = 0; i < Expressions.Length; ++i)
             {
-                Expressions[i] = Expressions[i].ResolveWithTypeContext(compiler);
+                Expressions[i] = Expressions[i].ResolveWithTypeContext(resolver);
             }
 
             InlineConstant left = Expressions[0] as InlineConstant;

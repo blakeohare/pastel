@@ -16,27 +16,27 @@ namespace Pastel.Parser.ParseNodes
 
         public ConstructorDefinition(PastelContext context, Token constructorToken, IList<PType> argTypes, IList<Token> argNames, ClassDefinition classDef)
         {
-            Context = context;
-            FirstToken = constructorToken;
-            ArgTypes = argTypes.ToArray();
-            ArgNames = argNames.ToArray();
-            ClassDef = classDef;
+            this.Context = context;
+            this.FirstToken = constructorToken;
+            this.ArgTypes = argTypes.ToArray();
+            this.ArgNames = argNames.ToArray();
+            this.ClassDef = classDef;
         }
 
-        public void ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public void ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Code = Statement.ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
+            this.Code = Statement.ResolveNamesAndCullUnusedCodeForBlock(this.Code, resolver).ToArray();
         }
 
-        public void ResolveSignatureTypes(PastelCompiler compiler)
+        public void ResolveSignatureTypes(Resolver resolver)
         {
             for (int i = 0; i < ArgTypes.Length; ++i)
             {
-                ArgTypes[i].FinalizeType(compiler);
+                ArgTypes[i].FinalizeType(resolver);
             }
         }
 
-        public void ResolveTypes(PastelCompiler compiler)
+        public void ResolveTypes(Resolver resolver)
         {
             VariableScope varScope = new VariableScope(this);
             for (int i = 0; i < ArgTypes.Length; ++i)
@@ -46,7 +46,7 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = 0; i < Code.Length; ++i)
             {
-                Code[i].ResolveTypes(varScope, compiler);
+                Code[i].ResolveTypes(varScope, resolver);
             }
         }
     }

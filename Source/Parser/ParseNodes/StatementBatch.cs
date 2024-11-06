@@ -30,12 +30,12 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             List<Statement> statements = new List<Statement>();
             for (int i = 0; i < this.Statements.Length; ++i)
             {
-                Statement stmnt = this.Statements[i].ResolveNamesAndCullUnusedCode(compiler);
+                Statement stmnt = this.Statements[i].ResolveNamesAndCullUnusedCode(resolver);
                 if (stmnt is StatementBatch)
                 {
                     statements.AddRange(((StatementBatch)stmnt).Statements);
@@ -55,17 +55,17 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
             for (int i = 0; i < this.Statements.Length; ++i)
             {
-                this.Statements[i].ResolveTypes(varScope, compiler);
+                this.Statements[i].ResolveTypes(varScope, resolver);
             }
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            ResolveWithTypeContext(compiler, this.Statements);
+            ResolveWithTypeContext(resolver, this.Statements);
             return this;
         }
     }

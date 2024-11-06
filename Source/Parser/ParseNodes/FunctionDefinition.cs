@@ -31,21 +31,21 @@ namespace Pastel.Parser.ParseNodes
             ClassDef = nullableClassOwner;
         }
 
-        public void ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public void ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Code = Statement.ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
+            Code = Statement.ResolveNamesAndCullUnusedCodeForBlock(this.Code, resolver).ToArray();
         }
 
-        public void ResolveSignatureTypes(PastelCompiler compiler)
+        public void ResolveSignatureTypes(Resolver resolver)
         {
-            ReturnType.FinalizeType(compiler);
+            ReturnType.FinalizeType(resolver);
             for (int i = 0; i < ArgTypes.Length; ++i)
             {
-                ArgTypes[i].FinalizeType(compiler);
+                ArgTypes[i].FinalizeType(resolver);
             }
         }
 
-        public void ResolveTypes(PastelCompiler compiler)
+        public void ResolveTypes(Resolver resolver)
         {
             VariableScope varScope = new VariableScope(this);
             for (int i = 0; i < ArgTypes.Length; ++i)
@@ -55,13 +55,13 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = 0; i < Code.Length; ++i)
             {
-                Code[i].ResolveTypes(varScope, compiler);
+                Code[i].ResolveTypes(varScope, resolver);
             }
         }
 
-        public void ResolveWithTypeContext(PastelCompiler compiler)
+        public void ResolveWithTypeContext(Resolver resolver)
         {
-            Statement.ResolveWithTypeContext(compiler, Code);
+            Statement.ResolveWithTypeContext(resolver, Code);
         }
     }
 }

@@ -81,7 +81,15 @@ namespace Pastel
 
         public PastelContext FinalizeCompilation()
         {
-            this.GetCompiler().Resolve();
+            PastelCompiler compiler = this.GetCompiler();
+            new Resolver(
+                compiler, 
+                compiler.EnumDefinitions,
+                compiler.ConstantDefinitions,
+                compiler.FunctionDefinitions,
+                compiler.StructDefinitions,
+                compiler.ClassDefinitions
+            ).Resolve();
             return this;
         }
 

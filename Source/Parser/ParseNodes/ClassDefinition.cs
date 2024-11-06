@@ -32,31 +32,31 @@ namespace Pastel.Parser.ParseNodes
             Methods = members.Keys.OrderBy(k => k).Select(k => members[k]).OfType<FunctionDefinition>().ToArray();
         }
 
-        public void ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public void ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Constructor.ResolveNamesAndCullUnusedCode(compiler);
+            Constructor.ResolveNamesAndCullUnusedCode(resolver);
             foreach (FieldDefinition fd in Fields)
             {
-                fd.ResolveNamesAndCullUnusedCode(compiler);
+                fd.ResolveNamesAndCullUnusedCode(resolver);
             }
 
             foreach (FunctionDefinition fd in Methods)
             {
-                fd.ResolveNamesAndCullUnusedCode(compiler);
+                fd.ResolveNamesAndCullUnusedCode(resolver);
             }
         }
 
-        public void ResolveTypes(PastelCompiler compiler)
+        public void ResolveTypes(Resolver resolver)
         {
-            Constructor.ResolveTypes(compiler);
+            Constructor.ResolveTypes(resolver);
             foreach (FieldDefinition fd in Fields)
             {
-                fd.ResolveTypes(compiler);
+                fd.ResolveTypes(resolver);
             }
 
             foreach (FunctionDefinition fd in Methods)
             {
-                fd.ResolveTypes(compiler);
+                fd.ResolveTypes(resolver);
             }
         }
     }

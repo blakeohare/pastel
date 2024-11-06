@@ -11,23 +11,23 @@
             Expression = expression;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Expression = Expression.ResolveNamesAndCullUnusedCode(compiler);
+            Expression = Expression.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Expression = Expression.ResolveType(varScope, compiler);
+            Expression = Expression.ResolveType(varScope, resolver);
             // TODO: check for silly casts
             ResolvedType = Type;
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Expression = Expression.ResolveWithTypeContext(compiler);
+            Expression = Expression.ResolveWithTypeContext(resolver);
             return this;
         }
     }

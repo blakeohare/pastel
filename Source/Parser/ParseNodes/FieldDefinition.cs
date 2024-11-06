@@ -17,15 +17,15 @@
             ClassDef = classDef;
         }
 
-        public void ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public void ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Value = Value.ResolveNamesAndCullUnusedCode(compiler);
+            Value = Value.ResolveNamesAndCullUnusedCode(resolver);
         }
 
-        public void ResolveTypes(PastelCompiler compiler)
+        public void ResolveTypes(Resolver resolver)
         {
-            Value = Value.ResolveType(new VariableScope(), compiler);
-            if (!Value.ResolvedType.IsIdenticalOrChildOf(compiler, FieldType))
+            Value = Value.ResolveType(new VariableScope(), resolver);
+            if (!Value.ResolvedType.IsIdenticalOrChildOf(resolver, FieldType))
             {
                 throw new ParserException(Value.FirstToken, "Cannot assign this value to this type.");
             }

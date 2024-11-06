@@ -23,36 +23,36 @@ namespace Pastel.Parser.ParseNodes
             Code = code.ToArray();
         }
 
-        public override Statement ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            InitCode = ResolveNamesAndCullUnusedCodeForBlock(InitCode, compiler).ToArray();
-            Condition = Condition.ResolveNamesAndCullUnusedCode(compiler);
-            StepCode = ResolveNamesAndCullUnusedCodeForBlock(StepCode, compiler).ToArray();
+            InitCode = ResolveNamesAndCullUnusedCodeForBlock(InitCode, resolver).ToArray();
+            Condition = Condition.ResolveNamesAndCullUnusedCode(resolver);
+            StepCode = ResolveNamesAndCullUnusedCodeForBlock(StepCode, resolver).ToArray();
 
             // TODO: check Condition for falseness
 
-            Code = ResolveNamesAndCullUnusedCodeForBlock(Code, compiler).ToArray();
+            this.Code = ResolveNamesAndCullUnusedCodeForBlock(this.Code, resolver).ToArray();
 
             return this;
         }
 
-        internal override void ResolveTypes(VariableScope varScope, PastelCompiler compiler)
+        internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
             // This gets compiled as a wihle loop with the init added before the loop, so it should go in the same variable scope.
             // The implication is that multiple declarations in the init for successive loops will collide.
-            ResolveTypes(InitCode, varScope, compiler);
-            Condition = Condition.ResolveType(varScope, compiler);
-            ResolveTypes(StepCode, varScope, compiler);
+            ResolveTypes(InitCode, varScope, resolver);
+            Condition = Condition.ResolveType(varScope, resolver);
+            ResolveTypes(StepCode, varScope, resolver);
             VariableScope innerScope = new VariableScope(varScope);
-            ResolveTypes(Code, innerScope, compiler);
+            ResolveTypes(Code, innerScope, resolver);
         }
 
-        internal override Statement ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            ResolveWithTypeContext(compiler, InitCode);
-            Condition = Condition.ResolveWithTypeContext(compiler);
-            ResolveWithTypeContext(compiler, StepCode);
-            ResolveWithTypeContext(compiler, Code);
+            ResolveWithTypeContext(resolver, InitCode);
+            Condition = Condition.ResolveWithTypeContext(resolver);
+            ResolveWithTypeContext(resolver, StepCode);
+            ResolveWithTypeContext(resolver, Code);
 
             // Canonialize the for loop into a while loop.
             List<Statement> loopCode = new List<Statement>(Code);

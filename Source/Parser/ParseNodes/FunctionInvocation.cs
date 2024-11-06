@@ -52,15 +52,15 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Root = Root.ResolveNamesAndCullUnusedCode(compiler);
-            ResolveNamesAndCullUnusedCodeInPlace(Args, compiler);
+            Root = Root.ResolveNamesAndCullUnusedCode(resolver);
+            ResolveNamesAndCullUnusedCodeInPlace(Args, resolver);
 
             return this;
         }
 
-        private void VerifyArgTypes(PType[] expectedTypes, PastelCompiler compiler)
+        private void VerifyArgTypes(PType[] expectedTypes, Resolver resolver)
         {
             if (expectedTypes.Length != Args.Length)
             {
@@ -69,26 +69,26 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = 0; i < Args.Length; ++i)
             {
-                if (!PType.CheckAssignment(compiler, expectedTypes[i], Args[i].ResolvedType))
+                if (!PType.CheckAssignment(resolver, expectedTypes[i], Args[i].ResolvedType))
                 {
                     throw new ParserException(Args[i].FirstToken, "Wrong function arg type. Cannot convert a " + Args[i].ResolvedType + " to a " + expectedTypes[i]);
                 }
             }
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             for (int i = 0; i < Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveType(varScope, compiler);
+                Args[i] = Args[i].ResolveType(varScope, resolver);
             }
 
-            Root = Root.ResolveType(varScope, compiler);
+            Root = Root.ResolveType(varScope, resolver);
 
             if (Root is FunctionReference)
             {
                 FunctionDefinition functionDefinition = ((FunctionReference)Root).Function;
-                VerifyArgTypes(functionDefinition.ArgTypes, compiler);
+                VerifyArgTypes(functionDefinition.ArgTypes, resolver);
                 ResolvedType = functionDefinition.ReturnType;
                 return this;
             }
@@ -105,29 +105,29 @@ namespace Pastel.Parser.ParseNodes
                     nfi = new CoreFunctionInvocation(FirstToken, nfr.CoreFunctionId, nfr.Context, Args, Owner);
                 }
 
-                return nfi.ResolveType(varScope, compiler);
+                return nfi.ResolveType(varScope, resolver);
             }
             else if (Root is ExtensibleFunctionReference)
             {
-                return new ExtensibleFunctionInvocation(FirstToken, (ExtensibleFunctionReference)Root, Args).ResolveType(varScope, compiler);
+                return new ExtensibleFunctionInvocation(FirstToken, (ExtensibleFunctionReference)Root, Args).ResolveType(varScope, resolver);
             }
             else if (Root is ConstructorReference)
             {
                 PType typeToConstruct = ((ConstructorReference)Root).TypeToConstruct;
-                typeToConstruct.FinalizeType(compiler);
+                typeToConstruct.FinalizeType(resolver);
                 return new ConstructorInvocation(FirstToken, typeToConstruct, Args, Owner);
             }
             else if (Root.ResolvedType.RootValue == "Func")
             {
-                return new FunctionPointerInvocation(compiler, FirstToken, Root, Args);
+                return new FunctionPointerInvocation(resolver, FirstToken, Root, Args);
             }
 
             throw new ParserException(OpenParenToken, "This expression cannot be invoked like a function.");
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Root = Root.ResolveWithTypeContext(compiler);
+            Root = Root.ResolveWithTypeContext(resolver);
 
             if (Root is FunctionReference)
             {
@@ -140,7 +140,7 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = 0; i < Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(compiler);
+                Args[i] = Args[i].ResolveWithTypeContext(resolver);
             }
             return this;
         }

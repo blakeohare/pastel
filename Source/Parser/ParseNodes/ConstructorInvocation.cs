@@ -19,21 +19,21 @@ namespace Pastel.Parser.ParseNodes
             ResolvedType = type;
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             for (int i = 0; i < Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(compiler);
+                Args[i] = Args[i].ResolveWithTypeContext(resolver);
             }
 
             string type = Type.RootValue;
@@ -74,7 +74,7 @@ namespace Pastel.Parser.ParseNodes
                     {
                         PType actualType = Args[i].ResolvedType;
                         PType expectedType = resolvedArgTypes[i];
-                        if (!PType.CheckAssignment(compiler, expectedType, actualType))
+                        if (!PType.CheckAssignment(resolver, expectedType, actualType))
                         {
                             throw new ParserException(Args[i].FirstToken, "Cannot use an arg of this type for this " + (Type.IsClass ? "constructor argument" : "struct field") + ". Expected " + expectedType.ToString() + " but found " + actualType.ToString());
                         }

@@ -19,18 +19,18 @@ namespace Pastel.Parser.ParseNodes
             Args = args.ToArray();
         }
 
-        public override Expression ResolveNamesAndCullUnusedCode(PastelCompiler compiler)
+        public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
             throw new NotImplementedException();
         }
 
-        internal override Expression ResolveType(VariableScope varScope, PastelCompiler compiler)
+        internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
             // Args already resolved by FunctionInvocation.ResolveType().
 
             string name = FunctionRef.Name;
             ExtensibleFunction extensibleFunction;
-            if (!compiler.ExtensionSet.ExtensionLookup.TryGetValue(name, out extensibleFunction))
+            if (!resolver.CompilerContext.ExtensionSet.ExtensionLookup.TryGetValue(name, out extensibleFunction))
             {
                 throw new ParserException(FirstToken, "Type information for '" + name + "' extensible function is not defined.");
             }
@@ -45,7 +45,7 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = 0; i < Args.Length; ++i)
             {
-                if (!PType.CheckAssignment(compiler, argTypes[i], Args[i].ResolvedType))
+                if (!PType.CheckAssignment(resolver, argTypes[i], Args[i].ResolvedType))
                 {
                     throw new ParserException(Args[i].FirstToken, "Invalid argument type. Expected '" + argTypes[i] + "' but found '" + Args[i].ResolvedType + "'.");
                 }
@@ -54,11 +54,11 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
-        internal override Expression ResolveWithTypeContext(PastelCompiler compiler)
+        internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             for (int i = 0; i < Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(compiler);
+                Args[i] = Args[i].ResolveWithTypeContext(resolver);
             }
             return this;
         }
