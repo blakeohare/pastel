@@ -245,7 +245,7 @@ namespace Pastel
             string[] extensionTypeDefs =
                 ((data.ContainsKey("extensionTypes")
                     ? data["extensionTypes"]
-                    : null) as object[] ?? new object[0])
+                    : null) as object[] ?? [])
                 .OfType<string>()
                 .ToArray();
             foreach (string extensionTypeDef in extensionTypeDefs)
@@ -256,15 +256,14 @@ namespace Pastel
             string[] extensions =
                 ((data.ContainsKey("extensions")
                     ? data["extensions"]
-                    : null) as object[] ?? new object[0])
+                    : null) as object[] ?? [])
                 .OfType<string>()
                 .ToArray();
             foreach (string extension in extensions)
             {
                 string[] parts = SplitOnColon(extension);
                 config.ExtensionPlatformValues[parts[0]] = parts[1].Trim();
-                config.ExtensionPlatformValuesDefinitionTokens[parts[0].Trim()] =
-                    new Token("", originalPath, 1, 0, true);
+                config.ExtensionPlatformValuesDefinitionTokens[parts[0].Trim()] = new Token("", originalPath, 1, 0, TokenType.PUNCTUATION);
             }
         }
 

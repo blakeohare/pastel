@@ -178,7 +178,13 @@ namespace Pastel.Parser
 
         private Expression ParseEntityRoot(TokenStream tokens)
         {
-            string next = tokens.PeekValue();
+            if (!tokens.HasMore)
+            {
+                throw new UserErrorException("Unexpected End of File");
+            }
+
+            Token nextToken = tokens.Peek();
+            string next = nextToken.Value;
             switch (next)
             {
                 case "true":
@@ -186,20 +192,24 @@ namespace Pastel.Parser
                     return new InlineConstant(PType.BOOL, tokens.Pop(), next == "true", this.parser.ActiveEntity);
                 case "null":
                     return new InlineConstant(PType.NULL, tokens.Pop(), null, this.parser.ActiveEntity);
-                case ".":
-                    Token dotToken = tokens.Pop();
-                    Token numToken = tokens.Pop();
-                    EnsureInteger(tokens.Pop(), false, false);
-                    string strValue = "0." + numToken.Value;
-                    double dblValue;
-                    if (!numToken.HasWhitespacePrefix && double.TryParse(strValue, out dblValue))
-                    {
-                        return new InlineConstant(PType.DOUBLE, dotToken, dblValue, this.parser.ActiveEntity);
-                    }
-                    throw new ParserException(dotToken, "Unexpected '.'");
-
-                default: break;
             }
+
+            if (nextToken.Type == TokenType.INTEGER)
+            {
+                tokens.Pop();
+                int numValue = EnsureInteger(nextToken, true, true);
+                return new InlineConstant(PType.INT, nextToken, numValue, this.parser.ActiveEntity);
+            }
+
+            if (nextToken.Type == TokenType.FLOAT)
+            {
+                tokens.Pop();
+                if (double.TryParse(next, out double dblValue))
+                {
+                    return new InlineConstant(PType.DOUBLE, nextToken, dblValue, this.parser.ActiveEntity);
+                }
+            }
+
             char firstChar = next[0];
             switch (firstChar)
             {
@@ -212,31 +222,6 @@ namespace Pastel.Parser
                     Token compileTimeFunction = EnsureTokenIsValidName(tokens.Pop(), "Expected compile time function name.");
                     if (!tokens.IsNext("(")) tokens.PopExpected("(");
                     return new CompileTimeFunctionReference(atToken, compileTimeFunction, this.parser.ActiveEntity);
-            }
-
-            if (firstChar >= '0' && firstChar <= '9')
-            {
-                Token numToken = tokens.Pop();
-                if (tokens.IsNext("."))
-                {
-                    EnsureInteger(numToken, false, false);
-                    Token dotToken = tokens.Pop();
-                    if (dotToken.HasWhitespacePrefix) throw new ParserException(dotToken, "Unexpected '.'");
-                    Token decimalToken = tokens.Pop();
-                    EnsureInteger(decimalToken, false, false);
-                    if (decimalToken.HasWhitespacePrefix) throw new ParserException(decimalToken, "Unexpected '" + decimalToken.Value + "'");
-                    double dblValue;
-                    if (double.TryParse(numToken.Value + "." + decimalToken.Value, out dblValue))
-                    {
-                        return new InlineConstant(PType.DOUBLE, numToken, dblValue, this.parser.ActiveEntity);
-                    }
-                    throw new ParserException(decimalToken, "Unexpected token.");
-                }
-                else
-                {
-                    int numValue = EnsureInteger(numToken, true, true);
-                    return new InlineConstant(PType.INT, numToken, numValue, this.parser.ActiveEntity);
-                }
             }
 
             if (tokens.IsNext("this"))

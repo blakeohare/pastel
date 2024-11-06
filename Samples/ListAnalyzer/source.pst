@@ -17,6 +17,10 @@ double NumAnalysis_getMedian(NumAnalysis na) { return na.median; }
 double NumAnalysis_getStdDev(NumAnalysis na) { return na.std_dev; }
 
 NumAnalysis perform_analysis(Array<int> nums, int length) {
+
+	// This is just here as a mini smoke test.
+	string testValue = "Strings ought to be tested to some degree.\n";
+
 	NumAnalysis output = new NumAnalysis(0, 0, 0, 0, 0.0, 0.0, 0.0);
 	output.count = length;
 	if (length > 0) {

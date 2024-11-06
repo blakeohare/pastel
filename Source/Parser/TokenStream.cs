@@ -117,23 +117,19 @@ namespace Pastel.Parser
 
         public Token PopBitShiftHackIfPresent()
         {
-            string next = PeekValue();
-            if (next == "<" || next == ">")
+            string val1 = PeekValue();
+            if (val1 == "<<") return this.Pop(); // << is unambiguouos
+            if (val1 == ">" && index + 1 < length) // could be a >>
             {
-                if (index + 1 < length)
+                Token token1 = tokens[index];
+                Token token2 = tokens[index + 1];
+                if (token2.Value == ">" &&
+                    token1.Line == token2.Line &&
+                    token1.Col + 1 == token2.Col)
                 {
-                    Token nextToken = tokens[index + 1];
-                    if (nextToken.Value == next && !nextToken.HasWhitespacePrefix)
-                    {
-                        Token output = Pop();
-                        Pop();
-                        return new Token(
-                            output.Value + output.Value,
-                            output.FileName,
-                            output.Line,
-                            output.Col,
-                            output.HasWhitespacePrefix);
-                    }
+                    Pop();
+                    Pop();
+                    return new Token(">>", token1.FileName, token1.Line, token1.Col, TokenType.PUNCTUATION);
                 }
             }
             return null;
