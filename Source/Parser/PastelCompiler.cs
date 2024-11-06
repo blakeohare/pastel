@@ -32,7 +32,7 @@ namespace Pastel.Parser
             ConstantDefinitions = new Dictionary<string, VariableDeclaration>();
             FunctionDefinitions = new Dictionary<string, FunctionDefinition>();
             ClassDefinitions = new Dictionary<string, ClassDefinition>();
-            interpreterParser = new PastelParser(context, constants, inlineImportCodeLoader);
+            parser = new PastelParser(context, constants, inlineImportCodeLoader);
         }
 
         public override string ToString()
@@ -40,7 +40,7 @@ namespace Pastel.Parser
             return "Pastel Compiler for " + Context.ToString();
         }
 
-        private PastelParser interpreterParser;
+        private PastelParser parser;
 
         public Dictionary<string, StructDefinition> StructDefinitions { get; set; }
         internal Dictionary<string, EnumDefinition> EnumDefinitions { get; set; }
@@ -122,7 +122,7 @@ namespace Pastel.Parser
 
         public void CompileBlobOfCode(string name, string code)
         {
-            ICompilationEntity[] entities = interpreterParser.ParseText(name, code);
+            ICompilationEntity[] entities = parser.EntityParser.ParseText(name, code);
             foreach (ICompilationEntity entity in entities)
             {
                 switch (entity.EntityType)

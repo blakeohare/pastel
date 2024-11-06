@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Pastel
+﻿namespace Pastel
 {
     internal static class DiskUtil
     {
@@ -12,19 +6,13 @@ namespace Pastel
         {
             if (System.IO.File.Exists(fullPath))
             {
-                string data;
                 try
                 {
-                    data = System.IO.File.ReadAllText(fullPath);
+                    return System.IO.File.ReadAllText(fullPath);
                 }
-                catch (System.Exception)
-                {
-                    return null;
-                }
-                return data;
+                catch (System.Exception) { }
             }
             return null;
         }
-
     }
 }

@@ -486,7 +486,7 @@ namespace Pastel.Parser.ParseNodes
             if (!tokens.HasMore) return 0;
             int zeroIndex = tokens.SnapshotState();
             Token firstToken = tokens.Pop();
-            if (!PastelParser.IsValidName(firstToken.Value))
+            if (!ExpressionParser.IsValidName(firstToken.Value))
             {
                 tokens.RevertState(zeroIndex);
                 return 0;
@@ -501,7 +501,7 @@ namespace Pastel.Parser.ParseNodes
                 return 1;
             }
             Token secondToken = tokens.Pop();
-            if (!PastelParser.IsValidName(secondToken.Value))
+            if (!ExpressionParser.IsValidName(secondToken.Value))
             {
                 tokens.RevertState(oneIndex);
                 return 1;

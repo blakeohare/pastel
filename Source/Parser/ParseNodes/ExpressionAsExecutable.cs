@@ -23,7 +23,7 @@ namespace Pastel.Parser.ParseNodes
                     {
                         case "import":
                             string path = ((InlineConstant)functionInvocation.Args[0]).Value.ToString();
-                            return parser.ParseImportedCode(compileTimeFunction.NameToken, path);
+                            return parser.StatementParser.ParseImportedCode(compileTimeFunction.NameToken, path);
 
                         default:
                             throw new NotImplementedException();
