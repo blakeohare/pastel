@@ -1,4 +1,5 @@
-﻿using Pastel.Nodes;
+﻿using Pastel.Parser;
+using Pastel.Parser.ParseNodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -393,7 +394,7 @@ namespace Pastel.Transpilers
 
         public override void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition)
         {
-            throw new Pastel.ParserException(
+            throw new ParserException(
                 innerExpression.FirstToken,
                 "Python does not support ++ or --. Please check all usages with if (@ext_boolean(\"HAS_INCREMENT\")) { ... }");
         }
@@ -649,7 +650,7 @@ namespace Pastel.Transpilers
         {
             sb.Append('(');
             Expression[] expressions = opChain.Expressions;
-            Pastel.Token[] ops = opChain.Ops;
+            Token[] ops = opChain.Ops;
             for (int i = 0; i < expressions.Length; ++i)
             {
                 if (i > 0)

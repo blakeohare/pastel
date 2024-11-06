@@ -1,4 +1,5 @@
-﻿using Pastel.Nodes;
+﻿using Pastel.Parser;
+using Pastel.Parser.ParseNodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1101,7 +1102,7 @@ namespace Pastel.Transpilers
             sb.Append(' ');
             sb.Append(funcDef.NameToken.Value);
             sb.Append('(');
-            Pastel.Token[] argNames = funcDef.ArgNames;
+            Token[] argNames = funcDef.ArgNames;
             PType[] argTypes = funcDef.ArgTypes;
             for (int i = 0; i < argTypes.Length; ++i)
             {

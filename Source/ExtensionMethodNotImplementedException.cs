@@ -1,4 +1,6 @@
-﻿namespace Pastel
+﻿using Pastel.Parser;
+
+namespace Pastel
 {
     public class ExtensionMethodNotImplementedException : ParserException
     {

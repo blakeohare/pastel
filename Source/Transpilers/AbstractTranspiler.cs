@@ -1,4 +1,5 @@
-﻿using Pastel.Nodes;
+﻿using Pastel.Parser;
+using Pastel.Parser.ParseNodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -149,7 +150,7 @@ namespace Pastel.Transpilers
                         case "Array":
                             if (constructor.Type.Generics.Length != 1)
                             {
-                                throw new Pastel.ParserException(constructor.Type.FirstToken, "Array constructor requires exactly 1 generic type.");
+                                throw new ParserException(constructor.Type.FirstToken, "Array constructor requires exactly 1 generic type.");
                             }
                             this.TranslateArrayNew(sb, constructor.Type.Generics[0], constructor.Args[0]);
                             break;
@@ -157,7 +158,7 @@ namespace Pastel.Transpilers
                         case "List":
                             if (constructor.Type.Generics.Length != 1)
                             {
-                                throw new Pastel.ParserException(constructor.Type.FirstToken, "List constructor requires exactly 1 generic type.");
+                                throw new ParserException(constructor.Type.FirstToken, "List constructor requires exactly 1 generic type.");
                             }
                             this.TranslateListNew(sb, constructor.Type.Generics[0]);
                             break;
@@ -165,7 +166,7 @@ namespace Pastel.Transpilers
                         case "Dictionary":
                             if (constructor.Type.Generics.Length != 2)
                             {
-                                throw new Pastel.ParserException(constructor.Type.FirstToken, "Dictionary constructor requires exactly 2 generic types.");
+                                throw new ParserException(constructor.Type.FirstToken, "Dictionary constructor requires exactly 2 generic types.");
                             }
                             PType dictionaryKeyType = constructor.Type.Generics[0];
                             PType dictionaryValueType = constructor.Type.Generics[1];

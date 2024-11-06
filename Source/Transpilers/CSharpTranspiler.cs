@@ -1,4 +1,5 @@
-﻿using Pastel.Nodes;
+﻿using Pastel.Parser;
+using Pastel.Parser.ParseNodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
