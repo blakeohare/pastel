@@ -155,7 +155,7 @@ namespace Pastel
         private static readonly List<string> spaceStringByLengthCache = ["", " "];
         private static string GetSpaceString(int length)
         {
-            while (spaceStringByLengthCache.Count < length)
+            while (spaceStringByLengthCache.Count <= length)
             {
                 string lastString = spaceStringByLengthCache[spaceStringByLengthCache.Count - 1];
                 spaceStringByLengthCache.Add(lastString + " ");
@@ -167,7 +167,7 @@ namespace Pastel
         {
             int maxLen = strs.Select(s => s.Length).Max();
             return strs
-                .Select(s => GetSpaceString(maxLen - s.Length) + s)
+                .Select(s => s + GetSpaceString(maxLen - s.Length))
                 .ToArray();
         }
     }
