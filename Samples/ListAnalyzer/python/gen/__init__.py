@@ -17,7 +17,29 @@ def calculate_standard_deviation(nums, length, mean):
     i += 1
   return ((1.0 * (total_dev) / (length)) ** 0.5)
 
+def NumAnalysis_getCount(na):
+  return na[0]
+
+def NumAnalysis_getMax(na):
+  return na[2]
+
+def NumAnalysis_getMean(na):
+  return na[4]
+
+def NumAnalysis_getMedian(na):
+  return na[5]
+
+def NumAnalysis_getMin(na):
+  return na[1]
+
+def NumAnalysis_getStdDev(na):
+  return na[6]
+
+def NumAnalysis_getTotal(na):
+  return na[3]
+
 def perform_analysis(nums, length):
+  testValue = "Strings ought to be tested to some degree.\n"
   output = [0, 0, 0, 0, 0.0, 0.0, 0.0]
   output[0] = length
   if (length > 0):

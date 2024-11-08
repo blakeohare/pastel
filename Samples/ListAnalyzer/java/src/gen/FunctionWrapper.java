@@ -29,7 +29,36 @@ public final class FunctionWrapper {
     return Math.pow(total_dev / length, 0.5);
   }
 
+  public static int NumAnalysis_getCount(NumAnalysis na) {
+    return na.count;
+  }
+
+  public static int NumAnalysis_getMax(NumAnalysis na) {
+    return na.max;
+  }
+
+  public static double NumAnalysis_getMean(NumAnalysis na) {
+    return na.mean;
+  }
+
+  public static double NumAnalysis_getMedian(NumAnalysis na) {
+    return na.median;
+  }
+
+  public static int NumAnalysis_getMin(NumAnalysis na) {
+    return na.min;
+  }
+
+  public static double NumAnalysis_getStdDev(NumAnalysis na) {
+    return na.std_dev;
+  }
+
+  public static int NumAnalysis_getTotal(NumAnalysis na) {
+    return na.total;
+  }
+
   public static NumAnalysis perform_analysis(int[] nums, int length) {
+    String testValue = "Strings ought to be tested to some degree.\n";
     NumAnalysis output = new NumAnalysis(0, 0, 0, 0, 0.0, 0.0, 0.0);
     output.count = length;
     if ((length > 0)) {

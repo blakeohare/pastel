@@ -50,6 +50,7 @@ let NumAnalysis_getTotal = function(na) {
 };
 
 let perform_analysis = function(nums, length) {
+	let testValue = "Strings ought to be tested to some degree.\n";
 	let output = [0, 0, 0, 0, 0.0, 0.0, 0.0];
 	output[0] = length;
 	if ((length > 0)) {

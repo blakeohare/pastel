@@ -1,18 +1,5 @@
 <?php
 
-	// ensures array's pointer behavior behaves according to Pastel standards.
-	class PastelPtrArray {
-		var $arr = array();
-	}
-	class PastelPtr {
-		var $value = null;
-		function __constructor($value) { $this->value = $value; }
-	}
-	function _pastelWrapValue($value) { $o = new PastelPtrArray(); $o->arr = $value; return $o; }
-	// redundant-but-pleasantly-named helper methods for external callers
-	function pastelWrapList($arr) { return _pastelWrapValue($arr); }
-	function pastelWrapDictionary($arr) { return _pastelWrapValue($arr); }
-
 	class FunctionWrapper {
 		private static function PST_sortedCopyOfIntArray($nums) {
 			$o = new PastelPtrArray();
@@ -38,7 +25,36 @@
 			return pow((($total_dev) / ($length)), 0.5);
 		}
 
+		public static function NumAnalysis_getCount($na) {
+			return $na->count;
+		}
+
+		public static function NumAnalysis_getMax($na) {
+			return $na->max;
+		}
+
+		public static function NumAnalysis_getMean($na) {
+			return $na->mean;
+		}
+
+		public static function NumAnalysis_getMedian($na) {
+			return $na->median;
+		}
+
+		public static function NumAnalysis_getMin($na) {
+			return $na->min;
+		}
+
+		public static function NumAnalysis_getStdDev($na) {
+			return $na->std_dev;
+		}
+
+		public static function NumAnalysis_getTotal($na) {
+			return $na->total;
+		}
+
 		public static function perform_analysis($nums, $length) {
+			$testValue = "Strings ought to be tested to some degree.\n";
 			$output = new NumAnalysis(0, 0, 0, 0, 0.0, 0.0, 0.0);
 			$output->count = $length;
 			if (($length > 0)) {
