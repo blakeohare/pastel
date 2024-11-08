@@ -17,23 +17,24 @@ namespace Pastel.Transpilers
         public override void TranslateAssignment(TranspilerContext sb, Assignment assignment)
         {
             sb.Append(sb.CurrentTab);
-            this.TranslateExpression(sb, assignment.Target);
+            sb.Append(this.TranslateExpressionAsString(assignment.Target));
             sb.Append(' ');
             sb.Append(assignment.OpToken.Value);
             sb.Append(' ');
-            this.TranslateExpression(sb, assignment.Value);
+            sb.Append(this.TranslateExpressionAsString(assignment.Value));
             sb.Append(";\n");
         }
 
-        public override void TranslateBooleanConstant(TranspilerContext sb, bool value)
+        public override StringBuffer TranslateBooleanConstant(bool value)
         {
-            sb.Append(value ? "true" : "false");
+            return StringBuffer.Of(value ? "true" : "false");
         }
 
-        public override void TranslateBooleanNot(TranspilerContext sb, UnaryOp unaryOp)
+        public override StringBuffer TranslateBooleanNot(UnaryOp unaryOp)
         {
-            sb.Append('!');
-            this.TranslateExpression(sb, unaryOp.Expression);
+            return StringBuffer
+                .Of("!")
+                .Push(this.TranslateExpression(unaryOp.Expression));
         }
 
         public override void TranslateBreak(TranspilerContext sb)
@@ -42,35 +43,36 @@ namespace Pastel.Transpilers
             sb.Append("break;\n");
         }
 
-        public override void TranslateEmitComment(TranspilerContext sb, string value)
+        public override StringBuffer TranslateEmitComment(string value)
         {
-            sb.Append("// ");
-            sb.Append(value.Replace("\n", "\\n"));
+            return StringBuffer
+                .Of("// ")
+                .Push(value.Replace("\n", "\\n"));
         }
 
         public override void TranslateExpressionAsStatement(TranspilerContext sb, Expression expression)
         {
             sb.Append(sb.CurrentTab);
-            this.TranslateExpression(sb, expression);
+            sb.Append(this.TranslateExpressionAsString(expression));
             sb.Append(";\n");
         }
 
-        public override void TranslateFloatConstant(TranspilerContext sb, double value)
+        public override StringBuffer TranslateFloatConstant(double value)
         {
-            sb.Append(CodeUtil.FloatToString(value));
+            return StringBuffer.Of(CodeUtil.FloatToString(value));
         }
 
-        public override void TranslateFunctionInvocation(TranspilerContext sb, FunctionReference funcRef, Expression[] args)
+        public override StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args)
         {
-            this.TranslateFunctionReference(sb, funcRef);
-            sb.Append('(');
-            this.TranslateCommaDelimitedExpressions(sb, args);
-            sb.Append(')');
+            return this.TranslateFunctionReference(funcRef)
+                .Push('(')
+                .Push(this.TranslateCommaDelimitedExpressions(args))
+                .Push(')');
         }
 
-        public override void TranslateFunctionReference(TranspilerContext sb, FunctionReference funcRef)
+        public override StringBuffer TranslateFunctionReference(FunctionReference funcRef)
         {
-            sb.Append(funcRef.Function.NameToken.Value);
+            return StringBuffer.Of(funcRef.Function.NameToken.Value);
         }
 
         public override void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement)
@@ -82,7 +84,7 @@ namespace Pastel.Transpilers
         {
             if (includeInitialTab) sb.Append(sb.CurrentTab);
             sb.Append("if (");
-            this.TranslateExpression(sb, ifStatement.Condition);
+            sb.Append(this.TranslateExpressionAsString(ifStatement.Condition));
             if (this.IsKRBraces)
             {
                 sb.Append(") {\n");
@@ -150,39 +152,42 @@ namespace Pastel.Transpilers
             if (includeInitialTab) sb.Append("\n");
         }
 
-        public override void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition)
+        public override StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition)
         {
-            if (isPrefix) sb.Append(isAddition ? "++" : "--");
-            this.TranslateExpression(sb, innerExpression);
-            if (!isPrefix) sb.Append(isAddition ? "++" : "--");
+            StringBuffer buf = StringBuffer.Of("");
+            if (isPrefix) buf.Push(isAddition ? "++" : "--");
+            buf.Push(this.TranslateExpression(innerExpression));
+            if (!isPrefix) buf.Push(isAddition ? "++" : "--");
+            return buf;
         }
 
-        public override void TranslateIntegerConstant(TranspilerContext sb, int value)
+        public override StringBuffer TranslateIntegerConstant(int value)
         {
-            sb.Append(value.ToString());
+            return StringBuffer.Of(value.ToString());
         }
 
-        public override void TranslateNegative(TranspilerContext sb, UnaryOp unaryOp)
+        public override StringBuffer TranslateNegative(UnaryOp unaryOp)
         {
-            sb.Append('-');
-            this.TranslateExpression(sb, unaryOp.Expression);
+            return StringBuffer
+                .Of("-")
+                .Push(this.TranslateExpression(unaryOp.Expression));
         }
 
-        public override void TranslateOpChain(TranspilerContext sb, OpChain opChain)
+        public override StringBuffer TranslateOpChain(OpChain opChain)
         {
-            // Need to do something about these parenthesis.
-            sb.Append('(');
+            StringBuffer buf = StringBuffer.Of("(");
             for (int i = 0; i < opChain.Expressions.Length; ++i)
             {
                 if (i > 0)
                 {
-                    sb.Append(' ');
-                    sb.Append(opChain.Ops[i - 1].Value);
-                    sb.Append(' ');
+                    buf
+                        .Push(' ')
+                        .Push(opChain.Ops[i - 1].Value)
+                        .Push(' ');
                 }
-                this.TranslateExpression(sb, opChain.Expressions[i]);
+                buf.Push(this.TranslateExpression(opChain.Expressions[i]));
             }
-            sb.Append(')');
+            return buf.Push(')');
         }
 
         public override void TranslateReturnStatemnt(TranspilerContext sb, ReturnStatement returnStatement)
@@ -192,21 +197,21 @@ namespace Pastel.Transpilers
             if (returnStatement.Expression != null)
             {
                 sb.Append(' ');
-                this.TranslateExpression(sb, returnStatement.Expression);
+                sb.Append(this.TranslateExpressionAsString(returnStatement.Expression));
             }
             sb.Append(";\n");
         }
 
-        public override void TranslateStringConstant(TranspilerContext sb, string value)
+        public override StringBuffer TranslateStringConstant(string value)
         {
-            sb.Append(CodeUtil.ConvertStringValueToCode(value));
+            return StringBuffer.Of(CodeUtil.ConvertStringValueToCode(value));
         }
 
         public override void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement)
         {
             sb.Append(sb.CurrentTab);
             sb.Append("switch (");
-            this.TranslateExpression(sb, switchStatement.Condition);
+            sb.Append(this.TranslateExpressionAsString(switchStatement.Condition));
             sb.Append(")");
             if (this.IsKRBraces)
             {
@@ -235,7 +240,7 @@ namespace Pastel.Transpilers
                     else
                     {
                         sb.Append("case ");
-                        this.TranslateExpression(sb, c);
+                        sb.Append(this.TranslateExpressionAsString(c));
                         sb.Append(':');
                     }
                     sb.Append("\n");
@@ -250,16 +255,16 @@ namespace Pastel.Transpilers
             sb.Append("}\n");
         }
 
-        public override void TranslateVariable(TranspilerContext sb, Variable variable)
+        public override StringBuffer TranslateVariable(Variable variable)
         {
-            sb.Append(variable.Name);
+            return StringBuffer.Of(variable.Name);
         }
 
         public override void TranslateWhileLoop(TranspilerContext sb, WhileLoop whileLoop)
         {
             sb.Append(sb.CurrentTab);
             sb.Append("while (");
-            this.TranslateExpression(sb, whileLoop.Condition);
+            sb.Append(this.TranslateExpressionAsString(whileLoop.Condition));
             sb.Append(')');
             if (this.IsKRBraces)
             {

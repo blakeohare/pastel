@@ -19,7 +19,7 @@ namespace Pastel.Transpilers
         public StringBuffer? Left { get; set; }
         public StringBuffer? Right { get; set; }
 
-        public static StringBuffer Create(string value)
+        public static StringBuffer Of(string value)
         {
             return new StringBuffer() { Value = value };
         }
@@ -30,6 +30,7 @@ namespace Pastel.Transpilers
             return this;
         }
 
+        public StringBuffer Push(char c) { return this.Push(c + ""); }
         public StringBuffer Push(string value) { return this.Push(new StringBuffer() { Value = value }); }
         public StringBuffer Push(StringBuffer value)
         {

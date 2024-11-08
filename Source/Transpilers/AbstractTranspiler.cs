@@ -105,46 +105,42 @@ namespace Pastel.Transpilers
             }
         }
 
-        public void TranslateExpression(TranspilerContext sb, Expression expression)
+        public string TranslateExpressionAsString(Expression expression)
+        {
+            return StringBuffer.Flatten(this.TranslateExpression(expression));
+        }
+
+        public StringBuffer TranslateExpression(Expression expression)
         {
             string typeName = expression.GetType().Name;
             switch (typeName)
             {
-                case "CastExpression": this.TranslateCast(sb, ((CastExpression)expression).Type, ((CastExpression)expression).Expression); break;
-                case "FunctionReference": this.TranslateFunctionReference(sb, (FunctionReference)expression); break;
-                case "FunctionPointerInvocation": this.TranslateFunctionPointerInvocation(sb, (FunctionPointerInvocation)expression); break;
-                case "CoreFunctionInvocation": this.TranslateCoreFunctionInvocation(sb, (CoreFunctionInvocation)expression); break;
+                case "CastExpression": return this.TranslateCast(((CastExpression)expression).Type, ((CastExpression)expression).Expression);
+                case "FunctionReference": return this.TranslateFunctionReference((FunctionReference)expression);
+                case "FunctionPointerInvocation": return this.TranslateFunctionPointerInvocation((FunctionPointerInvocation)expression);
+                case "CoreFunctionInvocation": return this.TranslateCoreFunctionInvocation((CoreFunctionInvocation)expression);
                 case "OpChain":
                     OpChain oc = (OpChain)expression;
                     if (oc.IsStringConcatenation)
                     {
-                        this.TranslateStringConcatenation(sb, oc.Expressions);
+                        return this.TranslateStringConcatenation(oc.Expressions);
                     }
-                    else
-                    {
-                        this.TranslateOpChain(sb, oc);
-                    }
-                    break;
+                    return this.TranslateOpChain(oc);
+
                 case "ExtensibleFunctionInvocation":
-                    this.TranslateExtensibleFunctionInvocation(
-                        sb,
-                        (ExtensibleFunctionInvocation)expression);
-                    break;
+                    return this.TranslateExtensibleFunctionInvocation((ExtensibleFunctionInvocation)expression);
 
                 case "InlineIncrement":
                     InlineIncrement ii = (InlineIncrement)expression;
-                    this.TranslateInlineIncrement(sb, ii.Expression, ii.IsPrefix, ii.IncrementToken.Value == "++");
-                    break;
+                    return this.TranslateInlineIncrement(ii.Expression, ii.IsPrefix, ii.IncrementToken.Value == "++");
 
                 case "FunctionInvocation":
                     FunctionInvocation funcInvocation = (FunctionInvocation)expression;
-                    this.TranslateFunctionInvocation(sb, (FunctionReference)funcInvocation.Root, funcInvocation.Args);
-                    break;
+                    return this.TranslateFunctionInvocation((FunctionReference)funcInvocation.Root, funcInvocation.Args);
 
                 case "Variable":
                     Variable v = (Variable)expression;
-                    this.TranslateVariable(sb, v);
-                    break;
+                    return this.TranslateVariable(v);
 
                 case "ConstructorInvocation":
                     ConstructorInvocation constructor = (ConstructorInvocation)expression;
@@ -156,16 +152,14 @@ namespace Pastel.Transpilers
                             {
                                 throw new ParserException(constructor.Type.FirstToken, "Array constructor requires exactly 1 generic type.");
                             }
-                            this.TranslateArrayNew(sb, constructor.Type.Generics[0], constructor.Args[0]);
-                            break;
+                            return this.TranslateArrayNew(constructor.Type.Generics[0], constructor.Args[0]);
 
                         case "List":
                             if (constructor.Type.Generics.Length != 1)
                             {
                                 throw new ParserException(constructor.Type.FirstToken, "List constructor requires exactly 1 generic type.");
                             }
-                            this.TranslateListNew(sb, constructor.Type.Generics[0]);
-                            break;
+                            return this.TranslateListNew(constructor.Type.Generics[0]);
 
                         case "Dictionary":
                             if (constructor.Type.Generics.Length != 2)
@@ -174,23 +168,19 @@ namespace Pastel.Transpilers
                             }
                             PType dictionaryKeyType = constructor.Type.Generics[0];
                             PType dictionaryValueType = constructor.Type.Generics[1];
-                            this.TranslateDictionaryNew(sb, dictionaryKeyType, dictionaryValueType);
-                            break;
+                            return this.TranslateDictionaryNew(dictionaryKeyType, dictionaryValueType);
 
                         case "StringBuilder":
                             if (constructor.Type.Generics.Length != 0)
                             {
                                 throw new ParserException(constructor.Type.FirstToken, "StringBuilder constructor does not have any generics.");
                             }
-                            this.TranslateStringBuilderNew(sb);
-                            break;
+                            return this.TranslateStringBuilderNew();
 
                         default:
                             // TODO: throw an exception (in the parser) if generics exist.
-                            this.TranslateConstructorInvocation(sb, constructor);
-                            break;
+                            return this.TranslateConstructorInvocation(constructor);
                     }
-                    break;
 
                 case "DotField":
                     DotField df = (DotField)expression;
@@ -199,184 +189,178 @@ namespace Pastel.Transpilers
                     string fieldName = df.FieldName.Value;
                     if (classDef != null)
                     {
-                        this.TranslateInstanceFieldDereference(sb, df.Root, classDef, fieldName);
+                        return this.TranslateInstanceFieldDereference(df.Root, classDef, fieldName);
                     }
-                    else if (structDef != null)
+                    if (structDef != null)
                     {
                         int fieldIndex = structDef.FlatFieldIndexByName[fieldName];
-                        this.TranslateStructFieldDereference(sb, df.Root, structDef, fieldName, fieldIndex);
+                        return this.TranslateStructFieldDereference(df.Root, structDef, fieldName, fieldIndex);
                     }
-                    else
-                    {
-                        throw new InvalidOperationException(); // should have been thrown by the compiler
-                    }
-                    break;
+                    throw new InvalidOperationException(); // should have been thrown by the compiler
 
                 case "InlineConstant":
                     InlineConstant ic = (InlineConstant)expression;
                     switch (ic.ResolvedType.RootValue)
                     {
-                        case "bool": this.TranslateBooleanConstant(sb, (bool)ic.Value); break;
-                        case "char": this.TranslateCharConstant(sb, ((char)ic.Value)); break;
-                        case "double": this.TranslateFloatConstant(sb, (double)ic.Value); break;
-                        case "int": this.TranslateIntegerConstant(sb, (int)ic.Value); break;
-                        case "null": this.TranslateNullConstant(sb); break;
-                        case "string": this.TranslateStringConstant(sb, (string)ic.Value); break;
-                        default: throw new NotImplementedException();
+                        case "bool": return this.TranslateBooleanConstant((bool)ic.Value);
+                        case "char": return this.TranslateCharConstant(((char)ic.Value));
+                        case "double": return this.TranslateFloatConstant((double)ic.Value);
+                        case "int": return this.TranslateIntegerConstant((int)ic.Value);
+                        case "null": return this.TranslateNullConstant();
+                        case "string": return this.TranslateStringConstant((string)ic.Value);
                     }
-                    break;
+                    throw new NotImplementedException();
 
                 case "ThisExpression":
-                    this.TranslateThis(sb, (ThisExpression)expression);
-                    break;
+                    return this.TranslateThis((ThisExpression)expression);
 
                 case "UnaryOp":
                     UnaryOp uo = (UnaryOp)expression;
-                    if (uo.OpToken.Value == "-") this.TranslateNegative(sb, uo);
-                    else this.TranslateBooleanNot(sb, uo);
-                    break;
+                    if (uo.OpToken.Value == "-") return this.TranslateNegative(uo);
+                    return this.TranslateBooleanNot(uo);
 
                 case "ForcedParenthesis":
-                    sb.Append('(');
-                    this.TranslateExpression(sb, ((ForcedParenthesis)expression).Expression);
-                    sb.Append(')');
-                    break;
+                    // TODO: operator precedence detection should be robust enough to remove this entirely.
+                    return this.TranslateExpression(((ForcedParenthesis)expression).Expression)
+                        .Wrap("(", ")")
+                        .WithTightness(ExpressionTightness.ATOMIC);
 
-                default: throw new NotImplementedException(typeName);
             }
+            throw new NotImplementedException(typeName);
         }
 
-        public void TranslateStringConcatenation(TranspilerContext sb, Expression[] expressions)
+        public StringBuffer TranslateStringConcatenation(Expression[] expressions)
         {
             if (expressions.Length == 2)
             {
-                this.TranslateStringConcatPair(sb, expressions[0], expressions[1]);
+                return this.TranslateStringConcatPair(expressions[0], expressions[1]);
             }
-            else
-            {
-                this.TranslateStringConcatAll(sb, expressions);
-            }
+
+            return this.TranslateStringConcatAll(expressions);
         }
 
-        public virtual void TranslateFunctionPointerInvocation(TranspilerContext sb, FunctionPointerInvocation fpi)
+        public virtual StringBuffer TranslateFunctionPointerInvocation(FunctionPointerInvocation fpi)
         {
-            this.TranslateExpression(sb, fpi.Root);
-            sb.Append('(');
+            StringBuffer sb = this.TranslateExpression(fpi.Root);
+            sb.Push('(');
             for (int i = 0; i < fpi.Args.Length; ++i)
             {
-                if (i > 0) sb.Append(", ");
-                this.TranslateExpression(sb, fpi.Args[i]);
+                if (i > 0) sb.Push(", ");
+                sb.Push(this.TranslateExpression(fpi.Args[i]));
             }
-            sb.Append(')');
+            sb.Push(')');
+            return sb;
         }
 
-        public void TranslateCoreFunctionInvocation(TranspilerContext sb, CoreFunctionInvocation coreFuncInvocation)
+        public StringBuffer TranslateCoreFunctionInvocation(CoreFunctionInvocation coreFuncInvocation)
         {
             Expression[] args = coreFuncInvocation.Args;
             switch (coreFuncInvocation.Function)
             {
-                case CoreFunction.ARRAY_GET: this.TranslateArrayGet(sb, args[0], args[1]); break;
-                case CoreFunction.ARRAY_JOIN: this.TranslateArrayJoin(sb, args[0], args[1]); break;
-                case CoreFunction.ARRAY_LENGTH: this.TranslateArrayLength(sb, args[0]); break;
-                case CoreFunction.ARRAY_SET: this.TranslateArraySet(sb, args[0], args[1], args[2]); break;
-                case CoreFunction.BASE64_TO_BYTES: this.TranslateBase64ToBytes(sb, args[0]); break;
-                case CoreFunction.BASE64_TO_STRING: this.TranslateBase64ToString(sb, args[0]); break;
-                case CoreFunction.CHAR_TO_STRING: this.TranslateCharToString(sb, args[0]); break;
-                case CoreFunction.CHR: this.TranslateChr(sb, args[0]); break;
-                case CoreFunction.CURRENT_TIME_SECONDS: this.TranslateCurrentTimeSeconds(sb); break;
-                case CoreFunction.DICTIONARY_CONTAINS_KEY: this.TranslateDictionaryContainsKey(sb, args[0], args[1]); break;
-                case CoreFunction.DICTIONARY_GET: this.TranslateDictionaryGet(sb, args[0], args[1]); break;
-                case CoreFunction.DICTIONARY_KEYS: this.TranslateDictionaryKeys(sb, args[0]); break;
-                case CoreFunction.DICTIONARY_NEW: this.TranslateDictionaryNew(sb, coreFuncInvocation.ResolvedType.Generics[0], coreFuncInvocation.ResolvedType.Generics[1]); break;
-                case CoreFunction.DICTIONARY_REMOVE: this.TranslateDictionaryRemove(sb, args[0], args[1]); break;
-                case CoreFunction.DICTIONARY_SET: this.TranslateDictionarySet(sb, args[0], args[1], args[2]); break;
-                case CoreFunction.DICTIONARY_SIZE: this.TranslateDictionarySize(sb, args[0]); break;
-                case CoreFunction.DICTIONARY_VALUES: this.TranslateDictionaryValues(sb, args[0]); break;
-                case CoreFunction.EMIT_COMMENT: this.TranslateEmitComment(sb, ((InlineConstant)args[0]).Value.ToString()); break;
-                case CoreFunction.EXTENSIBLE_CALLBACK_INVOKE: this.TranslateExtensibleCallbackInvoke(sb, args[0], args[1]); break;
-                case CoreFunction.FLOAT_BUFFER_16: this.TranslateFloatBuffer16(sb); break;
-                case CoreFunction.FLOAT_DIVISION: this.TranslateFloatDivision(sb, args[0], args[1]); break;
-                case CoreFunction.FLOAT_TO_STRING: this.TranslateFloatToString(sb, args[0]); break;
-                case CoreFunction.GET_FUNCTION: this.TranslateGetFunction(sb, args[0]); break;
-                case CoreFunction.INT: this.TranslateFloatToInt(sb, args[0]); break;
-                case CoreFunction.INT_BUFFER_16: this.TranslateIntBuffer16(sb); break;
-                case CoreFunction.INT_TO_STRING: this.TranslateIntToString(sb, args[0]); break;
-                case CoreFunction.INTEGER_DIVISION: this.TranslateIntegerDivision(sb, args[0], args[1]); break;
-                case CoreFunction.IS_VALID_INTEGER: this.TranslateIsValidInteger(sb, args[0]); break;
-                case CoreFunction.LIST_ADD: this.TranslateListAdd(sb, args[0], args[1]); break;
-                case CoreFunction.LIST_CLEAR: this.TranslateListClear(sb, args[0]); break;
-                case CoreFunction.LIST_CONCAT: this.TranslateListConcat(sb, args[0], args[1]); break;
-                case CoreFunction.LIST_GET: this.TranslateListGet(sb, args[0], args[1]); break;
-                case CoreFunction.LIST_INSERT: this.TranslateListInsert(sb, args[0], args[1], args[2]); break;
-                case CoreFunction.LIST_JOIN_CHARS: this.TranslateListJoinChars(sb, args[0]); break;
-                case CoreFunction.LIST_JOIN_STRINGS: this.TranslateListJoinStrings(sb, args[0], args[1]); break;
-                case CoreFunction.LIST_NEW: this.TranslateListNew(sb, coreFuncInvocation.ResolvedType.Generics[0]); break;
-                case CoreFunction.LIST_POP: this.TranslateListPop(sb, args[0]); break;
-                case CoreFunction.LIST_REMOVE_AT: this.TranslateListRemoveAt(sb, args[0], args[1]); break;
-                case CoreFunction.LIST_REVERSE: this.TranslateListReverse(sb, args[0]); break;
-                case CoreFunction.LIST_SET: this.TranslateListSet(sb, args[0], args[1], args[2]); break;
-                case CoreFunction.LIST_SHUFFLE: this.TranslateListShuffle(sb, args[0]); break;
-                case CoreFunction.LIST_SIZE: this.TranslateListSize(sb, args[0]); break;
-                case CoreFunction.LIST_TO_ARRAY: this.TranslateListToArray(sb, args[0]); break;
-                case CoreFunction.MATH_ARCCOS: this.TranslateMathArcCos(sb, args[0]); break;
-                case CoreFunction.MATH_ARCSIN: this.TranslateMathArcSin(sb, args[0]); break;
-                case CoreFunction.MATH_ARCTAN: this.TranslateMathArcTan(sb, args[0], args[1]); break;
-                case CoreFunction.MATH_COS: this.TranslateMathCos(sb, args[0]); break;
-                case CoreFunction.MATH_LOG: this.TranslateMathLog(sb, args[0]); break;
-                case CoreFunction.MATH_POW: this.TranslateMathPow(sb, args[0], args[1]); break;
-                case CoreFunction.MATH_SIN: this.TranslateMathSin(sb, args[0]); break;
-                case CoreFunction.MATH_TAN: this.TranslateMathTan(sb, args[0]); break;
-                case CoreFunction.MULTIPLY_LIST: this.TranslateMultiplyList(sb, args[0], args[1]); break;
-                case CoreFunction.ORD: this.TranslateOrd(sb, args[0]); break;
-                case CoreFunction.PARSE_FLOAT_UNSAFE: this.TranslateParseFloatUnsafe(sb, args[0]); break;
-                case CoreFunction.PARSE_INT: this.TranslateParseInt(sb, args[0]); break;
-                case CoreFunction.PRINT_STDERR: this.TranslatePrintStdErr(sb, args[0]); break;
-                case CoreFunction.PRINT_STDOUT: this.TranslatePrintStdOut(sb, args[0]); break;
-                case CoreFunction.RANDOM_FLOAT: this.TranslateRandomFloat(sb); break;
-                case CoreFunction.SORTED_COPY_OF_INT_ARRAY: this.TranslateSortedCopyOfIntArray(sb, args[0]); break;
-                case CoreFunction.SORTED_COPY_OF_STRING_ARRAY: this.TranslateSortedCopyOfStringArray(sb, args[0]); break;
-                case CoreFunction.STRING_APPEND: this.TranslateStringAppend(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_BUFFER_16: this.TranslateStringBuffer16(sb); break;
-                case CoreFunction.STRING_CHAR_AT: this.TranslateStringCharAt(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_CHAR_CODE_AT: this.TranslateStringCharCodeAt(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_COMPARE_IS_REVERSE: this.TranslateStringCompareIsReverse(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_CONCAT_ALL: if (args.Length == 2) this.TranslateStringConcatPair(sb, args[0], args[1]); else this.TranslateStringConcatAll(sb, args); break;
-                case CoreFunction.STRING_CONTAINS: this.TranslateStringContains(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_ENDS_WITH: this.TranslateStringEndsWith(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_EQUALS: this.TranslateStringEquals(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_FROM_CHAR_CODE: this.TranslateStringFromCharCode(sb, args[0]); break;
-                case CoreFunction.STRING_INDEX_OF: if (args.Length == 2) this.TranslateStringIndexOf(sb, args[0], args[1]); else this.TranslateStringIndexOfWithStart(sb, args[0], args[1], args[2]); break;
-                case CoreFunction.STRING_LAST_INDEX_OF: this.TranslateStringLastIndexOf(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_LENGTH: this.TranslateStringLength(sb, args[0]); break;
-                case CoreFunction.STRING_REPLACE: this.TranslateStringReplace(sb, args[0], args[1], args[2]); break;
-                case CoreFunction.STRING_REVERSE: this.TranslateStringReverse(sb, args[0]); break;
-                case CoreFunction.STRING_SPLIT: this.TranslateStringSplit(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_STARTS_WITH: this.TranslateStringStartsWith(sb, args[0], args[1]); break;
-                case CoreFunction.STRING_SUBSTRING: this.TranslateStringSubstring(sb, args[0], args[1], args[2]); break;
-                case CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO: this.TranslateStringSubstringIsEqualTo(sb, args[0], args[1], args[2]); break;
-                case CoreFunction.STRING_TO_LOWER: this.TranslateStringToLower(sb, args[0]); break;
-                case CoreFunction.STRING_TO_UPPER: this.TranslateStringToUpper(sb, args[0]); break;
-                case CoreFunction.STRING_TO_UTF8_BYTES: this.TranslateStringToUtf8Bytes(sb, args[0]); break;
-                case CoreFunction.STRING_TRIM: this.TranslateStringTrim(sb, args[0]); break;
-                case CoreFunction.STRING_TRIM_END: this.TranslateStringTrimEnd(sb, args[0]); break;
-                case CoreFunction.STRING_TRIM_START: this.TranslateStringTrimStart(sb, args[0]); break;
-                case CoreFunction.STRINGBUILDER_ADD: this.TranslateStringBuilderAdd(sb, args[0], args[1]); break;
-                case CoreFunction.STRINGBUILDER_CLEAR: this.TranslateStringBuilderClear(sb, args[0]); break;
-                case CoreFunction.STRINGBUILDER_TOSTRING: this.TranslateStringBuilderToString(sb, args[0]); break;
-                case CoreFunction.STRONG_REFERENCE_EQUALITY: this.TranslateStrongReferenceEquality(sb, args[0], args[1]); break;
-                case CoreFunction.TO_CODE_STRING: this.TranslateToCodeString(sb, args[0]); break;
-                case CoreFunction.TRY_PARSE_FLOAT: this.TranslateTryParseFloat(sb, args[0], args[1]); break;
-                case CoreFunction.UTF8_BYTES_TO_STRING: this.TranslateUtf8BytesToString(sb, args[0]); break;
+                case CoreFunction.ARRAY_GET: return this.TranslateArrayGet(args[0], args[1]);
+                case CoreFunction.ARRAY_JOIN: return this.TranslateArrayJoin(args[0], args[1]);
+                case CoreFunction.ARRAY_LENGTH: return this.TranslateArrayLength(args[0]);
+                case CoreFunction.ARRAY_SET: return this.TranslateArraySet(args[0], args[1], args[2]);
+                case CoreFunction.BASE64_TO_BYTES: return this.TranslateBase64ToBytes(args[0]);
+                case CoreFunction.BASE64_TO_STRING: return this.TranslateBase64ToString(args[0]);
+                case CoreFunction.CHAR_TO_STRING: return this.TranslateCharToString(args[0]);
+                case CoreFunction.CHR: return this.TranslateChr(args[0]);
+                case CoreFunction.CURRENT_TIME_SECONDS: return this.TranslateCurrentTimeSeconds();
+                case CoreFunction.DICTIONARY_CONTAINS_KEY: return this.TranslateDictionaryContainsKey(args[0], args[1]);
+                case CoreFunction.DICTIONARY_GET: return this.TranslateDictionaryGet(args[0], args[1]);
+                case CoreFunction.DICTIONARY_KEYS: return this.TranslateDictionaryKeys(args[0]);
+                case CoreFunction.DICTIONARY_NEW: return this.TranslateDictionaryNew(coreFuncInvocation.ResolvedType.Generics[0], coreFuncInvocation.ResolvedType.Generics[1]);
+                case CoreFunction.DICTIONARY_REMOVE: return this.TranslateDictionaryRemove(args[0], args[1]);
+                case CoreFunction.DICTIONARY_SET: return this.TranslateDictionarySet(args[0], args[1], args[2]);
+                case CoreFunction.DICTIONARY_SIZE: return this.TranslateDictionarySize(args[0]);
+                case CoreFunction.DICTIONARY_VALUES: return this.TranslateDictionaryValues(args[0]);
+                case CoreFunction.EMIT_COMMENT: return this.TranslateEmitComment(((InlineConstant)args[0]).Value.ToString());
+                case CoreFunction.EXTENSIBLE_CALLBACK_INVOKE: return this.TranslateExtensibleCallbackInvoke(args[0], args[1]);
+                case CoreFunction.FLOAT_BUFFER_16: return this.TranslateFloatBuffer16();
+                case CoreFunction.FLOAT_DIVISION: return this.TranslateFloatDivision(args[0], args[1]);
+                case CoreFunction.FLOAT_TO_STRING: return this.TranslateFloatToString(args[0]);
+                case CoreFunction.GET_FUNCTION: return this.TranslateGetFunction(args[0]);
+                case CoreFunction.INT: return this.TranslateFloatToInt(args[0]);
+                case CoreFunction.INT_BUFFER_16: return this.TranslateIntBuffer16();
+                case CoreFunction.INTEGER_DIVISION: return this.TranslateIntegerDivision(args[0], args[1]);
+                case CoreFunction.INT_TO_STRING: return this.TranslateIntToString(args[0]);
+                case CoreFunction.IS_VALID_INTEGER: return this.TranslateIsValidInteger(args[0]);
+                case CoreFunction.LIST_ADD: return this.TranslateListAdd(args[0], args[1]);
+                case CoreFunction.LIST_CLEAR: return this.TranslateListClear(args[0]);
+                case CoreFunction.LIST_CONCAT: return this.TranslateListConcat(args[0], args[1]);
+                case CoreFunction.LIST_GET: return this.TranslateListGet(args[0], args[1]);
+                case CoreFunction.LIST_INSERT: return this.TranslateListInsert(args[0], args[1], args[2]);
+                case CoreFunction.LIST_JOIN_CHARS: return this.TranslateListJoinChars(args[0]);
+                case CoreFunction.LIST_JOIN_STRINGS: return this.TranslateListJoinStrings(args[0], args[1]);
+                case CoreFunction.LIST_NEW: return this.TranslateListNew(coreFuncInvocation.ResolvedType.Generics[0]);
+                case CoreFunction.LIST_POP: return this.TranslateListPop(args[0]);
+                case CoreFunction.LIST_REMOVE_AT: return this.TranslateListRemoveAt(args[0], args[1]);
+                case CoreFunction.LIST_REVERSE: return this.TranslateListReverse(args[0]);
+                case CoreFunction.LIST_SET: return this.TranslateListSet(args[0], args[1], args[2]);
+                case CoreFunction.LIST_SHUFFLE: return this.TranslateListShuffle(args[0]);
+                case CoreFunction.LIST_SIZE: return this.TranslateListSize(args[0]);
+                case CoreFunction.LIST_TO_ARRAY: return this.TranslateListToArray(args[0]);
+                case CoreFunction.MATH_ARCCOS: return this.TranslateMathArcCos(args[0]);
+                case CoreFunction.MATH_ARCSIN: return this.TranslateMathArcSin(args[0]);
+                case CoreFunction.MATH_ARCTAN: return this.TranslateMathArcTan(args[0], args[1]);
+                case CoreFunction.MATH_COS: return this.TranslateMathCos(args[0]);
+                case CoreFunction.MATH_LOG: return this.TranslateMathLog(args[0]);
+                case CoreFunction.MATH_POW: return this.TranslateMathPow(args[0], args[1]);
+                case CoreFunction.MATH_SIN: return this.TranslateMathSin(args[0]);
+                case CoreFunction.MATH_TAN: return this.TranslateMathTan(args[0]);
+                case CoreFunction.MULTIPLY_LIST: return this.TranslateMultiplyList(args[0], args[1]);
+                case CoreFunction.ORD: return this.TranslateOrd(args[0]);
+                case CoreFunction.PARSE_FLOAT_UNSAFE: return this.TranslateParseFloatUnsafe(args[0]);
+                case CoreFunction.PARSE_INT: return this.TranslateParseInt(args[0]);
+                case CoreFunction.PRINT_STDERR: return this.TranslatePrintStdErr(args[0]);
+                case CoreFunction.PRINT_STDOUT: return this.TranslatePrintStdOut(args[0]);
+                case CoreFunction.RANDOM_FLOAT: return this.TranslateRandomFloat();
+                case CoreFunction.SORTED_COPY_OF_INT_ARRAY: return this.TranslateSortedCopyOfIntArray(args[0]);
+                case CoreFunction.SORTED_COPY_OF_STRING_ARRAY: return this.TranslateSortedCopyOfStringArray(args[0]);
+                case CoreFunction.STRING_APPEND: return this.TranslateStringAppend(args[0], args[1]);
+                case CoreFunction.STRING_BUFFER_16: return this.TranslateStringBuffer16();
+                case CoreFunction.STRING_CHAR_AT: return this.TranslateStringCharAt(args[0], args[1]);
+                case CoreFunction.STRING_CHAR_CODE_AT: return this.TranslateStringCharCodeAt(args[0], args[1]);
+                case CoreFunction.STRING_COMPARE_IS_REVERSE: return this.TranslateStringCompareIsReverse(args[0], args[1]);
+                case CoreFunction.STRING_CONCAT_ALL: return (args.Length == 2) ? this.TranslateStringConcatPair(args[0], args[1]) : this.TranslateStringConcatAll(args);
+                case CoreFunction.STRING_CONTAINS: return this.TranslateStringContains(args[0], args[1]);
+                case CoreFunction.STRING_ENDS_WITH: return this.TranslateStringEndsWith(args[0], args[1]);
+                case CoreFunction.STRING_EQUALS: return this.TranslateStringEquals(args[0], args[1]);
+                case CoreFunction.STRING_FROM_CHAR_CODE: return this.TranslateStringFromCharCode(args[0]);
+                case CoreFunction.STRING_INDEX_OF: return (args.Length == 2) ? this.TranslateStringIndexOf(args[0], args[1]) : this.TranslateStringIndexOfWithStart(args[0], args[1], args[2]);
+                case CoreFunction.STRING_LAST_INDEX_OF: return this.TranslateStringLastIndexOf(args[0], args[1]);
+                case CoreFunction.STRING_LENGTH: return this.TranslateStringLength(args[0]);
+                case CoreFunction.STRING_REPLACE: return this.TranslateStringReplace(args[0], args[1], args[2]);
+                case CoreFunction.STRING_REVERSE: return this.TranslateStringReverse(args[0]);
+                case CoreFunction.STRING_SPLIT: return this.TranslateStringSplit(args[0], args[1]);
+                case CoreFunction.STRING_STARTS_WITH: return this.TranslateStringStartsWith(args[0], args[1]);
+                case CoreFunction.STRING_SUBSTRING: return this.TranslateStringSubstring(args[0], args[1], args[2]);
+                case CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO: return this.TranslateStringSubstringIsEqualTo(args[0], args[1], args[2]);
+                case CoreFunction.STRING_TO_LOWER: return this.TranslateStringToLower(args[0]);
+                case CoreFunction.STRING_TO_UPPER: return this.TranslateStringToUpper(args[0]);
+                case CoreFunction.STRING_TO_UTF8_BYTES: return this.TranslateStringToUtf8Bytes(args[0]);
+                case CoreFunction.STRING_TRIM: return this.TranslateStringTrim(args[0]);
+                case CoreFunction.STRING_TRIM_END: return this.TranslateStringTrimEnd(args[0]);
+                case CoreFunction.STRING_TRIM_START: return this.TranslateStringTrimStart(args[0]);
+                case CoreFunction.STRINGBUILDER_ADD: return this.TranslateStringBuilderAdd(args[0], args[1]);
+                case CoreFunction.STRINGBUILDER_CLEAR: return this.TranslateStringBuilderClear(args[0]);
+                case CoreFunction.STRINGBUILDER_TOSTRING: return this.TranslateStringBuilderToString(args[0]);
+                case CoreFunction.STRONG_REFERENCE_EQUALITY: return this.TranslateStrongReferenceEquality(args[0], args[1]);
+                case CoreFunction.TO_CODE_STRING: return this.TranslateToCodeString(args[0]);
+                case CoreFunction.TRY_PARSE_FLOAT: return this.TranslateTryParseFloat(args[0], args[1]);
+                case CoreFunction.UTF8_BYTES_TO_STRING: return this.TranslateUtf8BytesToString(args[0]);
 
                 case CoreFunction.DICTIONARY_TRY_GET:
                     throw new ParserException(coreFuncInvocation.FirstToken, "Dictionary's TryGet method cannot be called like this. It must be assigned to a variable directly. This is due to a restriction in how this can get transpiled to certain languages.");
 
-                default: throw new NotImplementedException(coreFuncInvocation.Function.ToString());
+                default:
+                    throw new NotImplementedException(coreFuncInvocation.Function.ToString());
             }
         }
 
-        public void TranslateExtensibleFunctionInvocation(TranspilerContext sb, ExtensibleFunctionInvocation funcInvocation)
+        public StringBuffer TranslateExtensibleFunctionInvocation(ExtensibleFunctionInvocation funcInvocation)
         {
+            StringBuffer sb = StringBuffer.Of("");
             Expression[] args = funcInvocation.Args;
             Token throwToken = funcInvocation.FunctionRef.FirstToken;
             string functionName = funcInvocation.FunctionRef.Name;
@@ -409,164 +393,168 @@ namespace Pastel.Transpilers
             {
                 // If there aren't any, you're done. Just put the code snippet into the
                 // buffer as-is.
-                sb.Append(codeSnippet);
+                sb.Push(codeSnippet);
             }
             else
             {
-                sb.Append(codeSnippet.Substring(0, locations[argOrdinalsInOrder[0]][0]));
+                sb.Push(codeSnippet.Substring(0, locations[argOrdinalsInOrder[0]][0]));
                 for (int i = 0; i < argOrdinalsInOrder.Length; ++i)
                 {
                     int currentArgOrdinal = argOrdinalsInOrder[i];
                     int nextArgOrdinal = i + 1 < argOrdinalsInOrder.Length ? argOrdinalsInOrder[i + 1] : -1;
-                    this.TranslateExpression(sb, (Expression)args[currentArgOrdinal]);
+                    sb.Push(this.TranslateExpression(args[currentArgOrdinal]));
                     int argEndIndex = locations[currentArgOrdinal][2];
                     if (nextArgOrdinal == -1)
                     {
                         // Take the code snippet from the end of the current arg to the end and
                         // add it to the buffer.
-                        sb.Append(codeSnippet.Substring(argEndIndex));
+                        sb.Push(codeSnippet.Substring(argEndIndex));
                     }
                     else
                     {
                         int nextArgBeginIndex = locations[nextArgOrdinal][0];
-                        sb.Append(codeSnippet.Substring(argEndIndex, nextArgBeginIndex - argEndIndex));
+                        sb.Push(codeSnippet.Substring(argEndIndex, nextArgBeginIndex - argEndIndex));
                     }
                 }
             }
+            return sb;
         }
 
-        public void TranslateCommaDelimitedExpressions(TranspilerContext sb, IList<Expression> expressions)
+        public StringBuffer TranslateCommaDelimitedExpressions(IList<Expression> expressions)
         {
+            StringBuffer b = StringBuffer.Of("");
             for (int i = 0; i < expressions.Count; ++i)
             {
-                if (i > 0) sb.Append(", ");
-                this.TranslateExpression(sb, expressions[i]);
+                if (i > 0) b.Push(", ");
+                b.Push(this.TranslateExpression(expressions[i]));
             }
+            return b;
         }
 
-        public abstract void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index);
-        public abstract void TranslateArrayJoin(TranspilerContext sb, Expression array, Expression sep);
-        public abstract void TranslateArrayLength(TranspilerContext sb, Expression array);
-        public abstract void TranslateArrayNew(TranspilerContext sb, PType arrayType, Expression lengthExpression);
-        public abstract void TranslateArraySet(TranspilerContext sb, Expression array, Expression index, Expression value);
         public abstract void TranslateAssignment(TranspilerContext sb, Assignment assignment);
-        public abstract void TranslateBase64ToBytes(TranspilerContext sb, Expression base64String);
-        public abstract void TranslateBase64ToString(TranspilerContext sb, Expression base64String);
-        public abstract void TranslateBooleanConstant(TranspilerContext sb, bool value);
-        public abstract void TranslateBooleanNot(TranspilerContext sb, UnaryOp unaryOp);
         public abstract void TranslateBreak(TranspilerContext sb);
-        public abstract void TranslateCast(TranspilerContext sb, PType type, Expression expression);
-        public abstract void TranslateCharConstant(TranspilerContext sb, char value);
-        public abstract void TranslateCharToString(TranspilerContext sb, Expression charValue);
-        public abstract void TranslateChr(TranspilerContext sb, Expression charCode);
-        public abstract void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation);
-        public abstract void TranslateCurrentTimeSeconds(TranspilerContext sb);
-        public abstract void TranslateDictionaryContainsKey(TranspilerContext sb, Expression dictionary, Expression key);
-        public abstract void TranslateDictionaryGet(TranspilerContext sb, Expression dictionary, Expression key);
-        public abstract void TranslateDictionaryKeys(TranspilerContext sb, Expression dictionary);
-        public abstract void TranslateDictionaryNew(TranspilerContext sb, PType keyType, PType valueType);
-        public abstract void TranslateDictionaryRemove(TranspilerContext sb, Expression dictionary, Expression key);
-        public abstract void TranslateDictionarySet(TranspilerContext sb, Expression dictionary, Expression key, Expression value);
-        public abstract void TranslateDictionarySize(TranspilerContext sb, Expression dictionary);
         public abstract void TranslateDictionaryTryGet(TranspilerContext sb, Expression dictionary, Expression key, Expression fallbackValue, Variable varOut);
-        public abstract void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary);
-        public abstract void TranslateEmitComment(TranspilerContext sb, string value);
-        public abstract void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray);
         public abstract void TranslateExpressionAsStatement(TranspilerContext sb, Expression expression);
-        public abstract void TranslateFloatBuffer16(TranspilerContext sb);
-        public abstract void TranslateFloatConstant(TranspilerContext sb, double value);
-        public abstract void TranslateFloatDivision(TranspilerContext sb, Expression floatNumerator, Expression floatDenominator);
-        public abstract void TranslateFloatToInt(TranspilerContext sb, Expression floatExpr);
-        public abstract void TranslateFloatToString(TranspilerContext sb, Expression floatExpr);
-        public abstract void TranslateFunctionInvocation(TranspilerContext sb, FunctionReference funcRef, Expression[] args);
-        public abstract void TranslateFunctionReference(TranspilerContext sb, FunctionReference funcRef);
-        public abstract void TranslateGetFunction(TranspilerContext sb, Expression name);
         public abstract void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement);
-        public abstract void TranslateInlineIncrement(TranspilerContext sb, Expression innerExpression, bool isPrefix, bool isAddition);
-        public abstract void TranslateInstanceFieldDereference(TranspilerContext sb, Expression root, ClassDefinition classDef, string fieldName);
-        public abstract void TranslateIntBuffer16(TranspilerContext sb);
-        public abstract void TranslateIntegerConstant(TranspilerContext sb, int value);
-        public abstract void TranslateIntegerDivision(TranspilerContext sb, Expression integerNumerator, Expression integerDenominator);
-        public abstract void TranslateIntToString(TranspilerContext sb, Expression integer);
-        public abstract void TranslateIsValidInteger(TranspilerContext sb, Expression stringValue);
-        public abstract void TranslateListAdd(TranspilerContext sb, Expression list, Expression item);
-        public abstract void TranslateListClear(TranspilerContext sb, Expression list);
-        public abstract void TranslateListConcat(TranspilerContext sb, Expression list, Expression items);
-        public abstract void TranslateListGet(TranspilerContext sb, Expression list, Expression index);
-        public abstract void TranslateListInsert(TranspilerContext sb, Expression list, Expression index, Expression item);
-        public abstract void TranslateListJoinChars(TranspilerContext sb, Expression list);
-        public abstract void TranslateListJoinStrings(TranspilerContext sb, Expression list, Expression sep);
-        public abstract void TranslateListNew(TranspilerContext sb, PType type);
-        public abstract void TranslateListPop(TranspilerContext sb, Expression list);
-        public abstract void TranslateListRemoveAt(TranspilerContext sb, Expression list, Expression index);
-        public abstract void TranslateListReverse(TranspilerContext sb, Expression list);
-        public abstract void TranslateListSet(TranspilerContext sb, Expression list, Expression index, Expression value);
-        public abstract void TranslateListShuffle(TranspilerContext sb, Expression list);
-        public abstract void TranslateListSize(TranspilerContext sb, Expression list);
-        public abstract void TranslateStringBuilderNew(TranspilerContext sb);
-        public abstract void TranslateStringBuilderAdd(TranspilerContext sb, Expression sbInst, Expression obj);
-        public abstract void TranslateStringBuilderClear(TranspilerContext sb, Expression sbInst);
-        public abstract void TranslateStringBuilderToString(TranspilerContext sb, Expression sbInst);
-        public abstract void TranslateListToArray(TranspilerContext sb, Expression list);
-        public abstract void TranslateMathArcCos(TranspilerContext sb, Expression ratio);
-        public abstract void TranslateMathArcSin(TranspilerContext sb, Expression ratio);
-        public abstract void TranslateMathArcTan(TranspilerContext sb, Expression yComponent, Expression xComponent);
-        public abstract void TranslateMathCos(TranspilerContext sb, Expression thetaRadians);
-        public abstract void TranslateMathLog(TranspilerContext sb, Expression value);
-        public abstract void TranslateMathPow(TranspilerContext sb, Expression expBase, Expression exponent);
-        public abstract void TranslateMathSin(TranspilerContext sb, Expression thetaRadians);
-        public abstract void TranslateMathTan(TranspilerContext sb, Expression thetaRadians);
-        public abstract void TranslateMultiplyList(TranspilerContext sb, Expression list, Expression n);
-        public abstract void TranslateNegative(TranspilerContext sb, UnaryOp unaryOp);
-        public abstract void TranslateNullConstant(TranspilerContext sb);
-        public abstract void TranslateOrd(TranspilerContext sb, Expression charValue);
-        public abstract void TranslateOpChain(TranspilerContext sb, OpChain opChain);
-        public abstract void TranslateParseFloatUnsafe(TranspilerContext sb, Expression stringValue);
-        public abstract void TranslateParseInt(TranspilerContext sb, Expression safeStringValue);
-        public abstract void TranslatePrintStdErr(TranspilerContext sb, Expression value);
-        public abstract void TranslatePrintStdOut(TranspilerContext sb, Expression value);
-        public abstract void TranslateRandomFloat(TranspilerContext sb);
         public abstract void TranslateReturnStatemnt(TranspilerContext sb, ReturnStatement returnStatement);
-        public abstract void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray);
-        public abstract void TranslateSortedCopyOfStringArray(TranspilerContext sb, Expression stringArray);
-        public abstract void TranslateStringAppend(TranspilerContext sb, Expression str1, Expression str2);
-        public abstract void TranslateStringBuffer16(TranspilerContext sb);
-        public abstract void TranslateStringCharAt(TranspilerContext sb, Expression str, Expression index);
-        public abstract void TranslateStringCharCodeAt(TranspilerContext sb, Expression str, Expression index);
-        public abstract void TranslateStringCompareIsReverse(TranspilerContext sb, Expression str1, Expression str2);
-        public abstract void TranslateStringConcatAll(TranspilerContext sb, Expression[] strings);
-        public abstract void TranslateStringConcatPair(TranspilerContext sb, Expression strLeft, Expression strRight);
-        public abstract void TranslateStringConstant(TranspilerContext sb, string value);
-        public abstract void TranslateStringContains(TranspilerContext sb, Expression haystack, Expression needle);
-        public abstract void TranslateStringEndsWith(TranspilerContext sb, Expression haystack, Expression needle);
-        public abstract void TranslateStringEquals(TranspilerContext sb, Expression left, Expression right);
-        public abstract void TranslateStringFromCharCode(TranspilerContext sb, Expression charCode);
-        public abstract void TranslateStringIndexOf(TranspilerContext sb, Expression haystack, Expression needle);
-        public abstract void TranslateStringLastIndexOf(TranspilerContext sb, Expression haystack, Expression needle);
-        public abstract void TranslateStringIndexOfWithStart(TranspilerContext sb, Expression haystack, Expression needle, Expression startIndex);
-        public abstract void TranslateStringLength(TranspilerContext sb, Expression str);
-        public abstract void TranslateStringReplace(TranspilerContext sb, Expression haystack, Expression needle, Expression newNeedle);
-        public abstract void TranslateStringReverse(TranspilerContext sb, Expression str);
-        public abstract void TranslateStringSplit(TranspilerContext sb, Expression haystack, Expression needle);
-        public abstract void TranslateStringStartsWith(TranspilerContext sb, Expression haystack, Expression needle);
-        public abstract void TranslateStringSubstring(TranspilerContext sb, Expression str, Expression start, Expression length);
-        public abstract void TranslateStringSubstringIsEqualTo(TranspilerContext sb, Expression haystack, Expression startIndex, Expression needle);
-        public abstract void TranslateStringToLower(TranspilerContext sb, Expression str);
-        public abstract void TranslateStringToUpper(TranspilerContext sb, Expression str);
-        public abstract void TranslateStringToUtf8Bytes(TranspilerContext sb, Expression str);
-        public abstract void TranslateStringTrim(TranspilerContext sb, Expression str);
-        public abstract void TranslateStringTrimEnd(TranspilerContext sb, Expression str);
-        public abstract void TranslateStringTrimStart(TranspilerContext sb, Expression str);
-        public abstract void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right);
-        public abstract void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex);
         public abstract void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement);
-        public abstract void TranslateThis(TranspilerContext sb, ThisExpression thisExpr);
-        public abstract void TranslateToCodeString(TranspilerContext sb, Expression str);
-        public abstract void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList);
-        public abstract void TranslateUtf8BytesToString(TranspilerContext sb, Expression bytes);
-        public abstract void TranslateVariable(TranspilerContext sb, Variable variable);
         public abstract void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl);
         public abstract void TranslateWhileLoop(TranspilerContext sb, WhileLoop whileLoop);
+
+        public abstract StringBuffer TranslateArrayGet(Expression array, Expression index);
+        public abstract StringBuffer TranslateArrayJoin(Expression array, Expression sep);
+        public abstract StringBuffer TranslateArrayLength(Expression array);
+        public abstract StringBuffer TranslateArrayNew(PType arrayType, Expression lengthExpression);
+        public abstract StringBuffer TranslateArraySet(Expression array, Expression index, Expression value);
+        public abstract StringBuffer TranslateBase64ToBytes(Expression base64String);
+        public abstract StringBuffer TranslateBase64ToString(Expression base64String);
+        public abstract StringBuffer TranslateBooleanConstant(bool value);
+        public abstract StringBuffer TranslateBooleanNot(UnaryOp unaryOp);
+        public abstract StringBuffer TranslateCast(PType type, Expression expression);
+        public abstract StringBuffer TranslateCharConstant(char value);
+        public abstract StringBuffer TranslateCharToString(Expression charValue);
+        public abstract StringBuffer TranslateChr(Expression charCode);
+        public abstract StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation);
+        public abstract StringBuffer TranslateCurrentTimeSeconds();
+        public abstract StringBuffer TranslateDictionaryContainsKey(Expression dictionary, Expression key);
+        public abstract StringBuffer TranslateDictionaryGet(Expression dictionary, Expression key);
+        public abstract StringBuffer TranslateDictionaryKeys(Expression dictionary);
+        public abstract StringBuffer TranslateDictionaryNew(PType keyType, PType valueType);
+        public abstract StringBuffer TranslateDictionaryRemove(Expression dictionary, Expression key);
+        public abstract StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value);
+        public abstract StringBuffer TranslateDictionarySize(Expression dictionary);
+        public abstract StringBuffer TranslateDictionaryValues(Expression dictionary);
+        public abstract StringBuffer TranslateEmitComment(string value);
+        public abstract StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray);
+        public abstract StringBuffer TranslateFloatBuffer16();
+        public abstract StringBuffer TranslateFloatConstant(double value);
+        public abstract StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator);
+        public abstract StringBuffer TranslateFloatToInt(Expression floatExpr);
+        public abstract StringBuffer TranslateFloatToString(Expression floatExpr);
+        public abstract StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args);
+        public abstract StringBuffer TranslateFunctionReference(FunctionReference funcRef);
+        public abstract StringBuffer TranslateGetFunction(Expression name);
+        public abstract StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition);
+        public abstract StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName);
+        public abstract StringBuffer TranslateIntBuffer16();
+        public abstract StringBuffer TranslateIntegerConstant(int value);
+        public abstract StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator);
+        public abstract StringBuffer TranslateIntToString(Expression integer);
+        public abstract StringBuffer TranslateIsValidInteger(Expression stringValue);
+        public abstract StringBuffer TranslateListAdd(Expression list, Expression item);
+        public abstract StringBuffer TranslateListClear(Expression list);
+        public abstract StringBuffer TranslateListConcat(Expression list, Expression items);
+        public abstract StringBuffer TranslateListGet(Expression list, Expression index);
+        public abstract StringBuffer TranslateListInsert(Expression list, Expression index, Expression item);
+        public abstract StringBuffer TranslateListJoinChars(Expression list);
+        public abstract StringBuffer TranslateListJoinStrings(Expression list, Expression sep);
+        public abstract StringBuffer TranslateListNew(PType type);
+        public abstract StringBuffer TranslateListPop(Expression list);
+        public abstract StringBuffer TranslateListRemoveAt(Expression list, Expression index);
+        public abstract StringBuffer TranslateListReverse(Expression list);
+        public abstract StringBuffer TranslateListSet(Expression list, Expression index, Expression value);
+        public abstract StringBuffer TranslateListShuffle(Expression list);
+        public abstract StringBuffer TranslateListSize(Expression list);
+        public abstract StringBuffer TranslateStringBuilderNew();
+        public abstract StringBuffer TranslateListToArray(Expression list);
+        public abstract StringBuffer TranslateMathArcCos(Expression ratio);
+        public abstract StringBuffer TranslateMathArcSin(Expression ratio);
+        public abstract StringBuffer TranslateMathArcTan(Expression yComponent, Expression xComponent);
+        public abstract StringBuffer TranslateMathCos(Expression thetaRadians);
+        public abstract StringBuffer TranslateMathLog(Expression value);
+        public abstract StringBuffer TranslateMathPow(Expression expBase, Expression exponent);
+        public abstract StringBuffer TranslateMathSin(Expression thetaRadians);
+        public abstract StringBuffer TranslateMathTan(Expression thetaRadians);
+        public abstract StringBuffer TranslateMultiplyList(Expression list, Expression n);
+        public abstract StringBuffer TranslateNegative(UnaryOp unaryOp);
+        public abstract StringBuffer TranslateNullConstant();
+        public abstract StringBuffer TranslateOrd(Expression charValue);
+        public abstract StringBuffer TranslateOpChain(OpChain opChain);
+        public abstract StringBuffer TranslateParseFloatUnsafe(Expression stringValue);
+        public abstract StringBuffer TranslateParseInt(Expression safeStringValue);
+        public abstract StringBuffer TranslatePrintStdErr(Expression value);
+        public abstract StringBuffer TranslatePrintStdOut(Expression value);
+        public abstract StringBuffer TranslateRandomFloat();
+        public abstract StringBuffer TranslateSortedCopyOfIntArray(Expression intArray);
+        public abstract StringBuffer TranslateSortedCopyOfStringArray(Expression stringArray);
+        public abstract StringBuffer TranslateStringAppend(Expression str1, Expression str2);
+        public abstract StringBuffer TranslateStringBuffer16();
+        public abstract StringBuffer TranslateStringBuilderAdd(Expression sbInst, Expression obj);
+        public abstract StringBuffer TranslateStringBuilderClear(Expression sbInst);
+        public abstract StringBuffer TranslateStringBuilderToString(Expression sbInst);
+        public abstract StringBuffer TranslateStringCharAt(Expression str, Expression index);
+        public abstract StringBuffer TranslateStringCharCodeAt(Expression str, Expression index);
+        public abstract StringBuffer TranslateStringCompareIsReverse(Expression str1, Expression str2);
+        public abstract StringBuffer TranslateStringConcatAll(Expression[] strings);
+        public abstract StringBuffer TranslateStringConcatPair(Expression strLeft, Expression strRight);
+        public abstract StringBuffer TranslateStringConstant(string value);
+        public abstract StringBuffer TranslateStringContains(Expression haystack, Expression needle);
+        public abstract StringBuffer TranslateStringEndsWith(Expression haystack, Expression needle);
+        public abstract StringBuffer TranslateStringEquals(Expression left, Expression right);
+        public abstract StringBuffer TranslateStringFromCharCode(Expression charCode);
+        public abstract StringBuffer TranslateStringIndexOf(Expression haystack, Expression needle);
+        public abstract StringBuffer TranslateStringLastIndexOf(Expression haystack, Expression needle);
+        public abstract StringBuffer TranslateStringIndexOfWithStart(Expression haystack, Expression needle, Expression startIndex);
+        public abstract StringBuffer TranslateStringLength(Expression str);
+        public abstract StringBuffer TranslateStringReplace(Expression haystack, Expression needle, Expression newNeedle);
+        public abstract StringBuffer TranslateStringReverse(Expression str);
+        public abstract StringBuffer TranslateStringSplit(Expression haystack, Expression needle);
+        public abstract StringBuffer TranslateStringStartsWith(Expression haystack, Expression needle);
+        public abstract StringBuffer TranslateStringSubstring(Expression str, Expression start, Expression length);
+        public abstract StringBuffer TranslateStringSubstringIsEqualTo(Expression haystack, Expression startIndex, Expression needle);
+        public abstract StringBuffer TranslateStringToLower(Expression str);
+        public abstract StringBuffer TranslateStringToUpper(Expression str);
+        public abstract StringBuffer TranslateStringToUtf8Bytes(Expression str);
+        public abstract StringBuffer TranslateStringTrim(Expression str);
+        public abstract StringBuffer TranslateStringTrimEnd(Expression str);
+        public abstract StringBuffer TranslateStringTrimStart(Expression str);
+        public abstract StringBuffer TranslateStrongReferenceEquality(Expression left, Expression right);
+        public abstract StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex);
+        public abstract StringBuffer TranslateThis(ThisExpression thisExpr);
+        public abstract StringBuffer TranslateToCodeString(Expression str);
+        public abstract StringBuffer TranslateTryParseFloat(Expression stringValue, Expression floatOutList);
+        public abstract StringBuffer TranslateUtf8BytesToString(Expression bytes);
+        public abstract StringBuffer TranslateVariable(Variable variable);
 
         public abstract void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef);
         public abstract void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef);

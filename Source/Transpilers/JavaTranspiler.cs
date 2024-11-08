@@ -120,55 +120,58 @@ namespace Pastel.Transpilers
             if (prefixData.Count > 0) lines.InsertRange(0, prefixData);
         }
 
-        public override void TranslateFunctionPointerInvocation(TranspilerContext sb, FunctionPointerInvocation fpi)
+        public override StringBuffer TranslateFunctionPointerInvocation(FunctionPointerInvocation fpi)
         {
-            sb.Append("((");
-            sb.Append(this.TranslateType(fpi.ResolvedType));
-            sb.Append(") TranslationHelper.invokeFunctionPointer(");
-            this.TranslateExpression(sb, fpi.Root);
-            sb.Append(", new Object[] {");
-            this.TranslateCommaDelimitedExpressions(sb, fpi.Args);
-            sb.Append("}))");
+            return StringBuffer.Of("((")
+                .Push(this.TranslateType(fpi.ResolvedType))
+                .Push(") TranslationHelper.invokeFunctionPointer(")
+                .Push(this.TranslateExpression(fpi.Root))
+                .Push(", new Object[] {")
+                .Push(this.TranslateCommaDelimitedExpressions(fpi.Args))
+                .Push("}))");
         }
 
-        public override void TranslatePrintStdErr(TranspilerContext sb, Expression value)
+        public override StringBuffer TranslatePrintStdErr(Expression value)
         {
-            sb.Append("PlatformTranslationHelper.printStdErr(");
-            this.TranslateExpression(sb, value);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PlatformTranslationHelper.printStdErr(")
+                .Push(this.TranslateExpression(value))
+                .Push(')');
         }
 
-        public override void TranslatePrintStdOut(TranspilerContext sb, Expression value)
+        public override StringBuffer TranslatePrintStdOut(Expression value)
         {
-            sb.Append("PlatformTranslationHelper.printStdOut(");
-            this.TranslateExpression(sb, value);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PlatformTranslationHelper.printStdOut(")
+                .Push(this.TranslateExpression(value))
+                .Push(')');
         }
 
-        public override void TranslateArrayGet(TranspilerContext sb, Expression array, Expression index)
+        public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
-            this.TranslateExpression(sb, array);
-            sb.Append('[');
-            this.TranslateExpression(sb, index);
-            sb.Append(']');
+            return this.TranslateExpression(array)
+                .Push('[')
+                .Push(this.TranslateExpression(index))
+                .Push(']');
         }
 
-        public override void TranslateArrayJoin(TranspilerContext sb, Expression array, Expression sep)
+        public override StringBuffer TranslateArrayJoin(Expression array, Expression sep)
         {
-            sb.Append("String.join(");
-            this.TranslateExpression(sb, sep);
-            sb.Append(", ");
-            this.TranslateExpression(sb, array);
-            sb.Append(')');
+            return StringBuffer
+                .Of("String.join(")
+                .Push(this.TranslateExpression(sep))
+                .Push(", ")
+                .Push(this.TranslateExpression(array))
+                .Push(')');
         }
 
-        public override void TranslateArrayLength(TranspilerContext sb, Expression array)
+        public override StringBuffer TranslateArrayLength(Expression array)
         {
-            this.TranslateExpression(sb, array);
-            sb.Append(".length");
+            return this.TranslateExpression(array)
+                .Push(".length");
         }
 
-        public override void TranslateArrayNew(TranspilerContext sb, PType arrayType, Expression lengthExpression)
+        public override StringBuffer TranslateArrayNew(PType arrayType, Expression lengthExpression)
         {
             // In the event of multi-dimensional jagged arrays, the outermost array length goes in the innermost bracket.
             // Unwrap nested arrays in the type and run the code as normal, and then add that many []'s to the end.
@@ -179,54 +182,58 @@ namespace Pastel.Transpilers
                 bracketSuffixCount++;
             }
 
-            sb.Append("new ");
+            StringBuffer buf = StringBuffer.Of("new ");
             if (arrayType.RootValue == "Dictionary")
             {
-                sb.Append("HashMap");
+                buf.Push("HashMap");
             }
             else if (arrayType.RootValue == "List")
             {
-                sb.Append("ArrayList");
+                buf.Push("ArrayList");
             }
             else
             {
-                sb.Append(this.TranslateType(arrayType));
+                buf.Push(this.TranslateType(arrayType));
             }
-            sb.Append('[');
-            this.TranslateExpression(sb, lengthExpression);
-            sb.Append(']');
+            buf
+                .Push('[')
+                .Push(this.TranslateExpression(lengthExpression))
+                .Push(']');
 
             while (bracketSuffixCount-- > 0)
             {
-                sb.Append("[]");
+                buf.Push("[]");
             }
+            return buf;
         }
 
-        public override void TranslateArraySet(TranspilerContext sb, Expression array, Expression index, Expression value)
+        public override StringBuffer TranslateArraySet(Expression array, Expression index, Expression value)
         {
-            this.TranslateExpression(sb, array);
-            sb.Append('[');
-            this.TranslateExpression(sb, index);
-            sb.Append("] = ");
-            this.TranslateExpression(sb, value);
+            return this.TranslateExpression(array)
+                .Push('[')
+                .Push(this.TranslateExpression(index))
+                .Push("] = ")
+                .Push(this.TranslateExpression(value));
         }
 
-        public override void TranslateBase64ToBytes(TranspilerContext sb, Expression base64String)
+        public override StringBuffer TranslateBase64ToBytes(Expression base64String)
         {
-            sb.Append("PST_base64ToBytes(");
-            this.TranslateExpression(sb, base64String);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_base64ToBytes(")
+                .Push(this.TranslateExpression(base64String))
+                .Push(')');
         }
 
-        public override void TranslateBase64ToString(TranspilerContext sb, Expression base64String)
+        public override StringBuffer TranslateBase64ToString(Expression base64String)
         {
-            sb.Append("PST_base64ToString(");
-            this.TranslateExpression(sb, base64String);
-            sb.Append(')');
+            return StringBuffer.Of("PST_base64ToString(")
+                .Push(this.TranslateExpression(base64String))
+                .Push(')');
         }
 
-        public override void TranslateCast(TranspilerContext sb, PType type, Expression expression)
+        public override StringBuffer TranslateCast(PType type, Expression expression)
         {
+            // TODO: No. Get rid of this nonsense.
             DotField dotField = expression as DotField;
             if (dotField != null &&
                 dotField.Root.ResolvedType.RootValue == "Value" &&
@@ -234,47 +241,48 @@ namespace Pastel.Transpilers
             {
                 if (type.RootValue == "int")
                 {
-                    this.TranslateExpression(sb, dotField.Root);
-                    sb.Append(".intValue");
-                    return;
+                    return this.TranslateExpression(dotField.Root)
+                        .Push(".intValue");
                 }
                 else if (type.RootValue == "bool")
                 {
-                    sb.Append('(');
-                    this.TranslateExpression(sb, dotField.Root);
-                    sb.Append(".intValue == 1)");
-                    return;
+                    return StringBuffer
+                        .Of("(")
+                        .Push(this.TranslateExpression(dotField.Root))
+                        .Push(".intValue == 1)");
                 }
             }
 
-            sb.Append("((");
-            sb.Append(this.TranslateType(type));
-            sb.Append(") ");
-
-            this.TranslateExpression(sb, expression);
-            sb.Append(')');
+            return StringBuffer
+                .Of("((")
+                .Push(this.TranslateType(type))
+                .Push(") ")
+                .Push(this.TranslateExpression(expression))
+                .Push(')');
         }
 
-        public override void TranslateCharConstant(TranspilerContext sb, char value)
+        public override StringBuffer TranslateCharConstant(char value)
         {
-            sb.Append(CodeUtil.ConvertCharToCharConstantCode(value));
+            return StringBuffer.Of(CodeUtil.ConvertCharToCharConstantCode(value));
         }
 
-        public override void TranslateCharToString(TranspilerContext sb, Expression charValue)
+        public override StringBuffer TranslateCharToString(Expression charValue)
         {
-            sb.Append("(\"\" + ");
-            this.TranslateExpression(sb, charValue);
-            sb.Append(')');
+            return StringBuffer
+                .Of("(\"\" + ")
+                .Push(this.TranslateExpression(charValue))
+                .Push(')');
         }
 
-        public override void TranslateChr(TranspilerContext sb, Expression charCode)
+        public override StringBuffer TranslateChr(Expression charCode)
         {
-            sb.Append("Character.toString((char) ");
-            this.TranslateExpression(sb, charCode);
-            sb.Append(")");
+            return StringBuffer
+                .Of("Character.toString((char) ")
+                .Push(this.TranslateExpression(charCode))
+                .Push(")");
         }
 
-        public override void TranslateConstructorInvocation(TranspilerContext sb, ConstructorInvocation constructorInvocation)
+        public override StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation)
         {
             if (constructorInvocation.ClassDefinition != null)
             {
@@ -282,95 +290,98 @@ namespace Pastel.Transpilers
             }
             else
             {
-                sb.Append("new ");
+                StringBuffer buf = StringBuffer.Of("new ");
                 string structType = constructorInvocation.StructDefinition.NameToken.Value;
                 if (structType == "ClassValue")
                 {
                     structType = "org.crayonlang.interpreter.structs.ClassValue";
                 }
-                sb.Append(structType);
-                sb.Append('(');
+                buf
+                    .Push(structType)
+                    .Push('(');
                 Expression[] args = constructorInvocation.Args;
                 for (int i = 0; i < args.Length; ++i)
                 {
-                    if (i > 0) sb.Append(", ");
-                    this.TranslateExpression(sb, args[i]);
+                    if (i > 0) buf.Push(", ");
+                    buf.Push(this.TranslateExpression(args[i]));
                 }
-                sb.Append(')');
+                return buf.Push(')');
             }
         }
 
-        public override void TranslateCurrentTimeSeconds(TranspilerContext sb)
+        public override StringBuffer TranslateCurrentTimeSeconds()
         {
-            sb.Append("System.currentTimeMillis() / 1000.0");
+            return StringBuffer.Of("System.currentTimeMillis() / 1000.0");
         }
 
-        public override void TranslateDictionaryContainsKey(TranspilerContext sb, Expression dictionary, Expression key)
+        public override StringBuffer TranslateDictionaryContainsKey(Expression dictionary, Expression key)
         {
-            this.TranslateExpression(sb, dictionary);
-            sb.Append(".containsKey(");
-            this.TranslateExpression(sb, key);
-            sb.Append(')');
+            return this.TranslateExpression(dictionary)
+                .Push(".containsKey(")
+                .Push(this.TranslateExpression(key))
+                .Push(')');
         }
 
-        public override void TranslateDictionaryGet(TranspilerContext sb, Expression dictionary, Expression key)
+        public override StringBuffer TranslateDictionaryGet(Expression dictionary, Expression key)
         {
-            this.TranslateExpression(sb, dictionary);
-            sb.Append(".get(");
-            this.TranslateExpression(sb, key);
-            sb.Append(')');
+            return this.TranslateExpression(dictionary)
+                .Push(".get(")
+                .Push(this.TranslateExpression(key))
+                .Push(')');
         }
 
-        public override void TranslateDictionaryKeys(TranspilerContext sb, Expression dictionary)
+        public override StringBuffer TranslateDictionaryKeys(Expression dictionary)
         {
-            sb.Append("PST_convert");
+            StringBuffer buf = StringBuffer.Of("PST_convert");
             switch (dictionary.ResolvedType.Generics[0].RootValue)
             {
-                case "int": sb.Append("Integer"); break;
-                case "string": sb.Append("String"); break;
+                case "int": buf.Push("Integer"); break;
+                case "string": buf.Push("String"); break;
 
                 default:
                     // TODO: Explicitly disallow dictionaries with non-intenger or non-string keys at compile time.
                     throw new NotImplementedException();
             }
-            sb.Append("SetToArray(");
-            this.TranslateExpression(sb, dictionary);
-            sb.Append(".keySet())");
+            return buf
+                .Push("SetToArray(")
+                .Push(this.TranslateExpression(dictionary))
+                .Push(".keySet())");
 
             // TODO: do a simple .keySet().toArray(TranslationHelper.STATIC_INSTANCE_OF_ZERO_LENGTH_INT_OR_STRING_ARRAY);
         }
 
-        public override void TranslateDictionaryNew(TranspilerContext sb, PType keyType, PType valueType)
+        public override StringBuffer TranslateDictionaryNew(PType keyType, PType valueType)
         {
-            sb.Append("new HashMap<");
-            sb.Append(this.TranslateJavaNestedType(keyType));
-            sb.Append(", ");
-            sb.Append(this.TranslateJavaNestedType(valueType));
-            sb.Append(">()");
+            return StringBuffer
+                .Of("new HashMap<")
+                .Push(this.TranslateJavaNestedType(keyType))
+                .Push(", ")
+                .Push(this.TranslateJavaNestedType(valueType))
+                .Push(">()");
         }
 
-        public override void TranslateDictionaryRemove(TranspilerContext sb, Expression dictionary, Expression key)
+        public override StringBuffer TranslateDictionaryRemove(Expression dictionary, Expression key)
         {
-            this.TranslateExpression(sb, dictionary);
-            sb.Append(".remove(");
-            this.TranslateExpression(sb, key);
-            sb.Append(')');
+            return this.TranslateExpression(dictionary)
+                .Push(".remove(")
+                .Push(this.TranslateExpression(key))
+                .Push(')');
         }
 
-        public override void TranslateDictionarySet(TranspilerContext sb, Expression dictionary, Expression key, Expression value)
+        public override StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value)
         {
-            this.TranslateExpression(sb, dictionary);
-            sb.Append(".put(");
-            this.TranslateExpression(sb, key);
-            sb.Append(", ");
-            this.TranslateExpression(sb, value);
-            sb.Append(')');
+            return this.TranslateExpression(dictionary)
+                .Push(".put(")
+                .Push(this.TranslateExpression(key))
+                .Push(", ")
+                .Push(this.TranslateExpression(value))
+                .Push(')');
         }
 
-        public override void TranslateDictionarySize(TranspilerContext sb, Expression dictionary)
+        public override StringBuffer TranslateDictionarySize(Expression dictionary)
         {
-            this.TranslateExpression(sb, dictionary);
-            sb.Append(".size()");
+            return this.TranslateExpression(dictionary)
+                .Push(".size()");
         }
 
         public override void TranslateDictionaryTryGet(TranspilerContext sb, Expression dictionary, Expression key, Expression fallbackValue, Variable varOut)
@@ -389,7 +400,7 @@ namespace Pastel.Transpilers
                 sb.Append(' ');
                 sb.Append(keyVar);
                 sb.Append(" = ");
-                this.TranslateExpression(sb, key);
+                sb.Append(this.TranslateExpressionAsString(key));
                 sb.Append(";\n");
             }
 
@@ -399,11 +410,11 @@ namespace Pastel.Transpilers
             sb.Append(' ');
             sb.Append(lookupVar);
             sb.Append(" = ");
-            this.TranslateExpression(sb, dictionary);
+            sb.Append(this.TranslateExpressionAsString(dictionary));
             sb.Append(".get(");
             if (keyExpressionIsSimple)
             {
-                this.TranslateExpression(sb, key);
+                sb.Append(this.TranslateExpressionAsString(key));
             }
             else
             {
@@ -421,166 +432,172 @@ namespace Pastel.Transpilers
                 // if the key is not a primitive, then we don't know if this null is a lack of a value or
                 // if it's the actual desired value. We must explicitly call .containsKey to be certain.
                 // In this specific case, we must do a double-lookup.
-                this.TranslateExpression(sb, dictionary);
+                sb.Append(this.TranslateExpressionAsString(dictionary));
                 sb.Append(".containsKey(");
-                if (keyExpressionIsSimple) this.TranslateExpression(sb, key);
+                if (keyExpressionIsSimple) sb.Append(this.TranslateExpressionAsString(key));
                 else sb.Append(keyVar);
                 sb.Append(") ? null : (");
-                this.TranslateExpression(sb, fallbackValue);
+                sb.Append(this.TranslateExpressionAsString(fallbackValue));
                 sb.Append(")");
             }
             else
             {
-                this.TranslateExpression(sb, fallbackValue);
+                sb.Append(this.TranslateExpressionAsString(fallbackValue));
             }
             sb.Append(") : ");
             sb.Append(lookupVar);
             sb.Append(";\n");
         }
 
-        public override void TranslateDictionaryValues(TranspilerContext sb, Expression dictionary)
+        public override StringBuffer TranslateDictionaryValues(Expression dictionary)
         {
-            this.TranslateExpression(sb, dictionary);
-            sb.Append(".values()");
+            return this.TranslateExpression(dictionary)
+                .Push(".values()");
         }
 
-        public override void TranslateExtensibleCallbackInvoke(TranspilerContext sb, Expression name, Expression argsArray)
+        public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
             throw new NotImplementedException();
         }
 
-        public override void TranslateFloatBuffer16(TranspilerContext sb)
+        public override StringBuffer TranslateFloatBuffer16()
         {
-            sb.Append("PST_floatBuffer16");
+            return StringBuffer.Of("PST_floatBuffer16");
         }
 
-        public override void TranslateFloatDivision(TranspilerContext sb, Expression floatNumerator, Expression floatDenominator)
+        public override StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator)
         {
-            this.TranslateExpression(sb, floatNumerator);
-            sb.Append(" / ");
-            this.TranslateExpression(sb, floatDenominator);
+            return this.TranslateExpression(floatNumerator)
+                .Push(" / ")
+                .Push(this.TranslateExpression(floatDenominator));
         }
 
-        public override void TranslateFloatToInt(TranspilerContext sb, Expression floatExpr)
+        public override StringBuffer TranslateFloatToInt(Expression floatExpr)
         {
-            sb.Append("((int) ");
-            this.TranslateExpression(sb, floatExpr);
-            sb.Append(')');
+            return StringBuffer.Of("((int) ")
+                .Push(this.TranslateExpression(floatExpr))
+                .Push(')');
         }
 
-        public override void TranslateFloatToString(TranspilerContext sb, Expression floatExpr)
+        public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
-            sb.Append("Double.toString(");
-            this.TranslateExpression(sb, floatExpr);
-            sb.Append(')');
+            return StringBuffer.Of("Double.toString(")
+                .Push(this.TranslateExpression(floatExpr))
+                .Push(')');
         }
 
-        public override void TranslateGetFunction(TranspilerContext sb, Expression name)
+        public override StringBuffer TranslateGetFunction(Expression name)
         {
-            sb.Append("TranslationHelper.getFunction(");
-            this.TranslateExpression(sb, name);
-            sb.Append(')');
+            return StringBuffer.Of("TranslationHelper.getFunction(")
+                .Push(this.TranslateExpression(name))
+                .Push(')');
         }
 
-        public override void TranslateInstanceFieldDereference(TranspilerContext sb, Expression root, ClassDefinition classDef, string fieldName)
+        public override StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName)
         {
-            this.TranslateExpression(sb, root);
-            sb.Append('.');
-            sb.Append(fieldName);
+            return this.TranslateExpression(root)
+                .Push('.')
+                .Push(fieldName);
         }
 
-        public override void TranslateIntBuffer16(TranspilerContext sb)
+        public override StringBuffer TranslateIntBuffer16()
         {
-            sb.Append("PST_intBuffer16");
+            return StringBuffer.Of("PST_intBuffer16");
         }
 
-        public override void TranslateIntegerDivision(TranspilerContext sb, Expression integerNumerator, Expression integerDenominator)
+        public override StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator)
         {
-            this.TranslateExpression(sb, integerNumerator);
-            sb.Append(" / ");
-            this.TranslateExpression(sb, integerDenominator);
+            return this.TranslateExpression(integerNumerator)
+                .Push(" / ")
+                .Push(this.TranslateExpression(integerDenominator));
         }
 
-        public override void TranslateIntToString(TranspilerContext sb, Expression integer)
+        public override StringBuffer TranslateIntToString(Expression integer)
         {
-            sb.Append("Integer.toString(");
-            this.TranslateExpression(sb, integer);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Integer.toString(")
+                .Push(this.TranslateExpression(integer))
+                .Push(')');
         }
 
-        public override void TranslateIsValidInteger(TranspilerContext sb, Expression stringValue)
+        public override StringBuffer TranslateIsValidInteger(Expression stringValue)
         {
-            sb.Append("PST_isValidInteger(");
-            this.TranslateExpression(sb, stringValue);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_isValidInteger(")
+                .Push(this.TranslateExpression(stringValue))
+                .Push(')');
         }
 
-        public override void TranslateListAdd(TranspilerContext sb, Expression list, Expression item)
+        public override StringBuffer TranslateListAdd(Expression list, Expression item)
         {
-            this.TranslateExpression(sb, list);
-            sb.Append(".add(");
-            this.TranslateExpression(sb, item);
-            sb.Append(')');
+            return this.TranslateExpression(list)
+                .Push(".add(")
+                .Push(this.TranslateExpression(item))
+                .Push(')');
         }
 
-        public override void TranslateListClear(TranspilerContext sb, Expression list)
+        public override StringBuffer TranslateListClear(Expression list)
         {
-            this.TranslateExpression(sb, list);
-            sb.Append(".clear()");
+            return this.TranslateExpression(list)
+                .Push(".clear()");
         }
 
-        public override void TranslateListConcat(TranspilerContext sb, Expression list, Expression items)
+        public override StringBuffer TranslateListConcat(Expression list, Expression items)
         {
             // Fun fact: this is actually not implemented. The only place that this is used is by Value.
-            sb.Append("PST_concatLists(");
-            this.TranslateExpression(sb, list);
-            sb.Append(", ");
-            this.TranslateExpression(sb, items);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_concatLists(")
+                .Push(this.TranslateExpression(list))
+                .Push(", ")
+                .Push(this.TranslateExpression(items))
+                .Push(')');
         }
 
-        public override void TranslateListGet(TranspilerContext sb, Expression list, Expression index)
+        public override StringBuffer TranslateListGet(Expression list, Expression index)
         {
-            this.TranslateExpression(sb, list);
-            sb.Append(".get(");
-            this.TranslateExpression(sb, index);
-            sb.Append(')');
+            return this.TranslateExpression(list)
+                .Push(".get(")
+                .Push(this.TranslateExpression(index))
+                .Push(')');
         }
 
-        public override void TranslateListInsert(TranspilerContext sb, Expression list, Expression index, Expression item)
+        public override StringBuffer TranslateListInsert(Expression list, Expression index, Expression item)
         {
-            this.TranslateExpression(sb, list);
-            sb.Append(".add(");
-            this.TranslateExpression(sb, index);
-            sb.Append(", ");
-            this.TranslateExpression(sb, item);
-            sb.Append(')');
+            return this.TranslateExpression(list)
+                .Push(".add(")
+                .Push(this.TranslateExpression(index))
+                .Push(", ")
+                .Push(this.TranslateExpression(item))
+                .Push(')');
         }
 
-        public override void TranslateListJoinChars(TranspilerContext sb, Expression list)
+        public override StringBuffer TranslateListJoinChars(Expression list)
         {
-            sb.Append("PST_joinChars(");
-            this.TranslateExpression(sb, list);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_joinChars(")
+                .Push(this.TranslateExpression(list))
+                .Push(')');
         }
 
-        public override void TranslateListJoinStrings(TranspilerContext sb, Expression list, Expression sep)
+        public override StringBuffer TranslateListJoinStrings(Expression list, Expression sep)
         {
-            sb.Append("PST_joinList(");
-            this.TranslateExpression(sb, sep);
-            sb.Append(", ");
-            this.TranslateExpression(sb, list);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_joinList(")
+                .Push(this.TranslateExpression(sep))
+                .Push(", ")
+                .Push(this.TranslateExpression(list))
+                .Push(')');
         }
 
-        public override void TranslateListNew(TranspilerContext sb, PType type)
+        public override StringBuffer TranslateListNew(PType type)
         {
-            sb.Append("new ArrayList<");
-            sb.Append(this.TranslateJavaNestedType(type));
-            sb.Append(">()");
+            return StringBuffer
+                .Of("new ArrayList<")
+                .Push(this.TranslateJavaNestedType(type))
+                .Push(">()");
         }
 
-        public override void TranslateListPop(TranspilerContext sb, Expression list)
+        public override StringBuffer TranslateListPop(Expression list)
         {
             bool useInlineListPop =
                 (list is Variable) ||
@@ -588,59 +605,60 @@ namespace Pastel.Transpilers
 
             if (useInlineListPop)
             {
-                this.TranslateExpression(sb, list);
-                sb.Append(".remove(");
-                this.TranslateExpression(sb, list);
-                sb.Append(".size() - 1)");
+                return this.TranslateExpression(list)
+                    .Push(".remove(")
+                    .Push(this.TranslateExpression(list))
+                    .Push(".size() - 1)");
             }
-            else
-            {
-                sb.Append("PST_listPop(");
-                this.TranslateExpression(sb, list);
-                sb.Append(')');
-            }
+
+            return StringBuffer
+                .Of("PST_listPop(")
+                .Push(this.TranslateExpression(list))
+                .Push(')');
         }
 
-        public override void TranslateListRemoveAt(TranspilerContext sb, Expression list, Expression index)
+        public override StringBuffer TranslateListRemoveAt(Expression list, Expression index)
         {
-            this.TranslateExpression(sb, list);
-            sb.Append(".remove(");
-            this.TranslateExpression(sb, index);
-            sb.Append(')');
+            return this.TranslateExpression(list)
+                .Push(".remove(")
+                .Push(this.TranslateExpression(index))
+                .Push(')');
         }
 
-        public override void TranslateListReverse(TranspilerContext sb, Expression list)
+        public override StringBuffer TranslateListReverse(Expression list)
         {
-            sb.Append("java.util.Collections.reverse(");
-            this.TranslateExpression(sb, list);
-            sb.Append(')');
+            return StringBuffer
+                .Of("java.util.Collections.reverse(")
+                .Push(this.TranslateExpression(list))
+                .Push(')');
         }
 
-        public override void TranslateListSet(TranspilerContext sb, Expression list, Expression index, Expression value)
+        public override StringBuffer TranslateListSet(Expression list, Expression index, Expression value)
         {
-            this.TranslateExpression(sb, list);
-            sb.Append(".set(");
-            this.TranslateExpression(sb, index);
-            sb.Append(", ");
-            this.TranslateExpression(sb, value);
-            sb.Append(')');
+            return this.TranslateExpression(list)
+                .Push(".set(")
+                .Push(this.TranslateExpression(index))
+                .Push(", ")
+                .Push(this.TranslateExpression(value))
+                .Push(')');
         }
 
-        public override void TranslateListShuffle(TranspilerContext sb, Expression list)
+        public override StringBuffer TranslateListShuffle(Expression list)
         {
-            sb.Append("PST_listShuffle(");
             // This is currently only used and implemented by Value lists.
-            this.TranslateExpression(sb, list);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_listShuffle(")
+                .Push(this.TranslateExpression(list))
+                .Push(')');
         }
 
-        public override void TranslateListSize(TranspilerContext sb, Expression list)
+        public override StringBuffer TranslateListSize(Expression list)
         {
-            this.TranslateExpression(sb, list);
-            sb.Append(".size()");
+            return this.TranslateExpression(list)
+                .Push(".size()");
         }
 
-        public override void TranslateListToArray(TranspilerContext sb, Expression list)
+        public override StringBuffer TranslateListToArray(Expression list)
         {
             PType itemType = list.ResolvedType.Generics[0];
             switch (itemType.TypeName)
@@ -651,432 +669,455 @@ namespace Pastel.Transpilers
                 case "double":
                 case "char":
                     string primitiveName = itemType.TypeName;
-                    sb.Append("PST_listToArray");
-                    sb.Append((char)(primitiveName[0] + 'A' - 'a'));
-                    sb.Append(primitiveName.Substring(1));
-                    sb.Append('(');
-                    this.TranslateExpression(sb, list);
-                    sb.Append(')');
-                    break;
+                    return StringBuffer
+                        .Of("PST_listToArray")
+                        .Push((char)(primitiveName[0] + 'A' - 'a'))
+                        .Push(primitiveName.Substring(1))
+                        .Push('(')
+                        .Push(this.TranslateExpression(list))
+                        .Push(')');
 
                 case "string":
-                    this.TranslateExpression(sb, list);
-                    sb.Append(".toArray(PST_emptyArrayString)");
-                    break;
+                    return this.TranslateExpression(list)
+                        .Push(".toArray(PST_emptyArrayString)");
 
                 case "object":
-                    this.TranslateExpression(sb, list);
-                    sb.Append(".toArray()");
-                    break;
+                    return this.TranslateExpression(list)
+                        .Push(".toArray()");
 
                 case "List":
-                    this.TranslateExpression(sb, list);
-                    sb.Append(".toArray(PST_emptyArrayList)");
-                    break;
+                    return this.TranslateExpression(list)
+                        .Push(".toArray(PST_emptyArrayList)");
+
                 case "Dictionary":
-                    this.TranslateExpression(sb, list);
-                    sb.Append(".toArray(PST_emptyArrayMap)");
-                    break;
+                    return this.TranslateExpression(list)
+                        .Push(".toArray(PST_emptyArrayMap)");
+
                 case "Array":
                     throw new NotImplementedException("not implemented: java list of arrays to array");
+
                 default:
                     if (itemType.IsStructOrClass)
                     {
-                        this.TranslateExpression(sb, list);
-                        sb.Append(".toArray(");
-                        sb.Append(this.TranslateType(itemType));
-                        sb.Append(".EMPTY_ARRAY)");
+                        return this.TranslateExpression(list)
+                            .Push(".toArray(")
+                            .Push(this.TranslateType(itemType))
+                            .Push(".EMPTY_ARRAY)");
                     }
-                    else
-                    {
-                        // I think I covered all the types that are supported.
-                        throw new NotImplementedException();
-                    }
-                    break;
+
+                    // I think I covered all the types that are supported.
+                    throw new NotImplementedException();
             }
         }
 
-        public override void TranslateMathArcCos(TranspilerContext sb, Expression ratio)
+        public override StringBuffer TranslateMathArcCos(Expression ratio)
         {
-            sb.Append("Math.acos(");
-            this.TranslateExpression(sb, ratio);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Math.acos(")
+                .Push(this.TranslateExpression(ratio))
+                .Push(')');
         }
 
-        public override void TranslateMathArcSin(TranspilerContext sb, Expression ratio)
+        public override StringBuffer TranslateMathArcSin(Expression ratio)
         {
-            sb.Append("Math.asin(");
-            this.TranslateExpression(sb, ratio);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Math.asin(")
+                .Push(this.TranslateExpression(ratio))
+                .Push(')');
         }
 
-        public override void TranslateMathArcTan(TranspilerContext sb, Expression yComponent, Expression xComponent)
+        public override StringBuffer TranslateMathArcTan(Expression yComponent, Expression xComponent)
         {
-            sb.Append("Math.atan2(");
-            this.TranslateExpression(sb, yComponent);
-            sb.Append(", ");
-            this.TranslateExpression(sb, xComponent);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Math.atan2(")
+                .Push(this.TranslateExpression(yComponent))
+                .Push(", ")
+                .Push(this.TranslateExpression(xComponent))
+                .Push(')');
         }
 
-        public override void TranslateMathCos(TranspilerContext sb, Expression thetaRadians)
+        public override StringBuffer TranslateMathCos(Expression thetaRadians)
         {
-            sb.Append("Math.cos(");
-            this.TranslateExpression(sb, thetaRadians);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Math.cos(")
+                .Push(this.TranslateExpression(thetaRadians))
+                .Push(')');
         }
 
-        public override void TranslateMathLog(TranspilerContext sb, Expression value)
+        public override StringBuffer TranslateMathLog(Expression value)
         {
-            sb.Append("Math.log(");
-            this.TranslateExpression(sb, value);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Math.log(")
+                .Push(this.TranslateExpression(value))
+                .Push(')');
         }
 
-        public override void TranslateMathPow(TranspilerContext sb, Expression expBase, Expression exponent)
+        public override StringBuffer TranslateMathPow(Expression expBase, Expression exponent)
         {
-            sb.Append("Math.pow(");
-            this.TranslateExpression(sb, expBase);
-            sb.Append(", ");
-            this.TranslateExpression(sb, exponent);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Math.pow(")
+                .Push(this.TranslateExpression(expBase))
+                .Push(", ")
+                .Push(this.TranslateExpression(exponent))
+                .Push(')');
         }
 
-        public override void TranslateMathSin(TranspilerContext sb, Expression thetaRadians)
+        public override StringBuffer TranslateMathSin(Expression thetaRadians)
         {
-            sb.Append("Math.sin(");
-            this.TranslateExpression(sb, thetaRadians);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Math.sin(")
+                .Push(this.TranslateExpression(thetaRadians))
+                .Push(')');
         }
 
-        public override void TranslateMathTan(TranspilerContext sb, Expression thetaRadians)
+        public override StringBuffer TranslateMathTan(Expression thetaRadians)
         {
-            sb.Append("Math.tan(");
-            this.TranslateExpression(sb, thetaRadians);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Math.tan(")
+                .Push(this.TranslateExpression(thetaRadians))
+                .Push(')');
         }
 
-        public override void TranslateMultiplyList(TranspilerContext sb, Expression list, Expression n)
+        public override StringBuffer TranslateMultiplyList(Expression list, Expression n)
         {
-            // not implemented yet because it's not used yet.
-            sb.Append("PST_multiplyList(");
-            this.TranslateExpression(sb, list);
-            sb.Append(", ");
-            this.TranslateExpression(sb, n);
-            sb.Append(')');
+            // TODO: this helper function is not actually implemented yet.
+            return StringBuffer
+                .Of("PST_multiplyList(")
+                .Push(this.TranslateExpression(list))
+                .Push(", ")
+                .Push(this.TranslateExpression(n))
+                .Push(')');
         }
 
-        public override void TranslateNullConstant(TranspilerContext sb)
+        public override StringBuffer TranslateNullConstant()
         {
-            sb.Append("null");
+            return StringBuffer.Of("null");
         }
 
-        public override void TranslateOrd(TranspilerContext sb, Expression charValue)
+        public override StringBuffer TranslateOrd(Expression charValue)
         {
-            sb.Append("((int)(");
-            this.TranslateExpression(sb, charValue);
-            sb.Append("))");
+            return StringBuffer
+                .Of("((int)(")
+                .Push(this.TranslateExpression(charValue))
+                .Push("))");
         }
 
-        public override void TranslateParseFloatUnsafe(TranspilerContext sb, Expression stringValue)
+        public override StringBuffer TranslateParseFloatUnsafe(Expression stringValue)
         {
-            sb.Append("Double.parseDouble(");
-            this.TranslateExpression(sb, stringValue);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Double.parseDouble(")
+                .Push(this.TranslateExpression(stringValue))
+                .Push(')');
         }
 
-        public override void TranslateParseInt(TranspilerContext sb, Expression safeStringValue)
+        public override StringBuffer TranslateParseInt(Expression safeStringValue)
         {
-            sb.Append("Integer.parseInt(");
-            this.TranslateExpression(sb, safeStringValue);
-            sb.Append(')');
+            return StringBuffer
+                .Of("Integer.parseInt(")
+                .Push(this.TranslateExpression(safeStringValue))
+                .Push(')');
         }
 
-        public override void TranslateRandomFloat(TranspilerContext sb)
+        public override StringBuffer TranslateRandomFloat()
         {
-            sb.Append("PST_random.nextDouble()");
+            return StringBuffer.Of("PST_random.nextDouble()");
         }
 
-        public override void TranslateSortedCopyOfIntArray(TranspilerContext sb, Expression intArray)
+        public override StringBuffer TranslateSortedCopyOfIntArray(Expression intArray)
         {
-            sb.Append("PST_sortedCopyOfIntArray(");
-            this.TranslateExpression(sb, intArray);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_sortedCopyOfIntArray(")
+                .Push(this.TranslateExpression(intArray))
+                .Push(')');
         }
 
-        public override void TranslateSortedCopyOfStringArray(TranspilerContext sb, Expression stringArray)
+        public override StringBuffer TranslateSortedCopyOfStringArray(Expression stringArray)
         {
-            sb.Append("PST_sortedCopyOfStringArray(");
-            this.TranslateExpression(sb, stringArray);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_sortedCopyOfStringArray(")
+                .Push(this.TranslateExpression(stringArray))
+                .Push(')');
         }
 
-        public override void TranslateStringAppend(TranspilerContext sb, Expression str1, Expression str2)
+        public override StringBuffer TranslateStringAppend(Expression str1, Expression str2)
         {
-            this.TranslateExpression(sb, str1);
-            sb.Append(" += ");
-            this.TranslateExpression(sb, str2);
+            return this.TranslateExpression(str1)
+                .Push(" += ")
+                .Push(this.TranslateExpression(str2));
         }
 
-        public override void TranslateStringBuffer16(TranspilerContext sb)
+        public override StringBuffer TranslateStringBuffer16()
         {
-            sb.Append("PST_stringBuffer16");
+            return StringBuffer.Of("PST_stringBuffer16");
         }
 
-        public override void TranslateStringCharAt(TranspilerContext sb, Expression str, Expression index)
+        public override StringBuffer TranslateStringCharAt(Expression str, Expression index)
         {
-            this.TranslateExpression(sb, str);
-            sb.Append(".charAt(");
-            this.TranslateExpression(sb, index);
-            sb.Append(')');
+            return this.TranslateExpression(str)
+                .Push(".charAt(")
+                .Push(this.TranslateExpression(index))
+                .Push(')');
         }
 
-        public override void TranslateStringCharCodeAt(TranspilerContext sb, Expression str, Expression index)
+        public override StringBuffer TranslateStringCharCodeAt(Expression str, Expression index)
         {
-            sb.Append("((int) ");
-            this.TranslateExpression(sb, str);
-            sb.Append(".charAt(");
-            this.TranslateExpression(sb, index);
-            sb.Append("))");
+            return StringBuffer
+                .Of("((int) ")
+                .Push(this.TranslateExpression(str))
+                .Push(".charAt(")
+                .Push(this.TranslateExpression(index))
+                .Push("))");
         }
 
-        public override void TranslateStringCompareIsReverse(TranspilerContext sb, Expression str1, Expression str2)
+        public override StringBuffer TranslateStringCompareIsReverse(Expression str1, Expression str2)
         {
-            sb.Append('(');
-            this.TranslateExpression(sb, str1);
-            sb.Append(".compareTo(");
-            this.TranslateExpression(sb, str2);
-            sb.Append(") > 0)");
+            return StringBuffer
+                .Of("(")
+                .Push(this.TranslateExpression(str1))
+                .Push(".compareTo(")
+                .Push(this.TranslateExpression(str2))
+                .Push(") > 0)");
         }
 
-        public override void TranslateStringConcatAll(TranspilerContext sb, Expression[] strings)
+        public override StringBuffer TranslateStringConcatAll(Expression[] strings)
         {
-            this.TranslateExpression(sb, strings[0]);
+            // TODO: use a string builder
+            StringBuffer buf = this.TranslateExpression(strings[0]);
             for (int i = 1; i < strings.Length; ++i)
             {
-                sb.Append(" + ");
-                this.TranslateExpression(sb, strings[i]);
+                buf
+                    .Push(" + ")
+                    .Push(this.TranslateExpression(strings[i]));
             }
+            return buf;
         }
 
-        public override void TranslateStringConcatPair(TranspilerContext sb, Expression strLeft, Expression strRight)
+        public override StringBuffer TranslateStringConcatPair(Expression strLeft, Expression strRight)
         {
-            this.TranslateExpression(sb, strLeft);
-            sb.Append(" + ");
-            this.TranslateExpression(sb, strRight);
+            return this.TranslateExpression(strLeft)
+                .Push(" + ")
+                .Push(this.TranslateExpression(strRight));
         }
 
-        public override void TranslateStringContains(TranspilerContext sb, Expression haystack, Expression needle)
+        public override StringBuffer TranslateStringContains(Expression haystack, Expression needle)
         {
-            this.TranslateExpression(sb, haystack);
-            sb.Append(".contains(");
-            this.TranslateExpression(sb, needle);
-            sb.Append(')');
+            return this.TranslateExpression(haystack)
+                .Push(".contains(")
+                .Push(this.TranslateExpression(needle))
+                .Push(')');
         }
 
-        public override void TranslateStringEndsWith(TranspilerContext sb, Expression haystack, Expression needle)
+        public override StringBuffer TranslateStringEndsWith(Expression haystack, Expression needle)
         {
-            this.TranslateExpression(sb, haystack);
-            sb.Append(".endsWith(");
-            this.TranslateExpression(sb, needle);
-            sb.Append(')');
+            return this.TranslateExpression(haystack)
+                .Push(".endsWith(")
+                .Push(this.TranslateExpression(needle))
+                .Push(')');
         }
 
-        public override void TranslateStringEquals(TranspilerContext sb, Expression left, Expression right)
+        public override StringBuffer TranslateStringEquals(Expression left, Expression right)
         {
-            this.TranslateExpression(sb, left);
-            sb.Append(".equals(");
-            this.TranslateExpression(sb, right);
-            sb.Append(')');
+            return this.TranslateExpression(left)
+                .Push(".equals(")
+                .Push(this.TranslateExpression(right))
+                .Push(')');
         }
 
-        public override void TranslateStringFromCharCode(TranspilerContext sb, Expression charCode)
+        public override StringBuffer TranslateStringFromCharCode(Expression charCode)
         {
-            sb.Append("Character.toString((char) ");
-            this.TranslateExpression(sb, charCode);
-            sb.Append(")");
+            return StringBuffer
+                .Of("Character.toString((char) ")
+                .Push(this.TranslateExpression(charCode))
+                .Push(")");
         }
 
-        public override void TranslateStringIndexOf(TranspilerContext sb, Expression haystack, Expression needle)
+        public override StringBuffer TranslateStringIndexOf(Expression haystack, Expression needle)
         {
-            this.TranslateExpression(sb, haystack);
-            sb.Append(".indexOf(");
-            this.TranslateExpression(sb, needle);
-            sb.Append(')');
+            return this.TranslateExpression(haystack)
+                .Push(".indexOf(")
+                .Push(this.TranslateExpression(needle))
+                .Push(')');
         }
 
-        public override void TranslateStringIndexOfWithStart(TranspilerContext sb, Expression haystack, Expression needle, Expression startIndex)
+        public override StringBuffer TranslateStringIndexOfWithStart(Expression haystack, Expression needle, Expression startIndex)
         {
-            this.TranslateExpression(sb, haystack);
-            sb.Append(".indexOf(");
-            this.TranslateExpression(sb, needle);
-            sb.Append(", ");
-            this.TranslateExpression(sb, startIndex);
-            sb.Append(')');
+            return this.TranslateExpression(haystack)
+                .Push(".indexOf(")
+                .Push(this.TranslateExpression(needle))
+                .Push(", ")
+                .Push(this.TranslateExpression(startIndex))
+                .Push(')');
         }
 
-        public override void TranslateStringLastIndexOf(TranspilerContext sb, Expression haystack, Expression needle)
+        public override StringBuffer TranslateStringLastIndexOf(Expression haystack, Expression needle)
         {
-            this.TranslateExpression(sb, haystack);
-            sb.Append(".lastIndexOf(");
-            this.TranslateExpression(sb, needle);
-            sb.Append(')');
+            return this.TranslateExpression(haystack)
+                .Push(".lastIndexOf(")
+                .Push(this.TranslateExpression(needle))
+                .Push(')');
         }
 
-        public override void TranslateStringLength(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStringLength(Expression str)
         {
-            this.TranslateExpression(sb, str);
-            sb.Append(".length()");
+            return this.TranslateExpression(str)
+                .Push(".length()");
         }
 
-        public override void TranslateStringReplace(TranspilerContext sb, Expression haystack, Expression needle, Expression newNeedle)
+        public override StringBuffer TranslateStringReplace(Expression haystack, Expression needle, Expression newNeedle)
         {
-            this.TranslateExpression(sb, haystack);
-            sb.Append(".replace((CharSequence) ");
-            this.TranslateExpression(sb, needle);
-            sb.Append(", (CharSequence) ");
-            this.TranslateExpression(sb, newNeedle);
-            sb.Append(')');
+            return this.TranslateExpression(haystack)
+                .Push(".replace((CharSequence) ")
+                .Push(this.TranslateExpression(needle))
+                .Push(", (CharSequence) ")
+                .Push(this.TranslateExpression(newNeedle))
+                .Push(')');
         }
 
-        public override void TranslateStringReverse(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStringReverse(Expression str)
         {
-            sb.Append("PST_reverseString(");
-            this.TranslateExpression(sb, str);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_reverseString(")
+                .Push(this.TranslateExpression(str))
+                .Push(')');
         }
 
-        public override void TranslateStringSplit(TranspilerContext sb, Expression haystack, Expression needle)
+        public override StringBuffer TranslateStringSplit(Expression haystack, Expression needle)
         {
-            sb.Append("PST_literalStringSplit(");
-            this.TranslateExpression(sb, haystack);
-            sb.Append(", ");
-            this.TranslateExpression(sb, needle);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_literalStringSplit(")
+                .Push(this.TranslateExpression(haystack))
+                .Push(", ")
+                .Push(this.TranslateExpression(needle))
+                .Push(')');
         }
 
-        public override void TranslateStringStartsWith(TranspilerContext sb, Expression haystack, Expression needle)
+        public override StringBuffer TranslateStringStartsWith(Expression haystack, Expression needle)
         {
-            this.TranslateExpression(sb, haystack);
-            sb.Append(".startsWith(");
-            this.TranslateExpression(sb, needle);
-            sb.Append(')');
+            return this.TranslateExpression(haystack)
+                .Push(".startsWith(")
+                .Push(this.TranslateExpression(needle))
+                .Push(')');
         }
 
-        public override void TranslateStringSubstring(TranspilerContext sb, Expression str, Expression start, Expression length)
+        public override StringBuffer TranslateStringSubstring(Expression str, Expression start, Expression length)
         {
-            this.TranslateExpression(sb, str);
-            sb.Append(".substring(");
-            this.TranslateExpression(sb, start);
-            sb.Append(", ");
-            this.TranslateExpression(sb, start);
-            sb.Append(" + ");
-            this.TranslateExpression(sb, length);
-            sb.Append(')');
+            return this.TranslateExpression(str)
+                .Push(".substring(")
+                .Push(this.TranslateExpression(start))
+                .Push(", ")
+                .Push(this.TranslateExpression(start))
+                .Push(" + ")
+                .Push(this.TranslateExpression(length))
+                .Push(')');
         }
 
-        public override void TranslateStringSubstringIsEqualTo(TranspilerContext sb, Expression haystack, Expression startIndex, Expression needle)
+        public override StringBuffer TranslateStringSubstringIsEqualTo(Expression haystack, Expression startIndex, Expression needle)
         {
-            sb.Append("PST_checkStringInString(");
-            this.TranslateExpression(sb, haystack);
-            sb.Append(", ");
-            this.TranslateExpression(sb, startIndex);
-            sb.Append(", ");
-            this.TranslateExpression(sb, needle);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_checkStringInString(")
+                .Push(this.TranslateExpression(haystack))
+                .Push(", ")
+                .Push(this.TranslateExpression(startIndex))
+                .Push(", ")
+                .Push(this.TranslateExpression(needle))
+                .Push(')');
         }
 
-        public override void TranslateStringToLower(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStringToLower(Expression str)
         {
-            this.TranslateExpression(sb, str);
-            sb.Append(".toLowerCase()");
+            return this.TranslateExpression(str)
+                .Push(".toLowerCase()");
         }
 
-        public override void TranslateStringToUpper(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStringToUpper(Expression str)
         {
-            this.TranslateExpression(sb, str);
-            sb.Append(".toUpperCase()");
+            return this.TranslateExpression(str)
+                .Push(".toUpperCase()");
         }
 
-        public override void TranslateStringToUtf8Bytes(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStringToUtf8Bytes(Expression str)
         {
-            sb.Append("PST_stringToUtf8Bytes(");
-            this.TranslateExpression(sb, str);
-            sb.Append(')');
+            return StringBuffer
+                .Of("PST_stringToUtf8Bytes(")
+                .Push(this.TranslateExpression(str))
+                .Push(')');
         }
 
-        public override void TranslateStringTrim(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStringTrim(Expression str)
         {
-            this.TranslateExpression(sb, str);
-            sb.Append(".trim()");
+            return this.TranslateExpression(str)
+                .Push(".trim()");
         }
 
-        public override void TranslateStringTrimEnd(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStringTrimEnd(Expression str)
         {
-            sb.Append("PST_trimSide(");
-            this.TranslateExpression(sb, str);
-            sb.Append(", false)");
+            return StringBuffer
+                .Of("PST_trimSide(")
+                .Push(this.TranslateExpression(str))
+                .Push(", false)");
         }
 
-        public override void TranslateStringTrimStart(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStringTrimStart(Expression str)
         {
-            sb.Append("PST_trimSide(");
-            this.TranslateExpression(sb, str);
-            sb.Append(", true)");
+            return StringBuffer
+                .Of("PST_trimSide(")
+                .Push(this.TranslateExpression(str))
+                .Push(", true)");
         }
 
-        public override void TranslateStringBuilderAdd(TranspilerContext sb, Expression sbInst, Expression obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void TranslateStringBuilderClear(TranspilerContext sb, Expression sbInst)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void TranslateStringBuilderNew(TranspilerContext sb)
+        public override StringBuffer TranslateStringBuilderAdd(Expression sbInst, Expression obj)
         {
             throw new NotImplementedException();
         }
 
-        public override void TranslateStringBuilderToString(TranspilerContext sb, Expression sbInst)
+        public override StringBuffer TranslateStringBuilderClear(Expression sbInst)
         {
             throw new NotImplementedException();
         }
 
-        public override void TranslateStrongReferenceEquality(TranspilerContext sb, Expression left, Expression right)
+        public override StringBuffer TranslateStringBuilderNew()
         {
             throw new NotImplementedException();
         }
 
-        public override void TranslateStructFieldDereference(TranspilerContext sb, Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
-        {
-            this.TranslateExpression(sb, root);
-            sb.Append('.');
-            sb.Append(fieldName);
-        }
-
-        public override void TranslateThis(TranspilerContext sb, ThisExpression thisExpr)
+        public override StringBuffer TranslateStringBuilderToString(Expression sbInst)
         {
             throw new NotImplementedException();
         }
 
-        public override void TranslateToCodeString(TranspilerContext sb, Expression str)
+        public override StringBuffer TranslateStrongReferenceEquality(Expression left, Expression right)
         {
             throw new NotImplementedException();
         }
 
-        public override void TranslateTryParseFloat(TranspilerContext sb, Expression stringValue, Expression floatOutList)
+        public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
-            sb.Append("PST_parseFloatOrReturnNull(");
-            this.TranslateExpression(sb, floatOutList);
-            sb.Append(", ");
-            this.TranslateExpression(sb, stringValue);
-            sb.Append(')');
+            return this.TranslateExpression(root)
+                .Push('.')
+                .Push(fieldName);
         }
 
-        public override void TranslateUtf8BytesToString(TranspilerContext sb, Expression bytes)
+        public override StringBuffer TranslateThis(ThisExpression thisExpr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override StringBuffer TranslateToCodeString(Expression str)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override StringBuffer TranslateTryParseFloat(Expression stringValue, Expression floatOutList)
+        {
+            return StringBuffer
+                .Of("PST_parseFloatOrReturnNull(")
+                .Push(this.TranslateExpression(floatOutList))
+                .Push(", ")
+                .Push(this.TranslateExpression(stringValue))
+                .Push(')');
+        }
+
+        public override StringBuffer TranslateUtf8BytesToString(Expression bytes)
         {
             throw new NotImplementedException();
         }
@@ -1090,7 +1131,7 @@ namespace Pastel.Transpilers
             if (varDecl.Value != null)
             {
                 sb.Append(" = ");
-                this.TranslateExpression(sb, varDecl.Value);
+                sb.Append(this.TranslateExpressionAsString(varDecl.Value));
             }
             sb.Append(";\n");
         }
