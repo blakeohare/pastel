@@ -257,7 +257,6 @@ namespace Pastel.Transpilers
                 if (!allSame) isShortCircuit = true;
             }
 
-
             if (isShortCircuit)
             {
                 // For shortcircuit operators, paren wrapping should start from the back.

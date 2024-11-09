@@ -18,6 +18,7 @@ namespace Pastel.Transpilers
         BITWISE = 30,
         EQUALITY = 40,
         INEQUALITY = 50,
+        PHP_STRING_CONCAT = 55,
         BITSHIFT = 60,
         ADDITION = 70,
         MULTIPLICATION = 80,
