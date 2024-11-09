@@ -144,11 +144,13 @@ public static void PST_RegisterExtensibleCallback(string name, System.Func<objec
 }
 
 // PASTEL_ENTITY_ID: PST_stringToUtf8Bytes
-private static int[] PST_stringToUtf8Bytes(string str) {
+private static int[] PST_stringToUtf8Bytes(string str)
+{
     byte[] bytes = System.Text.Encoding.UTF8.GetBytes(str);
     int len = bytes.Length;
     int[] output = new int[len];
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++)
+    {
         output[i] = ((int)bytes[i]) & 255;
     }
     return output;

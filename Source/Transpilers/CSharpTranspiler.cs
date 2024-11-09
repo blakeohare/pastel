@@ -204,7 +204,7 @@ namespace Pastel.Transpilers
             return StringBuffer
                 .Of("(")
                 .Push(this.TranslateType(type))
-                .Push(") ")
+                .Push(")")
                 .Push(this.TranslateExpression(expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
@@ -228,7 +228,7 @@ namespace Pastel.Transpilers
         {
             return this.TranslateExpression(charCode)
                 .EnsureTightness(ExpressionTightness.UNARY_PREFIX)
-                .Prepend("(char) ")
+                .Prepend("(char)")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
@@ -377,7 +377,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateFloatToInt(Expression floatExpr)
         {
-            return StringBuffer.Of("(int) ")
+            return StringBuffer.Of("(int)")
                 .Push(this.TranslateExpression(floatExpr).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
@@ -686,7 +686,7 @@ namespace Pastel.Transpilers
 
             return this.TranslateExpression(charValue)
                 .EnsureTightness(ExpressionTightness.UNARY_PREFIX)
-                .Prepend("(int) ")
+                .Prepend("(int)")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
@@ -758,7 +758,7 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateStringCharCodeAt(Expression str, Expression index)
         {
             return StringBuffer
-                .Of("(int) ")
+                .Of("(int)")
                 .Push(this.TranslateExpression(str).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("[")
                 .Push(this.TranslateExpression(index))
@@ -830,7 +830,7 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateStringFromCharCode(Expression charCode)
         {
             return StringBuffer
-                .Of("((char) ")
+                .Of("((char)")
                 .Push(this.TranslateExpression(charCode).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .Push(").ToString()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
