@@ -7,7 +7,14 @@ namespace Pastel.Transpilers
     {
         UNKNOWN = -1,
         TERNARY = 10,
+        PYTHON_NOT = 15,
+        PYTHON_OR = 17,
+        PYTHON_AND = 18,
+        PYTHON_COMPARE = 19,
         BOOLEAN_LOGIC = 20,
+        PYTHON_BITWISE_OR = 25,
+        PYTHON_BITWISE_AND = 26,
+        PYTHON_BITWISE_XOR = 27,
         BITWISE = 30,
         EQUALITY = 40,
         INEQUALITY = 50,
@@ -16,6 +23,7 @@ namespace Pastel.Transpilers
         MULTIPLICATION = 80,
         UNARY_PREFIX = 90,
         UNARY_SUFFIX = 91,
+        PYTHON_EXPONENT = 95,
         SUFFIX_SEQUENCE = 100,
         ATOMIC = 999,
     }
