@@ -100,6 +100,15 @@ namespace Pastel.Transpilers
                         .Select(t => "using " + t + ";")
                         .Concat(new string[] { "" }));
             }
+
+            for (int i = 0; i < lines.Count; i++)
+            {
+                string trimmedLine = lines[i].Trim();
+                if (trimmedLine.StartsWith("#pragma warning disable"))
+                {
+                    lines[i] = trimmedLine;
+                }
+            }
         }
 
         public override StringBuffer TranslatePrintStdErr(Expression value)
