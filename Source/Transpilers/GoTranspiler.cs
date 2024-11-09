@@ -68,9 +68,9 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
             return this.TranslateExpression(array)
-                .Push('[')
+                .Push("[")
                 .Push(this.TranslateExpression(index))
-                .Push(']');
+                .Push("]");
         }
 
         public override StringBuffer TranslateArrayJoin(Expression array, Expression sep)
@@ -280,13 +280,13 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args)
         {
             StringBuffer buf = this.TranslateExpression(funcRef)
-                .Push('(');
+                .Push("(");
             for (int i = 0; i < args.Length; i++)
             {
                 if (i > 0) buf.Push(", ");
                 buf.Push(this.TranslateExpression(args[i]));
             }
-            return buf.Push(')');
+            return buf.Push(")");
         }
 
         public override StringBuffer TranslateFunctionReference(FunctionReference funcRef)
@@ -468,7 +468,7 @@ namespace Pastel.Transpilers
                 .Push(this.TranslateExpression(expBase))
                 .Push(", ")
                 .Push(this.TranslateExpression(exponent))
-                .Push(')');
+                .Push(")");
         }
 
         public override StringBuffer TranslateMathSin(Expression thetaRadians)
@@ -526,16 +526,16 @@ namespace Pastel.Transpilers
             {
                 if (i > 0)
                 {
-                    buf.Push(' ').Push(opChain.Ops[i - 1].Value).Push(' ');
+                    buf.Push(" ").Push(opChain.Ops[i - 1].Value).Push(" ");
                 }
                 Expression expr = opChain.Expressions[i];
                 bool convertToFloat = doIntToFloatConversion && expr.ResolvedType.RootValue == "int";
                 buf
                     .Push(convertToFloat ? "float64(" : "(")
                     .Push(this.TranslateExpression(opChain.Expressions[i]))
-                    .Push(')');
+                    .Push(")");
             }
-            return buf.Push(')');
+            return buf.Push(")");
         }
 
         public override StringBuffer TranslateParseFloatUnsafe(Expression stringValue)

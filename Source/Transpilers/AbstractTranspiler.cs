@@ -243,13 +243,13 @@ namespace Pastel.Transpilers
         public virtual StringBuffer TranslateFunctionPointerInvocation(FunctionPointerInvocation fpi)
         {
             StringBuffer sb = this.TranslateExpression(fpi.Root);
-            sb.Push('(');
+            sb.Push("(");
             for (int i = 0; i < fpi.Args.Length; ++i)
             {
                 if (i > 0) sb.Push(", ");
                 sb.Push(this.TranslateExpression(fpi.Args[i]));
             }
-            sb.Push(')');
+            sb.Push(")");
             return sb;
         }
 

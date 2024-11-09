@@ -1075,9 +1075,9 @@ namespace Pastel.Transpilers
         {
             return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                .Push('[')
+                .Push("[")
                 .Push(this.TranslateExpression(start))
-                .Push(':')
+                .Push(":")
                 .Push(
                     this.TranslateExpression(start).EnsureTightness(ExpressionTightness.ADDITION)
                     .Push(" + ")

@@ -131,7 +131,7 @@ namespace Pastel.Transpilers
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("->arr[")
                 .Push(this.TranslateExpression(index))
-                .Push(']')
+                .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -227,7 +227,7 @@ namespace Pastel.Transpilers
                 StringBuffer buf = StringBuffer
                     .Of("new ")
                     .Push(constructorInvocation.StructDefinition.NameToken.Value)
-                    .Push('(');
+                    .Push("(");
                 Expression[] args = constructorInvocation.Args;
                 for (int i = 0; i < args.Length; ++i)
                 {

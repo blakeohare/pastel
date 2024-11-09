@@ -62,7 +62,6 @@ namespace Pastel.Transpilers
             return this;
         }
 
-        public StringBuffer Push(char c) { return this.Push(c + ""); }
         public StringBuffer Push(string value) { return this.Push(new StringBuffer() { Value = value }); }
         public StringBuffer Push(StringBuffer value)
         {

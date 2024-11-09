@@ -68,9 +68,9 @@ namespace Pastel.Transpilers
         {
             return this.TranslateFunctionReference(funcRef)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                .Push('(')
+                .Push("(")
                 .Push(this.TranslateCommaDelimitedExpressions(args))
-                .Push(')')
+                .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -268,9 +268,9 @@ namespace Pastel.Transpilers
                         .EnsureGreaterTightness(ExpressionTightness.BOOLEAN_LOGIC);
 
                     acc = next
-                        .Push(' ')
+                        .Push(" ")
                         .Push(op)
-                        .Push(' ')
+                        .Push(" ")
                         .Push(acc.EnsureGreaterTightness(opTightness))
                         .WithTightness(opTightness);
                 }
