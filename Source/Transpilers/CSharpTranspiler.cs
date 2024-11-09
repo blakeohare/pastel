@@ -429,7 +429,7 @@ namespace Pastel.Transpilers
             if (integer is InlineConstant) throw new InvalidOperationException(); // and assert as such
 
             return this.TranslateExpression(integer)
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToString()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
