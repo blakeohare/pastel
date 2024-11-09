@@ -107,7 +107,7 @@ namespace Pastel.Transpilers
 
         public string TranslateExpressionAsString(Expression expression)
         {
-            return StringBuffer.Flatten(this.TranslateExpression(expression));
+            return this.TranslateExpression(expression).Flatten();
         }
 
         public StringBuffer TranslateExpression(Expression expression)

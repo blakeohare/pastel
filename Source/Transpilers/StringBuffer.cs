@@ -96,13 +96,12 @@ namespace Pastel.Transpilers
             return this;
         }
 
-        public static string Flatten(StringBuffer b)
+        public string Flatten()
         {
-            if (b == null) return "";
-            if (b.IsLeaf) return b.Value!;
+            if (this.IsLeaf) return this.Value!;
             StringBuilder sb = new StringBuilder();
             Stack<StringBuffer> stack = new Stack<StringBuffer>();
-            stack.Push(b);
+            stack.Push(this);
             while (stack.Count > 0)
             {
                 StringBuffer current = stack.Pop();

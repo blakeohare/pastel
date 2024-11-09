@@ -350,7 +350,7 @@ namespace Pastel.Transpilers
                 keyVar = "$_PST_dictKey" + this.transpilerCtx.SwitchCounter++;
                 sb.Append(keyVar);
                 sb.Append(" = ");
-                sb.Append(StringBuffer.Flatten(TranslateDictionaryKeyExpression(key)));
+                sb.Append(this.TranslateDictionaryKeyExpression(key).Flatten());
                 sb.Append(";\n");
                 sb.Append(sb.CurrentTab);
             }
@@ -358,22 +358,22 @@ namespace Pastel.Transpilers
             sb.Append('$');
             sb.Append(varOut.Name);
             sb.Append(" = isset(");
-            sb.Append(StringBuffer.Flatten(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)));
+            sb.Append(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE).Flatten());
             sb.Append("->arr[");
             if (keyExpressionIsSimple)
             {
-                sb.Append(StringBuffer.Flatten(TranslateDictionaryKeyExpression(key)));
+                sb.Append(this.TranslateDictionaryKeyExpression(key).Flatten());
             }
             else
             {
                 sb.Append(keyVar);
             }
             sb.Append("]) ? ");
-            sb.Append(StringBuffer.Flatten(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)));
+            sb.Append(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE).Flatten());
             sb.Append("->arr[");
             if (keyExpressionIsSimple)
             {
-                sb.Append(StringBuffer.Flatten(TranslateDictionaryKeyExpression(key)));
+                sb.Append(this.TranslateDictionaryKeyExpression(key).Flatten());
             }
             else
             {
