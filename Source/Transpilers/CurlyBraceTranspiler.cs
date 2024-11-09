@@ -34,7 +34,8 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("!")
-                .Push(this.TranslateExpression(unaryOp.Expression));
+                .Push(this.TranslateExpression(unaryOp.Expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override void TranslateBreak(TranspilerContext sb)
