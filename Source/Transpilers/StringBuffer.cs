@@ -7,8 +7,17 @@ namespace Pastel.Transpilers
     {
         UNKNOWN = -1,
         TERNARY = 10,
-        SUFFIX_SEQUENCE = 20,
-        ATOMIC = 30,
+        BOOLEAN_LOGIC = 20,
+        BITWISE = 30,
+        EQUALITY = 40,
+        INEQUALITY = 50,
+        BITSHIFT = 60,
+        ADDITION = 70,
+        MULTIPLICATION = 80,
+        UNARY_PREFIX = 90,
+        UNARY_SUFFIX = 91,
+        SUFFIX_SEQUENCE = 100,
+        ATOMIC = 999,
     }
 
     internal class StringBuffer
@@ -30,6 +39,20 @@ namespace Pastel.Transpilers
             return this;
         }
 
+        public StringBuffer EnsureTightness(ExpressionTightness tightness) { return this.EnsureTightnessImpl(tightness, true); }
+        public StringBuffer EnsureGreaterTightness(ExpressionTightness tightness) { return this.EnsureTightnessImpl(tightness, false); }
+
+        private StringBuffer EnsureTightnessImpl(ExpressionTightness tightness, bool tieOkay)
+        {
+            if (this.Tightness > (int)tightness) return this;
+            if (tieOkay && this.Tightness == (int)tightness) return this;
+
+            this.Prepend("(").Push(")");
+            this.Tightness = (int)ExpressionTightness.ATOMIC;
+
+            return this;
+        }
+
         public StringBuffer Push(char c) { return this.Push(c + ""); }
         public StringBuffer Push(string value) { return this.Push(new StringBuffer() { Value = value }); }
         public StringBuffer Push(StringBuffer value)
@@ -44,6 +67,7 @@ namespace Pastel.Transpilers
                 this.Right = value;
                 this.Value = null;
             }
+            this.Tightness = (int)ExpressionTightness.UNKNOWN;
             return this;
         }
 
@@ -60,14 +84,8 @@ namespace Pastel.Transpilers
                 this.Value = null;
                 this.Left = value;
             }
+            this.Tightness = (int)ExpressionTightness.UNKNOWN;
             return this;
-        }
-
-        public StringBuffer Wrap(string prefix, string suffix)
-        {
-            return this
-                .Prepend(new StringBuffer() { Value = prefix })
-                .Push(new StringBuffer() { Value = suffix });
         }
 
         public static string Flatten(StringBuffer b)

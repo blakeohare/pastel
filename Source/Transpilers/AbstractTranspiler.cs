@@ -222,7 +222,8 @@ namespace Pastel.Transpilers
                 case "ForcedParenthesis":
                     // TODO: operator precedence detection should be robust enough to remove this entirely.
                     return this.TranslateExpression(((ForcedParenthesis)expression).Expression)
-                        .Wrap("(", ")")
+                        .Prepend("(")
+                        .Push(")")
                         .WithTightness(ExpressionTightness.ATOMIC);
 
             }

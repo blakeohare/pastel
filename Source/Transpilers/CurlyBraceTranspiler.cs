@@ -59,20 +59,26 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateFloatConstant(double value)
         {
-            return StringBuffer.Of(CodeUtil.FloatToString(value));
+            return StringBuffer
+                .Of(CodeUtil.FloatToString(value))
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args)
         {
             return this.TranslateFunctionReference(funcRef)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push('(')
                 .Push(this.TranslateCommaDelimitedExpressions(args))
-                .Push(')');
+                .Push(')')
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateFunctionReference(FunctionReference funcRef)
         {
-            return StringBuffer.Of(funcRef.Function.NameToken.Value);
+            return StringBuffer
+                .Of(funcRef.Function.NameToken.Value)
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement)
@@ -154,40 +160,139 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition)
         {
-            StringBuffer buf = StringBuffer.Of("");
-            if (isPrefix) buf.Push(isAddition ? "++" : "--");
-            buf.Push(this.TranslateExpression(innerExpression));
-            if (!isPrefix) buf.Push(isAddition ? "++" : "--");
-            return buf;
+            StringBuffer root = this.TranslateExpression(innerExpression);
+            string op = isAddition ? "++" : "--";
+            if (isPrefix)
+            {
+                return root
+                    .EnsureTightness(ExpressionTightness.UNARY_PREFIX)
+                    .Prepend(op)
+                    .WithTightness(ExpressionTightness.UNARY_PREFIX);
+            }
+            else
+            {
+                return root
+                    .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                    .Push(op)
+                    .WithTightness(ExpressionTightness.UNARY_SUFFIX);
+            }
         }
 
         public override StringBuffer TranslateIntegerConstant(int value)
         {
-            return StringBuffer.Of(value.ToString());
+            return StringBuffer
+                .Of(value.ToString())
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateNegative(UnaryOp unaryOp)
         {
             return StringBuffer
                 .Of("-")
-                .Push(this.TranslateExpression(unaryOp.Expression));
+                .Push(this.TranslateExpression(unaryOp.Expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .WithTightness(ExpressionTightness.UNARY_PREFIX);
+        }
+
+        private ExpressionTightness GetTightnessOfOp(string op)
+        {
+            switch (op)
+            {
+                case "&&":
+                case "||":
+                    return ExpressionTightness.BOOLEAN_LOGIC;
+
+                case "+":
+                case "-":
+                    return ExpressionTightness.ADDITION;
+
+                case "&":
+                case "|":
+                case "^":
+                    return ExpressionTightness.BITWISE;
+
+                case "<<":
+                case ">>":
+                    return ExpressionTightness.BITSHIFT;
+
+                case "*":
+                case "/":
+                case "%":
+                    return ExpressionTightness.MULTIPLICATION;
+
+                case "==":
+                case "!=":
+                    return ExpressionTightness.EQUALITY;
+
+                case "<":
+                case ">":
+                case ">=":
+                case "<=":
+                    return ExpressionTightness.INEQUALITY;
+
+                default:
+                    throw new System.NotImplementedException();
+            }
         }
 
         public override StringBuffer TranslateOpChain(OpChain opChain)
         {
-            StringBuffer buf = StringBuffer.Of("(");
-            for (int i = 0; i < opChain.Expressions.Length; ++i)
+            StringBuffer acc;
+            string firstOp = opChain.Ops[0].Value;
+            ExpressionTightness opTightness = GetTightnessOfOp(firstOp);
+            int expressionLength = opChain.Expressions.Length;
+            int opLength = expressionLength - 1;
+            bool isShortCircuit = false;
+            if (firstOp == "&&" || firstOp == "||")
             {
-                if (i > 0)
+                bool allSame = true;
+                for (int i = 1; i < opLength; i++)
                 {
-                    buf
-                        .Push(' ')
-                        .Push(opChain.Ops[i - 1].Value)
-                        .Push(' ');
+                    if (opChain.Ops[i].Value != firstOp)
+                    {
+                        allSame = false;
+                        break;
+                    }
                 }
-                buf.Push(this.TranslateExpression(opChain.Expressions[i]));
+
+                if (!allSame) isShortCircuit = true;
             }
-            return buf.Push(')');
+
+
+            if (isShortCircuit)
+            {
+                // For shortcircuit operators, paren wrapping should start from the back.
+                acc = this.TranslateExpression(opChain.Expressions[expressionLength - 1]);
+                for (int i = expressionLength - 2; i >= 0; i--)
+                {
+                    string op = opChain.Ops[i].Value;
+                    StringBuffer next = this.TranslateExpression(opChain.Expressions[i])
+                        .EnsureGreaterTightness(ExpressionTightness.BOOLEAN_LOGIC);
+
+                    acc = next
+                        .Push(' ')
+                        .Push(op)
+                        .Push(' ')
+                        .Push(acc.EnsureGreaterTightness(opTightness))
+                        .WithTightness(opTightness);
+                }
+            }
+            else
+            {
+                acc = this.TranslateExpression(opChain.Expressions[0]);
+                for (int i = 1; i < expressionLength; i++)
+                {
+                    string op = opChain.Ops[i - 1].Value;
+                    acc
+                        .EnsureTightness(opTightness)
+                        .Push(" ")
+                        .Push(op)
+                        .Push(" ")
+                        .Push(this.TranslateExpression(opChain.Expressions[i]).EnsureGreaterTightness(opTightness))
+                        .WithTightness(opTightness);
+                }
+            }
+
+            return acc;
         }
 
         public override void TranslateReturnStatemnt(TranspilerContext sb, ReturnStatement returnStatement)
@@ -204,7 +309,9 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringConstant(string value)
         {
-            return StringBuffer.Of(CodeUtil.ConvertStringValueToCode(value));
+            return StringBuffer
+                .Of(CodeUtil.ConvertStringValueToCode(value))
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement)
@@ -257,7 +364,9 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateVariable(Variable variable)
         {
-            return StringBuffer.Of(variable.Name);
+            return StringBuffer
+                .Of(variable.Name)
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override void TranslateWhileLoop(TranspilerContext sb, WhileLoop whileLoop)
