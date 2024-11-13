@@ -214,9 +214,9 @@ namespace Pastel.Parser
             switch (firstChar)
             {
                 case '\'':
-                    return new InlineConstant(PType.CHAR, tokens.Pop(), CodeUtil.ConvertStringTokenToValue(next), this.parser.ActiveEntity);
+                    return new InlineConstant(PType.CHAR, tokens.Pop(), CodeUtil.ConvertStringTokenToValue(nextToken, next), this.parser.ActiveEntity);
                 case '"':
-                    return new InlineConstant(PType.STRING, tokens.Pop(), CodeUtil.ConvertStringTokenToValue(next), this.parser.ActiveEntity);
+                    return new InlineConstant(PType.STRING, tokens.Pop(), CodeUtil.ConvertStringTokenToValue(nextToken, next), this.parser.ActiveEntity);
                 case '@':
                     Token atToken = tokens.PopExpected("@");
                     Token compileTimeFunction = EnsureTokenIsValidName(tokens.Pop(), "Expected compile time function name.");

@@ -158,7 +158,7 @@ namespace Pastel.Parser
                     Token stringToken = tokens.Pop();
                     tokens.PopExpected(")");
                     tokens.PopExpected(";");
-                    sourceFile = CodeUtil.ConvertStringTokenToValue(stringToken.Value);
+                    sourceFile = CodeUtil.ConvertStringTokenToValue(stringToken, stringToken.Value);
                     break;
 
                 case "importIfTrue":
@@ -166,7 +166,7 @@ namespace Pastel.Parser
                     tokens.Pop();
                     tokens.PopExpected("(");
                     Token constantExpression = tokens.Pop();
-                    string constantValue = CodeUtil.ConvertStringTokenToValue(constantExpression.Value);
+                    string constantValue = CodeUtil.ConvertStringTokenToValue(constantExpression, constantExpression.Value);
                     tokens.PopExpected(",");
                     Token pathToken = tokens.Pop();
                     tokens.PopExpected(")");
@@ -181,7 +181,7 @@ namespace Pastel.Parser
 
                     if (valueBool)
                     {
-                        sourceFile = CodeUtil.ConvertStringTokenToValue(pathToken.Value);
+                        sourceFile = CodeUtil.ConvertStringTokenToValue(pathToken, pathToken.Value);
                     }
                     break;
 

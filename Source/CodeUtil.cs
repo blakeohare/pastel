@@ -1,6 +1,8 @@
-﻿using Pastel.Transpilers;
+﻿using Pastel.Parser;
+using Pastel.Transpilers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Pastel
 {
@@ -91,33 +93,40 @@ namespace Pastel
             return string.Join("", output);
         }
 
-        public static string ConvertStringTokenToValue(string tokenValue)
+        private static Dictionary<char, char> ESCAPE_SEQUENCE_LOOKUP = new Dictionary<char, char>() {
+            { '\\', '\\' },
+            { 'n', '\n' },
+            { 'r', '\r' },
+            { 't', '\t' },
+            { '\'', '\'' },
+            { '"', '"' },
+            { '0', '\0' },
+        };
+        public static string ConvertStringTokenToValue(Token throwToken, string tokenValue)
         {
-            List<string> output = new List<string>();
-            for (int i = 1; i < tokenValue.Length - 1; ++i)
+            StringBuilder output = new StringBuilder();
+            
+            // skip quote marks
+            int start = 1;
+            int end = tokenValue.Length - 1;
+            
+            for (int i = start; i < end; ++i)
             {
                 char c = tokenValue[i];
-                if (c == '\\')
+
+                // Don't have to worry about this '\' occuring as the last character escaping the end quote as
+                // this would have tripped up the tokenizer.
+                if (c == '\\') 
                 {
-                    c = tokenValue[++i];
-                    switch (c)
+                    if (!ESCAPE_SEQUENCE_LOOKUP.TryGetValue(tokenValue[++i], out char escChar))
                     {
-                        case '\\': output.Add("\\"); break;
-                        case 'n': output.Add("\n"); break;
-                        case 'r': output.Add("\r"); break;
-                        case 't': output.Add("\t"); break;
-                        case '\'': output.Add("'"); break;
-                        case '"': output.Add("\""); break;
-                        case '0': output.Add("\0"); break;
-                        default: return null;
+                        throw new ParserException(throwToken, "Invalid escape sequence in string constant.");
                     }
+                    c = escChar;
                 }
-                else
-                {
-                    output.Add("" + c);
-                }
+                output.Append(c);
             }
-            return string.Join("", output);
+            return output.ToString();
         }
 
         /// <summary>
