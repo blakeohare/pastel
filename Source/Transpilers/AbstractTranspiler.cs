@@ -184,7 +184,7 @@ namespace Pastel.Transpilers
                     string fieldName = df.FieldName.Value;
                     if (structDef != null)
                     {
-                        int fieldIndex = structDef.FlatFieldIndexByName[fieldName];
+                        int fieldIndex = structDef.FieldIndexByName[fieldName];
                         return this.TranslateStructFieldDereference(df.Root, structDef, fieldName, fieldIndex);
                     }
                     throw new InvalidOperationException(); // should have been thrown by the compiler

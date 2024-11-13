@@ -1126,10 +1126,9 @@ namespace Pastel.Transpilers
             sb.Append(" {\n");
             sb.TabDepth++;
 
-            string[] localNames = structDef.LocalFieldNames.Select(a => a.Value).ToArray();
-            string[] flatNames = structDef.FlatFieldNames.Select(a => a.Value).ToArray();
+            string[] fieldNames = structDef.FieldNames.Select(a => a.Value).ToArray();
 
-            foreach (string fieldName in flatNames)
+            foreach (string fieldName in fieldNames)
             {
                 sb.Append(sb.CurrentTab);
                 sb.Append("var $");
@@ -1138,7 +1137,7 @@ namespace Pastel.Transpilers
             }
             sb.Append(sb.CurrentTab);
             sb.Append("function __construct(");
-            for (int i = 0; i < flatNames.Length; ++i)
+            for (int i = 0; i < fieldNames.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
                 sb.Append("$a");
@@ -1146,11 +1145,11 @@ namespace Pastel.Transpilers
             }
             sb.Append(") {\n");
             sb.TabDepth++;
-            for (int i = 0; i < flatNames.Length; ++i)
+            for (int i = 0; i < fieldNames.Length; ++i)
             {
                 sb.Append(sb.CurrentTab);
                 sb.Append("$this->");
-                sb.Append(flatNames[i]);
+                sb.Append(fieldNames[i]);
                 sb.Append(" = $a");
                 sb.Append(i);
                 sb.Append(";\n");

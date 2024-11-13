@@ -1,5 +1,4 @@
 ﻿using Pastel.Parser.ParseNodes;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,25 +30,24 @@ namespace Pastel.Parser
             this.structDefinitions = structDefinitions;
         }
 
-        public EnumDefinition GetEnumDefinition(string name)
+        public EnumDefinition? GetEnumDefinition(string name)
         {
-            return this.enumDefinitions.TryGetValue(name, out EnumDefinition val) ? val : null;
+            return this.enumDefinitions.TryGetValue(name, out EnumDefinition? val) ? val : null;
         }
 
-        public FunctionDefinition GetFunctionDefinition(string name)
+        public FunctionDefinition? GetFunctionDefinition(string name)
         {
-            return this.functionDefinitions.TryGetValue(name, out FunctionDefinition fd) ? fd : null;
+            return this.functionDefinitions.TryGetValue(name, out FunctionDefinition? fd) ? fd : null;
         }
 
         public void Resolve()
         {
-            ResolveConstants();
-            ResolveStructTypes();
-            ResolveStructParentChain();
-            ResolveNamesAndCullUnusedCode();
-            ResolveSignatureTypes();
-            ResolveTypes();
-            ResolveWithTypeContext();
+            this.ResolveConstants();
+            this.ResolveStructTypes();
+            this.ResolveNamesAndCullUnusedCode();
+            this.ResolveSignatureTypes();
+            this.ResolveTypes();
+            this.ResolveWithTypeContext();
         }
 
         private void ResolveStructTypes()
@@ -57,9 +55,9 @@ namespace Pastel.Parser
             foreach (string structName in this.structDefinitions.Keys.OrderBy(t => t))
             {
                 StructDefinition structDef = this.structDefinitions[structName];
-                for (int i = 0; i < structDef.LocalFieldTypes.Length; ++i)
+                for (int i = 0; i < structDef.FieldTypes.Length; ++i)
                 {
-                    structDef.LocalFieldTypes[i].FinalizeType(this);
+                    structDef.FieldTypes[i].FinalizeType(this);
                 }
             }
         }
@@ -92,26 +90,6 @@ namespace Pastel.Parser
                     constDef.DoConstantResolutions(cycleDetection, this);
                     cycleDetection.Remove(name);
                 }
-            }
-        }
-
-        private void ResolveStructParentChain()
-        {
-            Dictionary<StructDefinition, int> cycleCheck = new Dictionary<StructDefinition, int>();
-            StructDefinition[] structDefs = this.structDefinitions.Values.ToArray();
-            foreach (StructDefinition sd in structDefs)
-            {
-                cycleCheck[sd] = 0;
-            }
-
-            foreach (StructDefinition sd in structDefs)
-            {
-                sd.ResolveParentChain(this.structDefinitions, cycleCheck);
-            }
-
-            foreach (StructDefinition sd in structDefs)
-            {
-                sd.ResolveInheritedFields();
             }
         }
 

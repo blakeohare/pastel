@@ -13,9 +13,9 @@ namespace Pastel.Parser.ParseNodes
         public ConstructorInvocation(Token firstToken, PType type, IList<Expression> args, ICompilationEntity owner)
             : base(firstToken, owner)
         {
-            Type = type;
-            Args = args.ToArray();
-            ResolvedType = type;
+            this.Type = type;
+            this.Args = args.ToArray();
+            this.ResolvedType = type;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
@@ -49,31 +49,32 @@ namespace Pastel.Parser.ParseNodes
 
                     if (this.Type.IsStruct)
                     {
-                        StructDefinition sd = Type.StructDef;
-                        StructDefinition = sd;
-                        resolvedArgTypes = sd.FlatFieldTypes;
+                        StructDefinition sd = this.Type.StructDef;
+                        this.StructDefinition = sd;
+                        resolvedArgTypes = sd.FieldTypes;
                     }
                     else
                     {
-                        throw new ParserException(FirstToken, "Cannot instantiate this item.");
+                        throw new ParserException(this.FirstToken, "Cannot instantiate this item.");
                     }
+
                     int fieldCount = resolvedArgTypes.Length;
                     if (fieldCount != Args.Length)
                     {
-                        throw new ParserException(FirstToken, "Incorrect number of args in constructor. Expected " + fieldCount + ", found " + Args.Length);
+                        throw new ParserException(this.FirstToken, "Incorrect number of args in constructor. Expected " + fieldCount + ", found " + Args.Length);
                     }
 
                     for (int i = 0; i < fieldCount; ++i)
                     {
-                        PType actualType = Args[i].ResolvedType;
+                        PType actualType = this.Args[i].ResolvedType;
                         PType expectedType = resolvedArgTypes[i];
                         if (!PType.CheckAssignment(resolver, expectedType, actualType))
                         {
                             throw new ParserException(
-                                Args[i].FirstToken, 
-                                "Cannot use an arg of this type for this struct field. Expected " + 
-                                expectedType.ToString() + 
-                                " but found " + 
+                                this.Args[i].FirstToken,
+                                "Cannot use an arg of this type for this struct field. Expected " +
+                                expectedType.ToString() +
+                                " but found " +
                                 actualType.ToString());
                         }
                     }

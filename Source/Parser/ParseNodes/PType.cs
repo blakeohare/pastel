@@ -359,19 +359,17 @@ namespace Pastel.Parser.ParseNodes
             if (IsIdentical(resolver, other)) return true;
 
             // only structs should be here if this is to return true. If not, then it's a no.
-            if (!IsStruct || !other.IsStruct) return false;
+            if (!this.IsStruct || !other.IsStruct) return false;
 
-            if (IsStruct != other.IsStruct) return false;
-            if (IsStruct)
+            if (this.IsStruct != other.IsStruct) return false;
+            if (this.IsStruct)
             {
-                if (StructDef == null || other.StructDef == null) throw new System.Exception("This check cannot occur without resolving struct information for PTypes.");
-                StructDefinition walker = StructDef;
-                StructDefinition target = other.StructDef;
-                while (walker != null)
+                if (this.StructDef == null || other.StructDef == null)
                 {
-                    if (walker == target) return true;
-                    walker = walker.Parent;
+                    throw new System.Exception("This check cannot occur without resolving struct information for PTypes.");
                 }
+
+                return this.StructDef == other.StructDef;
             }
 
             return false;

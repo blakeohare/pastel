@@ -158,12 +158,12 @@ namespace Pastel.Transpilers
                 .Push("&S_")
                 .Push(name)
                 .Push("{ ");
-            for (int i = 0; i < sDef.LocalFieldNames.Length; i++)
+            for (int i = 0; i < sDef.FieldNames.Length; i++)
             {
                 if (i > 0) buf.Push(", ");
                 buf
                     .Push("f_")
-                    .Push(sDef.LocalFieldNames[i].Value)
+                    .Push(sDef.FieldNames[i].Value)
                     .Push(": ")
                     .Push(this.TranslateExpression(constructorInvocation.Args[i]));
             }
@@ -841,14 +841,14 @@ namespace Pastel.Transpilers
 
             sb.TabDepth++;
 
-            string[] fieldNames = CodeUtil.PadStringsToSameLength(structDef.LocalFieldNames.Select(n => n.Value));
+            string[] fieldNames = CodeUtil.PadStringsToSameLength(structDef.FieldNames.Select(n => n.Value));
             for (int i = 0; i < fieldNames.Length; i++)
             {
                 sb.Append(sb.CurrentTab);
                 sb.Append("f_");
                 sb.Append(fieldNames[i]);
                 sb.Append(" ");
-                sb.Append(this.TranslateType(structDef.LocalFieldTypes[i]));
+                sb.Append(this.TranslateType(structDef.FieldTypes[i]));
                 sb.Append('\n');
             }
             sb.TabDepth--;

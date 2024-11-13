@@ -1,5 +1,4 @@
 ﻿using Pastel.Parser.ParseNodes;
-using System;
 using System.Collections.Generic;
 
 namespace Pastel.Parser
@@ -123,7 +122,7 @@ namespace Pastel.Parser
                 structFieldNames.Add(fieldName);
                 tokens.PopExpected(";");
             }
-            return new StructDefinition(structToken, nameToken, structFieldTypes, structFieldNames, parentName, this.parser.Context);
+            return new StructDefinition(structToken, nameToken, structFieldTypes, structFieldNames, this.parser.Context);
         }
 
         public FunctionDefinition ParseFunctionDefinition(TokenStream tokens)

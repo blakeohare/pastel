@@ -192,7 +192,7 @@ namespace Pastel.Transpilers
             else
             {
                 StringBuffer buf = StringBuffer.Of("[");
-                int args = structDef.FlatFieldNames.Length;
+                int args = structDef.FieldNames.Length;
                 for (int i = 0; i < args; ++i)
                 {
                     if (i > 0) buf.Push(", ");
