@@ -185,7 +185,6 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation)
         {
             StructDefinition structDef = constructorInvocation.StructDefinition;
-            ClassDefinition classDef = constructorInvocation.ClassDefinition;
             if (structDef == null)
             {
                 throw new NotImplementedException();
@@ -444,15 +443,6 @@ namespace Pastel.Transpilers
             throw new ParserException(
                 innerExpression.FirstToken,
                 "Python does not support ++ or --. Please check all usages with if (@ext_boolean(\"HAS_INCREMENT\")) { ... }");
-        }
-
-        public override StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName)
-        {
-            return this.TranslateExpression(root)
-                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                .Push(".")
-                .Push(fieldName)
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateIntBuffer16()
@@ -1231,11 +1221,6 @@ namespace Pastel.Transpilers
             sb.SwitchStatements.Add(fakeSwitchStatement);
         }
 
-        public override StringBuffer TranslateThis(ThisExpression thisExpr)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateToCodeString(Expression str)
         {
             throw new NotImplementedException();
@@ -1316,11 +1301,6 @@ namespace Pastel.Transpilers
             }
             this.transpilerCtx.SwitchStatements.Clear();
             this.transpilerCtx.CurrentFunctionDefinition = null;
-        }
-
-        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
-        {
-            throw new NotImplementedException();
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

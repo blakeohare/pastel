@@ -406,15 +406,6 @@ namespace Pastel.Transpilers
                 .Push(")");
         }
 
-        public override StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName)
-        {
-            return this.TranslateExpression(root)
-                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                .Push(".")
-                .Push(fieldName)
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
         public override StringBuffer TranslateIntBuffer16()
         {
             return StringBuffer
@@ -1046,13 +1037,6 @@ namespace Pastel.Transpilers
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateThis(ThisExpression thisExpr)
-        {
-            return StringBuffer
-                .Of("this")
-                .WithTightness(ExpressionTightness.ATOMIC);
-        }
-
         public override StringBuffer TranslateToCodeString(Expression str)
         {
             return StringBuffer
@@ -1093,62 +1077,6 @@ namespace Pastel.Transpilers
                 sb.Append(this.TranslateExpressionAsString(varDecl.Value));
             }
             sb.Append(";\n");
-        }
-
-        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
-        {
-            string name = classDef.NameToken.Value;
-
-            sb.Append("public class " + name);
-            if (classDef.ParentClass != null)
-            {
-                sb.Append(" : " + classDef.ParentClass.NameToken.Value);
-            }
-            sb.Append('\n');
-
-            sb.Append("{\n");
-            sb.TabDepth++;
-            foreach (FieldDefinition fd in classDef.Fields)
-            {
-                System.Text.StringBuilder line = new System.Text.StringBuilder();
-                sb.Append(sb.CurrentTab);
-                sb.Append("public ");
-                sb.Append(this.TranslateType(fd.FieldType));
-                sb.Append(' ');
-                sb.Append(fd.NameToken.Value);
-                sb.Append(" = ");
-                sb.Append(this.TranslateExpressionAsString(fd.Value));
-                sb.Append(";\n\n");
-            }
-
-            ConstructorDefinition constructorDef = classDef.Constructor;
-            sb.Append("    public ");
-            sb.Append(name);
-            sb.Append('(');
-            for (int i = 0; i < constructorDef.ArgNames.Length; ++i)
-            {
-                if (i > 0) sb.Append(", ");
-                sb.Append(this.TranslateType(constructorDef.ArgTypes[i]));
-                sb.Append(' ');
-                sb.Append(constructorDef.ArgNames[i].Value);
-            }
-            sb.Append(")\n");
-            sb.Append(sb.CurrentTab);
-            sb.Append("{\n");
-            sb.TabDepth++;
-            this.TranslateStatements(sb, constructorDef.Code);
-            sb.TabDepth--;
-            sb.Append(sb.CurrentTab);
-            sb.Append("}\n\n");
-
-            foreach (FunctionDefinition fd in classDef.Methods)
-            {
-                this.GenerateCodeForFunction(sb, fd, false);
-                sb.Append("\n");
-            }
-
-            sb.TabDepth--;
-            sb.Append("\n}\n");
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

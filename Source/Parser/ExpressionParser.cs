@@ -224,11 +224,6 @@ namespace Pastel.Parser
                     return new CompileTimeFunctionReference(atToken, compileTimeFunction, this.parser.ActiveEntity);
             }
 
-            if (tokens.IsNext("this"))
-            {
-                return new ThisExpression(tokens.Pop(), this.parser.ActiveEntity);
-            }
-
             if (IsValidName(tokens.PeekValue()))
             {
                 return new Variable(tokens.Pop(), this.parser.ActiveEntity);

@@ -64,15 +64,17 @@ namespace Pastel.Transpilers
                 case "Func":
                     return "java.lang.reflect.Method";
 
+                // TODO: oh no.
                 case "ClassValue":
                     // java.lang.ClassValue collision
                     return "org.crayonlang.interpreter.structs.ClassValue";
 
                 default:
-                    if (type.IsStructOrClass)
+                    if (type.IsStruct)
                     {
                         return type.TypeName;
                     }
+
                     throw new NotImplementedException();
             }
         }
@@ -296,31 +298,24 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation)
         {
-            if (constructorInvocation.ClassDefinition != null)
+            StringBuffer buf = StringBuffer.Of("new ");
+            string structType = constructorInvocation.StructDefinition.NameToken.Value;
+            if (structType == "ClassValue")
             {
-                throw new NotImplementedException();
+                structType = "org.crayonlang.interpreter.structs.ClassValue";
             }
-            else
+            buf
+                .Push(structType)
+                .Push("(");
+            Expression[] args = constructorInvocation.Args;
+            for (int i = 0; i < args.Length; ++i)
             {
-                StringBuffer buf = StringBuffer.Of("new ");
-                string structType = constructorInvocation.StructDefinition.NameToken.Value;
-                if (structType == "ClassValue")
-                {
-                    structType = "org.crayonlang.interpreter.structs.ClassValue";
-                }
-                buf
-                    .Push(structType)
-                    .Push("(");
-                Expression[] args = constructorInvocation.Args;
-                for (int i = 0; i < args.Length; ++i)
-                {
-                    if (i > 0) buf.Push(", ");
-                    buf.Push(this.TranslateExpression(args[i]));
-                }
-                return buf.
-                    Push(")")
-                    .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+                if (i > 0) buf.Push(", ");
+                buf.Push(this.TranslateExpression(args[i]));
             }
+            return buf.
+                Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateCurrentTimeSeconds()
@@ -527,15 +522,6 @@ namespace Pastel.Transpilers
             return StringBuffer.Of("TranslationHelper.getFunction(")
                 .Push(this.TranslateExpression(name))
                 .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
-        public override StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName)
-        {
-            return this.TranslateExpression(root)
-                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                .Push(".")
-                .Push(fieldName)
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -772,7 +758,7 @@ namespace Pastel.Transpilers
                     throw new NotImplementedException("not implemented: java list of arrays to array");
 
                 default:
-                    if (itemType.IsStructOrClass)
+                    if (itemType.IsStruct)
                     {
                         return this.TranslateExpression(list)
                             .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
@@ -1233,11 +1219,6 @@ namespace Pastel.Transpilers
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateThis(ThisExpression thisExpr)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateToCodeString(Expression str)
         {
             throw new NotImplementedException();
@@ -1296,11 +1277,6 @@ namespace Pastel.Transpilers
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
             sb.Append("}\n");
-        }
-
-        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
-        {
-            throw new NotImplementedException();
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

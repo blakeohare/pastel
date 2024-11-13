@@ -6,9 +6,6 @@
         ENUM,
         CONSTANT,
         STRUCT,
-        CLASS,
-        CONSTRUCTOR,
-        FIELD,
     }
 
     internal interface ICompilationEntity

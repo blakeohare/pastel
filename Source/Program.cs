@@ -53,42 +53,6 @@ namespace Pastel
         {
             Dictionary<string, string> output = new Dictionary<string, string>();
 
-            if (context.UsesClassDefinitions)
-            {
-                Dictionary<string, string> classDefinitions = context.GetCodeForClasses();
-                foreach (string className in classDefinitions.Keys.OrderBy(k => k))
-                {
-                    string classCode = classDefinitions[className];
-                    if (context.ClassDefinitionsInSeparateFiles)
-                    {
-                        GenerateClassImplementation(context, config, className, classCode);
-                    }
-                    else
-                    {
-                        output["class_def:" + className] = classCode;
-                    }
-                }
-
-                if (!context.ClassDefinitionsInSeparateFiles)
-                {
-                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                    foreach (string key in output.Keys.Where(k => k.StartsWith("class_def:")).OrderBy(k => k))
-                    {
-                        sb.Append(output[key]);
-                        sb.Append("\n\n");
-                    }
-                    string code = sb.ToString().Trim();
-                    if (code.Length > 0)
-                    {
-                        string classOutputDir = System.IO.Path.GetDirectoryName(config.OutputFileFunctions);
-                        string path = System.IO.Path.Combine(classOutputDir, "Classes" + LanguageUtil.GetFileExtension(config.Language));
-                        code += "\n";
-                        code = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(code, context.Transpiler);
-                        System.IO.File.WriteAllText(path, code);
-                    }
-                }
-            }
-
             if (context.UsesStructDefinitions)
             {
                 Dictionary<string, string> structDefinitions = context.GetCodeForStructs();
@@ -143,15 +107,6 @@ namespace Pastel
             string path = System.IO.Path.Combine(config.OutputDirStructs, structName + fileExtension);
             structCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(structCode, ctx.Transpiler);
             System.IO.File.WriteAllText(path, structCode);
-        }
-
-        private static void GenerateClassImplementation(PastelContext ctx, ProjectConfig config, string className, string classCode)
-        {
-            classCode = ctx.Transpiler.WrapCodeForClasses(ctx.TranspilerContext, config, classCode);
-            string fileExtension = LanguageUtil.GetFileExtension(config.Language);
-            string path = System.IO.Path.Combine(config.OutputDirStructs, className + fileExtension);
-            classCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(classCode, ctx.Transpiler);
-            System.IO.File.WriteAllText(path, classCode);
         }
 
         private static void GenerateStructBundleImplementation(Transpilers.TranspilerContext ctx, ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)

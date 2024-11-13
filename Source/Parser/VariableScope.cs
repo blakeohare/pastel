@@ -16,14 +16,14 @@ namespace Pastel.Parser
 
         public VariableScope(ICompilationEntity functionDef)
         {
-            if (!(functionDef is FunctionDefinition) && !(functionDef is ConstructorDefinition)) throw new System.InvalidOperationException();
-            RootFunctionOrConstructorDefinition = functionDef;
+            if (!(functionDef is FunctionDefinition)) throw new System.InvalidOperationException();
+            this.RootFunctionOrConstructorDefinition = functionDef;
         }
 
         public VariableScope(VariableScope parent)
         {
             this.parent = parent;
-            RootFunctionOrConstructorDefinition = parent.RootFunctionOrConstructorDefinition;
+            this.RootFunctionOrConstructorDefinition = parent.RootFunctionOrConstructorDefinition;
         }
 
         public void DeclareVariables(Token nameToken, PType type)
@@ -39,14 +39,14 @@ namespace Pastel.Parser
 
         public PType GetTypeOfVariable(string name)
         {
-            if (type.TryGetValue(name, out PType output))
+            if (this.type.TryGetValue(name, out PType output))
             {
                 return output;
             }
 
-            if (parent != null)
+            if (this.parent != null)
             {
-                return parent.GetTypeOfVariable(name);
+                return this.parent.GetTypeOfVariable(name);
             }
 
             return null;

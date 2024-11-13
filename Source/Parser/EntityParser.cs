@@ -23,10 +23,6 @@ namespace Pastel.Parser
             {
                 switch (tokens.PeekValue())
                 {
-                    case "class":
-                        output.Add(ParseClassDefinition(tokens));
-                        break;
-
                     case "enum":
                         output.Add(ParseEnumDefinition(tokens));
                         break;
@@ -59,118 +55,6 @@ namespace Pastel.Parser
             VariableDeclaration assignment = this.StatementParser.ParseAssignmentWithNewFirstToken(constToken, tokens);
             assignment.IsConstant = true;
             return assignment;
-        }
-
-        public ClassDefinition ParseClassDefinition(TokenStream tokens)
-        {
-            Token classToken = tokens.PopExpected("class");
-            Token nameToken = tokens.PopIdentifier();
-            ClassDefinition cd = new ClassDefinition(this.parser.Context, classToken, nameToken);
-            List<Token> inheritTokens = new List<Token>();
-            if (tokens.PopIfPresent(":"))
-            {
-                while (!tokens.IsNext("{"))
-                {
-                    if (inheritTokens.Count > 0) tokens.PopExpected(",");
-                    inheritTokens.Add(tokens.PopIdentifier());
-                }
-            }
-            cd.InheritTokens = inheritTokens.ToArray();
-            tokens.PopExpected("{");
-
-            Dictionary<string, ICompilationEntity> members = new Dictionary<string, ICompilationEntity>();
-
-            while (!tokens.PopIfPresent("}"))
-            {
-                string next = tokens.PeekValue();
-                if (next == "constructor")
-                {
-                    if (cd.Constructor != null) throw new ParserException(tokens.Peek(), "Only one constructor is permitted per class.");
-
-                    Token constructorToken = tokens.PopExpected("constructor");
-                    tokens.PopExpected("(");
-                    List<PType> argTypes = new List<PType>();
-                    List<Token> argNames = new List<Token>();
-                    while (!tokens.PopIfPresent(")"))
-                    {
-                        if (argTypes.Count > 0) tokens.PopExpected(",");
-                        argTypes.Add(PType.Parse(tokens));
-                        argNames.Add(tokens.PopIdentifier());
-                    }
-                    cd.Constructor = new ConstructorDefinition(this.parser.Context, constructorToken, argTypes, argNames, cd);
-                    this.parser.ActiveEntity = cd.Constructor;
-                    cd.Constructor.Code = this.StatementParser.ParseCodeBlock(tokens, true).ToArray();
-                }
-                else
-                {
-                    ICompilationEntity entity;
-                    string entityName;
-                    PType memberType = PType.TryParse(tokens);
-                    Token memberName = tokens.PopIdentifier();
-                    bool isMethod = tokens.IsNext("(");
-                    if (isMethod)
-                    {
-                        tokens.PopExpected("(");
-                        List<PType> argTypes = new List<PType>();
-                        List<Token> argNames = new List<Token>();
-                        while (!tokens.PopIfPresent(")"))
-                        {
-                            if (argTypes.Count > 0) tokens.PopExpected(",");
-                            argTypes.Add(PType.Parse(tokens));
-                            argNames.Add(tokens.PopIdentifier());
-                        }
-                        FunctionDefinition fd = new FunctionDefinition(memberName, memberType, argTypes, argNames, cd);
-                        this.parser.ActiveEntity = fd;
-                        List<Statement> code = this.StatementParser.ParseCodeBlock(tokens, true);
-                        fd.Code = code.ToArray();
-                        entity = fd;
-                        entityName = fd.Name;
-                    }
-                    else
-                    {
-                        FieldDefinition fd = new FieldDefinition(this.parser.Context, memberType, memberName, cd);
-                        this.parser.ActiveEntity = fd;
-                        Expression initialValue = null;
-                        if (tokens.PopIfPresent("="))
-                        {
-                            initialValue = this.ExpressionParser.ParseExpression(tokens);
-                        }
-                        else
-                        {
-                            if (memberType.IsNullable)
-                            {
-                                initialValue = new InlineConstant(memberType, memberName, null, cd);
-                            }
-                            else
-                            {
-                                switch (memberType.RootValue)
-                                {
-                                    case "double": initialValue = new InlineConstant(memberType, memberName, 0.0, cd); break;
-                                    case "int": initialValue = new InlineConstant(memberType, memberName, 0, cd); break;
-                                    case "string": initialValue = new InlineConstant(memberType, memberName, null, cd); break;
-                                    default: throw new NotImplementedException();
-                                }
-                            }
-                        }
-                        tokens.PopExpected(";");
-                        fd.Value = initialValue;
-                        entity = fd;
-                        entityName = fd.NameToken.Value;
-                    }
-
-                    if (members.ContainsKey(entityName))
-                    {
-                        throw new ParserException(memberName,
-                            "There are conflicting members in the class '" + cd.NameToken.Value + "' for the name '" + entityName + "'.");
-                    }
-
-                    members[entityName] = entity;
-                }
-            }
-
-            cd.AddMembers(members);
-
-            return cd;
         }
 
         public EnumDefinition ParseEnumDefinition(TokenStream tokens)
@@ -255,7 +139,7 @@ namespace Pastel.Parser
                 argTypes.Add(PType.Parse(tokens));
                 argNames.Add(ExpressionParser.EnsureTokenIsValidName(tokens.Pop(), "Invalid function arg name"));
             }
-            FunctionDefinition funcDef = new FunctionDefinition(nameToken, returnType, argTypes, argNames, null);
+            FunctionDefinition funcDef = new FunctionDefinition(nameToken, returnType, argTypes, argNames);
             this.parser.ActiveEntity = funcDef;
             List<Statement> code = this.StatementParser.ParseCodeBlock(tokens, true);
             this.parser.ActiveEntity = null;

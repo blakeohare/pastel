@@ -9,7 +9,6 @@ namespace Pastel.Parser.ParseNodes
         public PType Type { get; set; }
         public Expression[] Args { get; set; }
         public StructDefinition StructDefinition { get; set; }
-        public ClassDefinition ClassDefinition { get; set; }
 
         public ConstructorInvocation(Token firstToken, PType type, IList<Expression> args, ICompilationEntity owner)
             : base(firstToken, owner)
@@ -48,17 +47,11 @@ namespace Pastel.Parser.ParseNodes
                 default:
                     PType[] resolvedArgTypes;
 
-                    if (Type.IsStruct)
+                    if (this.Type.IsStruct)
                     {
                         StructDefinition sd = Type.StructDef;
                         StructDefinition = sd;
                         resolvedArgTypes = sd.FlatFieldTypes;
-                    }
-                    else if (Type.IsClass)
-                    {
-                        ClassDefinition cd = Type.ClassDef;
-                        ClassDefinition = cd;
-                        resolvedArgTypes = cd.Constructor.ArgTypes;
                     }
                     else
                     {
@@ -76,7 +69,12 @@ namespace Pastel.Parser.ParseNodes
                         PType expectedType = resolvedArgTypes[i];
                         if (!PType.CheckAssignment(resolver, expectedType, actualType))
                         {
-                            throw new ParserException(Args[i].FirstToken, "Cannot use an arg of this type for this " + (Type.IsClass ? "constructor argument" : "struct field") + ". Expected " + expectedType.ToString() + " but found " + actualType.ToString());
+                            throw new ParserException(
+                                Args[i].FirstToken, 
+                                "Cannot use an arg of this type for this struct field. Expected " + 
+                                expectedType.ToString() + 
+                                " but found " + 
+                                actualType.ToString());
                         }
                     }
                     break;

@@ -12,7 +12,6 @@ namespace Pastel.Transpilers
         public JavaScriptTranspiler(TranspilerContext transpilerCtx) : base(transpilerCtx, true)
         {
             this.UsesStructDefinitions = false;
-            this.ClassDefinitionsInSeparateFiles = false;
         }
 
         public override string PreferredTab => "\t";
@@ -307,15 +306,6 @@ namespace Pastel.Transpilers
                 .Of("PST$getFunction(")
                 .Push(this.TranslateExpression(name))
                 .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
-        public override StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName)
-        {
-            return this.TranslateExpression(root)
-                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                .Push(".")
-                .Push(fieldName)
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -947,13 +937,6 @@ namespace Pastel.Transpilers
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateThis(ThisExpression thisExpr)
-        {
-            return StringBuffer
-                .Of("_PST_this")
-                .WithTightness(ExpressionTightness.ATOMIC);
-        }
-
         public override StringBuffer TranslateToCodeString(Expression str)
         {
             return StringBuffer
@@ -1022,55 +1005,6 @@ namespace Pastel.Transpilers
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
             throw new NotImplementedException();
-        }
-
-        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
-        {
-            sb.Append(sb.CurrentTab);
-            sb.Append("function ");
-            sb.Append(classDef.NameToken.Value);
-            sb.Append("(");
-            ConstructorDefinition ctor = classDef.Constructor;
-            for (int i = 0; i < ctor.ArgNames.Length; ++i)
-            {
-                if (i > 0) sb.Append(", ");
-                sb.Append(ctor.ArgNames[i].Value);
-            }
-            sb.Append(") {\n");
-            sb.TabDepth++;
-            sb.Append(sb.CurrentTab);
-            sb.Append("let _PST_this = this;\n");
-            foreach (FieldDefinition fd in classDef.Fields)
-            {
-                sb.Append(sb.CurrentTab);
-                sb.Append("this.");
-                sb.Append(fd.NameToken.Value);
-                sb.Append(" = ");
-                sb.Append(this.TranslateExpressionAsString(fd.Value));
-                sb.Append(";\n");
-            }
-            this.TranslateStatements(sb, ctor.Code);
-            foreach (FunctionDefinition func in classDef.Methods)
-            {
-                sb.Append(sb.CurrentTab);
-                sb.Append(classDef.NameToken.Value);
-                sb.Append(".prototype.");
-                sb.Append(func.Name);
-                sb.Append(" = function(");
-                for (int i = 0; i < func.ArgNames.Length; ++i)
-                {
-                    if (i > 0) sb.Append(", ");
-                    sb.Append(func.ArgNames[i].Value);
-                }
-                sb.Append(") {\n");
-                sb.TabDepth++;
-                this.TranslateStatements(sb, func.Code);
-                sb.TabDepth--;
-                sb.Append(sb.CurrentTab);
-                sb.Append("};\n");
-            }
-            sb.TabDepth--;
-            sb.Append("}\n");
         }
     }
 }

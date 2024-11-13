@@ -13,7 +13,6 @@ namespace Pastel.Parser
         private Dictionary<string, VariableDeclaration> constantDefinitions;
         private Dictionary<string, FunctionDefinition> functionDefinitions;
         private Dictionary<string, StructDefinition> structDefinitions;
-        private Dictionary<string, ClassDefinition> classDefinitions;
 
         internal HashSet<string> ResolvedFunctions { get; set; }
         internal Queue<string> ResolutionQueue { get; set; }
@@ -23,15 +22,13 @@ namespace Pastel.Parser
             Dictionary<string, EnumDefinition> enumDefinitions,
             Dictionary<string, VariableDeclaration> constantDefinitions,
             Dictionary<string, FunctionDefinition> functionDefinitions,
-            Dictionary<string, StructDefinition> structDefinitions,
-            Dictionary<string, ClassDefinition> classDefinitions)
+            Dictionary<string, StructDefinition> structDefinitions)
         {
             this.CompilerContext = compilerContext;
             this.enumDefinitions = enumDefinitions;
             this.constantDefinitions = constantDefinitions;
             this.functionDefinitions = functionDefinitions;
             this.structDefinitions = structDefinitions;
-            this.classDefinitions = classDefinitions;
         }
 
         public EnumDefinition GetEnumDefinition(string name)
@@ -46,7 +43,6 @@ namespace Pastel.Parser
 
         public void Resolve()
         {
-            ResolveClassHierarchy();
             ResolveConstants();
             ResolveStructTypes();
             ResolveStructParentChain();
@@ -54,41 +50,6 @@ namespace Pastel.Parser
             ResolveSignatureTypes();
             ResolveTypes();
             ResolveWithTypeContext();
-        }
-
-        private void ResolveClassHierarchy()
-        {
-            foreach (ClassDefinition cd in this.classDefinitions.Values)
-            {
-                if (cd.InheritTokens.Length > 1) throw new NotImplementedException(); // interfaces not implemented yet.
-                foreach (Token parent in cd.InheritTokens)
-                {
-                    if (!this.classDefinitions.ContainsKey(parent.Value))
-                        throw new ParserException(parent, "This is not a valid class.");
-
-                    if (cd.ParentClass != null) throw new ParserException(parent, "Cannot have multpile base classes.");
-                    cd.ParentClass = this.classDefinitions[parent.Value];
-                }
-            }
-
-            HashSet<ClassDefinition> cycleCheck = new HashSet<ClassDefinition>();
-            HashSet<ClassDefinition> safeClass = new HashSet<ClassDefinition>();
-            foreach (ClassDefinition cd in this.classDefinitions.Values)
-            {
-                ClassDefinition walker = cd;
-                while (walker != null && !safeClass.Contains(walker))
-                {
-                    if (cycleCheck.Contains(walker)) throw new ParserException(cd.FirstToken, "This class has a cycle in its inheritance chain.");
-                    cycleCheck.Add(walker);
-                    walker = walker.ParentClass;
-                }
-
-                foreach (ClassDefinition safe in cycleCheck)
-                {
-                    safeClass.Add(safe);
-                }
-                cycleCheck.Clear();
-            }
         }
 
         private void ResolveStructTypes()
@@ -105,17 +66,6 @@ namespace Pastel.Parser
 
         private void ResolveSignatureTypes()
         {
-            foreach (string className in this.classDefinitions.Keys.OrderBy(t => t))
-            {
-                ClassDefinition classDef = this.classDefinitions[className];
-                foreach (FunctionDefinition fd in classDef.Methods)
-                {
-                    fd.ResolveSignatureTypes(this);
-                }
-
-                classDef.Constructor.ResolveSignatureTypes(this);
-            }
-
             foreach (string funcName in this.functionDefinitions.Keys.OrderBy(t => t))
             {
                 this.functionDefinitions[funcName].ResolveSignatureTypes(this);
@@ -167,39 +117,34 @@ namespace Pastel.Parser
 
         private void ResolveNamesAndCullUnusedCode()
         {
-            ResolvedFunctions = new HashSet<string>();
-            ResolutionQueue = new Queue<string>();
-
-            foreach (ClassDefinition cd in this.classDefinitions.Values)
-            {
-                cd.ResolveNamesAndCullUnusedCode(this);
-            }
+            this.ResolvedFunctions = new HashSet<string>();
+            this.ResolutionQueue = new Queue<string>();
 
             foreach (string functionName in this.functionDefinitions.Keys)
             {
-                ResolutionQueue.Enqueue(functionName);
+                this.ResolutionQueue.Enqueue(functionName);
             }
 
-            while (ResolutionQueue.Count > 0)
+            while (this.ResolutionQueue.Count > 0)
             {
-                string functionName = ResolutionQueue.Dequeue();
-                if (!ResolvedFunctions.Contains(functionName)) // multiple invocations in a function will put it in the queue multiple times.
+                string functionName = this.ResolutionQueue.Dequeue();
+                if (!this.ResolvedFunctions.Contains(functionName)) // multiple invocations in a function will put it in the queue multiple times.
                 {
-                    ResolvedFunctions.Add(functionName);
+                    this.ResolvedFunctions.Add(functionName);
                     this.functionDefinitions[functionName].ResolveNamesAndCullUnusedCode(this);
                 }
             }
 
-            List<string> unusedFunctions = new List<string>();
+            List<string> unusedFunctions = [];
             foreach (string functionName in this.functionDefinitions.Keys)
             {
-                if (!ResolvedFunctions.Contains(functionName))
+                if (!this.ResolvedFunctions.Contains(functionName))
                 {
                     unusedFunctions.Add(functionName);
                 }
             }
 
-            Dictionary<string, FunctionDefinition> finalFunctions = new Dictionary<string, FunctionDefinition>();
+            Dictionary<string, FunctionDefinition> finalFunctions = [];
             foreach (string usedFunctionName in ResolvedFunctions)
             {
                 finalFunctions[usedFunctionName] = this.functionDefinitions[usedFunctionName];
@@ -209,11 +154,6 @@ namespace Pastel.Parser
 
         private void ResolveTypes()
         {
-            foreach (ClassDefinition cd in this.classDefinitions.Keys.OrderBy(s => s).Select(n => this.classDefinitions[n]))
-            {
-                cd.ResolveTypes(this);
-            }
-
             string[] functionNames = this.functionDefinitions.Keys.OrderBy(s => s).ToArray();
             foreach (string functionName in functionNames)
             {

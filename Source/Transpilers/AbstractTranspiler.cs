@@ -12,24 +12,20 @@ namespace Pastel.Transpilers
         public abstract string PreferredTab { get; }
         public abstract string PreferredNewline { get; }
 
-        public bool ClassDefinitionsInSeparateFiles { get; protected set; }
-        public bool UsesStructDefinitions { get; protected set; }
-        public bool UsesClassDefinitions { get; protected set; }
+        public bool UsesStructDefinitions { get; protected set; }        
         public bool UsesFunctionDeclarations { get; protected set; }
         public bool UsesStructDeclarations { get; protected set; }
         public bool HasStructsInSeparateFiles { get; protected set; }
         public bool HasNewLineAtEndOfFile { get; protected set; }
 
-        public virtual string HelperCodeResourcePath { get { return null; } }
+        public abstract string HelperCodeResourcePath { get; }
 
         protected TranspilerContext transpilerCtx;
 
         public AbstractTranspiler(TranspilerContext transpilerCtx)
         {
             this.transpilerCtx = transpilerCtx;
-            this.ClassDefinitionsInSeparateFiles = true;
             this.UsesStructDefinitions = true;
-            this.UsesClassDefinitions = true;
             this.UsesFunctionDeclarations = false;
             this.UsesStructDeclarations = false;
             this.HasNewLineAtEndOfFile = true;
@@ -185,12 +181,7 @@ namespace Pastel.Transpilers
                 case "DotField":
                     DotField df = (DotField)expression;
                     StructDefinition structDef = df.StructType;
-                    ClassDefinition classDef = df.ClassType;
                     string fieldName = df.FieldName.Value;
-                    if (classDef != null)
-                    {
-                        return this.TranslateInstanceFieldDereference(df.Root, classDef, fieldName);
-                    }
                     if (structDef != null)
                     {
                         int fieldIndex = structDef.FlatFieldIndexByName[fieldName];
@@ -210,9 +201,6 @@ namespace Pastel.Transpilers
                         case "string": return this.TranslateStringConstant((string)ic.Value);
                     }
                     throw new NotImplementedException();
-
-                case "ThisExpression":
-                    return this.TranslateThis((ThisExpression)expression);
 
                 case "UnaryOp":
                     UnaryOp uo = (UnaryOp)expression;
@@ -476,7 +464,6 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateFunctionReference(FunctionReference funcRef);
         public abstract StringBuffer TranslateGetFunction(Expression name);
         public abstract StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition);
-        public abstract StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName);
         public abstract StringBuffer TranslateIntBuffer16();
         public abstract StringBuffer TranslateIntegerConstant(int value);
         public abstract StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator);
@@ -551,13 +538,11 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateStringTrimStart(Expression str);
         public abstract StringBuffer TranslateStrongReferenceEquality(Expression left, Expression right);
         public abstract StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex);
-        public abstract StringBuffer TranslateThis(ThisExpression thisExpr);
         public abstract StringBuffer TranslateToCodeString(Expression str);
         public abstract StringBuffer TranslateTryParseFloat(Expression stringValue, Expression floatOutList);
         public abstract StringBuffer TranslateUtf8BytesToString(Expression bytes);
         public abstract StringBuffer TranslateVariable(Variable variable);
 
-        public abstract void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef);
         public abstract void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef);
         public abstract void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic);
 
@@ -582,15 +567,6 @@ namespace Pastel.Transpilers
         }
 
         internal string WrapCodeForStructs(TranspilerContext ctx, ProjectConfig config, string code)
-        {
-            List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
-            WrapCodeImpl(ctx, config, lines, true);
-            string output = string.Join('\n', lines).Trim();
-            if (this.HasNewLineAtEndOfFile) output += "\n";
-            return output;
-        }
-
-        internal string WrapCodeForClasses(TranspilerContext ctx, ProjectConfig config, string code)
         {
             List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
             WrapCodeImpl(ctx, config, lines, true);

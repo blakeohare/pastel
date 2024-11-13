@@ -5,10 +5,10 @@ namespace PastelGeneratedNamespace
 {
     public static class FunctionWrapper
     {
-        #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-        #pragma warning disable CS8602 // Dereference of a possibly null reference.
-        #pragma warning disable CS8603 // Possible null reference return.
-        #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         private static Dictionary<string, System.Func<object[], object>> PST_ExtCallbacks = new Dictionary<string, System.Func<object[], object>>();
 
         public static void PST_RegisterExtensibleCallback(string name, System.Func<object[], object> func)

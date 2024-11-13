@@ -7,9 +7,7 @@ namespace Pastel.Parser.ParseNodes
         private enum TypeCategory
         {
             PRIMITIVE,
-            STRUCT_OR_CLASS,
             STRUCT,
-            CLASS,
             LIST,
             ARRAY,
             DICTIONARY,
@@ -46,43 +44,14 @@ namespace Pastel.Parser.ParseNodes
         public bool IsNullable { get; set; }
 
         private TypeCategory Category { get; set; }
-        public bool IsStructOrClass
-        {
-            get
-            {
-                return Category == TypeCategory.STRUCT_OR_CLASS ||
-                    Category == TypeCategory.STRUCT ||
-                    Category == TypeCategory.CLASS;
-            }
-        }
         public bool IsStruct { get { return Category == TypeCategory.STRUCT; } }
-        public bool IsClass { get { return Category == TypeCategory.CLASS; } }
 
         internal StructDefinition StructDef
         {
             get
             {
-                if (IsStructOrClass && structReference == null)
-                    throw new System.InvalidOperationException();
                 return structReference;
             }
-        }
-
-        internal ClassDefinition ClassDef
-        {
-            get
-            {
-                if (IsClass && classReference == null) throw new System.InvalidOperationException();
-                return classReference;
-            }
-        }
-
-        internal static PType ForClass(Token tokenOfClassRefOccurrence, ClassDefinition cd)
-        {
-            PType type = new PType(tokenOfClassRefOccurrence, null, cd.NameToken.Value);
-            type.Category = TypeCategory.CLASS;
-            type.classReference = cd;
-            return type;
         }
 
         public static PType FunctionOf(Token tokenOfFunctionRefOccurrence, PType returnType, IList<PType> argumentTypes)
@@ -170,7 +139,7 @@ namespace Pastel.Parser.ParseNodes
                         }
                         else
                         {
-                            Category = TypeCategory.STRUCT_OR_CLASS;
+                            Category = TypeCategory.STRUCT;
                         }
                         break;
                 }
@@ -178,9 +147,7 @@ namespace Pastel.Parser.ParseNodes
 
             switch (Category)
             {
-                case TypeCategory.STRUCT_OR_CLASS:
                 case TypeCategory.STRUCT:
-                case TypeCategory.CLASS:
                 case TypeCategory.ARRAY:
                 case TypeCategory.LIST:
                 case TypeCategory.DICTIONARY:
@@ -213,7 +180,6 @@ namespace Pastel.Parser.ParseNodes
 
         private bool isTypeFinalized = false;
         private StructDefinition structReference = null;
-        private ClassDefinition classReference = null;
 
         internal void FinalizeType(Resolver resolver)
         {
@@ -222,60 +188,52 @@ namespace Pastel.Parser.ParseNodes
 
         internal void FinalizeType(PastelCompiler compilerContext)
         {
-            if (isTypeFinalized) return;
-            isTypeFinalized = true;
+            if (this.isTypeFinalized) return;
+            this.isTypeFinalized = true;
 
-            if (Category == TypeCategory.STRUCT_OR_CLASS)
+            if (this.Category == TypeCategory.STRUCT)
             {
                 PastelCompiler targetContext = compilerContext;
 
                 if (targetContext != null)
                 {
-                    structReference = targetContext.GetStructDefinition(TypeName);
-                    classReference = targetContext.GetClassDefinition(TypeName);
-                    Category = structReference == null ? TypeCategory.CLASS : TypeCategory.STRUCT;
+                    this.structReference = targetContext.GetStructDefinition(this.TypeName);
                 }
 
-                if (structReference == null && classReference == null)
+                if (this.structReference == null)
                 {
-                    throw new ParserException(FirstToken, "Could not find a class or struct by the name of '" + RootValue + "'");
-                }
-
-                if (structReference != null && classReference != null)
-                {
-                    throw new System.InvalidOperationException(); // this shouldn't happen. name conflicts should have been caught by now.
+                    throw new ParserException(this.FirstToken, "Could not find a class or struct by the name of '" + this.RootValue + "'");
                 }
             }
 
-            for (int i = 0; i < Generics.Length; ++i)
+            for (int i = 0; i < this.Generics.Length; ++i)
             {
-                Generics[i].FinalizeType(compilerContext);
+                this.Generics[i].FinalizeType(compilerContext);
             }
         }
 
         public PType ResolveTemplates(Dictionary<string, PType> templateLookup)
         {
-            if (!HasTemplates)
+            if (!this.HasTemplates)
             {
                 return this;
             }
 
-            if (RootValue.Length == 1)
+            if (this.RootValue.Length == 1)
             {
-                PType newType;
-                if (templateLookup.TryGetValue(RootValue, out newType))
+                if (templateLookup.TryGetValue(this.RootValue, out PType newType))
                 {
                     return newType;
                 }
                 return this;
             }
 
-            List<PType> generics = new List<PType>();
-            for (int i = 0; i < Generics.Length; ++i)
+            List<PType> generics = [];
+            for (int i = 0; i < this.Generics.Length; ++i)
             {
-                generics.Add(Generics[i].ResolveTemplates(templateLookup));
+                generics.Add(this.Generics[i].ResolveTemplates(templateLookup));
             }
-            return new PType(FirstToken, Namespace, TypeName, generics.ToArray());
+            return new PType(this.FirstToken, this.Namespace, this.TypeName, generics.ToArray());
         }
 
         // when a templated type coincides with an actual value, add that template key to the lookup output param.
@@ -376,7 +334,7 @@ namespace Pastel.Parser.ParseNodes
             {
                 if (returnType.Category == TypeCategory.PRIMITIVE && returnType.TypeName == "string") return true;
                 if (returnType.Generics.Length > 0) return true;
-                if (returnType.IsStructOrClass) return true;
+                if (returnType.IsStruct) return true;
             }
             return false;
         }
@@ -400,8 +358,8 @@ namespace Pastel.Parser.ParseNodes
         {
             if (IsIdentical(resolver, other)) return true;
 
-            // only structs or classes should be here if this is to return true. If not, then it's a no.
-            if (!IsStructOrClass || !other.IsStructOrClass) return false;
+            // only structs should be here if this is to return true. If not, then it's a no.
+            if (!IsStruct || !other.IsStruct) return false;
 
             if (IsStruct != other.IsStruct) return false;
             if (IsStruct)
@@ -415,44 +373,41 @@ namespace Pastel.Parser.ParseNodes
                     walker = walker.Parent;
                 }
             }
-            if (IsClass)
-            {
-                throw new System.NotImplementedException();
-            }
 
             return false;
         }
 
         internal bool IsIdentical(Resolver resolver, PType other)
         {
-            if (!isTypeFinalized) FinalizeType(resolver);
+            if (!this.isTypeFinalized) this.FinalizeType(resolver);
             if (!other.isTypeFinalized) other.FinalizeType(resolver);
 
-            if (Category != other.Category) return false;
+            if (this.Category != other.Category) return false;
 
-            if (Generics.Length != other.Generics.Length) return false;
+            if (this.Generics.Length != other.Generics.Length) return false;
 
-            if (IsStructOrClass)
+            if (this.IsStruct)
             {
-                return structReference == other.structReference || classReference == other.classReference;
+                return this.structReference == other.structReference;
             }
 
-            if (RootValue != other.RootValue)
+            if (this.RootValue != other.RootValue)
             {
-                string thisRoot = RootValue;
+                string thisRoot = this.RootValue;
                 string thatRoot = other.RootValue;
                 if (thisRoot == "number" && (thatRoot == "double" || thatRoot == "int")) return true;
                 if (thatRoot == "number" && (thisRoot == "double" || thisRoot == "int")) return true;
                 return false;
             }
 
-            for (int i = Generics.Length - 1; i >= 0; --i)
+            for (int i = this.Generics.Length - 1; i >= 0; --i)
             {
-                if (!Generics[i].IsIdentical(resolver, other.Generics[i]))
+                if (!this.Generics[i].IsIdentical(resolver, other.Generics[i]))
                 {
                     return false;
                 }
             }
+
             return true;
         }
 

@@ -29,7 +29,6 @@ namespace Pastel.Parser
             EnumDefinitions = new Dictionary<string, EnumDefinition>();
             ConstantDefinitions = new Dictionary<string, VariableDeclaration>();
             FunctionDefinitions = new Dictionary<string, FunctionDefinition>();
-            ClassDefinitions = new Dictionary<string, ClassDefinition>();
             parser = new PastelParser(context, constants, inlineImportCodeLoader);
         }
 
@@ -44,16 +43,7 @@ namespace Pastel.Parser
         internal Dictionary<string, EnumDefinition> EnumDefinitions { get; set; }
         internal Dictionary<string, VariableDeclaration> ConstantDefinitions { get; set; }
         public Dictionary<string, FunctionDefinition> FunctionDefinitions { get; set; }
-        public Dictionary<string, ClassDefinition> ClassDefinitions { get; set; }
-
-        public ClassDefinition[] GetClassDefinitions()
-        {
-            return ClassDefinitions.Keys
-                .OrderBy(k => k)
-                .Select(key => ClassDefinitions[key])
-                .ToArray();
-        }
-
+        
         public StructDefinition[] GetStructDefinitions()
         {
             return StructDefinitions.Keys
@@ -84,15 +74,6 @@ namespace Pastel.Parser
             if (EnumDefinitions.ContainsKey(name))
             {
                 return EnumDefinitions[name];
-            }
-            return null;
-        }
-
-        internal ClassDefinition GetClassDefinition(string name)
-        {
-            if (ClassDefinitions.ContainsKey(name))
-            {
-                return ClassDefinitions[name];
             }
             return null;
         }
@@ -163,16 +144,6 @@ namespace Pastel.Parser
                                 "Multiple definitions of : '" + targetName + "'");
                         }
                         lookup[targetName] = assignment;
-                        break;
-
-                    case CompilationEntityType.CLASS:
-                        ClassDefinition classDef = (ClassDefinition)entity;
-                        string className = classDef.NameToken.Value;
-                        if (ClassDefinitions.ContainsKey(className))
-                        {
-                            throw new ParserException(classDef.FirstToken, "Multiple classes named '" + className + "'");
-                        }
-                        ClassDefinitions[className] = classDef;
                         break;
 
                     default:

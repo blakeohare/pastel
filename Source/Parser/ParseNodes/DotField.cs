@@ -11,9 +11,9 @@ namespace Pastel.Parser.ParseNodes
 
         public CoreFunction CoreFunctionId { get; set; }
         public StructDefinition StructType { get; set; }
-        public ClassDefinition ClassType { get; set; }
 
-        public DotField(Expression root, Token dotToken, Token fieldName) : base(root.FirstToken, root.Owner)
+        public DotField(Expression root, Token dotToken, Token fieldName) 
+            : base(root.FirstToken, root.Owner)
         {
             this.Root = root;
             this.DotToken = dotToken;
@@ -81,44 +81,23 @@ namespace Pastel.Parser.ParseNodes
             Root = Root.ResolveType(varScope, resolver);
 
             PType rootType = Root.ResolvedType;
-            if (rootType.IsStructOrClass)
+            if (rootType.IsStruct)
             {
                 string fieldName = FieldName.Value;
                 rootType.FinalizeType(resolver);
-                if (rootType.IsStruct)
+                this.StructType = rootType.StructDef;
+                int fieldIndex;
+                if (!this.StructType.FlatFieldIndexByName.TryGetValue(fieldName, out fieldIndex))
                 {
-                    StructType = rootType.StructDef;
-                    int fieldIndex;
-                    if (!StructType.FlatFieldIndexByName.TryGetValue(fieldName, out fieldIndex))
-                    {
-                        throw new ParserException(FieldName, "The struct '" + StructType.NameToken.Value + "' does not have a field called '" + fieldName + "'.");
-                    }
-                    ResolvedType = StructType.FlatFieldTypes[fieldIndex];
+                    throw new ParserException(this.FieldName, "The struct '" + this.StructType.NameToken.Value + "' does not have a field called '" + fieldName + "'.");
                 }
-                else
-                {
-                    ClassType = rootType.ClassDef;
-                    if (!ClassType.Members.ContainsKey(FieldName.Value))
-                    {
-                        throw new ParserException(FieldName, "The class '" + ClassType.NameToken.Value + "' does not have a member called '" + fieldName + "'.");
-                    }
+                this.ResolvedType = this.StructType.FlatFieldTypes[fieldIndex];
 
-                    ICompilationEntity ce = ClassType.Members[fieldName];
-                    if (ce is FieldDefinition fd)
-                    {
-                        ResolvedType = fd.FieldType;
-                    }
-                    else
-                    {
-                        FunctionDefinition func = (FunctionDefinition)ce;
-                        ResolvedType = PType.FunctionOf(FieldName, func.ReturnType, func.ArgTypes);
-                    }
-                }
                 return this;
             }
 
-            CoreFunctionId = DetermineCoreFunctionId(Root.ResolvedType, FieldName.Value);
-            if (CoreFunctionId != CoreFunction.NONE)
+            this.CoreFunctionId = DetermineCoreFunctionId(this.Root.ResolvedType, this.FieldName.Value);
+            if (this.CoreFunctionId != CoreFunction.NONE)
             {
                 CoreFunctionReference cfr = new CoreFunctionReference(FirstToken, CoreFunctionId, Root, Owner);
                 cfr.ResolvedType = new PType(Root.FirstToken, null, "@CoreFunc");

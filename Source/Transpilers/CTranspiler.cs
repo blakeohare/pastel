@@ -222,11 +222,6 @@ namespace Pastel.Transpilers
             throw new NotImplementedException();
         }
 
-        public override StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateIntBuffer16()
         {
             throw new NotImplementedException();
@@ -567,11 +562,6 @@ namespace Pastel.Transpilers
             throw new NotImplementedException();
         }
 
-        public override StringBuffer TranslateThis(ThisExpression thisExpr)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateToCodeString(Expression str)
         {
             throw new NotImplementedException();
@@ -588,11 +578,6 @@ namespace Pastel.Transpilers
         }
 
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
         {
             throw new NotImplementedException();
         }

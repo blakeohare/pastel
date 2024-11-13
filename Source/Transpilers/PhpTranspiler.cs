@@ -218,27 +218,20 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation)
         {
-            if (constructorInvocation.ClassDefinition != null)
+            StringBuffer buf = StringBuffer
+                .Of("new ")
+                .Push(constructorInvocation.StructDefinition.NameToken.Value)
+                .Push("(");
+            Expression[] args = constructorInvocation.Args;
+            for (int i = 0; i < args.Length; ++i)
             {
-                throw new NotImplementedException();
+                if (i > 0) buf.Push(", ");
+                buf.Push(this.TranslateExpression(args[i]));
             }
-            else
-            {
-                StringBuffer buf = StringBuffer
-                    .Of("new ")
-                    .Push(constructorInvocation.StructDefinition.NameToken.Value)
-                    .Push("(");
-                Expression[] args = constructorInvocation.Args;
-                for (int i = 0; i < args.Length; ++i)
-                {
-                    if (i > 0) buf.Push(", ");
-                    buf.Push(this.TranslateExpression(args[i]));
-                }
-                return buf
-                    .Push(")")
-                    // The PHP 'new' keyword has a slightly weaker operator precedence than other curly brace languages
-                    .WithTightness(ExpressionTightness.UNARY_PREFIX);
-            }
+            return buf
+                .Push(")")
+                // The PHP 'new' keyword has a slightly weaker operator precedence than other curly brace languages
+                .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateCurrentTimeSeconds()
@@ -431,15 +424,6 @@ namespace Pastel.Transpilers
                 .Of("TranslationHelper_getFunction(")
                 .Push(this.TranslateExpression(name))
                 .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
-        public override StringBuffer TranslateInstanceFieldDereference(Expression root, ClassDefinition classDef, string fieldName)
-        {
-            return this.TranslateExpression(root)
-                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                .Push("->")
-                .Push(fieldName)
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -1067,11 +1051,6 @@ namespace Pastel.Transpilers
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateThis(ThisExpression thisExpr)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateToCodeString(Expression str)
         {
             throw new NotImplementedException();
@@ -1137,11 +1116,6 @@ namespace Pastel.Transpilers
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
             sb.Append("}\n\n");
-        }
-
-        public override void GenerateCodeForClass(TranspilerContext sb, ClassDefinition classDef)
-        {
-            throw new NotImplementedException();
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
