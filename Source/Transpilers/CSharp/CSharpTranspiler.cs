@@ -4,20 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pastel.Transpilers
+namespace Pastel.Transpilers.CSharp
 {
     internal class CSharpTranspiler : CurlyBraceTranspiler
     {
         public CSharpTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx, false)
         {
-            this.TypeTranspiler = new CSharpTypeTranspiler();
+            TypeTranspiler = new CSharpTypeTranspiler();
         }
 
         public override string PreferredTab => "    ";
         public override string PreferredNewline => "\r\n";
 
-        public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.cs"; } }
+        public override string HelperCodeResourcePath { get { return "Transpilers/CSharp/PastelHelper.cs"; } }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
@@ -71,7 +71,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PlatformTranslationHelper.PrintStdErr(")
-                .Push(this.TranslateExpression(value))
+                .Push(TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -80,17 +80,17 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PlatformTranslationHelper.PrintStdOut(")
-                .Push(this.TranslateExpression(value))
+                .Push(TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
-            return this.TranslateExpression(array)
+            return TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(this.TranslateExpression(index))
+                .Push(TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -99,16 +99,16 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("string.Join(")
-                .Push(this.TranslateExpression(sep))
+                .Push(TranslateExpression(sep))
                 .Push(", ")
-                .Push(this.TranslateExpression(array))
+                .Push(TranslateExpression(array))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateArrayLength(Expression array)
         {
-            return this.TranslateExpression(array)
+            return TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Length")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -124,9 +124,9 @@ namespace Pastel.Transpilers
             }
             StringBuffer buf = StringBuffer
                 .Of("new ")
-                .Push(this.TypeTranspiler.TranslateType(arrayType))
+                .Push(TypeTranspiler.TranslateType(arrayType))
                 .Push("[")
-                .Push(this.TranslateExpression(lengthExpression))
+                .Push(TranslateExpression(lengthExpression))
                 .Push("]");
             while (nestingLevel-- > 0)
             {
@@ -138,19 +138,19 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateArraySet(Expression array, Expression index, Expression value)
         {
-            return this.TranslateExpression(array)
+            return TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(this.TranslateExpression(index))
+                .Push(TranslateExpression(index))
                 .Push("] = ")
-                .Push(this.TranslateExpression(value));
+                .Push(TranslateExpression(value));
         }
 
         public override StringBuffer TranslateBase64ToBytes(Expression base64String)
         {
             return StringBuffer
                 .Of("System.Convert.FromBase64String(")
-                .Push(this.TranslateExpression(base64String))
+                .Push(TranslateExpression(base64String))
                 .Push(").Cast<int>().ToArray()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -159,7 +159,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PST_Base64ToString(")
-                .Push(this.TranslateExpression(base64String))
+                .Push(TranslateExpression(base64String))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -168,9 +168,9 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("(")
-                .Push(this.TypeTranspiler.TranslateType(type))
+                .Push(TypeTranspiler.TranslateType(type))
                 .Push(")")
-                .Push(this.TranslateExpression(expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(TranslateExpression(expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
@@ -183,7 +183,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateCharToString(Expression charValue)
         {
-            return this.TranslateExpression(charValue)
+            return TranslateExpression(charValue)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToString()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -191,7 +191,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateChr(Expression charCode)
         {
-            return this.TranslateExpression(charCode)
+            return TranslateExpression(charCode)
                 .EnsureTightness(ExpressionTightness.UNARY_PREFIX)
                 .Prepend("(char)")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
@@ -208,13 +208,13 @@ namespace Pastel.Transpilers
         {
             StringBuffer buf = StringBuffer
                 .Of("new ")
-                .Push(this.TypeTranspiler.TranslateType(constructorInvocation.Type))
+                .Push(TypeTranspiler.TranslateType(constructorInvocation.Type))
                 .Push("(");
             Expression[] args = constructorInvocation.Args;
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(this.TranslateExpression(args[i]));
+                buf.Push(TranslateExpression(args[i]));
             }
             return buf
                 .Push(")")
@@ -223,27 +223,27 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateDictionaryContainsKey(Expression dictionary, Expression key)
         {
-            return this.TranslateExpression(dictionary)
+            return TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ContainsKey(")
-                .Push(this.TranslateExpression(key))
+                .Push(TranslateExpression(key))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionaryGet(Expression dictionary, Expression key)
         {
-            return this.TranslateExpression(dictionary)
+            return TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(this.TranslateExpression(key))
+                .Push(TranslateExpression(key))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionaryKeys(Expression dictionary)
         {
-            return this.TranslateExpression(dictionary)
+            return TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Keys.ToArray()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -253,35 +253,35 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("new Dictionary<")
-                .Push(this.TypeTranspiler.TranslateType(keyType))
+                .Push(TypeTranspiler.TranslateType(keyType))
                 .Push(", ")
-                .Push(this.TypeTranspiler.TranslateType(valueType))
+                .Push(TypeTranspiler.TranslateType(valueType))
                 .Push(">()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionaryRemove(Expression dictionary, Expression key)
         {
-            return this.TranslateExpression(dictionary)
+            return TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Remove(")
-                .Push(this.TranslateExpression(key))
+                .Push(TranslateExpression(key))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value)
         {
-            return this.TranslateExpression(dictionary)
+            return TranslateExpression(dictionary)
                 .Push("[")
-                .Push(this.TranslateExpression(key))
+                .Push(TranslateExpression(key))
                 .Push("] = ")
-                .Push(this.TranslateExpression(value));
+                .Push(TranslateExpression(value));
         }
 
         public override StringBuffer TranslateDictionarySize(Expression dictionary)
         {
-            return this.TranslateExpression(dictionary)
+            return TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Count")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -291,21 +291,21 @@ namespace Pastel.Transpilers
         {
             sb.Append(sb.CurrentTab);
             sb.Append("if (!");
-            sb.Append(this.TranslateExpressionAsString(dictionary));
+            sb.Append(TranslateExpressionAsString(dictionary));
             sb.Append(".TryGetValue(");
-            sb.Append(this.TranslateExpressionAsString(key));
+            sb.Append(TranslateExpressionAsString(key));
             sb.Append(", out ");
             sb.Append(varOut.Name);
             sb.Append(")) ");
             sb.Append(varOut.Name);
             sb.Append(" = ");
-            sb.Append(this.TranslateExpressionAsString(fallbackValue));
+            sb.Append(TranslateExpressionAsString(fallbackValue));
             sb.Append(";\n");
         }
 
         public override StringBuffer TranslateDictionaryValues(Expression dictionary)
         {
-            return this.TranslateExpression(dictionary)
+            return TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Values.ToArray()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -315,11 +315,11 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PST_ExtCallbacks.ContainsKey(")
-                .Push(this.TranslateExpression(name))
+                .Push(TranslateExpression(name))
                 .Push(") ? PST_ExtCallbacks[")
-                .Push(this.TranslateExpression(name))
+                .Push(TranslateExpression(name))
                 .Push("].Invoke(")
-                .Push(this.TranslateExpression(argsArray))
+                .Push(TranslateExpression(argsArray))
                 .Push(") : null")
                 .WithTightness(ExpressionTightness.TERNARY);
         }
@@ -333,24 +333,24 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator)
         {
-            return this.TranslateExpression(floatNumerator)
+            return TranslateExpression(floatNumerator)
                 .EnsureTightness(ExpressionTightness.MULTIPLICATION)
                 .Push(" / ")
-                .Push(this.TranslateExpression(floatDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .Push(TranslateExpression(floatDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
         public override StringBuffer TranslateFloatToInt(Expression floatExpr)
         {
             return StringBuffer.Of("(int)")
-                .Push(this.TranslateExpression(floatExpr).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(TranslateExpression(floatExpr).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return StringBuffer.Of("PST_FloatToString(")
-                .Push(this.TranslateExpression(floatExpr))
+                .Push(TranslateExpression(floatExpr))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -358,7 +358,7 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateGetFunction(Expression name)
         {
             return StringBuffer.Of("TranslationHelper.GetFunctionPointer(")
-                .Push(this.TranslateExpression(name))
+                .Push(TranslateExpression(name))
                 .Push(")");
         }
 
@@ -371,10 +371,10 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator)
         {
-            return this.TranslateExpression(integerNumerator)
+            return TranslateExpression(integerNumerator)
                 .EnsureTightness(ExpressionTightness.MULTIPLICATION)
                 .Push(" / ")
-                .Push(this.TranslateExpression(integerDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .Push(TranslateExpression(integerDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
@@ -384,7 +384,7 @@ namespace Pastel.Transpilers
             // need to worry about things like "42.ToString()"
             if (integer is InlineConstant) throw new InvalidOperationException(); // and assert as such
 
-            return this.TranslateExpression(integer)
+            return TranslateExpression(integer)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToString()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -394,17 +394,17 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PST_IsValidInteger(")
-                .Push(this.TranslateExpression(stringValue))
+                .Push(TranslateExpression(stringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListAdd(Expression list, Expression item)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Add(")
-                .Push(this.TranslateExpression(item))
+                .Push(TranslateExpression(item))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -413,16 +413,16 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PST_ListConcat(")
-                .Push(this.TranslateExpression(list))
+                .Push(TranslateExpression(list))
                 .Push(", ")
-                .Push(this.TranslateExpression(items))
+                .Push(TranslateExpression(items))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListClear(Expression list)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Clear()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -430,22 +430,22 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateListGet(Expression list, Expression index)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(this.TranslateExpression(index))
+                .Push(TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListInsert(Expression list, Expression index, Expression item)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Insert(")
-                .Push(this.TranslateExpression(index))
+                .Push(TranslateExpression(index))
                 .Push(", ")
-                .Push(this.TranslateExpression(item))
+                .Push(TranslateExpression(item))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -454,7 +454,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("new string(")
-                .Push(this.TranslateExpression(list))
+                .Push(TranslateExpression(list))
                 .Push(".ToArray())")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -463,9 +463,9 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("string.Join(")
-                .Push(this.TranslateExpression(sep))
+                .Push(TranslateExpression(sep))
                 .Push(", ")
-                .Push(this.TranslateExpression(list))
+                .Push(TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -474,7 +474,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("new List<")
-                .Push(this.TypeTranspiler.TranslateType(type))
+                .Push(TypeTranspiler.TranslateType(type))
                 .Push(">()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -483,22 +483,22 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PST_ListPop(")
-                .Push(this.TranslateExpression(list))
+                .Push(TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListRemoveAt(Expression list, Expression index)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .Push(".RemoveAt(")
-                .Push(this.TranslateExpression(index))
+                .Push(TranslateExpression(index))
                 .Push(")");
         }
 
         public override StringBuffer TranslateListReverse(Expression list)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Reverse()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -506,26 +506,26 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateListSet(Expression list, Expression index, Expression value)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(this.TranslateExpression(index))
+                .Push(TranslateExpression(index))
                 .Push("] = ")
-                .Push(this.TranslateExpression(value));
+                .Push(TranslateExpression(value));
         }
 
         public override StringBuffer TranslateListShuffle(Expression list)
         {
             return StringBuffer
                 .Of("PST_ShuffleInPlace(")
-                .Push(this.TranslateExpression(list))
+                .Push(TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListSize(Expression list)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Count")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -533,7 +533,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateListToArray(Expression list)
         {
-            return this.TranslateExpression(list)
+            return TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToArray()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -543,7 +543,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Math.Acos(")
-                .Push(this.TranslateExpression(ratio))
+                .Push(TranslateExpression(ratio))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -552,7 +552,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Math.Asin(")
-                .Push(this.TranslateExpression(ratio))
+                .Push(TranslateExpression(ratio))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -561,9 +561,9 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Math.Atan2(")
-                .Push(this.TranslateExpression(yComponent))
+                .Push(TranslateExpression(yComponent))
                 .Push(", ")
-                .Push(this.TranslateExpression(xComponent))
+                .Push(TranslateExpression(xComponent))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -572,7 +572,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Math.Cos(")
-                .Push(this.TranslateExpression(thetaRadians))
+                .Push(TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -581,7 +581,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Math.Log(")
-                .Push(this.TranslateExpression(value))
+                .Push(TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -590,9 +590,9 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Math.Pow(")
-                .Push(this.TranslateExpression(expBase))
+                .Push(TranslateExpression(expBase))
                 .Push(", ")
-                .Push(this.TranslateExpression(exponent))
+                .Push(TranslateExpression(exponent))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -601,7 +601,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Math.Sin(")
-                .Push(this.TranslateExpression(thetaRadians))
+                .Push(TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -610,7 +610,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Math.Tan(")
-                .Push(this.TranslateExpression(thetaRadians))
+                .Push(TranslateExpression(thetaRadians))
                 .Push(")");
         }
 
@@ -618,9 +618,9 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PST_MultiplyList(")
-                .Push(this.TranslateExpression(list))
+                .Push(TranslateExpression(list))
                 .Push(", ")
-                .Push(this.TranslateExpression(n))
+                .Push(TranslateExpression(n))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -640,7 +640,7 @@ namespace Pastel.Transpilers
                 // throw new Exception(); // TODO: but it isn't quite yet
             }
 
-            return this.TranslateExpression(charValue)
+            return TranslateExpression(charValue)
                 .EnsureTightness(ExpressionTightness.UNARY_PREFIX)
                 .Prepend("(int)")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
@@ -650,7 +650,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("double.Parse(")
-                .Push(this.TranslateExpression(stringValue))
+                .Push(TranslateExpression(stringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -659,7 +659,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("int.Parse(")
-                .Push(this.TranslateExpression(safeStringValue))
+                .Push(TranslateExpression(safeStringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -673,7 +673,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateSortedCopyOfIntArray(Expression intArray)
         {
-            return this.TranslateExpression(intArray)
+            return TranslateExpression(intArray)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".OrderBy<int, int>(_PST_GEN_arg => _PST_GEN_arg).ToArray()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -681,7 +681,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateSortedCopyOfStringArray(Expression stringArray)
         {
-            return this.TranslateExpression(stringArray)
+            return TranslateExpression(stringArray)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".OrderBy<string, string>(_PST_GEN_arg => _PST_GEN_arg).ToArray()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -689,9 +689,9 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringAppend(Expression str1, Expression str2)
         {
-            return this.TranslateExpression(str1)
+            return TranslateExpression(str1)
                 .Push(" += ")
-                .Push(this.TranslateExpression(str2));
+                .Push(TranslateExpression(str2));
         }
 
         public override StringBuffer TranslateStringBuffer16()
@@ -703,10 +703,10 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)
         {
-            return this.TranslateExpression(str)
+            return TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(this.TranslateExpression(index))
+                .Push(TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -715,19 +715,19 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("(int)")
-                .Push(this.TranslateExpression(str).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(TranslateExpression(str).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("[")
-                .Push(this.TranslateExpression(index))
+                .Push(TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateStringCompareIsReverse(Expression str1, Expression str2)
         {
-            return this.TranslateExpression(str1)
+            return TranslateExpression(str1)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".CompareTo(")
-                .Push(this.TranslateExpression(str2))
+                .Push(TranslateExpression(str2))
                 .Push(") == 1")
                 .WithTightness(ExpressionTightness.EQUALITY);
         }
@@ -738,7 +738,7 @@ namespace Pastel.Transpilers
             for (int i = 0; i < strings.Length; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(this.TranslateExpression(strings[i]));
+                buf.Push(TranslateExpression(strings[i]));
             }
             return buf
                 .Push(" })")
@@ -747,39 +747,39 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringConcatPair(Expression strLeft, Expression strRight)
         {
-            return this.TranslateExpression(strLeft)
+            return TranslateExpression(strLeft)
                 .EnsureTightness(ExpressionTightness.ADDITION)
                 .Push(" + ")
-                .Push(this.TranslateExpression(strRight).EnsureGreaterTightness(ExpressionTightness.ADDITION))
+                .Push(TranslateExpression(strRight).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                 .WithTightness(ExpressionTightness.ADDITION);
         }
 
         public override StringBuffer TranslateStringContains(Expression haystack, Expression needle)
         {
-            return this.TranslateExpression(haystack)
+            return TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Contains(")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringEndsWith(Expression haystack, Expression needle)
         {
-            return this.TranslateExpression(haystack)
+            return TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".EndsWith(")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringEquals(Expression left, Expression right)
         {
-            return this.TranslateExpression(left)
+            return TranslateExpression(left)
                 .EnsureGreaterTightness(ExpressionTightness.EQUALITY)
                 .Push(" == ")
-                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.EQUALITY))
+                .Push(TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.EQUALITY))
                 .WithTightness(ExpressionTightness.EQUALITY);
         }
 
@@ -787,46 +787,46 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("((char)")
-                .Push(this.TranslateExpression(charCode).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(TranslateExpression(charCode).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .Push(").ToString()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringIndexOf(Expression haystack, Expression needle)
         {
-            return this.TranslateExpression(haystack)
+            return TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".IndexOf(")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringIndexOfWithStart(Expression haystack, Expression needle, Expression startIndex)
         {
-            return this.TranslateExpression(haystack)
+            return TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".IndexOf(")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(", ")
-                .Push(this.TranslateExpression(startIndex))
+                .Push(TranslateExpression(startIndex))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringLastIndexOf(Expression haystack, Expression needle)
         {
-            return this.TranslateExpression(haystack)
+            return TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".LastIndexOf(")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringLength(Expression str)
         {
-            return this.TranslateExpression(str)
+            return TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Length")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -834,18 +834,18 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringReplace(Expression haystack, Expression needle, Expression newNeedle)
         {
-            return this.TranslateExpression(haystack)
+            return TranslateExpression(haystack)
                 .Push(".Replace(")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(", ")
-                .Push(this.TranslateExpression(newNeedle))
+                .Push(TranslateExpression(newNeedle))
                 .Push(")");
         }
 
         public override StringBuffer TranslateStringReverse(Expression str)
         {
             return StringBuffer.Of("PST_StringReverse(")
-                .Push(this.TranslateExpression(str))
+                .Push(TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -853,30 +853,30 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateStringSplit(Expression haystack, Expression needle)
         {
             return StringBuffer.Of("PST_StringSplit(")
-                .Push(this.TranslateExpression(haystack))
+                .Push(TranslateExpression(haystack))
                 .Push(", ")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(")");
         }
 
         public override StringBuffer TranslateStringStartsWith(Expression haystack, Expression needle)
         {
-            return this.TranslateExpression(haystack)
+            return TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".StartsWith(")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringSubstring(Expression str, Expression start, Expression length)
         {
-            return this.TranslateExpression(str)
+            return TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Substring(")
-                .Push(this.TranslateExpression(start))
+                .Push(TranslateExpression(start))
                 .Push(", ")
-                .Push(this.TranslateExpression(length))
+                .Push(TranslateExpression(length))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -884,18 +884,18 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateStringSubstringIsEqualTo(Expression haystack, Expression startIndex, Expression needle)
         {
             return StringBuffer.Of("PST_SubstringIsEqualTo(")
-                .Push(this.TranslateExpression(haystack))
+                .Push(TranslateExpression(haystack))
                 .Push(", ")
-                .Push(this.TranslateExpression(startIndex))
+                .Push(TranslateExpression(startIndex))
                 .Push(", ")
-                .Push(this.TranslateExpression(needle))
+                .Push(TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringToLower(Expression str)
         {
-            return this.TranslateExpression(str)
+            return TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToLower()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -903,7 +903,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringToUpper(Expression str)
         {
-            return this.TranslateExpression(str)
+            return TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToUpper()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -913,14 +913,14 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PST_stringToUtf8Bytes(")
-                .Push(this.TranslateExpression(str))
+                .Push(TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringTrim(Expression str)
         {
-            return this.TranslateExpression(str)
+            return TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Trim()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -928,7 +928,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringTrimEnd(Expression str)
         {
-            return this.TranslateExpression(str)
+            return TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".TrimEnd()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -936,7 +936,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringTrimStart(Expression str)
         {
-            return this.TranslateExpression(str)
+            return TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".TrimStart()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -944,17 +944,17 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringBuilderAdd(Expression sbInst, Expression obj)
         {
-            return this.TranslateExpression(sbInst)
+            return TranslateExpression(sbInst)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Append(")
-                .Push(this.TranslateExpression(obj))
+                .Push(TranslateExpression(obj))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringBuilderClear(Expression sbInst)
         {
-            return this.TranslateExpression(sbInst)
+            return TranslateExpression(sbInst)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".Clear()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -969,7 +969,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStringBuilderToString(Expression sbInst)
         {
-            return this.TranslateExpression(sbInst)
+            return TranslateExpression(sbInst)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToString()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -977,16 +977,16 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateStrongReferenceEquality(Expression left, Expression right)
         {
-            return this.TranslateExpression(left)
+            return TranslateExpression(left)
                 .EnsureGreaterTightness(ExpressionTightness.EQUALITY)
                 .Push(" == ")
-                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.EQUALITY))
+                .Push(TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.EQUALITY))
                 .WithTightness(ExpressionTightness.EQUALITY);
         }
 
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
-            return this.TranslateExpression(root)
+            return TranslateExpression(root)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".")
                 .Push(fieldName)
@@ -997,7 +997,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("PST_ToCodeString(")
-                .Push(this.TranslateExpression(str))
+                .Push(TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -1005,9 +1005,9 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateTryParseFloat(Expression stringValue, Expression floatOutList)
         {
             return StringBuffer.Of("PST_ParseFloat(")
-                .Push(this.TranslateExpression(stringValue))
+                .Push(TranslateExpression(stringValue))
                 .Push(", ")
-                .Push(this.TranslateExpression(floatOutList))
+                .Push(TranslateExpression(floatOutList))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -1016,7 +1016,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("System.Text.Encoding.UTF8.GetString((")
-                .Push(this.TranslateExpression(bytes))
+                .Push(TranslateExpression(bytes))
                 .Push(").Select(v => (byte)v).ToArray())")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -1024,13 +1024,13 @@ namespace Pastel.Transpilers
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append(this.TypeTranspiler.TranslateType(varDecl.Type));
+            sb.Append(TypeTranspiler.TranslateType(varDecl.Type));
             sb.Append(' ');
             sb.Append(varDecl.VariableNameToken.Value);
             if (varDecl.Value != null)
             {
                 sb.Append(" = ");
-                sb.Append(this.TranslateExpressionAsString(varDecl.Value));
+                sb.Append(TranslateExpressionAsString(varDecl.Value));
             }
             sb.Append(";\n");
         }
@@ -1044,12 +1044,12 @@ namespace Pastel.Transpilers
             List<string> lines = new List<string>();
 
             string defline = "public class " + name;
-            
+
             lines.Add(defline);
             lines.Add("{");
             for (int i = 0; i < names.Length; ++i)
             {
-                lines.Add("    public " + this.TypeTranspiler.TranslateType(types[i]) + " " + names[i].Value + ";");
+                lines.Add("    public " + TypeTranspiler.TranslateType(types[i]) + " " + names[i].Value + ";");
             }
             lines.Add("");
 
@@ -1060,7 +1060,7 @@ namespace Pastel.Transpilers
             for (int i = 0; i < types.Length; ++i)
             {
                 if (i > 0) constructorDeclaration.Append(", ");
-                constructorDeclaration.Append(this.TypeTranspiler.TranslateType(types[i]));
+                constructorDeclaration.Append(TypeTranspiler.TranslateType(types[i]));
                 constructorDeclaration.Append(' ');
                 constructorDeclaration.Append(names[i].Value);
             }
@@ -1092,14 +1092,14 @@ namespace Pastel.Transpilers
             output.Append(output.CurrentTab);
             output.Append("public ");
             if (isStatic) output.Append("static ");
-            output.Append(this.TypeTranspiler.TranslateType(returnType));
+            output.Append(TypeTranspiler.TranslateType(returnType));
             output.Append(' ');
             output.Append(funcName);
             output.Append("(");
             for (int i = 0; i < argTypes.Length; ++i)
             {
                 if (i > 0) output.Append(", ");
-                output.Append(this.TypeTranspiler.TranslateType(argTypes[i]));
+                output.Append(TypeTranspiler.TranslateType(argTypes[i]));
                 output.Append(' ');
                 output.Append(argNames[i].Value);
             }
@@ -1107,7 +1107,7 @@ namespace Pastel.Transpilers
             output.Append(output.CurrentTab);
             output.Append("{\n");
             output.TabDepth++;
-            this.TranslateStatements(output, funcDef.Code);
+            TranslateStatements(output, funcDef.Code);
             output.TabDepth--;
             output.Append(output.CurrentTab);
             output.Append("}");

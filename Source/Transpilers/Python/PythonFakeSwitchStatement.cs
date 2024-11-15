@@ -5,7 +5,7 @@ using System.Text;
 
 // I'm so sorry.
 
-namespace Pastel.Transpilers
+namespace Pastel.Transpilers.Python
 {
     /*
         A switch statement has some cases and possibly a default.
@@ -40,11 +40,11 @@ namespace Pastel.Transpilers
         {
             get
             {
-                if (this.conditionVariableName == null)
+                if (conditionVariableName == null)
                 {
-                    this.conditionVariableName = "sc_" + this.switchId;
+                    conditionVariableName = "sc_" + switchId;
                 }
-                return this.conditionVariableName;
+                return conditionVariableName;
             }
         }
 
@@ -53,11 +53,11 @@ namespace Pastel.Transpilers
         {
             get
             {
-                if (this.dictionaryGlobalName == null)
+                if (dictionaryGlobalName == null)
                 {
-                    this.dictionaryGlobalName = "swlookup__" + this.functionName + "__" + this.switchId;
+                    dictionaryGlobalName = "swlookup__" + functionName + "__" + switchId;
                 }
-                return this.dictionaryGlobalName;
+                return dictionaryGlobalName;
             }
         }
 
@@ -119,7 +119,7 @@ namespace Pastel.Transpilers
             this.owner = owner;
             this.functionName = functionName;
             this.switchId = switchId;
-            this.DefaultId = defaultChunkId;
+            DefaultId = defaultChunkId;
             this.expressionsToChunkIds = expressionsToChunkIds;
             this.chunkIdsToCode = chunkIdsToCode;
         }
@@ -127,12 +127,12 @@ namespace Pastel.Transpilers
         public string GenerateGlobalDictionaryLookup()
         {
             StringBuilder dictionaryBuilder = new StringBuilder();
-            dictionaryBuilder.Append(this.DictionaryGlobalName);
+            dictionaryBuilder.Append(DictionaryGlobalName);
             dictionaryBuilder.Append(" = { ");
 
             bool isInteger = false;
             bool first = true;
-            foreach (InlineConstant ic in this.expressionsToChunkIds.Keys)
+            foreach (InlineConstant ic in expressionsToChunkIds.Keys)
             {
                 if (first)
                 {
@@ -144,7 +144,7 @@ namespace Pastel.Transpilers
                     dictionaryBuilder.Append(", ");
                 }
 
-                int id = this.expressionsToChunkIds[ic];
+                int id = expressionsToChunkIds[ic];
                 if (isInteger)
                 {
                     dictionaryBuilder.Append((int)ic.Value);
@@ -154,7 +154,7 @@ namespace Pastel.Transpilers
                     dictionaryBuilder.Append(CodeUtil.ConvertStringValueToCode((string)ic.Value));
                 }
                 dictionaryBuilder.Append(": ");
-                dictionaryBuilder.Append(this.expressionsToChunkIds[ic]);
+                dictionaryBuilder.Append(expressionsToChunkIds[ic]);
             }
             dictionaryBuilder.Append(" }");
             return dictionaryBuilder.ToString();
@@ -162,7 +162,7 @@ namespace Pastel.Transpilers
 
         public IfStatement GenerateIfStatementBinarySearchTree()
         {
-            return this.GenerateIfStatementBinarySearchTree(0, this.chunkIdsToCode.Count - 1, this.chunkIdsToCode);
+            return GenerateIfStatementBinarySearchTree(0, chunkIdsToCode.Count - 1, chunkIdsToCode);
         }
 
         private IfStatement GenerateIfStatementBinarySearchTree(int lowId, int highId, Dictionary<int, Statement[]> codeById)
@@ -214,9 +214,9 @@ namespace Pastel.Transpilers
         private IfStatement BuildIfStatement(int id, string op, Statement[] trueCode, Statement[] falseCode)
         {
             Token equalsToken = Token.CreateDummyToken(op);
-            Variable variable = new Variable(Token.CreateDummyToken(this.ConditionVariableName), this.owner);
+            Variable variable = new Variable(Token.CreateDummyToken(ConditionVariableName), owner);
             variable.ApplyPrefix = false;
-            Expression condition = new OpChain(new Expression[] { variable, InlineConstant.Of(id, this.owner) }, new Token[] { equalsToken });
+            Expression condition = new OpChain(new Expression[] { variable, InlineConstant.Of(id, owner) }, new Token[] { equalsToken });
 
             return new IfStatement(
                 Token.CreateDummyToken("if"),

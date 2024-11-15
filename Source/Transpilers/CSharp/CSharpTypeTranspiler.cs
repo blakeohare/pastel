@@ -1,7 +1,7 @@
 ﻿using Pastel.Parser.ParseNodes;
 using System;
 
-namespace Pastel.Transpilers
+namespace Pastel.Transpilers.CSharp
 {
     internal class CSharpTypeTranspiler : AbstractTypeTranspiler
     {
@@ -22,23 +22,23 @@ namespace Pastel.Transpilers
                     return "System.Text.StringBuilder";
 
                 case "List":
-                    return "System.Collections.Generic.List<" + this.TranslateType(type.Generics[0]) + ">";
+                    return "System.Collections.Generic.List<" + TranslateType(type.Generics[0]) + ">";
 
                 case "Dictionary":
-                    return "System.Collections.Generic.Dictionary<" + this.TranslateType(type.Generics[0]) + ", " + this.TranslateType(type.Generics[1]) + ">";
+                    return "System.Collections.Generic.Dictionary<" + TranslateType(type.Generics[0]) + ", " + TranslateType(type.Generics[1]) + ">";
 
                 case "Array":
-                    return this.TranslateType(type.Generics[0]) + "[]";
+                    return TranslateType(type.Generics[0]) + "[]";
 
                 case "Func":
                     System.Text.StringBuilder sb = new System.Text.StringBuilder();
                     sb.Append("System.Func<");
                     for (int i = 0; i < type.Generics.Length - 1; ++i)
                     {
-                        sb.Append(this.TranslateType(type.Generics[i + 1]));
+                        sb.Append(TranslateType(type.Generics[i + 1]));
                         sb.Append(", ");
                     }
-                    sb.Append(this.TranslateType(type.Generics[0]));
+                    sb.Append(TranslateType(type.Generics[0]));
                     sb.Append('>');
                     return sb.ToString();
 

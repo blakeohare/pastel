@@ -1,7 +1,7 @@
 ﻿using Pastel.Parser.ParseNodes;
 using System;
 
-namespace Pastel.Transpilers
+namespace Pastel.Transpilers.C
 {
     internal class CTypeTranspiler : AbstractTypeTranspiler
     {

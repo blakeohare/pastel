@@ -1,5 +1,4 @@
-﻿using Pastel.Transpilers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Pastel
 {
@@ -49,17 +48,19 @@ namespace Pastel
             }
         }
 
-        internal static AbstractTranspiler CreateTranspiler(Language lang, TranspilerContext ctx)
+        internal static Pastel.Transpilers.AbstractTranspiler CreateTranspiler(
+            Language lang,
+            Pastel.Transpilers.TranspilerContext ctx)
         {
             switch (lang)
             {
-                case Language.C: return new CTranspiler(ctx);
-                case Language.CSHARP: return new CSharpTranspiler(ctx);
-                case Language.GO: return new GoTranspiler(ctx);
-                case Language.JAVA: return new JavaTranspiler(ctx);
-                case Language.JAVASCRIPT: return new JavaScriptTranspiler(ctx);
-                case Language.PHP: return new PhpTranspiler(ctx);
-                case Language.PYTHON: return new PythonTranspiler(ctx);
+                case Language.C: return new Pastel.Transpilers.C.CTranspiler(ctx);
+                case Language.CSHARP: return new Pastel.Transpilers.CSharp.CSharpTranspiler(ctx);
+                case Language.GO: return new Pastel.Transpilers.Go.GoTranspiler(ctx);
+                case Language.JAVA: return new Pastel.Transpilers.Java.JavaTranspiler(ctx);
+                case Language.JAVASCRIPT: return new Pastel.Transpilers.JavaScript.JavaScriptTranspiler(ctx);
+                case Language.PHP: return new Pastel.Transpilers.Php.PhpTranspiler(ctx);
+                case Language.PYTHON: return new Pastel.Transpilers.Python.PythonTranspiler(ctx);
                 default: throw new System.InvalidOperationException();
             }
         }

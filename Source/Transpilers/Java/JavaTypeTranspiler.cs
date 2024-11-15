@@ -1,7 +1,7 @@
 ﻿using Pastel.Parser.ParseNodes;
 using System;
 
-namespace Pastel.Transpilers
+namespace Pastel.Transpilers.Java
 {
     internal class JavaTypeTranspiler : AbstractTypeTranspiler
     {
@@ -19,14 +19,14 @@ namespace Pastel.Transpilers
                 case "string": return "String";
 
                 case "Array":
-                    string innerType = this.TranslateType(type.Generics[0]);
+                    string innerType = TranslateType(type.Generics[0]);
                     return innerType + "[]";
 
                 case "List":
-                    return "ArrayList<" + this.TranslateJavaNestedType(type.Generics[0]) + ">";
+                    return "ArrayList<" + TranslateJavaNestedType(type.Generics[0]) + ">";
 
                 case "Dictionary":
-                    return "HashMap<" + this.TranslateJavaNestedType(type.Generics[0]) + ", " + this.TranslateJavaNestedType(type.Generics[1]) + ">";
+                    return "HashMap<" + TranslateJavaNestedType(type.Generics[0]) + ", " + TranslateJavaNestedType(type.Generics[1]) + ">";
 
                 case "Func":
                     return "java.lang.reflect.Method";
@@ -56,7 +56,7 @@ namespace Pastel.Transpilers
                 case "double": return "Double";
                 case "int": return "Integer";
                 default:
-                    return this.TranslateType(type);
+                    return TranslateType(type);
             }
         }
 

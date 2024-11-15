@@ -1,7 +1,7 @@
 ﻿using Pastel.Parser.ParseNodes;
 using System;
 
-namespace Pastel.Transpilers
+namespace Pastel.Transpilers.Go
 {
     internal class GoTypeTranspiler : AbstractTypeTranspiler
     {
@@ -11,7 +11,7 @@ namespace Pastel.Transpilers
             {
                 case "int": return "int";
                 case "double": return "float64";
-                case "Array": return "[]" + this.TranslateType(type.Generics[0]);
+                case "Array": return "[]" + TranslateType(type.Generics[0]);
             }
 
             if (type.IsStruct)
