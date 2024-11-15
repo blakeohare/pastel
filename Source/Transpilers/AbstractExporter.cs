@@ -25,5 +25,15 @@ namespace Pastel.Transpilers
                 System.IO.File.WriteAllText(actualPath, code);
             }
         }
+
+        protected string[] SplitAndIndent(string code, string indentStr)
+        {
+            string[] lines = code.TrimEnd().Split('\n');
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i] != "") lines[i] = indentStr + lines[i];
+            }
+            return lines;
+        }
     }
 }

@@ -20,18 +20,35 @@ namespace Pastel.Transpilers.Go
 
         private void GenerateFunctionImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string funcCode)
         {
-            AbstractTranspiler transpiler = ctx.Transpiler;
-            funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
-            funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            filesOut["@FUNC_FILE"] = funcCode;
+            string[] imports = [.. ctx.TranspilerContext.GetFeatures()
+                .Where(f => f.StartsWith("IMPORT:"))
+                .Select(f => f["IMPORT:".Length..])
+                .OrderBy(v => v)];
+
+            string[] importLines;
+            if (imports.Length == 0) importLines = [];
+            else if (imports.Length == 1) importLines = ["import \"" + imports[0] + "\"", ""];
+            else importLines = ["import (", .. imports.Select(v => "  \"" + v + "\""), ")", ""];
+
+            filesOut["@FUNC_FILE"] = string.Join('\n', [
+                "package main",
+                "",
+                .. importLines,
+                .. funcCode.Trim(),
+                "",
+            ]);
         }
 
         private void GenerateStructBundleImplementation(Dictionary<string, string> filesOut, TranspilerContext ctx, ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)
         {
-            List<string> codeLines = [];
+            List<string> codeLines = [
+                "package main",
+                "",
+            ];
             foreach (string structName in structOrder)
             {
-                codeLines.Add(ctx.Transpiler.WrapCodeForStructs(ctx, config, structCodeByName[structName]));
+                codeLines.Add(structCodeByName[structName]);
+                codeLines.Add("");
             }
             filesOut["@STRUCT_DIR/genstructs.go"] = string.Join('\n', codeLines);
         }

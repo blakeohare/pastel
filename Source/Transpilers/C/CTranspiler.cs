@@ -1,6 +1,5 @@
 ﻿using Pastel.Parser.ParseNodes;
 using System;
-using System.Collections.Generic;
 
 namespace Pastel.Transpilers.C
 {
@@ -14,11 +13,6 @@ namespace Pastel.Transpilers.C
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/C/PastelHelper.c"; } }
-
-        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
-        {
-            throw new NotImplementedException();
-        }
 
         public override StringBuffer TranslatePrintStdErr(Expression value)
         {

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Pastel.Parser.ParseNodes;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Pastel.Transpilers.JavaScript
 {
@@ -16,10 +19,39 @@ namespace Pastel.Transpilers.JavaScript
 
         private void GenerateFunctionImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string funcCode)
         {
-            AbstractTranspiler transpiler = ctx.Transpiler;
-            funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
-            funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
+            funcCode = this.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
             filesOut["@FUNC_FILE"] = funcCode;
+        }
+
+        private string WrapFinalExportedCode(string code, FunctionDefinition[] functions)
+        {
+            // TODO: public annotation to only export certain functions.
+
+            // TODO: internally minify names. As this is being exported with a list, the order
+            // is the only important thing to assign it to the proper external alias.
+            StringBuilder sb = new StringBuilder();
+            sb.Append("const [");
+            string[] funcNames = functions
+                .Select(fd => fd.Name)
+                .OrderBy(n => n)
+                .ToArray();
+            for (int i = 0; i < funcNames.Length; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append(funcNames[i]);
+            }
+            sb.Append("] = (() => {\n");
+            sb.Append(code);
+            sb.Append('\n');
+            sb.Append("return [");
+            for (int i = 0; i < funcNames.Length; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append(funcNames[i]);
+            }
+            sb.Append("];\n");
+            sb.Append("})();\n");
+            return sb.ToString();
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Pastel.Parser.ParseNodes;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Pastel.Transpilers.Go
@@ -15,35 +14,6 @@ namespace Pastel.Transpilers.Go
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Go/PastelHelper.go"; } }
-
-        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
-        {
-            List<string> headerLines = new List<string>() { "package main", "" };
-            string[] imports = ctx.GetFeatures()
-                .Where(f => f.StartsWith("IMPORT:"))
-                .Select(f => f.Substring("IMPORT:".Length))
-                .OrderBy(v => v)
-                .ToArray();
-
-            if (imports.Length > 0)
-            {
-                if (imports.Length == 1)
-                {
-                    headerLines.Add("import \"" + imports[0] + "\"");
-                }
-                else
-                {
-                    headerLines.Add("import (");
-                    foreach (string impt in imports)
-                    {
-                        headerLines.Add("  \"" + impt + "\"");
-                    }
-                    headerLines.Add(")");
-                }
-                headerLines.Add("");
-            }
-            lines.InsertRange(0, headerLines);
-        }
 
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {

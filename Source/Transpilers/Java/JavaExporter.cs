@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Pastel.Transpilers.Java
 {
@@ -21,18 +22,28 @@ namespace Pastel.Transpilers.Java
 
         private void GenerateFunctionImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string funcCode)
         {
-            AbstractTranspiler transpiler = ctx.Transpiler;
-            funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
-            funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            filesOut["@FUNC_FILE"] = funcCode;
+            filesOut["@FUNC_FILE"] = string.Join('\n', [
+                "package " + config.NamespaceForFunctions + ";",
+                "",
+                .. (config.Imports.Count == 0 ? [] : config.Imports
+                        .OrderBy(t => t)
+                        .Select(t => "import " + t + ";")
+                        .Append("")),
+                "public final class " + config.WrappingClassNameForFunctions + " {",
+                .. this.SplitAndIndent(funcCode, "\t"),
+                "}",
+                "",
+            ]);
         }
 
         private void GenerateStructImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string structName, string structCode)
         {
-            structCode = ctx.Transpiler.WrapCodeForStructs(ctx.TranspilerContext, config, structCode);
-            string fileExtension = LanguageUtil.GetFileExtension(config.Language);
-            string path = "@STRUCT_DIR/" + structName + ".java";
-            filesOut[path] = structCode;
+            filesOut["@STRUCT_DIR/" + structName + ".java"] = string.Join('\n', [
+                "package " + config.NamespaceForStructs + ";",
+                "",
+                structCode.Trim(),
+                "",
+            ]);
         }
     }
 }

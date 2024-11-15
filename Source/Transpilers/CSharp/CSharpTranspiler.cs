@@ -2,7 +2,6 @@
 using Pastel.Parser.ParseNodes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Pastel.Transpilers.CSharp
 {
@@ -16,54 +15,6 @@ namespace Pastel.Transpilers.CSharp
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/CSharp/PastelHelper.cs"; } }
-
-        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
-        {
-            if (!isForStruct)
-            {
-                lines.InsertRange(0, new string[] {
-                    "#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.",
-                    "#pragma warning disable CS8602 // Dereference of a possibly null reference.",
-                    "#pragma warning disable CS8603 // Possible null reference return.",
-                    "#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.",
-                });
-            }
-
-            if (!isForStruct && config.WrappingClassNameForFunctions != null)
-            {
-                CodeUtil.IndentLines(lines);
-                lines.InsertRange(0, new string[] { "public static class " + config.WrappingClassNameForFunctions, "{" });
-                lines.Add("}");
-            }
-
-            string nsValue = isForStruct ? config.NamespaceForStructs : config.NamespaceForFunctions;
-            if (nsValue != null)
-            {
-                CodeUtil.IndentLines(lines);
-                lines.InsertRange(0, new string[] { "namespace " + nsValue, "{" });
-                lines.Add("}");
-            }
-
-            HashSet<string> importSet = new HashSet<string>(config.Imports);
-            if (!isForStruct) importSet.Add("System.Linq");
-            string[] imports = importSet.OrderBy(t => t).ToArray();
-            if (imports.Length > 0)
-            {
-                lines.InsertRange(0,
-                    imports
-                        .Select(t => "using " + t + ";")
-                        .Concat(new string[] { "" }));
-            }
-
-            for (int i = 0; i < lines.Count; i++)
-            {
-                string trimmedLine = lines[i].Trim();
-                if (trimmedLine.StartsWith("#pragma warning disable"))
-                {
-                    lines[i] = trimmedLine;
-                }
-            }
-        }
 
         public override StringBuffer TranslatePrintStdErr(Expression value)
         {
@@ -1077,7 +1028,7 @@ namespace Pastel.Transpilers.CSharp
             lines.Add("");
 
             // TODO: rewrite this function to use the string builder inline and use this.NL
-            sb.Append(string.Join("\r\n", lines));
+            sb.Append(string.Join("\n", lines));
         }
 
         public override void GenerateCodeForFunction(TranspilerContext output, FunctionDefinition funcDef, bool isStatic)

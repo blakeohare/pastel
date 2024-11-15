@@ -33,15 +33,11 @@ namespace Pastel.Transpilers.C
 
         private void GenerateFunctionImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string funcCode)
         {
-            AbstractTranspiler transpiler = ctx.Transpiler;
-            funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
-            funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
             filesOut["@FUNC_FILE"] = funcCode;
         }
 
         private void GenerateStructImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string structName, string structCode)
         {
-            structCode = ctx.Transpiler.WrapCodeForStructs(ctx.TranspilerContext, config, structCode);
             filesOut["@STRUCT_DIR/" + structName + ".h"] = structCode;
         }
     }

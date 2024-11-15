@@ -39,11 +39,6 @@ namespace Pastel.Transpilers
             }
         }
 
-        public virtual string WrapFinalExportedCode(string code, FunctionDefinition[] functions)
-        {
-            return code;
-        }
-
         public void TranslateStatement(TranspilerContext sb, Statement stmnt)
         {
             string typeName = stmnt.GetType().Name;
@@ -543,25 +538,5 @@ namespace Pastel.Transpilers
         {
             throw new NotSupportedException();
         }
-
-        internal string WrapCodeForFunctions(TranspilerContext ctx, ProjectConfig config, string code)
-        {
-            List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
-            WrapCodeImpl(ctx, config, lines, false);
-            string output = string.Join('\n', lines).Trim();
-            if (this.HasNewLineAtEndOfFile) output += "\n";
-            return output;
-        }
-
-        internal string WrapCodeForStructs(TranspilerContext ctx, ProjectConfig config, string code)
-        {
-            List<string> lines = new List<string>(code.Split('\n').Select(t => t.TrimEnd()));
-            WrapCodeImpl(ctx, config, lines, true);
-            string output = string.Join('\n', lines).Trim();
-            if (this.HasNewLineAtEndOfFile) output += "\n";
-            return output;
-        }
-
-        protected abstract void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct);
     }
 }

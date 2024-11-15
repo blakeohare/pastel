@@ -23,5 +23,4 @@ namespace PastelGeneratedNamespace
             this.std_dev = std_dev;
         }
     }
-
 }

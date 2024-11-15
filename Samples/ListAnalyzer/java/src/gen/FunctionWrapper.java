@@ -1,7 +1,6 @@
 package gen;
 
 public final class FunctionWrapper {
-
   private static int[] PST_sortedCopyOfIntArray(int[] nums) {
     int[] output = java.util.Arrays.copyOf(nums, nums.length);
     java.util.Arrays.sort(output);

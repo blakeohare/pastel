@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Pastel.Transpilers.Python
 {
@@ -10,16 +11,18 @@ namespace Pastel.Transpilers.Python
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
-            GenerateFunctionImplementation(files, context, config, context.GetCodeForFunctions());
-            return files;
-        }
+            files["@FUNC_FILE"] = string.Join('\n', [
+                .. config.Imports.Count == 0
+                    ? []
+                    : config.Imports
+                        .OrderBy(t => t)
+                        .Select(t => "import " + t)
+                        .Append(""),
+                context.GetCodeForFunctions().Trim(),
+                "",
+            ]);
 
-        private void GenerateFunctionImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string funcCode)
-        {
-            AbstractTranspiler transpiler = ctx.Transpiler;
-            funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
-            funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            filesOut["@FUNC_FILE"] = funcCode;
+            return files;
         }
     }
 }

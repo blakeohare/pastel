@@ -17,48 +17,6 @@ namespace Pastel.Transpilers.Php
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Php/PastelHelper.php"; } }
 
-        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
-        {
-            if (!isForStruct)
-            {
-                CodeUtil.IndentLines(2, lines);
-
-                List<string> prefixes = new List<string>();
-
-                string className = config.WrappingClassNameForFunctions ?? "PastelGeneratedCode";
-
-                prefixes.Add("class " + className + " {");
-
-                CodeUtil.IndentLines(prefixes);
-
-                prefixes.InsertRange(0, new string[] {
-                    "<?php",
-                    ""
-                });
-
-                lines.InsertRange(0, prefixes);
-
-                bool hasIntBuffer = false;
-                foreach (string line in lines)
-                {
-                    if (line.Contains("PST_intBuffer16"))
-                    {
-                        hasIntBuffer = true;
-                    }
-                }
-
-                lines.Add("\t}");
-
-                if (hasIntBuffer)
-                {
-                    lines.Add("\tPastelGeneratedCode::$PST_intBuffer16 = pastelWrapList(array_fill(0, 16, 0));");
-                }
-
-                lines.Add("");
-                lines.Add("?>");
-            }
-        }
-
         private IList<string> GetPhpLinesWithoutWrapper(string filename, string fileContents)
         {
             List<string> lines = new List<string>(fileContents.Trim().Split('\n'));

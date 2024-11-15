@@ -1,7 +1,6 @@
 ﻿using Pastel.Parser;
 using Pastel.Parser.ParseNodes;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Pastel.Transpilers.Java
@@ -18,35 +17,6 @@ namespace Pastel.Transpilers.Java
         public override string HelperCodeResourcePath { get { return "Transpilers/Java/PastelHelper.java"; } }
 
         private JavaTypeTranspiler JavaTypeTranspiler { get { return (JavaTypeTranspiler)TypeTranspiler; } }
-
-        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
-        {
-            if (!isForStruct && config.WrappingClassNameForFunctions != null)
-            {
-                CodeUtil.IndentLines(lines);
-                lines.InsertRange(0, new string[] { "public final class " + config.WrappingClassNameForFunctions + " {", "" });
-                lines.Add("}");
-            }
-
-            List<string> prefixData = new List<string>();
-
-            string nsValue = isForStruct ? config.NamespaceForStructs : config.NamespaceForFunctions;
-            if (nsValue != null)
-            {
-                prefixData.AddRange(new string[] { "package " + nsValue + ";", "" });
-            }
-
-            if (config.Imports.Count > 0)
-            {
-                prefixData.AddRange(
-                    config.Imports
-                        .OrderBy(t => t)
-                        .Select(t => "import " + t + ";")
-                        .Concat(new string[] { "" }));
-            }
-
-            if (prefixData.Count > 0) lines.InsertRange(0, prefixData);
-        }
 
         public override StringBuffer TranslateFunctionPointerInvocation(FunctionPointerInvocation fpi)
         {

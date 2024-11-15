@@ -1,8 +1,6 @@
 ﻿using Pastel.Parser;
 using Pastel.Parser.ParseNodes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Pastel.Transpilers.Python
 {
@@ -25,18 +23,6 @@ namespace Pastel.Transpilers.Python
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Python/PastelHelper.py"; } }
-
-        protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
-        {
-            if (config.Imports.Count > 0)
-            {
-                lines.InsertRange(0,
-                    config.Imports
-                        .OrderBy(t => t)
-                        .Select(t => "import " + t)
-                        .Append(""));
-            }
-        }
 
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
