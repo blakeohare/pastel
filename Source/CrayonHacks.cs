@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Pastel.Parser.ParseNodes;
+﻿using Pastel.Parser.ParseNodes;
 using Pastel.Parser;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Pastel
 {
