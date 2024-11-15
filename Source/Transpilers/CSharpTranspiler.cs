@@ -10,58 +10,14 @@ namespace Pastel.Transpilers
     {
         public CSharpTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx, false)
-        { }
+        {
+            this.TypeTranspiler = new CSharpTypeTranspiler();
+        }
 
         public override string PreferredTab => "    ";
         public override string PreferredNewline => "\r\n";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.cs"; } }
-
-        public override string TranslateType(PType type)
-        {
-            switch (type.RootValue)
-            {
-                case "int":
-                case "char":
-                case "bool":
-                case "double":
-                case "string":
-                case "object":
-                case "void":
-                    return type.RootValue;
-
-                case "StringBuilder":
-                    return "System.Text.StringBuilder";
-
-                case "List":
-                    return "System.Collections.Generic.List<" + this.TranslateType(type.Generics[0]) + ">";
-
-                case "Dictionary":
-                    return "System.Collections.Generic.Dictionary<" + this.TranslateType(type.Generics[0]) + ", " + this.TranslateType(type.Generics[1]) + ">";
-
-                case "Array":
-                    return this.TranslateType(type.Generics[0]) + "[]";
-
-                case "Func":
-                    System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                    sb.Append("System.Func<");
-                    for (int i = 0; i < type.Generics.Length - 1; ++i)
-                    {
-                        sb.Append(this.TranslateType(type.Generics[i + 1]));
-                        sb.Append(", ");
-                    }
-                    sb.Append(this.TranslateType(type.Generics[0]));
-                    sb.Append('>');
-                    return sb.ToString();
-
-                default:
-                    if (type.Generics.Length > 0)
-                    {
-                        throw new NotImplementedException();
-                    }
-                    return type.TypeName;
-            }
-        }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
@@ -168,7 +124,7 @@ namespace Pastel.Transpilers
             }
             StringBuffer buf = StringBuffer
                 .Of("new ")
-                .Push(this.TranslateType(arrayType))
+                .Push(this.TypeTranspiler.TranslateType(arrayType))
                 .Push("[")
                 .Push(this.TranslateExpression(lengthExpression))
                 .Push("]");
@@ -212,7 +168,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("(")
-                .Push(this.TranslateType(type))
+                .Push(this.TypeTranspiler.TranslateType(type))
                 .Push(")")
                 .Push(this.TranslateExpression(expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
@@ -252,7 +208,7 @@ namespace Pastel.Transpilers
         {
             StringBuffer buf = StringBuffer
                 .Of("new ")
-                .Push(this.TranslateType(constructorInvocation.Type))
+                .Push(this.TypeTranspiler.TranslateType(constructorInvocation.Type))
                 .Push("(");
             Expression[] args = constructorInvocation.Args;
             for (int i = 0; i < args.Length; ++i)
@@ -297,9 +253,9 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("new Dictionary<")
-                .Push(this.TranslateType(keyType))
+                .Push(this.TypeTranspiler.TranslateType(keyType))
                 .Push(", ")
-                .Push(this.TranslateType(valueType))
+                .Push(this.TypeTranspiler.TranslateType(valueType))
                 .Push(">()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -518,7 +474,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("new List<")
-                .Push(this.TranslateType(type))
+                .Push(this.TypeTranspiler.TranslateType(type))
                 .Push(">()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -1068,7 +1024,7 @@ namespace Pastel.Transpilers
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append(this.TranslateType(varDecl.Type));
+            sb.Append(this.TypeTranspiler.TranslateType(varDecl.Type));
             sb.Append(' ');
             sb.Append(varDecl.VariableNameToken.Value);
             if (varDecl.Value != null)
@@ -1093,7 +1049,7 @@ namespace Pastel.Transpilers
             lines.Add("{");
             for (int i = 0; i < names.Length; ++i)
             {
-                lines.Add("    public " + this.TranslateType(types[i]) + " " + names[i].Value + ";");
+                lines.Add("    public " + this.TypeTranspiler.TranslateType(types[i]) + " " + names[i].Value + ";");
             }
             lines.Add("");
 
@@ -1104,7 +1060,7 @@ namespace Pastel.Transpilers
             for (int i = 0; i < types.Length; ++i)
             {
                 if (i > 0) constructorDeclaration.Append(", ");
-                constructorDeclaration.Append(this.TranslateType(types[i]));
+                constructorDeclaration.Append(this.TypeTranspiler.TranslateType(types[i]));
                 constructorDeclaration.Append(' ');
                 constructorDeclaration.Append(names[i].Value);
             }
@@ -1136,14 +1092,14 @@ namespace Pastel.Transpilers
             output.Append(output.CurrentTab);
             output.Append("public ");
             if (isStatic) output.Append("static ");
-            output.Append(this.TranslateType(returnType));
+            output.Append(this.TypeTranspiler.TranslateType(returnType));
             output.Append(' ');
             output.Append(funcName);
             output.Append("(");
             for (int i = 0; i < argTypes.Length; ++i)
             {
                 if (i > 0) output.Append(", ");
-                output.Append(this.TranslateType(argTypes[i]));
+                output.Append(this.TypeTranspiler.TranslateType(argTypes[i]));
                 output.Append(' ');
                 output.Append(argNames[i].Value);
             }

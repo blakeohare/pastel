@@ -10,88 +10,16 @@ namespace Pastel.Transpilers
     {
         public JavaTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx, true)
-        { }
+        {
+            this.TypeTranspiler = new JavaTypeTranspiler();
+        }
 
         public override string PreferredTab => "  ";
         public override string PreferredNewline => "\n";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.java"; } }
 
-        public override string TranslateType(PType type)
-        {
-            return TranslateJavaType(type);
-        }
-
-        private bool IsJavaPrimitiveTypeBoxed(PType type)
-        {
-            switch (type.RootValue)
-            {
-                case "int":
-                case "double":
-                case "bool":
-                case "byte":
-                case "object":
-                case "char":
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private string TranslateJavaType(PType type)
-        {
-            switch (type.RootValue)
-            {
-                case "void": return "void";
-                case "byte": return "byte";
-                case "int": return "int";
-                case "char": return "char";
-                case "double": return "double";
-                case "bool": return "boolean";
-                case "object": return "Object";
-                case "string": return "String";
-
-                case "Array":
-                    string innerType = this.TranslateJavaType(type.Generics[0]);
-                    return innerType + "[]";
-
-                case "List":
-                    return "ArrayList<" + this.TranslateJavaNestedType(type.Generics[0]) + ">";
-
-                case "Dictionary":
-                    return "HashMap<" + this.TranslateJavaNestedType(type.Generics[0]) + ", " + this.TranslateJavaNestedType(type.Generics[1]) + ">";
-
-                case "Func":
-                    return "java.lang.reflect.Method";
-
-                // TODO: oh no.
-                case "ClassValue":
-                    // java.lang.ClassValue collision
-                    return "org.crayonlang.interpreter.structs.ClassValue";
-
-                default:
-                    if (type.IsStruct)
-                    {
-                        return type.TypeName;
-                    }
-
-                    throw new NotImplementedException();
-            }
-        }
-
-        private string TranslateJavaNestedType(PType type)
-        {
-            switch (type.RootValue)
-            {
-                case "bool": return "Boolean";
-                case "byte": return "Byte";
-                case "char": return "Character";
-                case "double": return "Double";
-                case "int": return "Integer";
-                default:
-                    return this.TranslateJavaType(type);
-            }
-        }
+        private JavaTypeTranspiler JavaTypeTranspiler { get { return (JavaTypeTranspiler)this.TypeTranspiler; } }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
@@ -125,7 +53,7 @@ namespace Pastel.Transpilers
         public override StringBuffer TranslateFunctionPointerInvocation(FunctionPointerInvocation fpi)
         {
             return StringBuffer.Of("(")
-                .Push(this.TranslateType(fpi.ResolvedType))
+                .Push(this.TypeTranspiler.TranslateType(fpi.ResolvedType))
                 .Push(") TranslationHelper.invokeFunctionPointer(")
                 .Push(this.TranslateExpression(fpi.Root))
                 .Push(", new Object[] {")
@@ -202,7 +130,7 @@ namespace Pastel.Transpilers
             }
             else
             {
-                buf.Push(this.TranslateType(arrayType));
+                buf.Push(this.TypeTranspiler.TranslateType(arrayType));
             }
             buf
                 .Push("[")
@@ -267,7 +195,7 @@ namespace Pastel.Transpilers
 
             return StringBuffer
                 .Of("(")
-                .Push(this.TranslateType(type))
+                .Push(this.TypeTranspiler.TranslateType(type))
                 .Push(") ")
                 .Push(this.TranslateExpression(expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
@@ -370,9 +298,9 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("new HashMap<")
-                .Push(this.TranslateJavaNestedType(keyType))
+                .Push(this.JavaTypeTranspiler.TranslateJavaNestedType(keyType))
                 .Push(", ")
-                .Push(this.TranslateJavaNestedType(valueType))
+                .Push(this.JavaTypeTranspiler.TranslateJavaNestedType(valueType))
                 .Push(">()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -412,14 +340,14 @@ namespace Pastel.Transpilers
             PType[] dictTypes = dictionary.ResolvedType.Generics;
             PType keyType = dictTypes[0];
             PType valueType = dictTypes[1];
-            bool keyTypeIsBoxed = this.IsJavaPrimitiveTypeBoxed(keyType);
+            bool keyTypeIsBoxed = this.JavaTypeTranspiler.IsJavaPrimitiveTypeBoxed(keyType);
             bool keyExpressionIsSimple = key is Variable || key is InlineConstant;
             string keyVar = null;
             if (!keyExpressionIsSimple)
             {
                 keyVar = "_PST_dictKey" + sb.SwitchCounter++;
                 sb.Append(sb.CurrentTab);
-                sb.Append(this.TranslateType(keyType));
+                sb.Append(this.TypeTranspiler.TranslateType(keyType));
                 sb.Append(' ');
                 sb.Append(keyVar);
                 sb.Append(" = ");
@@ -429,7 +357,7 @@ namespace Pastel.Transpilers
 
             string lookupVar = "_PST_dictLookup" + sb.SwitchCounter++;
             sb.Append(sb.CurrentTab);
-            sb.Append(this.TranslateJavaNestedType(valueType));
+            sb.Append(this.JavaTypeTranspiler.TranslateJavaNestedType(valueType));
             sb.Append(' ');
             sb.Append(lookupVar);
             sb.Append(" = ");
@@ -633,7 +561,7 @@ namespace Pastel.Transpilers
         {
             return StringBuffer
                 .Of("new ArrayList<")
-                .Push(this.TranslateJavaNestedType(type))
+                .Push(this.JavaTypeTranspiler.TranslateJavaNestedType(type))
                 .Push(">()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -763,7 +691,7 @@ namespace Pastel.Transpilers
                         return this.TranslateExpression(list)
                             .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                             .Push(".toArray(")
-                            .Push(this.TranslateType(itemType))
+                            .Push(this.TypeTranspiler.TranslateType(itemType))
                             .Push(".EMPTY_ARRAY)")
                             .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
                     }
@@ -1243,7 +1171,7 @@ namespace Pastel.Transpilers
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append(this.TranslateType(varDecl.Type));
+            sb.Append(this.TypeTranspiler.TranslateType(varDecl.Type));
             sb.Append(' ');
             sb.Append(varDecl.VariableNameToken.Value);
             if (varDecl.Value != null)
@@ -1258,7 +1186,7 @@ namespace Pastel.Transpilers
         {
             sb.Append(sb.CurrentTab);
             sb.Append("public static ");
-            sb.Append(this.TranslateType(funcDef.ReturnType));
+            sb.Append(this.TypeTranspiler.TranslateType(funcDef.ReturnType));
             sb.Append(' ');
             sb.Append(funcDef.NameToken.Value);
             sb.Append('(');
@@ -1267,7 +1195,7 @@ namespace Pastel.Transpilers
             for (int i = 0; i < argTypes.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append(this.TranslateType(argTypes[i]));
+                sb.Append(this.TypeTranspiler.TranslateType(argTypes[i]));
                 sb.Append(' ');
                 sb.Append(argNames[i].Value);
             }
@@ -1282,7 +1210,7 @@ namespace Pastel.Transpilers
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
             string[] names = structDef.FieldNames.Select(token => token.Value).ToArray();
-            string[] types = structDef.FieldTypes.Select(type => this.TranslateType(type)).ToArray();
+            string[] types = structDef.FieldTypes.Select(type => this.TypeTranspiler.TranslateType(type)).ToArray();
 
             string name = structDef.NameToken.Value;
 

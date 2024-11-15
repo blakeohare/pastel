@@ -20,11 +20,6 @@ namespace Pastel.Transpilers
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.php"; } }
 
-        public override string TranslateType(PType type)
-        {
-            throw new Exception(); // PHP doesn't have strict types.
-        }
-
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
             if (!isForStruct)

@@ -29,11 +29,6 @@ namespace Pastel.Transpilers
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.py"; } }
 
-        public override string TranslateType(PType type)
-        {
-            throw new InvalidOperationException(); // Python does not support types.
-        }
-
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
             if (config.Imports.Count > 0)

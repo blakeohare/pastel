@@ -12,7 +12,7 @@ namespace Pastel.Transpilers
         public abstract string PreferredTab { get; }
         public abstract string PreferredNewline { get; }
 
-        public bool UsesStructDefinitions { get; protected set; }        
+        public bool UsesStructDefinitions { get; protected set; }
         public bool UsesFunctionDeclarations { get; protected set; }
         public bool UsesStructDeclarations { get; protected set; }
         public bool HasStructsInSeparateFiles { get; protected set; }
@@ -21,6 +21,7 @@ namespace Pastel.Transpilers
         public abstract string HelperCodeResourcePath { get; }
 
         protected TranspilerContext transpilerCtx;
+        protected AbstractTypeTranspiler TypeTranspiler { get; set; }
 
         public AbstractTranspiler(TranspilerContext transpilerCtx)
         {
@@ -37,11 +38,6 @@ namespace Pastel.Transpilers
             {
                 this.Tabs[i] = this.Tabs[i - 1] + "\t";
             }
-        }
-
-        public virtual string TranslateType(PType type)
-        {
-            throw new InvalidOperationException(); // This platform does not support types.
         }
 
         public virtual void TranslateStatements(TranspilerContext sb, Statement[] statements)

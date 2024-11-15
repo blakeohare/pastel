@@ -10,6 +10,7 @@ namespace Pastel.Transpilers
         public GoTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx)
         {
+            this.TypeTranspiler = new GoTypeTranspiler();
             this.UsesStructDefinitions = true;
             this.HasStructsInSeparateFiles = false;
         }
@@ -18,23 +19,6 @@ namespace Pastel.Transpilers
         public override string PreferredNewline => "\n";
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Resources/PastelHelper.go"; } }
-
-        public override string TranslateType(PType type)
-        {
-            switch (type.RootValue)
-            {
-                case "int": return "int";
-                case "double": return "float64";
-                case "Array": return "[]" + this.TranslateType(type.Generics[0]);
-            }
-
-            if (type.IsStruct)
-            {
-                return "PtrBox_" + type.RootValue;
-            }
-
-            throw new NotImplementedException();
-        }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)
         {
@@ -787,7 +771,7 @@ namespace Pastel.Transpilers
                 .Append("var v_")
                 .Append(varDecl.VariableNameToken.Value)
                 .Append(' ')
-                .Append(this.TranslateType(varDecl.Type))
+                .Append(this.TypeTranspiler.TranslateType(varDecl.Type))
                 .Append(" = ")
                 .Append(this.TranslateExpressionAsString(varDecl.Value))
                 .Append("\n");
@@ -818,12 +802,12 @@ namespace Pastel.Transpilers
                     .Append("v_")
                     .Append(funcDef.ArgNames[i].Value)
                     .Append(' ')
-                    .Append(this.TranslateType(funcDef.ArgTypes[i]));
+                    .Append(this.TypeTranspiler.TranslateType(funcDef.ArgTypes[i]));
             }
             sb.Append(')');
             if (funcDef.ReturnType.RootValue != "void")
             {
-                sb.Append(" ").Append(this.TranslateType(funcDef.ReturnType));
+                sb.Append(" ").Append(this.TypeTranspiler.TranslateType(funcDef.ReturnType));
             }
             sb.Append(" {\n");
             sb.TabDepth++;
@@ -848,7 +832,7 @@ namespace Pastel.Transpilers
                 sb.Append("f_");
                 sb.Append(fieldNames[i]);
                 sb.Append(" ");
-                sb.Append(this.TranslateType(structDef.FieldTypes[i]));
+                sb.Append(this.TypeTranspiler.TranslateType(structDef.FieldTypes[i]));
                 sb.Append('\n');
             }
             sb.TabDepth--;
