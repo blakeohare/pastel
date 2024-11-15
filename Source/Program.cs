@@ -44,7 +44,7 @@ namespace Pastel
             ProjectConfig config = ProjectConfig.Parse(projectPath, targetId);
             if (config.Language == Language.NONE) throw new UserErrorException("Language not defined in " + projectPath);
             PastelContext context = CompilePastelContexts(config);
-            new Pastel.Transpilers.AbstractExporter().DoExport(config, context);
+            context.Transpiler.Exporter.DoExport(config, context);
         }
 
         private static PastelContext CompilePastelContexts(ProjectConfig rootConfig)

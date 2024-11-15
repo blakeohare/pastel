@@ -11,7 +11,8 @@ namespace Pastel.Transpilers.CSharp
         public CSharpTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx, false)
         {
-            TypeTranspiler = new CSharpTypeTranspiler();
+            this.TypeTranspiler = new CSharpTypeTranspiler();
+            this.Exporter = new CSharpExporter();
         }
 
         public override string PreferredTab => "    ";

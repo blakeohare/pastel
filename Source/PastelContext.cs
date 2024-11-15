@@ -40,12 +40,6 @@ namespace Pastel
             return "Pastel Context: " + dir;
         }
 
-        // TODO: refactor this all into a platform capabilities object.
-        public bool UsesStructDefinitions { get { return this.Transpiler.UsesStructDefinitions; } }
-        public bool UsesFunctionDeclarations { get { return this.Transpiler.UsesFunctionDeclarations; } }
-        public bool UsesStructDeclarations { get { return this.Transpiler.UsesStructDeclarations; } }
-        public bool HasStructsInSeparateFiles { get { return this.Transpiler.HasStructsInSeparateFiles; } }
-
         public PastelContext SetConstant(string key, object value)
         {
             this.constants[key] = value;

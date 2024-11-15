@@ -12,25 +12,18 @@ namespace Pastel.Transpilers
         public abstract string PreferredTab { get; }
         public abstract string PreferredNewline { get; }
 
-        public bool UsesStructDefinitions { get; protected set; }
-        public bool UsesFunctionDeclarations { get; protected set; }
-        public bool UsesStructDeclarations { get; protected set; }
-        public bool HasStructsInSeparateFiles { get; protected set; }
         public bool HasNewLineAtEndOfFile { get; protected set; }
 
         public abstract string HelperCodeResourcePath { get; }
 
         protected TranspilerContext transpilerCtx;
         protected AbstractTypeTranspiler TypeTranspiler { get; set; }
+        public AbstractExporter Exporter { get; protected set; }
 
         public AbstractTranspiler(TranspilerContext transpilerCtx)
         {
             this.transpilerCtx = transpilerCtx;
-            this.UsesStructDefinitions = true;
-            this.UsesFunctionDeclarations = false;
-            this.UsesStructDeclarations = false;
             this.HasNewLineAtEndOfFile = true;
-            this.HasStructsInSeparateFiles = true;
 
             this.Tabs = new string[20];
             this.Tabs[0] = "";

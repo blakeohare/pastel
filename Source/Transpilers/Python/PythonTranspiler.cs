@@ -21,7 +21,7 @@ namespace Pastel.Transpilers.Python
         public PythonTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx)
         {
-            UsesStructDefinitions = false;
+            this.Exporter = new PythonExporter();
         }
 
         public override string PreferredTab => "  ";

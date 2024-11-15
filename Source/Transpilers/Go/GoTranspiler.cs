@@ -10,9 +10,8 @@ namespace Pastel.Transpilers.Go
         public GoTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx)
         {
-            TypeTranspiler = new GoTypeTranspiler();
-            UsesStructDefinitions = true;
-            HasStructsInSeparateFiles = false;
+            this.TypeTranspiler = new GoTypeTranspiler();
+            this.Exporter = new GoExporter();
         }
 
         public override string PreferredTab => "  ";

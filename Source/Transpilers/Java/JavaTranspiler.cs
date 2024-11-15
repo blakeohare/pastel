@@ -11,7 +11,8 @@ namespace Pastel.Transpilers.Java
         public JavaTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx, true)
         {
-            TypeTranspiler = new JavaTypeTranspiler();
+            this.TypeTranspiler = new JavaTypeTranspiler();
+            this.Exporter = new JavaExporter();
         }
 
         public override string PreferredTab => "  ";

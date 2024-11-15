@@ -9,7 +9,8 @@ namespace Pastel.Transpilers.C
         public CTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx, false)
         {
-            TypeTranspiler = new CTypeTranspiler();
+            this.TypeTranspiler = new CTypeTranspiler();
+            this.Exporter = new CExporter();
         }
 
         public override string PreferredTab => "    ";

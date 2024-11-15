@@ -11,7 +11,7 @@ namespace Pastel.Transpilers.JavaScript
     {
         public JavaScriptTranspiler(TranspilerContext transpilerCtx) : base(transpilerCtx, true)
         {
-            UsesStructDefinitions = false;
+            this.Exporter = new JavaScriptExporter();
         }
 
         public override string PreferredTab => "\t";

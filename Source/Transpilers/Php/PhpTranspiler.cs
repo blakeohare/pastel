@@ -11,8 +11,8 @@ namespace Pastel.Transpilers.Php
         public PhpTranspiler(TranspilerContext transpilerCtx)
             : base(transpilerCtx, true)
         {
-            HasNewLineAtEndOfFile = false;
-            HasStructsInSeparateFiles = false;
+            this.Exporter = new PhpExporter();
+            this.HasNewLineAtEndOfFile = false;
         }
 
         public override string PreferredTab => "\t";
