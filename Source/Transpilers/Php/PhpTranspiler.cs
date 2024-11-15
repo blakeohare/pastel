@@ -12,7 +12,6 @@ namespace Pastel.Transpilers.Php
             : base(transpilerCtx, true)
         {
             this.Exporter = new PhpExporter();
-            this.HasNewLineAtEndOfFile = false;
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Php/PastelHelper.php"; } }

@@ -8,10 +8,6 @@ namespace Pastel.Transpilers
 {
     internal abstract class AbstractTranspiler
     {
-        public string[] Tabs { get; set; }
-
-        public bool HasNewLineAtEndOfFile { get; protected set; }
-
         public abstract string HelperCodeResourcePath { get; }
 
         protected TranspilerContext transpilerCtx;
@@ -21,14 +17,6 @@ namespace Pastel.Transpilers
         public AbstractTranspiler(TranspilerContext transpilerCtx)
         {
             this.transpilerCtx = transpilerCtx;
-            this.HasNewLineAtEndOfFile = true;
-
-            this.Tabs = new string[20];
-            this.Tabs[0] = "";
-            for (int i = 1; i < 20; ++i)
-            {
-                this.Tabs[i] = this.Tabs[i - 1] + "\t";
-            }
         }
 
         public virtual void TranslateStatements(TranspilerContext sb, Statement[] statements)
