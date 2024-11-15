@@ -31,10 +31,8 @@ namespace Pastel.Transpilers.Java
                 case "Func":
                     return "java.lang.reflect.Method";
 
-                // TODO: oh no.
                 case "ClassValue":
-                    // java.lang.ClassValue collision
-                    return "org.crayonlang.interpreter.structs.ClassValue";
+                    return CrayonHacks.GetClassValueFullName();
 
                 default:
                     if (type.IsStruct)

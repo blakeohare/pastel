@@ -141,10 +141,9 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
-            // TODO: No. Get rid of this nonsense.
             DotField dotField = expression as DotField;
             if (dotField != null &&
-                dotField.Root.ResolvedType.RootValue == "Value" &&
+                CrayonHacks.IsJavaValueStruct(dotField.Root.ResolvedType.StructDef) &&
                 dotField.FieldName.Value == "internalValue")
             {
                 if (type.RootValue == "int")
@@ -196,10 +195,8 @@ namespace Pastel.Transpilers.Java
         {
             StringBuffer buf = StringBuffer.Of("new ");
             string structType = constructorInvocation.StructDefinition.NameToken.Value;
-            if (structType == "ClassValue")
-            {
-                structType = "org.crayonlang.interpreter.structs.ClassValue";
-            }
+            structType = CrayonHacks.SwapJavaStructNameForFullyQualifiedIfNecessaryToAvoidConflict(structType);
+
             buf
                 .Push(structType)
                 .Push("(");
@@ -1182,12 +1179,6 @@ namespace Pastel.Transpilers.Java
 
             string name = structDef.NameToken.Value;
 
-            // TODO: This is a Crayon-ism that needs to be removed
-            // TODO: also this is dangerously likely to affect other projects. At least add a
-            // hacky `if (structDef.NameToken.FileName == blah)` that'll be at least somewhat more
-            // likely to not create false positives in the mean time.
-            bool isValue = name == "Value";
-
             sb.Append("public class ");
             sb.Append(name);
             sb.Append(" {\n");
@@ -1206,7 +1197,7 @@ namespace Pastel.Transpilers.Java
             sb.Append(name);
             sb.Append("[0];\n");
 
-            if (isValue)
+            if (CrayonHacks.IsJavaValueStruct(structDef))
             {
                 // The overhead of having extra fields on each Value is much less than the overhead
                 // of Java's casting. Particularly on Android.
@@ -1234,9 +1225,8 @@ namespace Pastel.Transpilers.Java
             }
             sb.Append("  }");
 
-            if (isValue)
+            if (CrayonHacks.IsJavaValueStruct(structDef))
             {
-                // TODO: Yikes! Crayon Runtime specific hack! Remove this!
                 sb.Append("\n\n");
                 sb.Append("  public Value(int intValue) {\n");
                 sb.Append("    this.type = 3;\n");

@@ -247,22 +247,7 @@ namespace Pastel.Parser.ParseNodes
                 right = Expressions[1] as InlineConstant;
             }
 
-            // TODO(pastel-split): This is just a quick and dirty short-circuit logic for && and ||
-            // Do full logic later. Currently this is causing problems in specific snippets in Crayon libraries.
-            string opValue = Ops[0].Value;
-            if (left != null)
-            {
-                if (opValue == "&&" && left.Value is bool)
-                {
-                    return (bool)left.Value ? this : left;
-                }
-                if (opValue == "||" && left.Value is bool)
-                {
-                    return (bool)left.Value ? left : this;
-                }
-            }
-
-            return this;
+            return CrayonHacks.BoolLogicResolver(this, this.Ops[0].Value, left);
         }
 
         private InlineConstant CreateBoolean(Token originalFirstToken, bool value)
