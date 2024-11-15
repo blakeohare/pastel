@@ -6,6 +6,9 @@ namespace Pastel.Transpilers.C
 {
     internal class CExporter : AbstractExporter
     {
+        protected override string PreferredTab => "    ";
+        protected override string PreferredNewline => "\n";
+
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
@@ -33,16 +36,13 @@ namespace Pastel.Transpilers.C
             AbstractTranspiler transpiler = ctx.Transpiler;
             funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
             filesOut["@FUNC_FILE"] = funcCode;
         }
 
         private void GenerateStructImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string structName, string structCode)
         {
             structCode = ctx.Transpiler.WrapCodeForStructs(ctx.TranspilerContext, config, structCode);
-            string path = "@STRUCT_DIR/" + structName + ".h";
-            structCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(structCode, ctx.Transpiler);
-            filesOut[path] = structCode;
+            filesOut["@STRUCT_DIR/" + structName + ".h"] = structCode;
         }
     }
 }

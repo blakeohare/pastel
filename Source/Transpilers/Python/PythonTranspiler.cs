@@ -24,9 +24,6 @@ namespace Pastel.Transpilers.Python
             this.Exporter = new PythonExporter();
         }
 
-        public override string PreferredTab => "  ";
-        public override string PreferredNewline => "\n";
-
         public override string HelperCodeResourcePath { get { return "Transpilers/Python/PastelHelper.py"; } }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)

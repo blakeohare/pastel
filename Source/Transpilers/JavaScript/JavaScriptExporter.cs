@@ -4,6 +4,9 @@ namespace Pastel.Transpilers.JavaScript
 {
     internal class JavaScriptExporter : AbstractExporter
     {
+        protected override string PreferredTab => "\t";
+        protected override string PreferredNewline => "\n";
+
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
@@ -16,7 +19,6 @@ namespace Pastel.Transpilers.JavaScript
             AbstractTranspiler transpiler = ctx.Transpiler;
             funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
             filesOut["@FUNC_FILE"] = funcCode;
         }
     }

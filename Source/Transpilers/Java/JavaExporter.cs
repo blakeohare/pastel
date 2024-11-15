@@ -4,6 +4,9 @@ namespace Pastel.Transpilers.Java
 {
     internal class JavaExporter : AbstractExporter
     {
+        protected override string PreferredTab => "  ";
+        protected override string PreferredNewline => "\n";
+
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
@@ -21,7 +24,6 @@ namespace Pastel.Transpilers.Java
             AbstractTranspiler transpiler = ctx.Transpiler;
             funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
             filesOut["@FUNC_FILE"] = funcCode;
         }
 
@@ -30,7 +32,6 @@ namespace Pastel.Transpilers.Java
             structCode = ctx.Transpiler.WrapCodeForStructs(ctx.TranspilerContext, config, structCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = "@STRUCT_DIR/" + structName + ".java";
-            structCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(structCode, ctx.Transpiler);
             filesOut[path] = structCode;
         }
     }

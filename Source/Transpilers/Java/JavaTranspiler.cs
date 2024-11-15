@@ -15,9 +15,6 @@ namespace Pastel.Transpilers.Java
             this.Exporter = new JavaExporter();
         }
 
-        public override string PreferredTab => "  ";
-        public override string PreferredNewline => "\n";
-
         public override string HelperCodeResourcePath { get { return "Transpilers/Java/PastelHelper.java"; } }
 
         private JavaTypeTranspiler JavaTypeTranspiler { get { return (JavaTypeTranspiler)TypeTranspiler; } }

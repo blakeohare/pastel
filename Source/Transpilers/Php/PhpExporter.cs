@@ -5,6 +5,9 @@ namespace Pastel.Transpilers.Php
 {
     internal class PhpExporter : AbstractExporter
     {
+        protected override string PreferredTab => "\t";
+        protected override string PreferredNewline => "\n";
+
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
@@ -20,17 +23,13 @@ namespace Pastel.Transpilers.Php
             AbstractTranspiler transpiler = ctx.Transpiler;
             funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
             filesOut["@FUNC_FILE"] = funcCode;
         }
 
         private void GenerateStructImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string structName, string structCode)
         {
             structCode = ctx.Transpiler.WrapCodeForStructs(ctx.TranspilerContext, config, structCode);
-            string fileExtension = LanguageUtil.GetFileExtension(config.Language);
-            string path = "@STRUCT_DIR/" + structName + ".php";
-            structCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(structCode, ctx.Transpiler);
-            filesOut[path] = structCode;
+            filesOut["@STRUCT_DIR/" + structName + ".php"] = structCode;
         }
 
         private void GenerateStructBundleImplementation(Dictionary<string, string> filesOut, TranspilerContext ctx, ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)
@@ -41,10 +40,8 @@ namespace Pastel.Transpilers.Php
                 codeLines.Add(ctx.Transpiler.WrapCodeForStructs(ctx, config, structCodeByName[structName]));
             }
             codeLines.Add("?>");
-            string path = "@STRUCT_DIR/gen_classes.php";
-            string codeString = string.Join('\n', codeLines);
-            codeString = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(codeString, ctx.Transpiler);
-            filesOut[path] = codeString;
+
+            filesOut["@STRUCT_DIR/gen_classes.php"] = string.Join('\n', codeLines);
         }
     }
 }

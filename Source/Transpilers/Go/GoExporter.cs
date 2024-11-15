@@ -5,6 +5,9 @@ namespace Pastel.Transpilers.Go
 {
     internal class GoExporter : AbstractExporter
     {
+        protected override string PreferredTab => "  ";
+        protected override string PreferredNewline => "\n";
+
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
@@ -20,7 +23,6 @@ namespace Pastel.Transpilers.Go
             AbstractTranspiler transpiler = ctx.Transpiler;
             funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
             filesOut["@FUNC_FILE"] = funcCode;
         }
 
@@ -31,10 +33,7 @@ namespace Pastel.Transpilers.Go
             {
                 codeLines.Add(ctx.Transpiler.WrapCodeForStructs(ctx, config, structCodeByName[structName]));
             }
-            string path = "@STRUCT_DIR/genstructs.go";
-            string codeString = string.Join('\n', codeLines);
-            codeString = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(codeString, ctx.Transpiler);
-            filesOut[path] = codeString;
+            filesOut["@STRUCT_DIR/genstructs.go"] = string.Join('\n', codeLines);
         }
     }
 }

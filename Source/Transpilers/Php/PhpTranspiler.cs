@@ -15,9 +15,6 @@ namespace Pastel.Transpilers.Php
             this.HasNewLineAtEndOfFile = false;
         }
 
-        public override string PreferredTab => "\t";
-        public override string PreferredNewline => "\n";
-
         public override string HelperCodeResourcePath { get { return "Transpilers/Php/PastelHelper.php"; } }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)

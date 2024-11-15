@@ -4,6 +4,8 @@ namespace Pastel.Transpilers.Python
 {
     internal class PythonExporter : AbstractExporter
     {
+        protected override string PreferredTab => "  ";
+        protected override string PreferredNewline => "\n";
 
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
@@ -17,7 +19,6 @@ namespace Pastel.Transpilers.Python
             AbstractTranspiler transpiler = ctx.Transpiler;
             funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
-            funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
             filesOut["@FUNC_FILE"] = funcCode;
         }
     }

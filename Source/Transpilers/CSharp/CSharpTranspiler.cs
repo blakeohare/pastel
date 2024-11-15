@@ -15,9 +15,6 @@ namespace Pastel.Transpilers.CSharp
             this.Exporter = new CSharpExporter();
         }
 
-        public override string PreferredTab => "    ";
-        public override string PreferredNewline => "\r\n";
-
         public override string HelperCodeResourcePath { get { return "Transpilers/CSharp/PastelHelper.cs"; } }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)

@@ -1,5 +1,4 @@
 ﻿using Pastel.Parser;
-using Pastel.Transpilers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,15 +7,6 @@ namespace Pastel
 {
     internal static class CodeUtil
     {
-        public static string ConvertWhitespaceFromCanonicalFormToPreferred(string code, AbstractTranspiler transpiler)
-        {
-            string newline = transpiler.PreferredNewline;
-            string tab = transpiler.PreferredTab;
-            if (newline != "\n") code = code.Replace("\n", newline);
-            if (tab != "\t") code = code.Replace("\t", tab);
-            return code;
-        }
-
         public static void IndentLines(List<string> lines)
         {
             IndentLines(1, lines);

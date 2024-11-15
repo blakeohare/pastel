@@ -14,9 +14,6 @@ namespace Pastel.Transpilers.Go
             this.Exporter = new GoExporter();
         }
 
-        public override string PreferredTab => "  ";
-        public override string PreferredNewline => "\n";
-
         public override string HelperCodeResourcePath { get { return "Transpilers/Go/PastelHelper.go"; } }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)

@@ -13,9 +13,6 @@ namespace Pastel.Transpilers.C
             this.Exporter = new CExporter();
         }
 
-        public override string PreferredTab => "    ";
-        public override string PreferredNewline => "\n";
-
         public override string HelperCodeResourcePath { get { return "Transpilers/C/PastelHelper.c"; } }
 
         protected override void WrapCodeImpl(TranspilerContext ctx, ProjectConfig config, List<string> lines, bool isForStruct)

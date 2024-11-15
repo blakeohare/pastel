@@ -14,9 +14,6 @@ namespace Pastel.Transpilers.JavaScript
             this.Exporter = new JavaScriptExporter();
         }
 
-        public override string PreferredTab => "\t";
-        public override string PreferredNewline => "\n";
-
         public override string HelperCodeResourcePath { get { return "Transpilers/JavaScript/PastelHelper.js"; } }
 
         public override string WrapFinalExportedCode(string code, FunctionDefinition[] functions)

@@ -9,8 +9,6 @@ namespace Pastel.Transpilers
     internal abstract class AbstractTranspiler
     {
         public string[] Tabs { get; set; }
-        public abstract string PreferredTab { get; }
-        public abstract string PreferredNewline { get; }
 
         public bool HasNewLineAtEndOfFile { get; protected set; }
 
