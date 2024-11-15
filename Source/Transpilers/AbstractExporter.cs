@@ -6,9 +6,9 @@ namespace Pastel.Transpilers
 {
     internal class AbstractExporter
     {
-        public Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
+        protected Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
-            Dictionary<string, string> output = new Dictionary<string, string>();
+            Dictionary<string, string> files = new Dictionary<string, string>();
 
             if (context.UsesStructDefinitions)
             {
@@ -18,12 +18,12 @@ namespace Pastel.Transpilers
                 {
                     foreach (string structName in structOrder)
                     {
-                        GenerateStructImplementation(context, config, structName, structDefinitions[structName]);
+                        GenerateStructImplementation(files, context, config, structName, structDefinitions[structName]);
                     }
                 }
                 else
                 {
-                    GenerateStructBundleImplementation(context.TranspilerContext, config, structOrder, structDefinitions);
+                    GenerateStructBundleImplementation(files, context.TranspilerContext, config, structOrder, structDefinitions);
                 }
 
                 if (context.UsesStructDeclarations)
@@ -42,31 +42,40 @@ namespace Pastel.Transpilers
                 throw new NotImplementedException();
             }
 
-            GenerateFunctionImplementation(context, config, context.GetCodeForFunctions());
+            GenerateFunctionImplementation(files, context, config, context.GetCodeForFunctions());
+            return files;
+        }
 
-            return output;
+        public void DoExport(ProjectConfig config, PastelContext context)
+        {
+            Dictionary<string, string> files = GenerateFiles(config, context);
+
+            foreach (string path in files.Keys)
+            {
+                System.IO.File.WriteAllText(path, files[path]);
+            }
         }
 
 
-        private void GenerateFunctionImplementation(PastelContext ctx, ProjectConfig config, string funcCode)
+        private void GenerateFunctionImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string funcCode)
         {
             AbstractTranspiler transpiler = ctx.Transpiler;
             funcCode = transpiler.WrapCodeForFunctions(ctx.TranspilerContext, config, funcCode);
             funcCode = transpiler.WrapFinalExportedCode(funcCode, ctx.GetCompiler().GetFunctionDefinitions());
             funcCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(funcCode, transpiler);
-            System.IO.File.WriteAllText(config.OutputFileFunctions, funcCode);
+            filesOut[config.OutputFileFunctions] = funcCode;
         }
 
-        private void GenerateStructImplementation(PastelContext ctx, ProjectConfig config, string structName, string structCode)
+        private void GenerateStructImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string structName, string structCode)
         {
             structCode = ctx.Transpiler.WrapCodeForStructs(ctx.TranspilerContext, config, structCode);
             string fileExtension = LanguageUtil.GetFileExtension(config.Language);
             string path = System.IO.Path.Combine(config.OutputDirStructs, structName + fileExtension);
             structCode = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(structCode, ctx.Transpiler);
-            System.IO.File.WriteAllText(path, structCode);
+            filesOut[path] = structCode;
         }
 
-        private void GenerateStructBundleImplementation(TranspilerContext ctx, ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)
+        private void GenerateStructBundleImplementation(Dictionary<string, string> filesOut, TranspilerContext ctx, ProjectConfig config, string[] structOrder, Dictionary<string, string> structCodeByName)
         {
             List<string> codeLines = new List<string>();
             foreach (string structName in structOrder)
@@ -93,7 +102,7 @@ namespace Pastel.Transpilers
 
             string codeString = string.Join('\n', codeLines);
             codeString = CodeUtil.ConvertWhitespaceFromCanonicalFormToPreferred(codeString, ctx.Transpiler);
-            System.IO.File.WriteAllText(path, codeString);
+            filesOut[path] = codeString;
         }
     }
 }
