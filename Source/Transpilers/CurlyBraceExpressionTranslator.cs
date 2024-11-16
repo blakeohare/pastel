@@ -4,7 +4,7 @@ namespace Pastel.Transpilers
 {
     internal abstract class CurlyBraceExpressionTranslator : AbstractExpressionTranslator
     {
-        public CurlyBraceExpressionTranslator(PastelContext ctx) : base(ctx) { }
+        public CurlyBraceExpressionTranslator(TranspilerContext ctx) : base(ctx) { }
 
         public override StringBuffer TranslateBooleanConstant(bool value)
         {

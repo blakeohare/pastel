@@ -121,10 +121,10 @@ namespace Pastel
         }
 
         private static string[] FindUsedMarkers(
-            string code, 
-            IList<string> nonPstMarkers, 
-            IList<string> pstMarkers, 
-            HashSet<string> allMarkers, 
+            string code,
+            IList<string> nonPstMarkers,
+            IList<string> pstMarkers,
+            HashSet<string> allMarkers,
             string exclusion)
         {
             List<string> usedMarkers = [];

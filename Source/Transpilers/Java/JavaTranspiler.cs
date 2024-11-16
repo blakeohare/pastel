@@ -7,13 +7,14 @@ namespace Pastel.Transpilers.Java
     internal class JavaTranspiler : CurlyBraceTranspiler
     {
         public JavaTranspiler(TranspilerContext transpilerCtx)
-            : base(transpilerCtx)
-        {
-            this.TypeTranspiler = new JavaTypeTranspiler();
-            this.Exporter = new JavaExporter();
-            this.ExpressionTranslator = new JavaExpressionTranslator(transpilerCtx.PastelContext);
-            this.StatementTranslator = new JavaStatementTranslator(transpilerCtx);
-        }
+            : base(
+                transpilerCtx,
+                new JavaExporter(),
+                new JavaTypeTranspiler(),
+                new JavaExpressionTranslator(transpilerCtx),
+                new JavaStatementTranslator(transpilerCtx)
+            )
+        { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Java/PastelHelper.java"; } }
 

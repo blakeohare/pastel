@@ -5,7 +5,7 @@ namespace Pastel.Transpilers.JavaScript
 {
     internal class JavaScriptExpressionTranslator : CurlyBraceExpressionTranslator
     {
-        public JavaScriptExpressionTranslator(PastelContext ctx)
+        public JavaScriptExpressionTranslator(TranspilerContext ctx)
             : base(ctx)
         { }
 

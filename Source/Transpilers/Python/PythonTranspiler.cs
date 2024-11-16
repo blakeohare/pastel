@@ -6,12 +6,13 @@ namespace Pastel.Transpilers.Python
     internal class PythonTranspiler : AbstractTranspiler
     {
         public PythonTranspiler(TranspilerContext transpilerCtx)
-            : base(transpilerCtx)
-        {
-            this.Exporter = new PythonExporter();
-            this.ExpressionTranslator = new PythonExpressionTranslator(transpilerCtx.PastelContext);
-            this.StatementTranslator = new PythonStatementTranslator(transpilerCtx);
-        }
+            : base(
+                transpilerCtx,
+                new PythonExporter(),
+                null,
+                new PythonExpressionTranslator(transpilerCtx),
+                new PythonStatementTranslator(transpilerCtx))
+        { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Python/PastelHelper.py"; } }
 

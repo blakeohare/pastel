@@ -5,8 +5,8 @@ namespace Pastel.Transpilers.Java
 {
     internal class JavaExpressionTranslator : CurlyBraceExpressionTranslator
     {
-        public JavaExpressionTranslator(PastelContext ctx) 
-            : base(ctx) 
+        public JavaExpressionTranslator(TranspilerContext ctx)
+            : base(ctx)
         { }
 
         public JavaTypeTranspiler JavaTypeTranspiler { get { return (JavaTypeTranspiler)this.TypeTranspiler; } }

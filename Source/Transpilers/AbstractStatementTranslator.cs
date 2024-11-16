@@ -6,7 +6,7 @@ namespace Pastel.Transpilers
     internal abstract class AbstractStatementTranslator
     {
         protected TranspilerContext transpilerCtx;
-        
+
         public AbstractStatementTranslator(TranspilerContext ctx)
         {
             this.transpilerCtx = ctx;

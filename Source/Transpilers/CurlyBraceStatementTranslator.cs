@@ -7,8 +7,8 @@ namespace Pastel.Transpilers
         private bool IsAllmanBraces { get { return !this.IsKRBraces; } }
         private bool IsKRBraces { get { return this.transpilerCtx.PastelContext.Language != Language.CSHARP; } }
 
-        public CurlyBraceStatementTranslator(TranspilerContext ctx) 
-            : base(ctx) 
+        public CurlyBraceStatementTranslator(TranspilerContext ctx)
+            : base(ctx)
         { }
 
         public override void TranslateAssignment(TranspilerContext sb, Assignment assignment)

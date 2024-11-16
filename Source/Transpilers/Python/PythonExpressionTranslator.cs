@@ -6,7 +6,7 @@ namespace Pastel.Transpilers.Python
 {
     internal class PythonExpressionTranslator : AbstractExpressionTranslator
     {
-        public PythonExpressionTranslator(PastelContext ctx)
+        public PythonExpressionTranslator(TranspilerContext ctx)
             : base(ctx)
         { }
 

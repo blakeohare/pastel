@@ -5,7 +5,7 @@ namespace Pastel.Transpilers.Go
 {
     internal class GoExpressionTranslator : AbstractExpressionTranslator
     {
-        public GoExpressionTranslator(PastelContext ctx)
+        public GoExpressionTranslator(TranspilerContext ctx)
             : base(ctx)
         { }
 

@@ -8,14 +8,23 @@ namespace Pastel.Transpilers
         public abstract string HelperCodeResourcePath { get; }
 
         protected TranspilerContext transpilerCtx;
-        public AbstractTypeTranspiler TypeTranspiler { get; protected set; }
-        public AbstractExporter Exporter { get; protected set; }
-        public AbstractExpressionTranslator ExpressionTranslator { get; protected set; }
-        public AbstractStatementTranslator StatementTranslator { get; protected set; }
+        public AbstractTypeTranspiler TypeTranspiler { get; private set; }
+        public AbstractExporter Exporter { get; private set; }
+        public AbstractExpressionTranslator ExpressionTranslator { get; private set; }
+        public AbstractStatementTranslator StatementTranslator { get; private set; }
 
-        public AbstractTranspiler(TranspilerContext transpilerCtx)
+        public AbstractTranspiler(
+            TranspilerContext transpilerCtx,
+            AbstractExporter exporter,
+            AbstractTypeTranspiler? typeTranslator,
+            AbstractExpressionTranslator exprTranslator,
+            AbstractStatementTranslator stmntTranslator)
         {
             this.transpilerCtx = transpilerCtx;
+            this.Exporter = exporter;
+            this.TypeTranspiler = typeTranslator;
+            this.ExpressionTranslator = exprTranslator;
+            this.StatementTranslator = stmntTranslator;
         }
 
         public abstract void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef);

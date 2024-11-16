@@ -8,26 +8,21 @@ namespace Pastel.Transpilers
 {
     internal abstract class AbstractExpressionTranslator
     {
-        private PastelContext pastelCtx;
+        private TranspilerContext transpilerCtx;
 
         protected void MarkFeatureAsUsed(string feature)
         {
-            this.pastelCtx.TranspilerContext.MarkFeatureAsBeingUsed(feature);
+            this.transpilerCtx.MarkFeatureAsBeingUsed(feature);
         }
 
-        private AbstractTypeTranspiler? typeTranspiler = null;
         protected AbstractTypeTranspiler TypeTranspiler
         {
-            get
-            {
-                if (this.typeTranspiler == null) this.typeTranspiler = this.pastelCtx.Transpiler.TypeTranspiler;
-                return this.typeTranspiler;
-            }
+            get { return this.transpilerCtx.Transpiler.TypeTranspiler; }
         }
-        
-        public AbstractExpressionTranslator(PastelContext pastelCtx)
+
+        public AbstractExpressionTranslator(TranspilerContext transpilerCtx)
         {
-            this.pastelCtx = pastelCtx;
+            this.transpilerCtx = transpilerCtx;
         }
 
         public string TranslateExpressionAsString(Expression expression)
@@ -282,7 +277,7 @@ namespace Pastel.Transpilers
             Expression[] args = funcInvocation.Args;
             Token throwToken = funcInvocation.FunctionRef.FirstToken;
             string functionName = funcInvocation.FunctionRef.Name;
-            Dictionary<string, string> extLookup = this.pastelCtx.ExtensionSet.ExtensibleFunctionTranslations;
+            Dictionary<string, string> extLookup = this.transpilerCtx.PastelContext.ExtensionSet.ExtensibleFunctionTranslations;
 
             if (!extLookup.ContainsKey(functionName) || extLookup[functionName] == null)
             {

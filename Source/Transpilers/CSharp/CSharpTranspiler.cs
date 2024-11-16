@@ -7,13 +7,14 @@ namespace Pastel.Transpilers.CSharp
     internal class CSharpTranspiler : CurlyBraceTranspiler
     {
         public CSharpTranspiler(TranspilerContext transpilerCtx)
-            : base(transpilerCtx)
-        {
-            this.TypeTranspiler = new CSharpTypeTranspiler();
-            this.Exporter = new CSharpExporter();
-            this.ExpressionTranslator = new CSharpExpressionTranslator(transpilerCtx.PastelContext);
-            this.StatementTranslator = new CSharpStatementTranslator(transpilerCtx);
-        }
+            : base(
+                transpilerCtx,
+                new CSharpExporter(),
+                new CSharpTypeTranspiler(),
+                new CSharpExpressionTranslator(transpilerCtx),
+                new CSharpStatementTranslator(transpilerCtx)
+            )
+        { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/CSharp/PastelHelper.cs"; } }
 

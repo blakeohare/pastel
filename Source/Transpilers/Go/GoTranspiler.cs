@@ -6,13 +6,14 @@ namespace Pastel.Transpilers.Go
     internal class GoTranspiler : AbstractTranspiler
     {
         public GoTranspiler(TranspilerContext transpilerCtx)
-            : base(transpilerCtx)
-        {
-            this.TypeTranspiler = new GoTypeTranspiler();
-            this.Exporter = new GoExporter();
-            this.ExpressionTranslator = new GoExpressionTranslator(transpilerCtx.PastelContext);
-            this.StatementTranslator = new GoStatementTranslator(transpilerCtx);
-        }
+            : base(
+                transpilerCtx,
+                new GoExporter(),
+                new GoTypeTranspiler(),
+                new GoExpressionTranslator(transpilerCtx),
+                new GoStatementTranslator(transpilerCtx)
+            )
+        { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Go/PastelHelper.go"; } }
 

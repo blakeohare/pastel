@@ -7,12 +7,14 @@ namespace Pastel.Transpilers.JavaScript
     internal class JavaScriptTranspiler : CurlyBraceTranspiler
     {
         public JavaScriptTranspiler(TranspilerContext transpilerCtx)
-            : base(transpilerCtx)
-        {
-            this.Exporter = new JavaScriptExporter();
-            this.ExpressionTranslator = new JavaScriptExpressionTranslator(transpilerCtx.PastelContext);
-            this.StatementTranslator = new JavaScriptStatementTranslator(transpilerCtx);
-        }
+            : base(
+                transpilerCtx,
+                new JavaScriptExporter(),
+                null,
+                new JavaScriptExpressionTranslator(transpilerCtx),
+                new JavaScriptStatementTranslator(transpilerCtx)
+            )
+        { }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/JavaScript/PastelHelper.js"; } }
 

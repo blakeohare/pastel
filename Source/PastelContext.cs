@@ -75,7 +75,7 @@ namespace Pastel
         {
             PastelCompiler compiler = this.GetCompiler();
             new Resolver(
-                compiler, 
+                compiler,
                 compiler.EnumDefinitions,
                 compiler.ConstantDefinitions,
                 compiler.FunctionDefinitions,

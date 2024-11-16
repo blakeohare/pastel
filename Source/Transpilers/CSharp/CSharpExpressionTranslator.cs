@@ -5,8 +5,8 @@ namespace Pastel.Transpilers.CSharp
 {
     internal class CSharpExpressionTranslator : CurlyBraceExpressionTranslator
     {
-        public CSharpExpressionTranslator(PastelContext pastelCtx)
-            : base(pastelCtx)
+        public CSharpExpressionTranslator(TranspilerContext ctx)
+            : base(ctx)
         { }
 
         public override StringBuffer TranslatePrintStdErr(Expression value)

@@ -5,7 +5,7 @@ namespace Pastel.Transpilers.Php
 {
     internal class PhpExpressionTranslator : CurlyBraceExpressionTranslator
     {
-        public PhpExpressionTranslator(PastelContext ctx)
+        public PhpExpressionTranslator(TranspilerContext ctx)
             : base(ctx)
         { }
 

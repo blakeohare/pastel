@@ -7,12 +7,13 @@ namespace Pastel.Transpilers.Php
     internal class PhpTranspiler : CurlyBraceTranspiler
     {
         public PhpTranspiler(TranspilerContext transpilerCtx)
-            : base(transpilerCtx)
-        {
-            this.Exporter = new PhpExporter();
-            this.ExpressionTranslator = new PhpExpressionTranslator(transpilerCtx.PastelContext);
-            this.StatementTranslator = new PhpStatementTranslator(transpilerCtx);
-        }
+            : base(
+                transpilerCtx,
+                new PhpExporter(),
+                null,
+                new PhpExpressionTranslator(transpilerCtx),
+                new PhpStatementTranslator(transpilerCtx))
+        { }
 
         public PhpExpressionTranslator PhpExpressionTranslator { get { return (PhpExpressionTranslator)this.ExpressionTranslator; } }
 
