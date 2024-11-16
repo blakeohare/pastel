@@ -5,11 +5,17 @@
 			"name": "c",
 			"language": "c",
 			"imports": [
-				
+
 			],
 			"output": {
 				"namespace": "PastelGeneratedNamespace",
 				"functions-path": "c/pastel_generated.h"
+			}
+		}, {
+			"name": "commonscript",
+			"language": "commonscript",
+			"output": {
+				"functions-path": "commonscript/gen.script"
 			}
 		}, {
 			"name": "csharp",

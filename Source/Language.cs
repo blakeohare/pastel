@@ -7,6 +7,7 @@ namespace Pastel
         NONE,
 
         C,
+        COMMONSCRIPT,
         CSHARP,
         GO,
         JAVA,
@@ -22,6 +23,7 @@ namespace Pastel
             switch (lang)
             {
                 case Language.CSHARP: return ".cs";
+                case Language.COMMONSCRIPT: return ".script";
                 case Language.GO: return ".go";
                 case Language.JAVA: return ".java";
                 case Language.JAVASCRIPT: return ".js";
@@ -39,6 +41,7 @@ namespace Pastel
             switch (value.ToLower())
             {
                 case "csharp": return Language.CSHARP;
+                case "commonscript": return Language.COMMONSCRIPT;
                 case "go": return Language.GO;
                 case "java": return Language.JAVA;
                 case "javascript": return Language.JAVASCRIPT;
@@ -55,6 +58,7 @@ namespace Pastel
             switch (lang)
             {
                 case Language.C: return new Pastel.Transpilers.C.CTranspiler(ctx);
+                case Language.COMMONSCRIPT: return new Pastel.Transpilers.CommonScript.CommonScriptTranspiler(ctx);
                 case Language.CSHARP: return new Pastel.Transpilers.CSharp.CSharpTranspiler(ctx);
                 case Language.GO: return new Pastel.Transpilers.Go.GoTranspiler(ctx);
                 case Language.JAVA: return new Pastel.Transpilers.Java.JavaTranspiler(ctx);
@@ -69,7 +73,7 @@ namespace Pastel
         {
             Dictionary<string, object> output = new Dictionary<string, object>();
 
-            output["ARRAY_IS_LIST"] = lang == Language.PYTHON || lang == Language.JAVASCRIPT || lang == Language.PHP;
+            output["ARRAY_IS_LIST"] = lang == Language.PYTHON || lang == Language.JAVASCRIPT || lang == Language.PHP || lang == Language.COMMONSCRIPT;
             output["HAS_INCREMENT"] = !(lang == Language.PYTHON || lang == Language.GO);
             output["INT_IS_FLOOR"] = lang == Language.JAVASCRIPT;
             output["IS_CHAR_A_NUMBER"] = lang == Language.CSHARP || lang == Language.GO || lang == Language.JAVA;

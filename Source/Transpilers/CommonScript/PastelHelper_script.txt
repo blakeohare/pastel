@@ -1,0 +1,8 @@
+
+
+// PASTEL_ENTITY_ID: PST$createNewArray
+function PST_createNewArray(s) {
+	o = [];
+	while (s --> 0) o.add(null);
+	return o;
+};

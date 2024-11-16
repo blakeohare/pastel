@@ -182,6 +182,9 @@ namespace Pastel
                 case "c":
                     config.Language = Language.C;
                     break;
+                case "commonscript":
+                    config.Language = Language.COMMONSCRIPT;
+                    break;
                 case "cs":
                 case "csharp":
                 case "c#":
