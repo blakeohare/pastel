@@ -6,3 +6,13 @@ function PST_createNewArray(s) {
 	while (s --> 0) o.add(null);
 	return o;
 };
+
+// PASTEL_ENTITY_ID: PST_ExtCallbacks
+class PST_ExtCallbacks {
+	static field ext = {};
+}
+
+// PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
+function PST_RegisterExtensibleCallback(name, fn) {
+	PST_ExtCallbacks.ext[name] = fn;
+}

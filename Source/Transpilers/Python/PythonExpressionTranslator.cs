@@ -170,23 +170,16 @@ namespace Pastel.Transpilers.Python
         public override StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation)
         {
             StructDefinition structDef = constructorInvocation.StructDefinition;
-            if (structDef == null)
+            StringBuffer buf = StringBuffer.Of("[");
+            int args = structDef.FieldNames.Length;
+            for (int i = 0; i < args; ++i)
             {
-                throw new NotImplementedException();
+                if (i > 0) buf.Push(", ");
+                buf.Push(TranslateExpression(constructorInvocation.Args[i]));
             }
-            else
-            {
-                StringBuffer buf = StringBuffer.Of("[");
-                int args = structDef.FieldNames.Length;
-                for (int i = 0; i < args; ++i)
-                {
-                    if (i > 0) buf.Push(", ");
-                    buf.Push(TranslateExpression(constructorInvocation.Args[i]));
-                }
-                return buf
-                    .Push("]")
-                    .WithTightness(ExpressionTightness.ATOMIC);
-            }
+            return buf
+                .Push("]")
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateCurrentTimeSeconds()

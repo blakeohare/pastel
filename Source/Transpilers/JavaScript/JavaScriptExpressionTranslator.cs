@@ -868,6 +868,7 @@ namespace Pastel.Transpilers.JavaScript
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
             return TranslateExpression(root)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[" + fieldIndex + "]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }

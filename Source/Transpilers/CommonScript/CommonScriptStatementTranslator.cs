@@ -15,7 +15,11 @@ namespace Pastel.Transpilers.CommonScript
 
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
-            throw new NotImplementedException();
+            sb.Append(sb.CurrentTab);
+            sb.Append(varDecl.VariableNameToken.Value);
+            sb.Append(" = ");
+            sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(varDecl.Value));
+            sb.Append(";\n");
         }
     }
 }

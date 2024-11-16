@@ -9,7 +9,12 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
-            throw new NotImplementedException();
+            return TranslateExpression(array)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                .Push("[")
+                .Push(TranslateExpression(index))
+                .Push("]")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateArrayJoin(Expression array, Expression sep)
@@ -64,7 +69,16 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation)
         {
-            throw new NotImplementedException();
+            StringBuffer buf = StringBuffer.Of("[");
+            Expression[] args = constructorInvocation.Args;
+            for (int i = 0; i < args.Length; ++i)
+            {
+                if (i > 0) buf.Push(", ");
+                buf.Push(TranslateExpression(args[i]));
+            }
+            return buf
+                .Push("]")
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateCurrentTimeSeconds()
@@ -124,7 +138,11 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator)
         {
-            throw new NotImplementedException();
+            return TranslateExpression(floatNumerator)
+                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
+                .Push(" / ")
+                .Push(TranslateExpression(floatDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
 
@@ -150,7 +168,11 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator)
         {
-            throw new NotImplementedException();
+            return TranslateExpression(integerNumerator)
+                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
+                .Push(" / ")
+                .Push(TranslateExpression(integerDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
         public override StringBuffer TranslateIntToString(Expression integer)
@@ -265,7 +287,12 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateMathPow(Expression expBase, Expression exponent)
         {
-            throw new NotImplementedException();
+            // The tightness is over-aggressive for both nested expressions and for its own reported tightness.
+            return TranslateExpression(expBase)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                .Push(" ** ")
+                .Push(TranslateExpression(exponent).EnsureGreaterTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
         public override StringBuffer TranslateMathSin(Expression thetaRadians)
@@ -325,7 +352,10 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateSortedCopyOfIntArray(Expression intArray)
         {
-            throw new NotImplementedException();
+            return this.TranslateExpression(intArray)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                .Push("[:].sort()")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateSortedCopyOfStringArray(Expression stringArray)
@@ -495,7 +525,10 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
-            throw new NotImplementedException();
+            return TranslateExpression(root)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                .Push("[" + fieldIndex + "]")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateToCodeString(Expression str)

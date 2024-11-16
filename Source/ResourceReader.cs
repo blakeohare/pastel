@@ -59,6 +59,7 @@ namespace Pastel
                             .Replace("_js.txt", ".js")
                             .Replace("_php.txt", ".php")
                             .Replace("_py.txt", ".py")
+                            .Replace("_script.txt", ".script")
                             .Replace("_xml.txt", ".xml");
                     }
 
