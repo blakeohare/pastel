@@ -30,23 +30,23 @@ namespace Pastel.Transpilers.JavaScript
             // TODO: internally minify names. As this is being exported with a list, the order
             // is the only important thing to assign it to the proper external alias.
             StringBuilder sb = new StringBuilder();
-            sb.Append("const [");
+            sb.Append("const [PASTEL_regCallback");
             string[] funcNames = functions
                 .Select(fd => fd.Name)
                 .OrderBy(n => n)
                 .ToArray();
             for (int i = 0; i < funcNames.Length; i++)
             {
-                if (i > 0) sb.Append(", ");
+                sb.Append(", ");
                 sb.Append(funcNames[i]);
             }
             sb.Append("] = (() => {\n");
             sb.Append(code);
             sb.Append('\n');
-            sb.Append("return [");
+            sb.Append("return [PST$registerExtensibleCallback");
             for (int i = 0; i < funcNames.Length; i++)
             {
-                if (i > 0) sb.Append(", ");
+                sb.Append(", ");
                 sb.Append(funcNames[i]);
             }
             sb.Append("];\n");
