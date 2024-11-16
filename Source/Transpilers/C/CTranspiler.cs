@@ -6,24 +6,15 @@ namespace Pastel.Transpilers.C
     internal class CTranspiler : CurlyBraceTranspiler
     {
         public CTranspiler(TranspilerContext transpilerCtx)
-            : base(transpilerCtx, false)
+            : base(transpilerCtx)
         {
             this.TypeTranspiler = new CTypeTranspiler();
             this.Exporter = new CExporter();
             this.ExpressionTranslator = new CExpressionTranslator(transpilerCtx.PastelContext);
+            this.StatementTranslator = new CStatementTranslator(transpilerCtx);
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/C/PastelHelper.c"; } }
-
-        public override void TranslateDictionaryTryGet(TranspilerContext sb, Expression dictionary, Expression key, Expression fallbackValue, Variable varOut)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
-        {
-            throw new NotImplementedException();
-        }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {

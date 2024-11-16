@@ -7,44 +7,15 @@ namespace Pastel.Transpilers.CSharp
     internal class CSharpTranspiler : CurlyBraceTranspiler
     {
         public CSharpTranspiler(TranspilerContext transpilerCtx)
-            : base(transpilerCtx, false)
+            : base(transpilerCtx)
         {
             this.TypeTranspiler = new CSharpTypeTranspiler();
             this.Exporter = new CSharpExporter();
             this.ExpressionTranslator = new CSharpExpressionTranslator(transpilerCtx.PastelContext);
+            this.StatementTranslator = new CSharpStatementTranslator(transpilerCtx);
         }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/CSharp/PastelHelper.cs"; } }
-
-        public override void TranslateDictionaryTryGet(TranspilerContext sb, Expression dictionary, Expression key, Expression fallbackValue, Variable varOut)
-        {
-            sb.Append(sb.CurrentTab);
-            sb.Append("if (!");
-            sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(dictionary));
-            sb.Append(".TryGetValue(");
-            sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(key));
-            sb.Append(", out ");
-            sb.Append(varOut.Name);
-            sb.Append(")) ");
-            sb.Append(varOut.Name);
-            sb.Append(" = ");
-            sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(fallbackValue));
-            sb.Append(";\n");
-        }
-
-        public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
-        {
-            sb.Append(sb.CurrentTab);
-            sb.Append(TypeTranspiler.TranslateType(varDecl.Type));
-            sb.Append(' ');
-            sb.Append(varDecl.VariableNameToken.Value);
-            if (varDecl.Value != null)
-            {
-                sb.Append(" = ");
-                sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(varDecl.Value));
-            }
-            sb.Append(";\n");
-        }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
@@ -60,7 +31,7 @@ namespace Pastel.Transpilers.CSharp
             lines.Add("{");
             for (int i = 0; i < names.Length; ++i)
             {
-                lines.Add("    public " + TypeTranspiler.TranslateType(types[i]) + " " + names[i].Value + ";");
+                lines.Add("    public " + this.TypeTranspiler.TranslateType(types[i]) + " " + names[i].Value + ";");
             }
             lines.Add("");
 
@@ -71,7 +42,7 @@ namespace Pastel.Transpilers.CSharp
             for (int i = 0; i < types.Length; ++i)
             {
                 if (i > 0) constructorDeclaration.Append(", ");
-                constructorDeclaration.Append(TypeTranspiler.TranslateType(types[i]));
+                constructorDeclaration.Append(this.TypeTranspiler.TranslateType(types[i]));
                 constructorDeclaration.Append(' ');
                 constructorDeclaration.Append(names[i].Value);
             }
@@ -118,7 +89,7 @@ namespace Pastel.Transpilers.CSharp
             output.Append(output.CurrentTab);
             output.Append("{\n");
             output.TabDepth++;
-            TranslateStatements(output, funcDef.Code);
+            this.StatementTranslator.TranslateStatements(output, funcDef.Code);
             output.TabDepth--;
             output.Append(output.CurrentTab);
             output.Append("}");
