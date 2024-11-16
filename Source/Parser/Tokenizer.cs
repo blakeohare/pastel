@@ -11,12 +11,12 @@ namespace Pastel.Parser
             "<=", ">=",
             "&&", "||",
             "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=",
-            
+
             // NOTE: >> is popped differently because it can conflict with type
             // generics, e.g. the last 2 characters of 'List<List<Foo>>'. However
             // << has no such conflict.
             // >>> is not in Pastel as it has too much language-specific nuance.
-            "<<", 
+            "<<",
         ]);
 
         private static readonly HashSet<char> WHITESPACE = new HashSet<char>([

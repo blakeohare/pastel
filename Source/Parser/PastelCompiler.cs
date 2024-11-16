@@ -43,7 +43,7 @@ namespace Pastel.Parser
         internal Dictionary<string, EnumDefinition> EnumDefinitions { get; set; }
         internal Dictionary<string, VariableDeclaration> ConstantDefinitions { get; set; }
         public Dictionary<string, FunctionDefinition> FunctionDefinitions { get; set; }
-        
+
         public StructDefinition[] GetStructDefinitions()
         {
             return StructDefinitions.Keys

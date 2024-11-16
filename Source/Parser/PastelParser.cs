@@ -7,9 +7,9 @@ namespace Pastel.Parser
 {
     internal class PastelParser
     {
-        internal static readonly HashSet<string> OP_TOKENS = 
+        internal static readonly HashSet<string> OP_TOKENS =
             new HashSet<string>([ "=", "+=", "*=", "-=", "&=", "|=", "^=" ]);
-        
+
         private IDictionary<string, object> constants;
 
         internal ICompilationEntity ActiveEntity { get; set; } = null;

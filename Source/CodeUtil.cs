@@ -95,18 +95,18 @@ namespace Pastel
         public static string ConvertStringTokenToValue(Token throwToken, string tokenValue)
         {
             StringBuilder output = new StringBuilder();
-            
+
             // skip quote marks
             int start = 1;
             int end = tokenValue.Length - 1;
-            
+
             for (int i = start; i < end; ++i)
             {
                 char c = tokenValue[i];
 
                 // Don't have to worry about this '\' occuring as the last character escaping the end quote as
                 // this would have tripped up the tokenizer.
-                if (c == '\\') 
+                if (c == '\\')
                 {
                     if (!ESCAPE_SEQUENCE_LOOKUP.TryGetValue(tokenValue[++i], out char escChar))
                     {
