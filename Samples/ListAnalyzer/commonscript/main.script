@@ -16,7 +16,7 @@ function main(args) {
     analysis = perform_analysis(nums, nums.length);
 
     stdDev = NumAnalysis_getStdDev(analysis);
-    stdDev = floor(stdDev * 100000 + 0.5) + ' * 10^-5';
+    stdDev = floor(stdDev * 100000 + 0.5) / 100000.0;
 
     print("Count: " + NumAnalysis_getCount(analysis));
     print("Min: " + NumAnalysis_getMin(analysis));
