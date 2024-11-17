@@ -1,24 +1,27 @@
 function main(args) {
-	if (args.length == 0) {
-		print("Usage: commonscript listanalyzer.config num1 num2 num3 numr4 ...")
-		print("e.g.:")
-		print("  commonscript listanalyzer.config 5 2 9 4 11 13")
-		return;
+    if (args.length == 0) {
+        print("Usage: commonscript listanalyzer.config num1 num2 num3 numr4 ...");
+        print("e.g.:");
+        print("  commonscript listanalyzer.config 5 2 9 4 11 13");
+        return;
     }
 
     nums = [];
     for (i = 0; i < args.length; i++) {
-        num = parseInt(args[i]);
-        if (num == null) throw new Error("Invalid integer: " + args[i]);
+        num = tryParseInt(args[i]);
+        if (num == null) throw new Exception("Invalid integer: " + args[i]);
         nums.add(num);
     }
 
-	analysis = perform_analysis(nums, nums.length);
+    analysis = perform_analysis(nums, nums.length);
 
-	print("Count: " + NumAnalysis_getCount(analysis));
-	print("Min: " + NumAnalysis_getMin(analysis));
-	print("Max: " + NumAnalysis_getMax(analysis));
-	print("Mean: " + NumAnalysis_getMean(analysis));
-	print("Standard Deviation: " + NumAnalysis_getStdDev(analysis));
-	print("Median: " + NumAnalysis_getMedian(analysis));
+    stdDev = NumAnalysis_getStdDev(analysis);
+    stdDev = floor(stdDev * 100000 + 0.5) + ' * 10^-5';
+
+    print("Count: " + NumAnalysis_getCount(analysis));
+    print("Min: " + NumAnalysis_getMin(analysis));
+    print("Max: " + NumAnalysis_getMax(analysis));
+    print("Mean: " + NumAnalysis_getMean(analysis));
+    print("Standard Deviation: " + stdDev);
+    print("Median: " + NumAnalysis_getMedian(analysis));
 }

@@ -9,7 +9,7 @@ function PST_createNewArray(s) {
 
 // PASTEL_ENTITY_ID: PST_ExtCallbacks
 class PST_ExtCallbacks {
-	static field ext = {};
+	@static field ext = {};
 }
 
 // PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback

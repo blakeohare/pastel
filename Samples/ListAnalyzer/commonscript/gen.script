@@ -1,5 +1,5 @@
 class PST_ExtCallbacks {
-  static field ext = {};
+  @static field ext = {};
 }
 
 function PST_RegisterExtensibleCallback(name, fn) {
