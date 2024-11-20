@@ -93,7 +93,7 @@ namespace Pastel.Transpilers.CSharp
             return StringBuffer
                 .Of("System.Convert.FromBase64String(")
                 .Push(TranslateExpression(base64String))
-                .Push(").Cast<int>().ToArray()")
+                .Push(").Select(b => (int)b).ToArray()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
