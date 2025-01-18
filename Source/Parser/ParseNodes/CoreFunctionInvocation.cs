@@ -99,13 +99,41 @@ namespace Pastel.Parser.ParseNodes
             return this;
         }
 
+        internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
+        {
+            for (int i = 0; i < this.Args.Length; i++)
+            {
+                this.Args[i] = this.Args[i].DoConstantResolution(cycleDetection, resolver);
+            }
+
+            return this.TryCompileTimeResolve()
+                ?? base.DoConstantResolution(cycleDetection, resolver);
+        }
+
+        private InlineConstant TryCompileTimeResolve()
+        {
+            if (this.Function == CoreFunction.ORD &&
+                this.Args[0] is InlineConstant ic &&
+                ic.Type.RootValue == "char")
+            {
+                // TODO: why is it coming as both types? Is it still coming as both?
+                char c = (ic.Value is string str) ? str[0] : (char)ic.Value;
+                InlineConstant output = new InlineConstant(
+                    PType.INT, this.FirstToken, (int)c, this.Owner);
+                return output;
+            }
+
+            return null;
+        }
+
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             for (int i = 0; i < Args.Length; ++i)
             {
                 Args[i] = Args[i].ResolveWithTypeContext(resolver);
             }
-            return this;
+
+            return this.TryCompileTimeResolve() ?? (Expression)this;
         }
     }
 }

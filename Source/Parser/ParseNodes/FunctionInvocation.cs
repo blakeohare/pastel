@@ -144,5 +144,29 @@ namespace Pastel.Parser.ParseNodes
             }
             return this;
         }
+
+        internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
+        {
+            for (int i = 0; i < this.Args.Length; i++)
+            {
+                this.Args[i] = this.Args[i].DoConstantResolution(cycleDetection, resolver);
+            }
+            if (this.Root is DotField df && df.Root is Variable v && v.Name == "Core")
+            {
+                CoreFunction cf;
+                switch (df.FieldName.Value)
+                {
+                    case "Ord": cf = CoreFunction.ORD; break;
+                    default: return base.DoConstantResolution(cycleDetection, resolver);
+                }
+                
+                CoreFunctionInvocation cfi = new CoreFunctionInvocation(this.FirstToken, cf, this.Args, this.Owner);
+                return cfi.DoConstantResolution(cycleDetection, resolver);
+            }
+            
+            this.Root = this.Root.DoConstantResolution(cycleDetection, resolver);
+
+            return base.DoConstantResolution(cycleDetection, resolver);
+        }
     }
 }
