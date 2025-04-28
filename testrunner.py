@@ -7,9 +7,11 @@ ALL_FVT_PLATFORMS = ['java', 'js', 'python']
 
 PYTHON_COMMAND = 'python' if os.name == 'nt' else 'python3'
 
+FAIL_STR = '*FAIL!*'
+
 def file_read_text(path):
-    c = open(path, 'rt')
-    t = c.read().replace('\r\n', '\n')
+    c = open(path, 'rb')
+    t = c.read().decode('utf-8').replace('\r\n', '\n')
     c.close()
     return t
 
@@ -65,7 +67,7 @@ def run_fvt_tests(pastel_exec_path, platforms):
             result = run_command(pastel_exec_path, [build_path, platform]).strip()
 
             if result != '':
-                print("COMPILATION FAILURE")
+                print(FAIL_STR + " -- Pastel compilation")
                 print(result)
                 all_pass = False
                 break
@@ -79,7 +81,7 @@ def run_fvt_tests(pastel_exec_path, platforms):
 
                 node_result = run_command('node', ['index.js'], cwd = dst_dir).strip()
                 if node_result != '':
-                    print('FAIL')
+                    print(FAIL_STR)
                     print(node_result)
                     all_pass = False
                     break
@@ -87,21 +89,21 @@ def run_fvt_tests(pastel_exec_path, platforms):
             elif platform == 'python':
                 py_result = run_command(PYTHON_COMMAND, ['main.py'], cwd = dst_dir)
                 if py_result != '':
-                    print('FAIL')
+                    print(FAIL_STR)
                     print(py_result)
                     all_pass = False
                     break
             elif platform == 'java':
                 javac_result = run_command('javac', ['*.java'], cwd = dst_dir).strip()
                 if javac_result != '':
-                    print('JAVAC FAIL')
+                    print(FAIL_STR + ' -- Java compilation')
                     print(javac_result)
                     all_pass = False
                     break
 
                 java_result = run_command('java', ['PastelTest'], cwd = dst_dir).strip()
                 if java_result != '':
-                    print('FAIL')
+                    print(FAIL_STR)
                     print(java_result)
                     all_pass = False
                     break
@@ -180,7 +182,7 @@ def run_error_tests(pastel_exec_path):
         actual = actual.replace(code_path, 'test.pst')
         print("Running Error Test: " + test_id)
         if expected != actual:
-            print("FAIL")
+            print("FAIL!")
             print("BUILD FILE:")
             print("  " + os.path.abspath(build_path))
             print('-' * 40)
@@ -247,4 +249,8 @@ def main(args):
         run_error_tests(pastel_path)
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    try:
+        main(sys.argv[1:])
+    except Exception as ex:
+        print(FAIL_STR)
+        print(ex)
