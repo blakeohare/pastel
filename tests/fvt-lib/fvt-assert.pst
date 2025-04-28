@@ -1,8 +1,25 @@
-void assertEqStr(string expected, string actual) {
-    if (expected == actual) return;
+void fail(string msg) {
     Array<object> args = new Array<object>(1);
-    args[0] = "Expected:\n" + expected + "\n\nActual:\n" + actual;
+    args[0] = msg;
     Core.ExtensibleCallbackInvoke("fail", args);
+}
+
+void assertEqStr(string expected, string actual) {
+    // Java support requires this juggling as string comparison is based on
+    // invoking .equals() on a non-null instance.
+    if (expected == actual) return; // both null or happen to be same ref
+    if (expected != null && actual != null) {
+        if (Core.StringEquals(expected, actual)) return;
+    }
+
+    // if only one was null or they were both non-null and didn't, match then they failed.
+
+    string a = "null";
+    if (expected != null) a = expected;
+    string b = "null";
+    if (actual != null) b = actual;
+
+    fail("Expected:\n" + a + "\n\nActual:\n" + b);
 }
 
 void assertEqInt(int expected, int actual) {
