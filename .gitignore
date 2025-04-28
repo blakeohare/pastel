@@ -3,3 +3,5 @@
 /Release/pastel-*-mac
 /Release/pastel-*-linux
 .DS_Store
+.idea
+.vscode
