@@ -15,5 +15,5 @@ void assertEqBool(bool expected, bool actual) {
     if (expected) eb = "true";
     string ab = "false";
     if (actual) ab = "true";
-    return assertEqStr(eb, ab);
+    assertEqStr(eb, ab);
 }
