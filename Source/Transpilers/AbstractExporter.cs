@@ -22,6 +22,11 @@ namespace Pastel.Transpilers
                 string code = files[path]
                     .Replace("\n", this.PreferredNewline)
                     .Replace("\t", this.PreferredTab);
+                string parent = System.IO.Path.GetDirectoryName(actualPath);
+                if (!DiskUtil.EnsureDirectoryExists(parent))
+                {
+                    throw new UserErrorException("Cannot export file: " + actualPath);
+                }
                 System.IO.File.WriteAllText(actualPath, code);
             }
         }
