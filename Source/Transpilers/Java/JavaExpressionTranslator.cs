@@ -309,7 +309,13 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_ExtCallbacks.get(")
+                .Push(this.TranslateExpression(name))
+                .Push(").run(")
+                .Push(this.TranslateExpression(argsArray))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateFloatBuffer16()

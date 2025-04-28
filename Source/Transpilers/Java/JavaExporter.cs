@@ -23,17 +23,18 @@ namespace Pastel.Transpilers.Java
         private void GenerateFunctionImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string funcCode)
         {
             filesOut["@FUNC_FILE"] = string.Join('\n', [
-                "package " + config.NamespaceForFunctions + ";",
+                config.NamespaceForFunctions == null ? "" : ("package " + config.NamespaceForFunctions + ";"),
                 "",
-                .. (config.Imports.Count == 0 ? [] : config.Imports
+                .. config.Imports.Count == 0 ? [] : config.Imports
                         .OrderBy(t => t)
-                        .Select(t => "import " + t + ";")
-                        .Append("")),
+                        .Select(t => "import " + t + ";"),
+                "import java.util.*;",
+                "",
                 "public final class " + config.WrappingClassNameForFunctions + " {",
                 .. this.SplitAndIndent(funcCode, "\t"),
                 "}",
                 "",
-            ]);
+            ]).TrimStart();
         }
 
         private void GenerateStructImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string structName, string structCode)
