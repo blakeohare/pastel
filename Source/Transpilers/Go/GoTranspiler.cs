@@ -53,7 +53,7 @@ namespace Pastel.Transpilers.Go
 
             sb.TabDepth++;
 
-            string[] fieldNames = CodeUtil.PadStringsToSameLength(structDef.FieldNames.Select(n => n.Value));
+            string[] fieldNames = Pastel.Generated.FunctionWrapper.PadStringsToSameLength(structDef.FieldNames.Select(n => n.Value).ToArray());
             for (int i = 0; i < fieldNames.Length; i++)
             {
                 sb.Append(sb.CurrentTab);

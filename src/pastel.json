@@ -1,0 +1,18 @@
+{
+	"source": "pastel/index.pst",
+	"targets": [
+		{
+			"name": "csharp",
+			"language": "c#",
+			"imports": [
+				"System.Collections.Generic"
+			],
+			"output": {
+				"namespace": "Pastel.Generated",
+				"structs-path": "../Source/gen",
+				"functions-path": "../Source/gen/FunctionWrapper.cs",
+				"functions-wrapper-class": "FunctionWrapper"
+			}
+		}
+	]
+}

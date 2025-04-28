@@ -1,28 +1,11 @@
 ﻿using Pastel.Parser;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Pastel
 {
     internal static class CodeUtil
     {
-        public static void IndentLines(List<string> lines)
-        {
-            IndentLines(1, lines);
-        }
-
-        public static void IndentLines(int amount, List<string> lines)
-        {
-            string prefix = "";
-            for (int i = 0; i < amount; i++) prefix += "\t";
-            int length = lines.Count;
-            for (int i = 0; i < length; ++i)
-            {
-                lines[i] = (prefix + lines[i]).TrimEnd();
-            }
-        }
-
         public static string ConvertCharToCharConstantCode(char value)
         {
             switch (value)
@@ -149,25 +132,6 @@ namespace Pastel
                 output += ".0";
             }
             return output;
-        }
-
-        private static readonly List<string> spaceStringByLengthCache = ["", " "];
-        private static string GetSpaceString(int length)
-        {
-            while (spaceStringByLengthCache.Count <= length)
-            {
-                string lastString = spaceStringByLengthCache[spaceStringByLengthCache.Count - 1];
-                spaceStringByLengthCache.Add(lastString + " ");
-            }
-            return spaceStringByLengthCache[length];
-        }
-
-        internal static string[] PadStringsToSameLength(IEnumerable<string> strs)
-        {
-            int maxLen = strs.Select(s => s.Length).Max();
-            return strs
-                .Select(s => s + GetSpaceString(maxLen - s.Length))
-                .ToArray();
         }
     }
 }
