@@ -1,0 +1,24 @@
+@import("fvt-assert.pst");
+@import("fvt-convert.pst");
+
+string toUtf8(string str) {
+    return intArrayToString(str.ToUtf8Bytes());
+}
+
+void runner() {
+    assertEqStr(
+        "72 101 108 108 111",
+        toUtf8("Hello"));
+
+    assertEqStr(
+        "",
+        toUtf8(""));
+
+    assertEqStr(
+        "227 129 130 227 129 132 227 129 134 227 129 136 227 129 138",
+        toUtf8("あいうえお"));
+
+    assertEqStr(
+        "240 159 146 169",
+        toUtf8("💩"));
+}

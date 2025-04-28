@@ -14,13 +14,78 @@ def file_write_text(path, content):
     c.write(content.encode('utf-8'))
     c.close()
 
-def run_command(ex, args = None):
+def run_command(ex, args = None, cwd = None):
     cmd = ex
     if args != None: cmd += ' ' + ' '.join(args)
-    c = os.popen(cmd)
-    t = c.read()
-    c.close()
+    old_dir = os.getcwd()
+    try:
+        if cwd != None:
+            os.chdir(cwd)
+        c = os.popen(cmd)
+        t = c.read()
+        c.close()
+    finally:
+        if cwd != None:
+            os.chdir(old_dir)
+
     return t
+
+def run_fvt_tests(pastel_exec_path):
+    fvt_dir = os.path.join('tests', 'fvt')
+    test_libs = {}
+    fvt_lib_dir = os.path.join('tests', 'fvt-lib')
+    for file in os.listdir(fvt_lib_dir):
+        test_libs[file] = file_read_text(os.path.join(fvt_lib_dir, file))
+
+    test_ids = [file[:-len('.pst')] for file in os.listdir(fvt_dir) if file.endswith('.pst')]
+    for test_id in test_ids:
+        test_code = file_read_text(os.path.join(fvt_dir, test_id + '.pst'))
+        dst_dir = get_temp_dir(test_id)
+        files = test_libs.copy()
+        files['test.json'] = json.dumps({
+            'source': 'test.pst',
+            'targets': [
+                create_python_target('python', 'pygen/__init__.py'),
+                create_javascript_target('js', 'gen.js'),
+            ]
+        })
+        files['test.pst'] = test_code
+        for file in files.keys():
+            file_write_text(os.path.join(dst_dir, file), files[file])
+
+        build_path = os.path.join(dst_dir, 'test.json')
+        all_pass = True
+        for platform in ['js']:
+            print("Running FVT: " + test_id + " [" + platform + "]")
+            result = run_command(pastel_exec_path, [build_path, platform]).strip()
+
+            if result != '':
+                print(result)
+                all_pass = False
+                break
+
+            if platform == 'js':
+                # TODO: add option to apply default export to exported JS code.
+                gen_js_path = os.path.join(dst_dir, 'gen.js')
+                file_write_text(
+                    gen_js_path,
+                    file_read_text(gen_js_path) + '\n\n' + 'export default { runner, registerExtension: PASTEL_regCallback };\n')
+
+                node_result = run_command('node', ['index.js'], cwd = dst_dir).strip()
+                if node_result != '':
+                    print('FAIL')
+                    print(node_result)
+                    all_pass = False 
+                    break
+                
+            elif platform == 'python':
+                raise Exception("TODO: run python")
+            else:
+                raise Exception("TODO: implement automatic runner for this platform")
+
+        if all_pass:
+            pass # TODO: delete directory
+
 
 def split_negative_test_file(content, throw_path):
     lines = content.replace('\r\n', '\n').split('\n')
@@ -29,6 +94,20 @@ def split_negative_test_file(content, throw_path):
         if len(line) >= 3 and len(line) * '#' == line:
             return ('\n'.join(lines[:i]).strip(), '\n'.join(lines[i + 1:]).strip())
     raise Exception("Invalid test file: " + throw_path)
+
+def create_javascript_target(name, func_path):
+    return {
+        'name': name,
+        'language': 'javascript',
+        'output': { 'functions-path': func_path, }
+    }
+
+def create_python_target(name, func_path):
+    return {
+        'name': name,
+        'language': 'python',
+        'output': {  'functions-path': func_path }
+    }
 
 def run_error_tests(pastel_exec_path):
     error_dir = os.path.join('tests', 'errors')
@@ -46,8 +125,8 @@ def run_error_tests(pastel_exec_path):
             'source': 'test.pst',
             'targets': [
                 {
-                    'js': { 'name': 'test', 'language': 'javascript', 'output': { 'functions-path': 'gen.js' } },
-                    'php': { 'name': "php", "language": "php", "output": { "structs-path": "structs", "namespace": "PTest", "functions-path": "gen_functions.php", "functions-wrapper-class": "FunctionWrapper" } }
+                    'js': create_javascript_target('test', 'gen.js'),
+                    'python': create_python_target('test', 'gen.py'),
                 }[lang_id]
             ]
         }
@@ -61,9 +140,9 @@ def run_error_tests(pastel_exec_path):
 
         actual = run_command(pastel_exec_path, [build_path, 'test']).strip().replace('\r\n', '\n')
         actual = actual.replace(code_path, 'test.pst')
-        print("Running: " + test_id)
+        print("Running Error Test: " + test_id)
         if expected != actual:
-            print("FAIL!")
+            print("FAIL")
             print("BUILD FILE:")
             print("  " + os.path.abspath(build_path))
             print('-' * 40)
@@ -102,6 +181,7 @@ def main(args):
         print("Path does not exist: " + pastel_path[:999])
         return
 
+    run_fvt_tests(pastel_path)
     run_error_tests(pastel_path)
 
 if __name__ == '__main__':

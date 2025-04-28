@@ -1,0 +1,19 @@
+void assertEqStr(string expected, string actual) {
+    if (expected == actual) return;
+    Array<object> args = new Array<object>(1);
+    args[0] = "Expected:\n" + expected + "\n\nActual:\n" + actual;
+    Core.ExtensibleCallbackInvoke("fail", args);
+}
+
+void assertEqInt(int expected, int actual) {
+    assertEqStr(Core.IntToString(expected), Core.IntToString(actual));
+}
+
+void assertEqBool(bool expected, bool actual) {
+    // TODO: I really need to improve my toString() game.
+    string eb = "false";
+    if (expected) eb = "true";
+    string ab = "false";
+    if (actual) ab = "true";
+    return assertEqStr(eb, ab);
+}
