@@ -55,4 +55,8 @@ PST_ExtCallbacks = {}
 
 # PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
 def PST_RegisterExtensibleCallback(name, fn):
-  PST_ExtCallbacks[name] = fn;
+  PST_ExtCallbacks[name] = fn
+
+# PASTEL_ENTITY_ID: PST_stringToUtf8Bytes
+def PST_stringToUtf8Bytes(s):
+  return list(s.encode('utf-8'))

@@ -103,8 +103,12 @@ namespace Pastel.Transpilers.Python
         public override void TranslateReturnStatemnt(TranspilerContext sb, ReturnStatement returnStatement)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append("return ");
-            sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(returnStatement.Expression));
+            sb.Append("return");
+            if (returnStatement.Expression != null)
+            {
+                sb.Append(' ');
+                sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(returnStatement.Expression));
+            }
             sb.Append("\n");
         }
 

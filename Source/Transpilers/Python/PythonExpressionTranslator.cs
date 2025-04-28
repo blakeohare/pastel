@@ -271,7 +271,12 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("PST_ExtCallbacks[")
+                .Push(this.TranslateExpression(name))
+                .Push("](")
+                .Push(this.TranslateExpression(argsArray))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateFloatBuffer16()
