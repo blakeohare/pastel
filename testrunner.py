@@ -3,6 +3,8 @@ import os
 import random
 import sys
 
+ALL_FVT_PLATFORMS = ['js', 'python']
+
 PYTHON_COMMAND = 'python' if os.name == 'nt' else 'python3'
 
 def file_read_text(path):
@@ -32,7 +34,7 @@ def run_command(ex, args = None, cwd = None):
 
     return t
 
-def run_fvt_tests(pastel_exec_path):
+def run_fvt_tests(pastel_exec_path, platforms):
     fvt_dir = os.path.join('tests', 'fvt')
     test_libs = {}
     fvt_lib_dir = os.path.join('tests', 'fvt-lib')
@@ -57,7 +59,7 @@ def run_fvt_tests(pastel_exec_path):
 
         build_path = os.path.join(dst_dir, 'test.json')
         all_pass = True
-        for platform in ['js', 'python']:
+        for platform in platforms:
             print("Running FVT: " + test_id + " [" + platform + "]")
             result = run_command(pastel_exec_path, [build_path, platform]).strip()
 
@@ -181,7 +183,9 @@ def get_temp_dir(hint = None):
 
 def main(args):
     if len(args) == 0:
-        print("Usage: python testrunner.py path/to/pastel/binary/pastel[.exe]")
+        print("Usage: python testrunner.py path/to/pastel/binary/pastel[.exe] --errtests --fvt:[js | python | all]")
+        print("")
+        print("e.g. python testrunner.py ./bin/pastel --errtests --fvt:js --fvt:python")
         return
 
     pastel_path = args[0]
@@ -189,8 +193,30 @@ def main(args):
         print("Path does not exist: " + pastel_path[:999])
         return
 
-    run_fvt_tests(pastel_path)
-    run_error_tests(pastel_path)
+    fvt_flags = []
+    enable_err = False
+    for arg in args[1:]:
+        if arg.startswith('--fvt:'):
+            fvt_arg = arg[len('--fvt:'):]
+            if fvt_arg == 'all':
+                fvt_flags += ALL_FVT_PLATFORMS
+            elif fvt_arg not in ALL_FVT_PLATFORMS:
+                print("Unrecognized FVT arg: " + arg)
+                return
+            else:
+                fvt_flags.append(fvt_arg)
+        elif arg == '--errtests':
+            enable_err = True
+        else:
+            print("Unknown arg: " + arg)
+            return
+
+    fvt_platforms = list(set(fvt_flags))
+
+    if len(fvt_platforms):
+        run_fvt_tests(pastel_path, fvt_platforms)
+    if enable_err:
+        run_error_tests(pastel_path)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
