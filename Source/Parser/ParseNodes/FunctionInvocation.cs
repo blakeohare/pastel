@@ -25,30 +25,31 @@ namespace Pastel.Parser.ParseNodes
 
         internal Expression MaybeImmediatelyResolve(PastelParser parser)
         {
-            if (Root is CompileTimeFunctionReference)
+            if (this.Root is CompileTimeFunctionReference constFunc)
             {
-                CompileTimeFunctionReference constFunc = (CompileTimeFunctionReference)Root;
-                InlineConstant argName = (InlineConstant)Args[0];
+                InlineConstant? argName = this.Args.Length == 1 ? this.Args[0] as InlineConstant : null;
+                string argValue = argName == null ? "" : argName.Value.ToString()!;
                 switch (constFunc.NameToken.Value)
                 {
                     case "ext_boolean":
                         return new InlineConstant(
                             PType.BOOL,
-                            FirstToken,
-                            parser.GetParseTimeBooleanConstant(argName.Value.ToString()),
-                            Owner);
+                            this.FirstToken,
+                            parser.GetParseTimeBooleanConstant(argValue),
+                            this.Owner);
 
                     case "pastel_flag":
                         return new InlineConstant(
                             PType.BOOL,
-                            FirstToken,
-                            parser.GetPastelFlagConstant(constFunc.NameToken, argName.Value.ToString()),
-                            Owner);
+                            this.FirstToken,
+                            parser.GetPastelFlagConstant(constFunc.NameToken, argValue),
+                            this.Owner);
 
                     default:
-                        return this;
+                        throw new ParserException(this.FirstToken, "Unknown compile-time function: " + constFunc.NameToken.Value);
                 }
             }
+
             return this;
         }
 
