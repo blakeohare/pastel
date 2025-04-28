@@ -3,6 +3,8 @@ import os
 import random
 import sys
 
+PYTHON_COMMAND = 'python' if os.name == 'nt' else 'python3'
+
 def file_read_text(path):
     c = open(path, 'rt')
     t = c.read().replace('\r\n', '\n')
@@ -55,11 +57,12 @@ def run_fvt_tests(pastel_exec_path):
 
         build_path = os.path.join(dst_dir, 'test.json')
         all_pass = True
-        for platform in ['js']:
+        for platform in ['js', 'python']:
             print("Running FVT: " + test_id + " [" + platform + "]")
             result = run_command(pastel_exec_path, [build_path, platform]).strip()
 
             if result != '':
+                print("COMPILATION FAILURE")
                 print(result)
                 all_pass = False
                 break
@@ -75,11 +78,16 @@ def run_fvt_tests(pastel_exec_path):
                 if node_result != '':
                     print('FAIL')
                     print(node_result)
-                    all_pass = False 
+                    all_pass = False
                     break
-                
+
             elif platform == 'python':
-                raise Exception("TODO: run python")
+                py_result = run_command(PYTHON_COMMAND, ['main.py'], cwd = dst_dir)
+                if py_result != '':
+                    print('FAIL')
+                    print(py_result)
+                    all_pass = False
+                    break
             else:
                 raise Exception("TODO: implement automatic runner for this platform")
 
