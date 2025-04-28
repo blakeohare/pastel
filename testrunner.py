@@ -3,7 +3,7 @@ import os
 import random
 import sys
 
-ALL_FVT_PLATFORMS = ['js', 'python']
+ALL_FVT_PLATFORMS = ['java', 'js', 'python']
 
 PYTHON_COMMAND = 'python' if os.name == 'nt' else 'python3'
 
@@ -49,10 +49,11 @@ def run_fvt_tests(pastel_exec_path, platforms):
         files['test.json'] = json.dumps({
             'source': 'test.pst',
             'targets': [
-                create_python_target('python', 'pygen/__init__.py'),
+                create_java_target('java', 'FunctionWrapper.java', '.'),
                 create_javascript_target('js', 'gen.js'),
+                create_python_target('python', 'pygen/__init__.py'),
             ]
-        })
+        }, indent = 2)
         files['test.pst'] = test_code
         for file in files.keys():
             file_write_text(os.path.join(dst_dir, file), files[file])
@@ -90,12 +91,26 @@ def run_fvt_tests(pastel_exec_path, platforms):
                     print(py_result)
                     all_pass = False
                     break
+            elif platform == 'java':
+                javac_result = run_command('javac', ['*.java'], cwd = dst_dir).strip()
+                if javac_result != '':
+                    print('JAVAC FAIL')
+                    print(javac_result)
+                    all_pass = False
+                    break
+
+                java_result = run_command('java', ['PastelTest'], cwd = dst_dir).strip()
+                if java_result != '':
+                    print('FAIL')
+                    print(java_result)
+                    all_pass = False
+                    break
+
             else:
                 raise Exception("TODO: implement automatic runner for this platform")
 
         if all_pass:
             pass # TODO: delete directory
-
 
 def split_negative_test_file(content, throw_path):
     lines = content.replace('\r\n', '\n').split('\n')
@@ -104,6 +119,18 @@ def split_negative_test_file(content, throw_path):
         if len(line) >= 3 and len(line) * '#' == line:
             return ('\n'.join(lines[:i]).strip(), '\n'.join(lines[i + 1:]).strip())
     raise Exception("Invalid test file: " + throw_path)
+
+def create_java_target(name, func_path, struct_path):
+    if not func_path.endswith('.java'): raise Exception()
+    return {
+        'name': name,
+        'language': 'java',
+        'output': {
+            'structs-path': struct_path,
+            'functions-path': func_path,
+            'functions-wrapper-class': func_path[:-len('.java')],
+        }
+    }
 
 def create_javascript_target(name, func_path):
     return {
@@ -135,6 +162,7 @@ def run_error_tests(pastel_exec_path):
             'source': 'test.pst',
             'targets': [
                 {
+                    'java': create_java_target('test', 'FunctionWrapper.java', '.'),
                     'js': create_javascript_target('test', 'gen.js'),
                     'python': create_python_target('test', 'gen.py'),
                 }[lang_id]
@@ -183,7 +211,7 @@ def get_temp_dir(hint = None):
 
 def main(args):
     if len(args) == 0:
-        print("Usage: python testrunner.py path/to/pastel/binary/pastel[.exe] --errtests --fvt:[js | python | all]")
+        print("Usage: python testrunner.py path/to/pastel/binary/pastel[.exe] --errtests --fvt:[ all | " + ' | '.join(ALL_FVT_PLATFORMS) + "]")
         print("")
         print("e.g. python testrunner.py ./bin/pastel --errtests --fvt:js --fvt:python")
         return
