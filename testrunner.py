@@ -22,14 +22,23 @@ def run_command(ex, args = None):
     c.close()
     return t
 
+def split_negative_test_file(content, throw_path):
+    lines = content.replace('\r\n', '\n').split('\n')
+    for i in range(len(lines)):
+        line = lines[i].strip()
+        if len(line) >= 3 and len(line) * '#' == line:
+            return ('\n'.join(lines[:i]).strip(), '\n'.join(lines[i + 1:]).strip())
+    raise Exception("Invalid test file: " + throw_path)
+
 def run_error_tests(pastel_exec_path):
     error_dir = os.path.join('tests', 'errors')
-    test_ids = [f[:-len('.out.txt')] for f in os.listdir(error_dir) if f.lower().endswith('.out.txt')]
+    test_ids = [f[:-len('.txt')] for f in os.listdir(error_dir) if f.lower().endswith('.txt')]
     for test_id in test_ids:
         dst_path = get_temp_dir(test_id)
-        code = file_read_text(os.path.join(error_dir, test_id + '.pst'))
+        test_path = os.path.join(error_dir, test_id + '.txt')
+        test_content = file_read_text(test_path)
+        code, expected = split_negative_test_file(test_content, test_path)
         code_path = os.path.abspath(os.path.join(dst_path, 'test.pst'))
-        expected = file_read_text(os.path.join(error_dir, test_id + '.out.txt')).strip().replace('\r\n', '\n')
         lang_id = 'js'
         if test_id.endswith(']'):
             lang_id = test_id.split('[').pop()[:-1]
