@@ -37,7 +37,9 @@ namespace Pastel.Transpilers.Go
 
         public override void TranslateExpressionAsStatement(TranspilerContext sb, Expression expression)
         {
-            throw new NotImplementedException();
+            sb.Append(sb.CurrentTab);
+            sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(expression));
+            sb.Append("\n");
         }
 
         public override void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement)

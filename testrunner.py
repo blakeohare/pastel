@@ -3,7 +3,7 @@ import os
 import random
 import sys
 
-ALL_FVT_PLATFORMS = ['csharp', 'java', 'js', 'python']
+ALL_FVT_PLATFORMS = ['csharp', 'go', 'java', 'js', 'python']
 
 PYTHON_COMMAND = 'python' if os.name == 'nt' else 'python3'
 
@@ -65,6 +65,7 @@ def run_fvt_tests(pastel_exec_path, platforms):
             'source': 'test.pst',
             'targets': [
                 create_csharp_target('csharp', 'PastelTest.GeneratedCode', 'FunctionWrapper.cs', 'csgen'),
+                create_go_target('go', 'gogen', 'gofuncs.go', '.'),
                 create_java_target('java', 'FunctionWrapper.java', '.'),
                 create_javascript_target('js', 'gen.js'),
                 create_python_target('python', 'pygen/__init__.py'),
@@ -138,6 +139,15 @@ def run_fvt_tests(pastel_exec_path, platforms):
                     all_pass = False
                     break
 
+            elif platform == 'go':
+                raise Exception('Stahp!')
+                go_result = run_command('go', ['go.mod'], cwd = dst_dir).strip()
+                if go_result != '':
+                    print(FAIL_STR + ' -- Go compilation')
+                    print(go_result)
+                    all_pass = False
+                    break
+
             else:
                 raise Exception("TODO: implement automatic runner for this platform")
 
@@ -180,6 +190,18 @@ def create_csharp_target(name, ns, func_path, struct_path):
         }
     }
 
+def create_go_target(name, ns, func_path, struct_path):
+    if not func_path.endswith('.go'): raise Exception()
+    return {
+        'name': name,
+        'language': 'go',
+        'output': {
+            'namespace': ns,
+            'structs-path': struct_path,
+            'functions-path': func_path,
+        },
+    }
+
 def create_javascript_target(name, func_path):
     return {
         'name': name,
@@ -211,6 +233,7 @@ def run_error_tests(pastel_exec_path):
             'targets': [
                 {
                     'csharp': create_csharp_target('test', 'PastelGenerated', 'FunctionWrapper.cs', '.'),
+                    'go': create_go_target('test', 'gogen', 'gofuncs.go', '.'),
                     'java': create_java_target('test', 'FunctionWrapper.java', '.'),
                     'js': create_javascript_target('test', 'gen.js'),
                     'python': create_python_target('test', 'gen.py'),

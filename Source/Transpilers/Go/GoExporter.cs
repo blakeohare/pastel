@@ -34,7 +34,7 @@ namespace Pastel.Transpilers.Go
                 "package main",
                 "",
                 .. importLines,
-                .. funcCode.Trim(),
+                funcCode.Trim(),
                 "",
             ]);
         }

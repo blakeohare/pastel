@@ -9,9 +9,15 @@ namespace Pastel.Transpilers.Go
         {
             switch (type.RootValue)
             {
+                case "bool": return "bool";
                 case "int": return "int";
                 case "double": return "float64";
-                case "Array": return "[]" + TranslateType(type.Generics[0]);
+                case "string": return "string";
+                case "object": return "any"; 
+
+                case "Array":
+                case "List":
+                    return "[]" + TranslateType(type.Generics[0]);
             }
 
             if (type.IsStruct)
