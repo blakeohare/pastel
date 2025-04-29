@@ -3,7 +3,7 @@ import os
 import random
 import sys
 
-ALL_FVT_PLATFORMS = ['java', 'js', 'python']
+ALL_FVT_PLATFORMS = ['csharp', 'java', 'js', 'python']
 
 PYTHON_COMMAND = 'python' if os.name == 'nt' else 'python3'
 
@@ -36,12 +36,25 @@ def run_command(ex, args = None, cwd = None):
 
     return t
 
+def generate_csharp_guid():
+    HEX = list('0123456789ABCDEF')
+    output = list('HHHHHHHH-HHHH-HHHH-HHHH-HHHHHHHHHHHH')
+    for i in range(len(output)):
+        if output[i] == 'H':
+            output[i] = random.choice(HEX)
+    return ''.join(output)
+
 def run_fvt_tests(pastel_exec_path, platforms):
     fvt_dir = os.path.join('tests', 'fvt')
     test_libs = {}
     fvt_lib_dir = os.path.join('tests', 'fvt-lib')
     for file in os.listdir(fvt_lib_dir):
         test_libs[file] = file_read_text(os.path.join(fvt_lib_dir, file))
+
+    sln_code = test_libs['PastelTest.sln']
+    sln_code = sln_code.replace('PROJ_GUID', generate_csharp_guid())
+    sln_code = sln_code.replace('SOLUTION_GUID', generate_csharp_guid())
+    test_libs['PastelTest.sln'] = sln_code
 
     test_ids = [file[:-len('.pst')] for file in os.listdir(fvt_dir) if file.endswith('.pst')]
     for test_id in test_ids:
@@ -51,6 +64,7 @@ def run_fvt_tests(pastel_exec_path, platforms):
         files['test.json'] = json.dumps({
             'source': 'test.pst',
             'targets': [
+                create_csharp_target('csharp', 'PastelTest.GeneratedCode', 'FunctionWrapper.cs', 'csgen'),
                 create_java_target('java', 'FunctionWrapper.java', '.'),
                 create_javascript_target('js', 'gen.js'),
                 create_python_target('python', 'pygen/__init__.py'),
@@ -93,6 +107,7 @@ def run_fvt_tests(pastel_exec_path, platforms):
                     print(py_result)
                     all_pass = False
                     break
+
             elif platform == 'java':
                 javac_result = run_command('javac', ['*.java'], cwd = dst_dir).strip()
                 if javac_result != '':
@@ -105,6 +120,21 @@ def run_fvt_tests(pastel_exec_path, platforms):
                 if java_result != '':
                     print(FAIL_STR)
                     print(java_result)
+                    all_pass = False
+                    break
+
+            elif platform == 'csharp':
+                csc_result = run_command('dotnet', ['build', 'PastelTest.sln'], cwd = dst_dir).strip()
+                if 'Build succeeded.' not in csc_result:
+                    print(FAIL_STR + ' -- C# compilation')
+                    print(csc_result)
+                    all_pass = False
+                    break
+
+                cs_run_result = run_command(os.path.join('bin', 'Debug', 'net8.0', 'PastelTest'), [], cwd = dst_dir).strip()
+                if cs_run_result != '':
+                    print(FAIL_STR)
+                    print(csc_result)
                     all_pass = False
                     break
 
@@ -131,6 +161,22 @@ def create_java_target(name, func_path, struct_path):
             'structs-path': struct_path,
             'functions-path': func_path,
             'functions-wrapper-class': func_path[:-len('.java')],
+        }
+    }
+
+def create_csharp_target(name, ns, func_path, struct_path):
+    if not func_path.endswith('.cs'): raise Exception()
+    return {
+        'name': name,
+        'language': 'csharp',
+        'imports': [
+            'System.Collections.Generic',
+        ],
+        'output': {
+            'namespace': ns,
+            'structs-path': struct_path,
+            'functions-path': func_path,
+            'functions-wrapper-class': func_path[:-len('.cs')],
         }
     }
 
@@ -164,6 +210,7 @@ def run_error_tests(pastel_exec_path):
             'source': 'test.pst',
             'targets': [
                 {
+                    'csharp': create_csharp_target('test', 'PastelGenerated', 'FunctionWrapper.cs', '.'),
                     'java': create_java_target('test', 'FunctionWrapper.java', '.'),
                     'js': create_javascript_target('test', 'gen.js'),
                     'python': create_python_target('test', 'gen.py'),

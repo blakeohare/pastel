@@ -1,7 +1,8 @@
 void fail(string msg) {
     Array<object> args = new Array<object>(1);
     args[0] = msg;
-    Core.ExtensibleCallbackInvoke("fail", args);
+    // TODO: Fix the C# bug where the ternary tries to get ignored
+    object ignore = Core.ExtensibleCallbackInvoke("fail", args);
 }
 
 void assertEqStr(string expected, string actual) {
