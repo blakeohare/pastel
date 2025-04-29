@@ -30,10 +30,22 @@ namespace Pastel.Transpilers.Go
             else if (imports.Length == 1) importLines = ["import \"" + imports[0] + "\"", ""];
             else importLines = ["import (", .. imports.Select(v => "  \"" + v + "\""), ")", ""];
 
+            List<string> additionalCode = [];
+            additionalCode.AddRange([
+                "type plist struct {",
+                "  items []any",
+                "}",
+                "",
+                "func (p *plist) add(item any) {",
+                "  p.items = append(p.items, item)",
+                "}",
+            ]);
+
             filesOut["@FUNC_FILE"] = string.Join('\n', [
                 "package main",
                 "",
                 .. importLines,
+                .. additionalCode,
                 funcCode.Trim(),
                 "",
             ]);

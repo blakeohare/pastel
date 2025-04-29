@@ -140,8 +140,7 @@ def run_fvt_tests(pastel_exec_path, platforms):
                     break
 
             elif platform == 'go':
-                raise Exception('Stahp!')
-                go_result = run_command('go', ['go.mod'], cwd = dst_dir).strip()
+                go_result = run_command('go', ['run', '*.go'], cwd = dst_dir).strip()
                 if go_result != '':
                     print(FAIL_STR + ' -- Go compilation')
                     print(go_result)

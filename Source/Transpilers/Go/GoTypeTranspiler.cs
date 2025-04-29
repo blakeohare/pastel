@@ -12,12 +12,12 @@ namespace Pastel.Transpilers.Go
                 case "bool": return "bool";
                 case "int": return "int";
                 case "double": return "float64";
-                case "string": return "string";
+                case "string": return "*string";
                 case "object": return "any"; 
 
                 case "Array":
                 case "List":
-                    return "[]" + TranslateType(type.Generics[0]);
+                    return "*plist";
             }
 
             if (type.IsStruct)

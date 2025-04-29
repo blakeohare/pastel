@@ -1,15 +1,68 @@
 ﻿
 // PASTEL_ENTITY_ID: PST_ExtCallbacks
-type ExtFunc func(array[]interface{})interface{}
-var PST_ExtCallbacks map[string]ExtFunc 
+type ExtFunc func(array []any) any
+var PST_ExtCallbacks map[string]ExtFunc = make(map[string]ExtFunc, 0) 
 
 // PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
-func PST_RegisterExtensibleCallback(name string, fn ExtFunc) {
-  PST_ExtCallbacks[name] = fn
+func PST_RegisterExtensibleCallback(name *string, fn ExtFunc) {
+  PST_ExtCallbacks[*name] = fn
 }
 
+// PASTEL_ENTITY_ID: PST_SortedIntArrayCopy
 func PST_SortedIntArrayCopy(nums []int) []int {
   copied := nums[:]
   sort.Ints(copied)
   return copied
+}
+
+// PASTEL_ENTITY_ID: PST_intToStr
+func PST_intToStr(n int) *string {
+  s := strconv.Itoa(n)
+  return &s
+}
+
+// PASTEL_ENTITY_ID: PST_strPtr
+func PST_strPtr(s string) *string {
+  return &s
+}
+
+// PASTEL_ENTITY_ID: PST_listJoin
+func PST_listJoin(list *plist, sep *string) *string {
+  items := list.items
+  sz := len(items)
+  i := 0
+  sb := make([]string, sz)
+  for i < sz {
+    sb[i] = *items[i].(*string)
+    i += 1
+  }
+  o := strings.Join(sb, *sep)
+  return &o
+}
+
+// PASTEL_ENTITY_ID: PST_newList
+func PST_newList(sz int) *plist {
+  o := new(plist)
+  o.items = make([]any, sz)
+  return o
+}
+
+// PASTEL_ENTITY_ID: PST_strEq
+func PST_strEq(a *string, b *string) bool {
+  return a == b || (a != nil && b != nil && *a == *b)
+}
+
+// PASTEL_ENTITY_ID: PST_strToUtf8Bytes
+func PST_strToUtf8Bytes(a *string) *plist {
+  buf := []byte(*a)
+  sz := len(buf)
+  arr := make([]any, sz)
+  i := 0
+  for i < sz {
+    arr[i] = int(buf[i])
+    i += 1
+  }
+  o := new(plist)
+  o.items = arr
+  return o
 }
