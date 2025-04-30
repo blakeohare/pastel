@@ -642,12 +642,20 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringToLower(Expression str)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer.Of("PST_strPtr(strings.ToLower(*")
+                .Push(this.TranslateExpression(str))
+                .Push("))")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringToUpper(Expression str)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer.Of("PST_strPtr(strings.ToUpper(*")
+                .Push(this.TranslateExpression(str))
+                .Push("))")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringToUtf8Bytes(Expression str)
@@ -723,7 +731,10 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateVariable(Variable variable)
         {
-            return StringBuffer.Of("v_").Push(variable.Name);
+            return StringBuffer
+                .Of("v_")
+                .Push(variable.Name)
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
     }
 }

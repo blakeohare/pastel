@@ -19,6 +19,10 @@ void runner() {
         toUtf8("あいうえお"));
 
     assertEqStr(
+        "208 144",
+        toUtf8("А"));
+
+    assertEqStr(
         "240 159 146 169",
         toUtf8("💩"));
 }

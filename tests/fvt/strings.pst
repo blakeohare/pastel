@@ -1,0 +1,21 @@
+@import("fvt-assert.pst");
+
+void runner() {
+
+    string s = ""
+        + "abc XYZ 123 .?" // ASCII
+        + " ëËæÆçÇìÌ" // accents
+        + " あ ア 阿 아" // CJK
+
+        // TODO: behavior for cyrillic is different in various target languages
+        // + " А" // Cyrillic
+        ;
+
+    assertEqStr("ABC XYZ 123 .? ËËÆÆÇÇÌÌ あ ア 阿 아", s.ToUpper());
+    assertEqStr("abc xyz 123 .? ëëææççìì あ ア 阿 아", s.ToLower());
+
+
+    // string FW_SPACE = "　";
+
+
+}
