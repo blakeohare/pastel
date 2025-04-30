@@ -548,7 +548,13 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringConcatPair(Expression strLeft, Expression strRight)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_strPtr(*")
+                .Push(this.TranslateExpression(strLeft).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(" + *")
+                .Push(this.TranslateExpression(strRight).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringConstant(string value)
@@ -617,7 +623,11 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringReverse(Expression str)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_strReverse(")
+                .Push(this.TranslateExpression(str))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringSplit(Expression haystack, Expression needle)
@@ -669,17 +679,32 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringTrim(Expression str)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer
+                .Of("PST_strTrim(")
+                .Push(this.TranslateExpression(str))
+                .Push(", 3)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringTrimEnd(Expression str)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer
+                .Of("PST_strTrim(")
+                .Push(this.TranslateExpression(str))
+                .Push(", 1)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringTrimStart(Expression str)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer
+                .Of("PST_strTrim(")
+                .Push(this.TranslateExpression(str))
+                .Push(", 2)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringBuilderAdd(Expression sbInst, Expression obj)
@@ -726,7 +751,11 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateUtf8BytesToString(Expression bytes)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_utf8BytesToStr(")
+                .Push(this.TranslateExpression(bytes).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(".items)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateVariable(Variable variable)

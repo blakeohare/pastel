@@ -66,3 +66,62 @@ func PST_strToUtf8Bytes(a *string) *plist {
   o.items = arr
   return o
 }
+
+// PASTEL_ENTITY_ID: PST_strTrim
+func PST_strTrim(s *string, mask int) *string {
+  cut := " \r\n\t　";
+  o := "";
+  if mask == 3 {
+    o = strings.Trim(*s, cut);
+  } else if mask == 1 {
+    o = strings.TrimRight(*s, cut);
+  } else {
+    o = strings.TrimLeft(*s, cut);
+  }
+  return &o;
+}
+
+// PASTEL_ENTITY_ID: PST_utf8BytesToStr
+func PST_utf8BytesToStr(arr []any) *string {
+  sz := len(arr)
+  b_arr := make([]byte, sz)
+  i := 0
+  for i < sz {
+    b_arr[i] = arr[i].(byte)
+  }
+  s := string(b_arr)
+  return &s
+}
+
+// PASTEL_ENTITY_ID: PST_strReverse
+func PST_strReverse(s *string) *string {
+  src := PST_strToUtf8Bytes(s).items
+  sz := len(src)
+  dst := make([]byte, sz)
+  src_i := 0
+  dst_i := sz
+  for src_i < sz {
+    b := src[src_i].(int)
+    char_sz := 1
+    if b >= 128 {
+      if (b & 0xE0) == 0xC0 {
+        char_sz = 2
+      } else if (b & 0xF0) == 0xE0 {
+        char_sz = 3
+      } else if (b & 0xF8) == 0xF0 {
+        char_sz = 4
+      } else {
+        panic("Invalid UTF-8 string")
+      }
+    }
+    dst_i -= char_sz
+    j := 0
+    for j < char_sz {
+      dst[dst_i+j] = byte(src[src_i+j].(int))
+      j += 1
+    }
+    src_i += char_sz
+  }
+  o := string(dst)
+  return &o
+}

@@ -14,8 +14,25 @@ void runner() {
     assertEqStr("ABC XYZ 123 .? ËËÆÆÇÇÌÌ あ ア 阿 아", s.ToUpper());
     assertEqStr("abc xyz 123 .? ëëææççìì あ ア 阿 아", s.ToLower());
 
+    // Trim
+    string FW_SPACE = ""; // "　";
+    string padding = " \r\n\t" + FW_SPACE;
+    string testStr = padding + "." + padding;
+    assertEqStr(
+        readableWrap("."),
+        readableWrap(testStr.Trim()));
+    assertEqStr(
+        readableWrap("." + padding),
+        readableWrap(testStr.TrimStart()));
+    assertEqStr(
+        readableWrap(padding + "."),
+        readableWrap(testStr.TrimEnd()));
 
-    // string FW_SPACE = "　";
+    // Reverse
+    assertEqStr("321 cba", "abc 123".Reverse());
+    assertEqStr("おえういあ 321 cba", "abc 123 あいうえお".Reverse());
+}
 
-
+string readableWrap(string v) {
+    return "[" + v + "]";
 }
