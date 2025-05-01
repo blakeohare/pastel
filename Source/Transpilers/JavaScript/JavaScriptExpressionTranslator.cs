@@ -58,18 +58,18 @@ namespace Pastel.Transpilers.JavaScript
 
         public override StringBuffer TranslateBase64ToBytes(Expression base64String)
         {
-            // TODO: use modern API
-            return StringBuffer.Of("atob(")
-                .Push(TranslateExpression(base64String))
-                .Push(").split(',').map(n => parseInt(n))");
+            return StringBuffer.Of("PST$b64ToBytes(")
+                .Push(this.TranslateExpression(base64String))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateBase64ToString(Expression base64String)
         {
-            // TODO: use modern API
-            return StringBuffer.Of("decodeURIComponent(Array.prototype.map.call(atob(")
-                .Push(TranslateExpression(base64String))
-                .Push("), function(c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); }).join(''))");
+            return StringBuffer.Of("new TextDecoder().decode(new Uint8Array(PST$b64ToBytes(")
+                .Push(this.TranslateExpression(base64String))
+                .Push(")))")
+                .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateCast(PType type, Expression expression)

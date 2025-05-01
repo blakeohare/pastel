@@ -83,3 +83,32 @@ let PST$stderr = v => { console.error(v); };
 
 // PASTEL_ENTITY_ID: PST$stringToUtf8Bytes
 let PST$stringToUtf8Bytes = s => Array.from(new TextEncoder().encode(s));
+
+// PASTEL_ENTITY_ID: PST$b64Alpha
+let PST$b64Alpha = (() => {
+    let letters = 'abcdefghijklmnopqrstuvwxyz';
+    let alpha = letters.toUpperCase() + letters + '0123456789+/';
+    let inv = {};
+    for (let i = 0; i < 64; i++) inv[alpha[i]] = i;
+    return { alpha, inv };
+})();
+
+// PASTEL_ENTITY_ID: PST$b64ToBytes
+let PST$b64ToBytes = s => {
+    let len = s.length;
+    while (len && s[len - 1] === '=') len--;
+    let pairs = [];
+    let c;
+    let lookup = PST$b64Alpha.inv;
+    for (let i = 0; i < len; i++) {
+        c = lookup[s[i]];
+        pairs.push((c >> 4) & 3, (c >> 2) & 3, c & 3);
+    }
+    while (pairs.length % 4) pairs.pop();
+    let buf = [];
+    len = pairs.length;
+    for (let i = 0; i < len; i += 4) {
+        buf.push((pairs[i] << 6) | (pairs[i + 1] << 4) | (pairs[i + 2]) | (pairs[i + 3]));
+    }
+    return buf;
+};

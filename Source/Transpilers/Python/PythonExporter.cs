@@ -11,16 +11,20 @@ namespace Pastel.Transpilers.Python
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
+
+            string userCode = context.GetCodeForFunctions();
+
+            string[] imports = [.. context.TranspilerContext.GetFeatures()
+                .Where(f => f.StartsWith("IMPORT:"))
+                .Select(f => f["IMPORT:".Length..])
+                .OrderBy(v => v)];
+
             files["@FUNC_FILE"] = string.Join('\n', [
-                .. config.Imports.Count == 0
-                    ? []
-                    : config.Imports
-                        .OrderBy(t => t)
-                        .Select(t => "import " + t)
-                        .Append(""),
-                context.GetCodeForFunctions().Trim(),
+                .. imports.Select(imp => "import " + imp),
                 "",
-            ]);
+                userCode.Trim(),
+                "",
+            ]).Trim();
 
             return files;
         }

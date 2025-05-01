@@ -403,3 +403,18 @@ private static int[] PST_stringToUtf8Bytes(String val) {
   for (int i = 0; i < sz; i++) output[i] = 255 & (int) bOut[i];
   return output;
 }
+
+// PASTEL_ENTITY_ID: PST_base64ToBytes
+private static int[] PST_base64ToBytes(String b64Str) {
+  try {
+    byte[] arr = java.util.Base64.getDecoder().decode(b64Str.getBytes("UTF-8"));
+    int sz = arr.length;
+    int[] output = new int[sz];
+    for (int i = 0; i < sz; i++) {
+        output[i] = 255 & (int)arr[i];
+    }
+    return output;
+  } catch (java.io.UnsupportedEncodingException uee) {
+    return null;
+  }
+}

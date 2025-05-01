@@ -7,6 +7,11 @@ object fail(string msg) {
     return ignored;
 }
 
+void assertTrue(bool val) {
+    if (val) return;
+    fail("Expected true but found false");
+}
+
 void assertEqStr(string expected, string actual) {
     // Java support requires this juggling as string comparison is based on
     // invoking .equals() on a non-null instance.

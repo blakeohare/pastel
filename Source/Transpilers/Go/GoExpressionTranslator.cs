@@ -80,7 +80,11 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateBase64ToBytes(Expression base64String)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:encoding/base64");
+            return StringBuffer
+                .Of("PST_base64ToBytes(")
+                .Push(this.TranslateExpressionStringUnwrap(base64String, false))
+                .Push(")");
         }
 
         public override StringBuffer TranslateBase64ToString(Expression base64String)
@@ -143,7 +147,10 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateCurrentTimeSeconds()
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:time");
+            return StringBuffer
+                .Of("float64(time.Now().UnixMicro()) / 1000000")
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
         public override StringBuffer TranslateDictionaryContainsKey(Expression dictionary, Expression key)

@@ -110,19 +110,21 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateBase64ToBytes(Expression base64String)
         {
+            this.MarkFeatureAsUsed("IMPORT:base64");
             return StringBuffer
-                .Of("PST_base64ToBytes(")
-                .Push(TranslateExpression(base64String))
-                .Push(")")
+                .Of("list(base64.b64decode(")
+                .Push(this.TranslateExpression(base64String))
+                .Push("))")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateBase64ToString(Expression base64String)
         {
+            this.MarkFeatureAsUsed("IMPORT:base64");
             return StringBuffer
-                .Of("PST_base64ToString(")
-                .Push(TranslateExpression(base64String))
-                .Push(")")
+                .Of("base64.b64decode(")
+                .Push(this.TranslateExpression(base64String))
+                .Push(").decode('utf-8')")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -184,6 +186,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateCurrentTimeSeconds()
         {
+            this.MarkFeatureAsUsed("IMPORT:time");
             return StringBuffer
                 .Of("time.time()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);

@@ -258,3 +258,22 @@ func PST_strLen(s *pstring) int {
   }
   return len(s.uchars)
 }
+
+// PASTEL_ENTITY_ID: PST_base64ToBytes
+func PST_base64ToBytes(b64 string) *plist {
+	s, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		return nil
+	}
+	arr := []byte(s)
+	sz := len(arr)
+	o := make([]any, sz)
+	i := 0
+	for i < sz {
+		o[i] = int(arr[i])
+		i = i + 1
+	}
+	p := new(plist)
+	p.items = o
+	return p
+}

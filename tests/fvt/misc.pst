@@ -1,0 +1,22 @@
+@import("fvt-assert.pst");
+@import("fvt-convert.pst");
+
+void runner() {
+    testUnixTime();
+    testBase64();
+}
+
+void testBase64() {
+    Array<int> buf = Core.Base64ToBytes("ABCD");
+    // 000000 000001 000010 000011
+    // 00000000 00010000 10000011
+    assertEqInt(buf[0], 0x00);
+    assertEqInt(buf[1], 0x10);
+    assertEqInt(buf[2], 0x83);
+}
+
+void testUnixTime() {
+    double now = Core.CurrentTimeSeconds();
+    assertTrue(now > 1746108176);
+    assertTrue(now < 0x7FFFFFFF);
+}
