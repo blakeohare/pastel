@@ -39,6 +39,10 @@ namespace Pastel.Transpilers.Go
                 "func (p *plist) add(item any) {",
                 "  p.items = append(p.items, item)",
                 "}",
+                "type pstring struct {",
+                "  str    *string",
+                "  uchars []int",
+                "}",
             ]);
 
             filesOut["@FUNC_FILE"] = string.Join('\n', [

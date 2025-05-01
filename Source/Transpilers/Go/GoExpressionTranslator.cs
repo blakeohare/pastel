@@ -10,6 +10,29 @@ namespace Pastel.Transpilers.Go
             : base(ctx)
         { }
 
+        private StringBuffer TranslateExpressionStringUnwrap(Expression expr, bool asPtr)
+        {
+            if (expr is InlineConstant ic && ic.Type.RootValue == "string")
+            {
+                return StringBuffer.Of(CodeUtil.ConvertStringValueToCode((string)ic.Value));
+            }
+
+            StringBuffer output = this.TranslateExpression(expr)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                .Push(".str")
+                .WithTightness(ExpressionTightness.UNARY_SUFFIX);
+
+            if (!asPtr)
+            {
+                output = StringBuffer
+                    .Of("*")
+                    .Push(output.EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                    .WithTightness(ExpressionTightness.UNARY_PREFIX);
+            }
+
+            return output;
+        }
+
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
             return TranslateExpression(array)
@@ -170,9 +193,8 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
-            // TODO: if name is a string constant, then use directly
-            return StringBuffer.Of("PST_ExtCallbacks[*")
-                .Push(this.TranslateExpression(name).EnsureGreaterTightness(ExpressionTightness.UNARY_PREFIX))
+            return StringBuffer.Of("PST_ExtCallbacks[")
+                .Push(this.TranslateExpressionStringUnwrap(name, false))
                 .Push("](")
                 .Push(this.TranslateExpression(argsArray).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push(".items)")
@@ -316,7 +338,7 @@ namespace Pastel.Transpilers.Go
             return StringBuffer.Of("PST_listJoin(")
                 .Push(this.TranslateExpression(list))
                 .Push(", ")
-                .Push(this.TranslateExpression(sep))
+                .Push(this.TranslateExpressionStringUnwrap(sep, false))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -534,25 +556,24 @@ namespace Pastel.Transpilers.Go
         {
             this.MarkFeatureAsUsed("IMPORT:strings");
 
-            StringBuffer sb = StringBuffer.Of("PST_strPtr(strings.Join([]string{");
+            StringBuffer sb = StringBuffer.Of("PST_strJoin([]*pstring{");
             for (int i = 0; i < strings.Length; i++)
             {
                 if (i > 0) sb.Push(", ");
-                sb.Push("*");
-                sb.Push(this.TranslateExpression(strings[i]).EnsureTightness(ExpressionTightness.UNARY_PREFIX));
+                sb.Push(this.TranslateExpression(strings[i]));
             }
 
-            sb.Push("}, \"\"))");
-            return sb.WithTightness(ExpressionTightness.ATOMIC);
+            sb.Push("})");
+            return sb.WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringConcatPair(Expression strLeft, Expression strRight)
         {
             return StringBuffer
-                .Of("PST_strPtr(*")
-                .Push(this.TranslateExpression(strLeft).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
-                .Push(" + *")
-                .Push(this.TranslateExpression(strRight).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Of("PST_str(")
+                .Push(this.TranslateExpressionStringUnwrap(strLeft, false).EnsureTightness(ExpressionTightness.ADDITION))
+                .Push(" + ")
+                .Push(this.TranslateExpressionStringUnwrap(strRight, false).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -560,7 +581,7 @@ namespace Pastel.Transpilers.Go
         public override StringBuffer TranslateStringConstant(string value)
         {
             return StringBuffer
-                .Of("PST_strPtr(")
+                .Of("PST_str(")
                 .Push(CodeUtil.ConvertStringValueToCode(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -613,7 +634,11 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringLength(Expression str)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_strLen(")
+                .Push(this.TranslateExpression(str))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringReplace(Expression haystack, Expression needle, Expression newNeedle)
@@ -625,7 +650,7 @@ namespace Pastel.Transpilers.Go
         {
             return StringBuffer
                 .Of("PST_strReverse(")
-                .Push(this.TranslateExpression(str))
+                .Push(this.TranslateExpressionStringUnwrap(str, false))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -642,7 +667,14 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringSubstring(Expression str, Expression start, Expression length)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("PST_substr(")
+                .Push(this.TranslateExpression(str))
+                .Push(", ")
+                .Push(this.TranslateExpression(start))
+                .Push(", ")
+                .Push(this.TranslateExpression(length))
+                .Push(")")
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringSubstringIsEqualTo(Expression haystack, Expression startIndex, Expression needle)
@@ -653,18 +685,18 @@ namespace Pastel.Transpilers.Go
         public override StringBuffer TranslateStringToLower(Expression str)
         {
             this.MarkFeatureAsUsed("IMPORT:strings");
-            return StringBuffer.Of("PST_strPtr(strings.ToLower(*")
+            return StringBuffer.Of("PST_strLower(")
                 .Push(this.TranslateExpression(str))
-                .Push("))")
+                .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringToUpper(Expression str)
         {
             this.MarkFeatureAsUsed("IMPORT:strings");
-            return StringBuffer.Of("PST_strPtr(strings.ToUpper(*")
+            return StringBuffer.Of("PST_strUpper(")
                 .Push(this.TranslateExpression(str))
-                .Push("))")
+                .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -672,7 +704,7 @@ namespace Pastel.Transpilers.Go
         {
             return StringBuffer
                 .Of("PST_strToUtf8Bytes(")
-                .Push(this.TranslateExpression(str))
+                .Push(this.TranslateExpressionStringUnwrap(str, false))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -682,7 +714,7 @@ namespace Pastel.Transpilers.Go
             this.MarkFeatureAsUsed("IMPORT:strings");
             return StringBuffer
                 .Of("PST_strTrim(")
-                .Push(this.TranslateExpression(str))
+                .Push(this.TranslateExpressionStringUnwrap(str, false))
                 .Push(", 3)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -692,7 +724,7 @@ namespace Pastel.Transpilers.Go
             this.MarkFeatureAsUsed("IMPORT:strings");
             return StringBuffer
                 .Of("PST_strTrim(")
-                .Push(this.TranslateExpression(str))
+                .Push(this.TranslateExpressionStringUnwrap(str, false))
                 .Push(", 1)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -702,7 +734,7 @@ namespace Pastel.Transpilers.Go
             this.MarkFeatureAsUsed("IMPORT:strings");
             return StringBuffer
                 .Of("PST_strTrim(")
-                .Push(this.TranslateExpression(str))
+                .Push(this.TranslateExpressionStringUnwrap(str, false))
                 .Push(", 2)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }

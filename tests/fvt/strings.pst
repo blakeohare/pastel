@@ -31,6 +31,14 @@ void runner() {
     // Reverse
     assertEqStr("321 cba", "abc 123".Reverse());
     assertEqStr("おえういあ 321 cba", "abc 123 あいうえお".Reverse());
+
+    string nums = "012三4五67八9";
+
+    assertEqInt(10, nums.Size());
+
+    assertEqStr("012", nums.SubString(0, 3));
+    assertEqStr("012三", nums.SubString(0, 4));
+    assertEqStr("三4五6", nums.SubString(3, 4));
 }
 
 string readableWrap(string v) {

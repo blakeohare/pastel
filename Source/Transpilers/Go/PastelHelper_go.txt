@@ -4,8 +4,8 @@ type ExtFunc func(array []any) any
 var PST_ExtCallbacks map[string]ExtFunc = make(map[string]ExtFunc, 0) 
 
 // PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
-func PST_RegisterExtensibleCallback(name *string, fn ExtFunc) {
-  PST_ExtCallbacks[*name] = fn
+func PST_RegisterExtensibleCallback(name string, fn ExtFunc) {
+  PST_ExtCallbacks[name] = fn
 }
 
 // PASTEL_ENTITY_ID: PST_SortedIntArrayCopy
@@ -16,28 +16,42 @@ func PST_SortedIntArrayCopy(nums []int) []int {
 }
 
 // PASTEL_ENTITY_ID: PST_intToStr
-func PST_intToStr(n int) *string {
-  s := strconv.Itoa(n)
-  return &s
+func PST_intToStr(n int) *pstring {
+  return PST_str(strconv.Itoa(n))
 }
 
-// PASTEL_ENTITY_ID: PST_strPtr
-func PST_strPtr(s string) *string {
-  return &s
+// PASTEL_ENTITY_ID: PST_str
+func PST_str(s string) *pstring {
+  o := new(pstring);
+  o.str = &s;
+  o.uchars = nil
+  return o
+}
+
+// PASTEL_ENTITY_ID: PST_strJoin
+func PST_strJoin(strs []*pstring) *pstring {
+  sz := len(strs)
+  buf := make([]string, sz)
+  i := 0
+  for i < sz {
+    buf[i] = *strs[i].str
+    i = i + 1
+  }
+  o := strings.Join(buf, "")
+  return PST_str(o)
 }
 
 // PASTEL_ENTITY_ID: PST_listJoin
-func PST_listJoin(list *plist, sep *string) *string {
+func PST_listJoin(list *plist, sep string) *pstring {
   items := list.items
   sz := len(items)
   i := 0
   sb := make([]string, sz)
   for i < sz {
-    sb[i] = *items[i].(*string)
+    sb[i] = *items[i].(*pstring).str
     i += 1
   }
-  o := strings.Join(sb, *sep)
-  return &o
+  return PST_str(strings.Join(sb, sep))
 }
 
 // PASTEL_ENTITY_ID: PST_newList
@@ -48,13 +62,45 @@ func PST_newList(sz int) *plist {
 }
 
 // PASTEL_ENTITY_ID: PST_strEq
-func PST_strEq(a *string, b *string) bool {
-  return a == b || (a != nil && b != nil && *a == *b)
+func PST_strEq(a *pstring, b *pstring) bool {
+  return a == b || (a != nil && b != nil && (a.str == b.str || *a.str == *b.str))
+}
+
+// PASTEL_ENTITY_ID: PST_strToUnicode
+func PST_strToUnicode(a *string) []int {
+	sz := len(*a)
+	if sz == 0 {
+		return make([]int, 0)
+	}
+	buf := []byte(*a)
+	o := make([]int, 0)
+	b := 0
+	i := 0
+	for i < sz {
+		c := int(buf[i])
+		if c < 128 {
+			o = append(o, c)
+			i = i + 1
+		} else if (c & 0xE0) == 0xC0 {
+			b = ((c & 0x1F) << 6) | (int(buf[i+1]) & 0x3F)
+			o = append(o, b)
+			i = i + 2
+		} else if (c & 0xF0) == 0xE0 {
+			b = ((c & 0x0F) << 12) | (int(buf[i+1]&0x3F) << 6) | int(buf[i+2]&0x3f)
+			o = append(o, b)
+			i = i + 3
+		} else { // if (c & 0xF8) == 0xF0 {
+			b = ((c & 0x07) << 18) | (int(buf[i+1]&0x3F) << 12) | (int(buf[i+2]&0x3F) << 6) | int(buf[i+3]&0x3F)
+			o = append(o, b)
+			i = i + 4
+		}
+	}
+	return o
 }
 
 // PASTEL_ENTITY_ID: PST_strToUtf8Bytes
-func PST_strToUtf8Bytes(a *string) *plist {
-  buf := []byte(*a)
+func PST_strToUtf8Bytes(a string) *plist {
+  buf := []byte(a)
   sz := len(buf)
   arr := make([]any, sz)
   i := 0
@@ -68,17 +114,17 @@ func PST_strToUtf8Bytes(a *string) *plist {
 }
 
 // PASTEL_ENTITY_ID: PST_strTrim
-func PST_strTrim(s *string, mask int) *string {
-  cut := " \r\n\t　";
-  o := "";
+func PST_strTrim(s string, mask int) *pstring {
+  cut := " \r\n\t　"
+  o := ""
   if mask == 3 {
-    o = strings.Trim(*s, cut);
+    o = strings.Trim(s, cut)
   } else if mask == 1 {
-    o = strings.TrimRight(*s, cut);
+    o = strings.TrimRight(s, cut)
   } else {
-    o = strings.TrimLeft(*s, cut);
+    o = strings.TrimLeft(s, cut)
   }
-  return &o;
+  return PST_str(o)
 }
 
 // PASTEL_ENTITY_ID: PST_utf8BytesToStr
@@ -93,8 +139,78 @@ func PST_utf8BytesToStr(arr []any) *string {
   return &s
 }
 
+func PST_strGetUchars(s *pstring) []int {
+  if s.uchars != nil {
+    return s.uchars
+  }
+  s.uchars = s.str
+}
+
+// PASTEL_ENTITY_ID: PST_strFromUChars
+func PST_strFromUChars(uchars []int, useArrDirect bool) *pstring {
+	buf := make([]byte, 0)
+	i := 0
+	sz := len(uchars)
+	for i < sz {
+		u := uchars[i]
+		if u < 128 {
+			buf = append(buf, byte(u))
+		} else if u <= 0x07FF {
+			// AAA-AABB-BBBB
+			buf = append(buf, byte((u>>6)|0xC0))   // 110A-AAAA
+			buf = append(buf, byte((u&0x3F)|0x80)) // 10BB-BBBB
+		} else if u <= 0xFFFF {
+			// AAAA-BBBB-BBCC-CCCC
+			buf = append(buf, byte((u>>12)|0xE0))       // 1110-AAAA
+			buf = append(buf, byte(((u>>6)&0x3F)|0x80)) // 10BB-BBBB
+			buf = append(buf, byte((u&0x3F)|0x80))      // 10CC-CCCC
+		} else {
+			// AAA-BB-BBBB-CCCC-CCDD-DDDD
+			buf = append(buf, byte((u>>18)|0xF0))        // 1111-0AAA
+			buf = append(buf, byte(((u>>12)&0x3F)|0x80)) // 10BB-BBBB
+			buf = append(buf, byte(((u>>6)&0x3F)|0x80))  // 10CC-CCCC
+			buf = append(buf, byte((u&0x3F)|0x80))       // 10DD-DDDD
+		}
+		i = i + 1
+	}
+	o := PST_str(string(buf))
+	if useArrDirect {
+		o.uchars = uchars
+	}
+	return o
+}
+
+// PASTEL_ENTITY_ID: PST_substr
+func PST_substr(s *pstring, start int, length int) *pstring {
+	if s.uchars == nil {
+		s.uchars = PST_strToUnicode(s.str)
+	}
+	sz := len(s.uchars)
+	if start < 0 {
+		if start < -length {
+			return PST_str("")
+		}
+		length -= start
+		start = 0
+	}
+	end := start + length
+	if end > sz {
+		end = sz
+	}
+	length = end - start
+	if length <= 0 {
+		return PST_str("")
+	}
+	return PST_strFromUChars(s.uchars[start:end], true)
+}
+
+// PASTEL_ENTITY_ID: PST_strConcat
+func PST_strConcat(a *string, b *string) *pstring {
+    return PST_str(*a + *b)
+}
+
 // PASTEL_ENTITY_ID: PST_strReverse
-func PST_strReverse(s *string) *string {
+func PST_strReverse(s string) *pstring {
   src := PST_strToUtf8Bytes(s).items
   sz := len(src)
   dst := make([]byte, sz)
@@ -122,6 +238,23 @@ func PST_strReverse(s *string) *string {
     }
     src_i += char_sz
   }
-  o := string(dst)
-  return &o
+  return PST_str(string(dst))
+}
+
+// PASTEL_ENTITY_ID: PST_strUpper
+func PST_strUpper(s *pstring) *pstring {
+  return PST_str(strings.ToUpper(*s.str))
+}
+
+// PASTEL_ENTITY_ID: PST_strLower
+func PST_strLower(s *pstring) *pstring {
+  return PST_str(strings.ToLower(*s.str))
+}
+
+// PASTEL_ENTITY_ID: PST_strLen
+func PST_strLen(s *pstring) int {
+  if s.uchars == nil {
+    s.uchars = PST_strToUnicode(s.str)
+  }
+  return len(s.uchars)
 }
