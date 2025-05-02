@@ -72,6 +72,15 @@ namespace Pastel.Transpilers.JavaScript
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
+        public override StringBuffer TranslateBytesToBase64(Expression byteArr)
+        {
+            return StringBuffer
+                .Of("PST$bytesToB64(")
+                .Push(this.TranslateExpression(byteArr))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
             return TranslateExpression(expression);

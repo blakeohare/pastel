@@ -1,4 +1,5 @@
-﻿using Pastel.Parser.ParseNodes;
+﻿using Pastel.Parser;
+using Pastel.Parser.ParseNodes;
 
 namespace Pastel.Transpilers
 {

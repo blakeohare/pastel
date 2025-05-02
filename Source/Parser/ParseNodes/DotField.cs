@@ -116,6 +116,7 @@ namespace Pastel.Parser.ParseNodes
                 case "ArcTan": return CoreFunction.MATH_ARCTAN;
                 case "Base64ToBytes": return CoreFunction.BASE64_TO_BYTES;
                 case "Base64ToString": return CoreFunction.BASE64_TO_STRING;
+                case "BytesToBase64": return CoreFunction.BYTES_TO_BASE64;
                 case "CharToString": return CoreFunction.CHAR_TO_STRING;
                 case "Chr": return CoreFunction.CHR;
                 case "Cos": return CoreFunction.MATH_COS;

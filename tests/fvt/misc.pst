@@ -13,6 +13,11 @@ void testBase64() {
     assertEqInt(buf[0], 0x00);
     assertEqInt(buf[1], 0x10);
     assertEqInt(buf[2], 0x83);
+
+    buf[2] = buf[2] + 1;
+
+    string bufInv = Core.BytesToBase64(buf);
+    assertEqStr("ABCE", bufInv);
 }
 
 void testUnixTime() {

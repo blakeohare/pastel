@@ -418,3 +418,14 @@ private static int[] PST_base64ToBytes(String b64Str) {
     return null;
   }
 }
+
+// PASTEL_ENTITY_ID: PST_bytesToBase64
+private static String PST_bytesToBase64(int[] arr) {
+  int sz = arr.length;
+  byte[] buf = new byte[sz];
+  for (int i = 0; i < sz; i++) {
+    buf[i] = (byte) (arr[i] & 255);
+  }
+  byte[] o = java.util.Base64.getEncoder().encode(buf);
+  return new String(o);
+}

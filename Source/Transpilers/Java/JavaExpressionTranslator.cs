@@ -138,6 +138,15 @@ namespace Pastel.Transpilers.Java
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateBytesToBase64(Expression byteArr)
+        {
+            return StringBuffer
+                .Of("PST_bytesToBase64(")
+                .Push(this.TranslateExpression(byteArr))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
             DotField dotField = expression as DotField;

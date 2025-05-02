@@ -112,3 +112,22 @@ let PST$b64ToBytes = s => {
     }
     return buf;
 };
+
+// PASTEL_ENTITY_ID: PST$bytesToB64
+let PST$bytesToB64 = arr => {
+  let sz = arr.length;
+  let pairs = [];
+  let { alpha } = PST$b64Alpha;
+  let b;
+  for (let i = 0; i < sz; i++){
+    b = arr[i];
+    pairs.push((b >> 6) & 3, (b >> 4) & 3, (b >> 2) & 3, b & 3);
+  }
+  while (pairs.length % 3) pairs.push(0);
+  let output = '';
+  for (let i = 0; i < pairs.length; i += 3) {
+    output += alpha[(pairs[i] << 4) | (pairs[i + 1] << 2) | pairs[i + 2]];
+  }
+  while (output.length % 4) output += '=';
+  return output;
+};

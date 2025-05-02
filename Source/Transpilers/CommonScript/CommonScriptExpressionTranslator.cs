@@ -72,6 +72,11 @@ namespace Pastel.Transpilers.CommonScript
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateBytesToBase64(Expression byteArr)
+        {
+            throw new NotImplementedException();
+        }
+
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
             return this.TranslateExpression(expression);

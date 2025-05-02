@@ -102,6 +102,16 @@ namespace Pastel.Transpilers.Go
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateBytesToBase64(Expression byteArr)
+        {
+            this.MarkFeatureAsUsed("IMPORT:encoding/base64");
+            return StringBuffer
+                .Of("PST_bytesToBase64(")
+                .Push(this.TranslateExpression(byteArr))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
             throw new NotImplementedException();

@@ -109,6 +109,11 @@ namespace Pastel.Transpilers.Php
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateBytesToBase64(Expression byteArr)
+        {
+            throw new NotImplementedException();
+        }
+
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
             return TranslateExpression(expression);

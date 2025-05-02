@@ -106,6 +106,15 @@ namespace Pastel.Transpilers.CSharp
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateBytesToBase64(Expression byteArr)
+        {
+            return StringBuffer
+                .Of("PST_BytesToBase64(")
+                .Push(this.TranslateExpression(byteArr))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
             return StringBuffer

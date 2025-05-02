@@ -60,3 +60,8 @@ def PST_RegisterExtensibleCallback(name, fn):
 # PASTEL_ENTITY_ID: PST_stringToUtf8Bytes
 def PST_stringToUtf8Bytes(s):
   return list(s.encode('utf-8'))
+
+# PASTEL_ENTITY_ID: PST_bytesToBase64
+def PST_bytesToBase64(arr):
+  barr = bytearray(arr)
+  return base64.b64encode(barr).decode('utf-8')

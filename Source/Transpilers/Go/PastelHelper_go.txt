@@ -277,3 +277,16 @@ func PST_base64ToBytes(b64 string) *plist {
 	p.items = o
 	return p
 }
+
+// PASTEL_ENTITY_ID: PST_bytesToBase64
+func PST_bytesToBase64(arr *plist) *pstring {
+  items := arr.items
+  sz := len(items)
+  buf := make([]byte, sz)
+  i := 0
+  for i < sz {
+    buf[i] = byte(items[i].(int))
+    i = i + 1
+  }
+  return PST_str(base64.StdEncoding.EncodeToString(buf))
+}

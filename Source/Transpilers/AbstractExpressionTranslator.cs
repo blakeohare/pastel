@@ -176,6 +176,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.ARRAY_SET: return this.TranslateArraySet(args[0], args[1], args[2]);
                 case CoreFunction.BASE64_TO_BYTES: return this.TranslateBase64ToBytes(args[0]);
                 case CoreFunction.BASE64_TO_STRING: return this.TranslateBase64ToString(args[0]);
+                case CoreFunction.BYTES_TO_BASE64: return this.TranslateBytesToBase64(args[0]);
                 case CoreFunction.CHAR_TO_STRING: return this.TranslateCharToString(args[0]);
                 case CoreFunction.CHR: return this.TranslateChr(args[0]);
                 case CoreFunction.CURRENT_TIME_SECONDS: return this.TranslateCurrentTimeSeconds();
@@ -340,6 +341,7 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateArraySet(Expression array, Expression index, Expression value);
         public abstract StringBuffer TranslateBase64ToBytes(Expression base64String);
         public abstract StringBuffer TranslateBase64ToString(Expression base64String);
+        public abstract StringBuffer TranslateBytesToBase64(Expression byteArr);
         public abstract StringBuffer TranslateBooleanConstant(bool value);
         public abstract StringBuffer TranslateBooleanNot(UnaryOp unaryOp);
         public abstract StringBuffer TranslateCast(PType type, Expression expression);

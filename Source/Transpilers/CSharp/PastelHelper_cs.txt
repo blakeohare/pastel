@@ -236,3 +236,13 @@ private static T PST_ListPop<T>(List<T> list)
     list.RemoveAt(lastIndex);
     return val;
 }
+
+// PASTEL_ENTITY_ID: PST_BytesToBase64
+private static string PST_BytesToBase64(int[] arr) {
+    int sz = arr.Length;
+    byte[] buf = new byte[sz];
+    for (int i = 0; i < sz; i++) {
+        buf[i] = (byte)(255 & arr[i]);
+    }
+    return System.Convert.ToBase64String(buf);
+}

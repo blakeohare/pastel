@@ -13,6 +13,7 @@
         ARRAY_SET,
         BASE64_TO_BYTES,
         BASE64_TO_STRING,
+        BYTES_TO_BASE64,
         CHAR_TO_STRING,
         CHR,
         CURRENT_TIME_SECONDS,

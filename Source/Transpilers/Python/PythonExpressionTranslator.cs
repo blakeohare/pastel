@@ -139,13 +139,23 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("not ")
-                .Push(TranslateExpression(unaryOp.Expression).EnsureTightness(ExpressionTightness.PYTHON_NOT))
+                .Push(this.TranslateExpression(unaryOp.Expression).EnsureTightness(ExpressionTightness.PYTHON_NOT))
                 .WithTightness(ExpressionTightness.PYTHON_NOT);
+        }
+
+        public override StringBuffer TranslateBytesToBase64(Expression byteArr)
+        {
+            this.MarkFeatureAsUsed("IMPORT:base64");
+            return StringBuffer
+                .Of("PST_bytesToBase64(")
+                .Push(this.TranslateExpression(byteArr))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
-            return TranslateExpression(expression);
+            return this.TranslateExpression(expression);
         }
 
         public override StringBuffer TranslateCharConstant(char value)
