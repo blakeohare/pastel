@@ -14,7 +14,9 @@ namespace Pastel.Transpilers.Go
         {
             if (expr is InlineConstant ic && ic.Type.RootValue == "string")
             {
-                return StringBuffer.Of(CodeUtil.ConvertStringValueToCode((string)ic.Value));
+                return StringBuffer
+                    .Of(CodeUtil.ConvertStringValueToCode((string)ic.Value))
+                    .WithTightness(ExpressionTightness.ATOMIC);
             }
 
             StringBuffer output = this.TranslateExpression(expr)
@@ -94,7 +96,9 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateBooleanConstant(bool value)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of(value ? "true" : "false")
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateBooleanNot(UnaryOp unaryOp)
@@ -102,6 +106,15 @@ namespace Pastel.Transpilers.Go
             return StringBuffer
                 .Of("!")
                 .Push(this.TranslateExpression(unaryOp.Expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX));
+        }
+
+        public override StringBuffer TranslateBoolToString(Expression value)
+        {
+            return StringBuffer
+                .Of("PST_boolToStr(")
+                .Push(this.TranslateExpression(value))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateBytesToBase64(Expression byteArr)
@@ -236,7 +249,9 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateFloatConstant(double value)
         {
-            return StringBuffer.Of(CodeUtil.FloatToString(value));
+            return StringBuffer
+                .Of(CodeUtil.FloatToString(value))
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator)
@@ -261,9 +276,10 @@ namespace Pastel.Transpilers.Go
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             this.MarkFeatureAsUsed("IMPORT:strconv");
-            return StringBuffer.Of("PST_str(strconv.FormatFloat(")
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer.Of("PST_floatToStr(")
                 .Push(this.TranslateExpression(floatExpr))
-                .Push(", 'f', -1, 64))")
+                .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -531,6 +547,86 @@ namespace Pastel.Transpilers.Go
                     .Push(")");
             }
             return buf.Push(")");
+        }
+
+        private ExpressionTightness GetTightnessOfOp(string op)
+        {
+            switch (op)
+            {
+                case "&&":
+                case "||":
+                    return ExpressionTightness.BOOLEAN_LOGIC;
+
+                case "+":
+                case "-":
+                    return ExpressionTightness.ADDITION;
+
+                case "&":
+                case "|":
+                case "^":
+                    return ExpressionTightness.BITWISE;
+
+                case "<<":
+                case ">>":
+                    return ExpressionTightness.BITSHIFT;
+
+                case "*":
+                case "/":
+                case "%":
+                    return ExpressionTightness.MULTIPLICATION;
+
+                case "==":
+                case "!=":
+                    return ExpressionTightness.EQUALITY;
+
+                case "<":
+                case ">":
+                case ">=":
+                case "<=":
+                    return ExpressionTightness.INEQUALITY;
+
+                default:
+                    throw new System.NotImplementedException();
+            }
+        }
+
+        public override StringBuffer TranslateOpPair(OpPair opPair)
+        {
+            Expression left = opPair.Left;
+            Expression right = opPair.Right;
+            StringBuffer leftSb = this.TranslateExpression(left);
+            StringBuffer rightSb = this.TranslateExpression(right);
+            ExpressionTightness opTightness = this.GetTightnessOfOp(opPair.Op);
+            string leftType = left.ResolvedType.RootValue;
+            string rightType = right.ResolvedType.RootValue;
+            bool hasInt = leftType == "int" || rightType == "int";
+            bool hasFloat = leftType == "double" || rightType == "double";
+            if (hasFloat && hasInt)
+            {
+                if (leftType == "int")
+                {
+                    leftSb = StringBuffer
+                        .Of("float64(")
+                        .Push(leftSb)
+                        .Push(")")
+                        .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+                }
+                else
+                {
+                    rightSb = StringBuffer
+                        .Of("float64(")
+                        .Push(rightSb)
+                        .Push(")")
+                        .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+                }
+            }
+
+            return leftSb
+                .EnsureTightness(opTightness)
+                .Push(" ")
+                .Push(opPair.Op)
+                .Push(" ")
+                .Push(rightSb.EnsureGreaterTightness(opTightness));
         }
 
         public override StringBuffer TranslateParseFloatUnsafe(Expression stringValue)

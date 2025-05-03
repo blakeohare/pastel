@@ -8,22 +8,27 @@ namespace Pastel.Parser.ParseNodes
         public object Value { get; set; }
         public PType Type { get; set; }
 
-        public static InlineConstant Of(object value, ICompilationEntity owner)
+        public static InlineConstant Of(object value, Token token, ICompilationEntity owner)
         {
-            Token dummyToken = Token.CreateDummyToken(value.ToString());
-            if (value is int)
-            {
-                return (InlineConstant)new InlineConstant(PType.INT, dummyToken, value, owner).ResolveType(null, null);
-            }
+            Token dummyToken = token;
+            PType type;
+            if (value == null) type = PType.NULL;
+            else if (value is int) type = PType.INT;
+            else if (value is double) type = PType.DOUBLE;
+            else if (value is string) type = PType.STRING;
+            else if (value is bool) type = PType.BOOL;
+            else if (value is char) type = PType.CHAR;
+            else throw new NotImplementedException();
 
-            throw new NotImplementedException();
+            return new InlineConstant(type, dummyToken, value, owner) { ResolvedType = type };
         }
 
-        public InlineConstant(PType type, Token firstToken, object value, ICompilationEntity owner) : base(firstToken, owner)
+        public InlineConstant(PType type, Token firstToken, object value, ICompilationEntity owner)
+            : base(firstToken, owner)
         {
-            Type = type;
-            ResolvedType = type;
-            Value = value;
+            this.Type = type;
+            this.ResolvedType = type;
+            this.Value = value;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)

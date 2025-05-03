@@ -17,30 +17,31 @@ namespace Pastel.Parser.ParseNodes
             Ops = ops.ToArray();
         }
 
-        public bool IsStringConcatenation
-        {
-            get
-            {
-                if (Expressions[0].ResolvedType.RootValue == "string")
-                {
-                    for (int i = 0; i < Ops.Length; ++i)
-                    {
-                        if (Ops[i].Value != "+")
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-                return false;
-            }
-        }
-
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            ResolveNamesAndCullUnusedCodeInPlace(Expressions, resolver);
+            Expression.ResolveNamesAndCullUnusedCodeInPlace(this.Expressions, resolver);
+            string op = this.Ops[0].Value;
+            Expression acc;
+
             // Don't do short-circuiting yet for && and ||
-            return this;
+            if (op == "&&" || op == "||")
+            {
+                acc = this.Expressions[this.Expressions.Length - 1];
+                for (int i = this.Expressions.Length - 2; i >= 0; i--)
+                {
+                    acc = new OpPair(this.Expressions[i], this.Ops[i], acc);
+                }
+            }
+            else
+            {
+                acc = this.Expressions[0];
+                for (int i = 1; i < this.Expressions.Length; i++)
+                {
+                    acc = new OpPair(acc, this.Ops[i - 1], this.Expressions[i]);
+                }
+            }
+
+            return acc;
         }
 
         internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)

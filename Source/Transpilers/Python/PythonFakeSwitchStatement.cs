@@ -214,9 +214,9 @@ namespace Pastel.Transpilers.Python
         private IfStatement BuildIfStatement(int id, string op, Statement[] trueCode, Statement[] falseCode)
         {
             Token equalsToken = Token.CreateDummyToken(op);
-            Variable variable = new Variable(Token.CreateDummyToken(ConditionVariableName), owner);
+            Variable variable = new Variable(Token.CreateDummyToken(this.ConditionVariableName), this.owner);
             variable.ApplyPrefix = false;
-            Expression condition = new OpChain(new Expression[] { variable, InlineConstant.Of(id, owner) }, new Token[] { equalsToken });
+            Expression condition = new OpChain(new Expression[] { variable, InlineConstant.Of(id, variable.FirstToken, this.owner) }, new Token[] { equalsToken });
 
             return new IfStatement(
                 Token.CreateDummyToken("if"),

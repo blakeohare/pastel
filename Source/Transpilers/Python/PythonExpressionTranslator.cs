@@ -143,6 +143,21 @@ namespace Pastel.Transpilers.Python
                 .WithTightness(ExpressionTightness.PYTHON_NOT);
         }
 
+        public override StringBuffer TranslateBoolToString(Expression value)
+        {
+            if (value is InlineConstant ic)
+            {
+                return StringBuffer
+                    .Of((bool)ic.Value ? "'true'" : "'false'")
+                    .WithTightness(ExpressionTightness.ATOMIC);
+            }
+
+            return StringBuffer.Of("'true' if ")
+                .Push(this.TranslateExpression(value).EnsureGreaterTightness(ExpressionTightness.BOOLEAN_LOGIC))
+                .Push(" else 'false'")
+                .WithTightness(ExpressionTightness.TERNARY);
+        }
+
         public override StringBuffer TranslateBytesToBase64(Expression byteArr)
         {
             this.MarkFeatureAsUsed("IMPORT:base64");
@@ -654,6 +669,69 @@ namespace Pastel.Transpilers.Python
                 .Push(TranslateExpression(charValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
+        private ExpressionTightness GetTightnessOfOp(string op)
+        {
+            switch (op)
+            {
+                case "&&":
+                case "||":
+                    return ExpressionTightness.BOOLEAN_LOGIC;
+
+                case "+":
+                case "-":
+                    return ExpressionTightness.ADDITION;
+
+                case "&":
+                case "|":
+                case "^":
+                    return ExpressionTightness.BITWISE;
+
+                case "<<":
+                case ">>":
+                    return ExpressionTightness.BITSHIFT;
+
+                case "*":
+                case "/":
+                case "%":
+                    return ExpressionTightness.MULTIPLICATION;
+
+                case "==":
+                case "!=":
+                    return ExpressionTightness.EQUALITY;
+
+                case "<":
+                case ">":
+                case ">=":
+                case "<=":
+                    return ExpressionTightness.INEQUALITY;
+
+                default:
+                    throw new System.NotImplementedException();
+            }
+        }
+
+        public override StringBuffer TranslateOpPair(OpPair opPair)
+        {
+            Expression left = opPair.Left;
+            Expression right = opPair.Right;
+            StringBuffer leftSb = this.TranslateExpression(left);
+            StringBuffer rightSb = this.TranslateExpression(right);
+            ExpressionTightness opTightness = this.GetTightnessOfOp(opPair.Op);
+            string actualOp = opPair.Op;
+            switch (actualOp)
+            {
+                case "&&": actualOp = "and"; break;
+                case "||": actualOp = "or"; break;
+            }
+            return leftSb
+                .EnsureTightness(opTightness)
+                .Push(" ")
+                .Push(actualOp)
+                .Push(" ")
+                .Push(rightSb.EnsureGreaterTightness(opTightness))
+                .WithTightness(opTightness);
         }
 
         public override StringBuffer TranslateOpChain(OpChain opChain)

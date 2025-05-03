@@ -8,7 +8,24 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateBooleanConstant(bool value)
         {
-            return StringBuffer.Of(value ? "true" : "false");
+            return StringBuffer
+                .Of(value ? "true" : "false")
+                .WithTightness(ExpressionTightness.ATOMIC);
+        }
+
+        public override StringBuffer TranslateBoolToString(Expression value)
+        {
+            if (value is InlineConstant ic)
+            {
+                return StringBuffer
+                    .Of("\"" + (bool)ic.Value + "\"")
+                    .WithTightness(ExpressionTightness.ATOMIC);
+            }
+
+            return this.TranslateExpression(value)
+                .EnsureGreaterTightness(ExpressionTightness.TERNARY)
+                .Push(" ? \"true\" : \"false\"")
+                .WithTightness(ExpressionTightness.TERNARY);
         }
 
         public override StringBuffer TranslateBooleanNot(UnaryOp unaryOp)
@@ -191,6 +208,21 @@ namespace Pastel.Transpilers
             }
 
             return acc;
+        }
+
+        public override StringBuffer TranslateOpPair(OpPair opPair)
+        {
+            StringBuffer leftSb = this.TranslateExpression(opPair.Left);
+            StringBuffer rightSb = this.TranslateExpression(opPair.Right);
+            ExpressionTightness opTightness = this.GetTightnessOfOp(opPair.Op);
+            leftSb.EnsureTightness(opTightness);
+            rightSb.EnsureGreaterTightness(opTightness);
+            return leftSb
+                .Push(" ")
+                .Push(opPair.Op)
+                .Push(" ")
+                .Push(rightSb)
+                .WithTightness(opTightness);
         }
 
         public override StringBuffer TranslateStringConstant(string value)

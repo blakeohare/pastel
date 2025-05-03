@@ -333,3 +333,29 @@ func PST_charToStr(c int) *pstring {
   arr[0] = c
   return PST_strFromUChars(arr, true)
 }
+
+// PASTEL_ENTITY_ID: PST_floatToStr
+func PST_floatToStr(f float64) *pstring {
+  s := strconv.FormatFloat(f, 'f', -1, 64)
+  if !strings.Contains(s, ".") {
+    s = s + ".0"
+  }
+  return PST_str(s)
+}
+
+// PASTEL_ENTITY_ID: PST_boolToStr
+var PST_trueStr *pstring = new(pstring)
+var PST_falseStr *pstring = new(pstring)
+
+func PST_boolToStr(v bool) *pstring {
+  if PST_trueStr.str == nil {
+    t := "true"
+    f := "false"
+    PST_trueStr.str = &t
+    PST_falseStr.str = &f
+  }
+  if v {
+    return PST_trueStr
+  }
+  return PST_falseStr
+}

@@ -39,13 +39,8 @@ namespace Pastel.Transpilers
                 case "FunctionReference": return this.TranslateFunctionReference((FunctionReference)expression);
                 case "FunctionPointerInvocation": return this.TranslateFunctionPointerInvocation((FunctionPointerInvocation)expression);
                 case "CoreFunctionInvocation": return this.TranslateCoreFunctionInvocation((CoreFunctionInvocation)expression);
-                case "OpChain":
-                    OpChain oc = (OpChain)expression;
-                    if (oc.IsStringConcatenation)
-                    {
-                        return this.TranslateStringConcatenation(oc.Expressions);
-                    }
-                    return this.TranslateOpChain(oc);
+                case "OpPair": return this.TranslateOpPair((OpPair)expression);
+                case "OpChain": throw new InvalidOperationException(); // This should have been resolved into more specific actions.
 
                 case "ExtensibleFunctionInvocation":
                     return this.TranslateExtensibleFunctionInvocation((ExtensibleFunctionInvocation)expression);
@@ -137,15 +132,21 @@ namespace Pastel.Transpilers
                         .Prepend("(")
                         .Push(")")
                         .WithTightness(ExpressionTightness.ATOMIC);
-
+                case "StringConcatenation":
+                    return this.TranslateStringConcatenation(((StringConcatenation)expression).Expressions.ToArray());
             }
             throw new NotImplementedException(typeName);
         }
 
         public StringBuffer TranslateStringConcatenation(Expression[] expressions)
         {
-            if (expressions.Length == 2)
+            if (expressions.Length <= 2)
             {
+                if (expressions.Length < 2)
+                {
+                    throw new InvalidOperationException(); // should have been optimized out by now
+                }
+
                 return this.TranslateStringConcatPair(expressions[0], expressions[1]);
             }
 
@@ -176,6 +177,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.ARRAY_SET: return this.TranslateArraySet(args[0], args[1], args[2]);
                 case CoreFunction.BASE64_TO_BYTES: return this.TranslateBase64ToBytes(args[0]);
                 case CoreFunction.BASE64_TO_STRING: return this.TranslateBase64ToString(args[0]);
+                case CoreFunction.BOOL_TO_STRING: return this.TranslateBoolToString(args[0]);
                 case CoreFunction.BYTES_TO_BASE64: return this.TranslateBytesToBase64(args[0]);
                 case CoreFunction.CHAR_TO_STRING: return this.TranslateCharToString(args[0]);
                 case CoreFunction.CHR: return this.TranslateChr(args[0]);
@@ -341,6 +343,7 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateArraySet(Expression array, Expression index, Expression value);
         public abstract StringBuffer TranslateBase64ToBytes(Expression base64String);
         public abstract StringBuffer TranslateBase64ToString(Expression base64String);
+        public abstract StringBuffer TranslateBoolToString(Expression value);
         public abstract StringBuffer TranslateBytesToBase64(Expression byteArr);
         public abstract StringBuffer TranslateBooleanConstant(bool value);
         public abstract StringBuffer TranslateBooleanNot(UnaryOp unaryOp);
@@ -403,6 +406,7 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateNullConstant();
         public abstract StringBuffer TranslateOrd(Expression charValue);
         public abstract StringBuffer TranslateOpChain(OpChain opChain);
+        public abstract StringBuffer TranslateOpPair(OpPair opPair);
         public abstract StringBuffer TranslateParseFloatUnsafe(Expression stringValue);
         public abstract StringBuffer TranslateParseInt(Expression safeStringValue);
         public abstract StringBuffer TranslatePrintStdErr(Expression value);

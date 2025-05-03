@@ -238,10 +238,10 @@ namespace Pastel.Transpilers.JavaScript
 
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
-            return TranslateExpression(floatExpr)
-                .EnsureTightness(ExpressionTightness.ADDITION)
-                .Push(" + ''")
-                .WithTightness(ExpressionTightness.ADDITION);
+            return StringBuffer.Of("PST$floatToStr(")
+                .Push(this.TranslateExpression(floatExpr))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateGetFunction(Expression name)

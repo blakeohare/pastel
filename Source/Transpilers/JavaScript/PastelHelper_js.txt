@@ -131,3 +131,9 @@ let PST$bytesToB64 = arr => {
   while (output.length % 4) output += '=';
   return output;
 };
+
+// PASTEL_ENTITY_ID: PST$floatToStr
+let PST$floatToStr = f => {
+    let s = f + '';
+    return s.includes('.') ? s : (s + '.0');
+};
