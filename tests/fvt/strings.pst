@@ -39,6 +39,12 @@ void runner() {
     assertEqStr("012", nums.SubString(0, 3));
     assertEqStr("012三", nums.SubString(0, 4));
     assertEqStr("三4五6", nums.SubString(3, 4));
+
+    string haystack = "0123456";
+    assertTrue(haystack.StartsWith("012"));
+    assertTrue(haystack.EndsWith("456"));
+    assertFalse(haystack.StartsWith("1"));
+    assertFalse(haystack.EndsWith("5"));
 }
 
 string readableWrap(string v) {

@@ -628,12 +628,26 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringContains(Expression haystack, Expression needle)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer
+                .Of("strings.Contains(")
+                .Push(this.TranslateExpressionStringUnwrap(haystack, false))
+                .Push(", ")
+                .Push(this.TranslateExpressionStringUnwrap(needle, false))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringEndsWith(Expression haystack, Expression needle)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer
+                .Of("strings.HasSuffix(")
+                .Push(this.TranslateExpressionStringUnwrap(haystack, false))
+                .Push(", ")
+                .Push(this.TranslateExpressionStringUnwrap(needle, false))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringEquals(Expression left, Expression right)
@@ -701,7 +715,14 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringStartsWith(Expression haystack, Expression needle)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer
+                .Of("strings.HasPrefix(")
+                .Push(this.TranslateExpressionStringUnwrap(haystack, false))
+                .Push(", ")
+                .Push(this.TranslateExpressionStringUnwrap(needle, false))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringSubstring(Expression str, Expression start, Expression length)
