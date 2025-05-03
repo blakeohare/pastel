@@ -8,8 +8,7 @@ object fail(string msg) {
 }
 
 void assertTrue(bool val) {
-    if (val) return; // TODO: ! is not defined in the Go translator. Once it is, flip this if statement.
-    fail("Expected true but found false");
+    if (!val) fail("Expected true but found false");
 }
 
 void assertFalse(bool val) {

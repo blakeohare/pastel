@@ -99,7 +99,9 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateBooleanNot(UnaryOp unaryOp)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("!")
+                .Push(this.TranslateExpression(unaryOp.Expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX));
         }
 
         public override StringBuffer TranslateBytesToBase64(Expression byteArr)
