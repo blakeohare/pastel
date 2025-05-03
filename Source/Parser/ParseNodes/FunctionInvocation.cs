@@ -45,6 +45,10 @@ namespace Pastel.Parser.ParseNodes
                             parser.GetPastelFlagConstant(constFunc.NameToken, argValue),
                             this.Owner);
 
+                    // This will be resolved later.
+                    case "import":
+                        return this;
+
                     default:
                         throw new ParserException(this.FirstToken, "Unknown compile-time function: " + constFunc.NameToken.Value);
                 }
@@ -55,8 +59,15 @@ namespace Pastel.Parser.ParseNodes
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Root = Root.ResolveNamesAndCullUnusedCode(resolver);
-            ResolveNamesAndCullUnusedCodeInPlace(Args, resolver);
+            if (this.Root is CompileTimeFunctionReference)
+            {
+                throw new ParserException(
+                    this.FirstToken,
+                    "Compile-time functions can only be used as standalone statements and cannot be used in expressions.");
+            }
+
+            this.Root = this.Root.ResolveNamesAndCullUnusedCode(resolver);
+            ResolveNamesAndCullUnusedCodeInPlace(this.Args, resolver);
 
             return this;
         }
@@ -79,14 +90,14 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            for (int i = 0; i < Args.Length; ++i)
+            for (int i = 0; i < this.Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveType(varScope, resolver);
+                this.Args[i] = this.Args[i].ResolveType(varScope, resolver);
             }
 
-            Root = Root.ResolveType(varScope, resolver);
+            this.Root = this.Root.ResolveType(varScope, resolver);
 
-            if (Root is FunctionReference)
+            if (this.Root is FunctionReference)
             {
                 FunctionDefinition functionDefinition = ((FunctionReference)Root).Function;
                 VerifyArgTypes(functionDefinition.ArgTypes, resolver);

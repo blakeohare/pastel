@@ -11,25 +11,32 @@ namespace Pastel.Parser.ParseNodes
             this.Expression = expression;
         }
 
-        internal Statement[] ImmediateResolveMaybe(PastelParser parser)
+        internal Statement[]? ImmediateResolveMaybe(PastelParser parser)
         {
-            if (this.Expression is FunctionInvocation)
+            if (this.Expression is FunctionInvocation funcInvoke &&
+                funcInvoke.Root is CompileTimeFunctionReference compTimeFn)
             {
-                if (((FunctionInvocation)this.Expression).Root is CompileTimeFunctionReference)
+                Expression[] args = funcInvoke.Args;
+                int argc = args.Length;
+                string funcName = compTimeFn.NameToken.Value;
+                switch (funcName)
                 {
-                    FunctionInvocation functionInvocation = (FunctionInvocation)this.Expression;
-                    CompileTimeFunctionReference compileTimeFunction = (CompileTimeFunctionReference)functionInvocation.Root;
-                    switch (compileTimeFunction.NameToken.Value)
-                    {
-                        case "import":
-                            string path = ((InlineConstant)functionInvocation.Args[0]).Value.ToString();
-                            return parser.StatementParser.ParseImportedCode(compileTimeFunction.NameToken, path);
+                    case "import":
+                        if (argc != 1 || !(args[0] is InlineConstant ic) || !(ic.Value is string path))
+                        {
+                            throw new ParserException(
+                                funcInvoke.FirstToken,
+                                "@import() expects 1 string constant argument.");
+                        }
 
-                        default:
-                            throw new NotImplementedException();
-                    }
+                        return parser.StatementParser.ParseImportedCode(compTimeFn.FirstToken, path);
+
+                    default:
+                        throw new ParserException(funcInvoke.FirstToken,
+                            "Unknown compile-time function: @" + funcName);
                 }
             }
+
             return null;
         }
 

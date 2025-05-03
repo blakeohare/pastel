@@ -25,9 +25,9 @@ namespace Pastel.Parser.ParseNodes
 
         public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            InitCode = ResolveNamesAndCullUnusedCodeForBlock(InitCode, resolver).ToArray();
-            Condition = Condition.ResolveNamesAndCullUnusedCode(resolver);
-            StepCode = ResolveNamesAndCullUnusedCodeForBlock(StepCode, resolver).ToArray();
+            this.InitCode = ResolveNamesAndCullUnusedCodeForBlock(this.InitCode, resolver).ToArray();
+            this.Condition = this.Condition.ResolveNamesAndCullUnusedCode(resolver);
+            this.StepCode = ResolveNamesAndCullUnusedCodeForBlock(this.StepCode, resolver).ToArray();
 
             // TODO: check Condition for falseness
 
@@ -50,7 +50,7 @@ namespace Pastel.Parser.ParseNodes
         internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
             ResolveWithTypeContext(resolver, InitCode);
-            Condition = Condition.ResolveWithTypeContext(resolver);
+            this.Condition = this.Condition.ResolveWithTypeContext(resolver);
             ResolveWithTypeContext(resolver, StepCode);
             ResolveWithTypeContext(resolver, Code);
 

@@ -45,21 +45,18 @@ namespace Pastel.Parser
 
         private void ParseCodeLine(List<Statement> codeOut, TokenStream tokens)
         {
-            Statement line = ParseStatement(tokens, false);
-            Statement[] lines = null;
-            if (line is ExpressionAsStatement)
+            Statement line = this.ParseStatement(tokens, false);
+            if (line is ExpressionAsStatement exprAsStmnt)
             {
-                lines = ((ExpressionAsStatement)line).ImmediateResolveMaybe(this.parser);
+                Statement[]? importedLines = exprAsStmnt.ImmediateResolveMaybe(this.parser);
+                if (importedLines != null)
+                {
+                    codeOut.AddRange(importedLines);
+                    return;
+                }
             }
 
-            if (lines == null)
-            {
-                codeOut.Add(line);
-            }
-            else
-            {
-                codeOut.AddRange(lines);
-            }
+            codeOut.Add(line);
         }
 
         public Statement ParseStatement(TokenStream tokens, bool isForLoop)

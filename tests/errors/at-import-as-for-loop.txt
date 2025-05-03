@@ -1,0 +1,11 @@
+// TODO: This is not the best error message but it's hard to distinguish the situation where this gets thrown.
+int foo() {
+    for (int i = 0; i < 10; @import("foo.txt")) {
+        // This should not work despite being in the location of a Statement.
+        i++;
+    }
+}
+
+#######
+
+test.pst, Line: 3, Col: 29, Compile-time functions can only be used as standalone statements and cannot be used in expressions.

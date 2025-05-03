@@ -134,10 +134,12 @@ void testInlineOptimization() {
 }
 
 void testOneOffStuff() {
-
     int value = 1;
     assertEqStr("true", Core.BoolToString(value == 1));
     assertEqStr("true", Core.BoolToString(value == 2));
     assertEqStr("true", Core.BoolToString(true));
     assertEqStr("false", Core.BoolToString(false));
+
+    @import("inline.pst");
+    assertEqInt(42, x);
 }

@@ -1,0 +1,7 @@
+int foo() {
+    string x = 3 * @import("foo.txt");
+}
+
+#######
+
+test.pst, Line: 2, Col: 20, Compile-time functions can only be used as standalone statements and cannot be used in expressions.
