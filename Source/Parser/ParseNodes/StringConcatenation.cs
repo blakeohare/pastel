@@ -61,20 +61,20 @@ namespace Pastel.Parser.ParseNodes
                     switch (curType.RootValue)
                     {
                         case "int":
-                            current = new CoreFunctionInvocation(current.FirstToken, CoreFunction.INT_TO_STRING, null,
-                                [current], this.Owner);
-                            break;
-                        case "float":
                             current = new CoreFunctionInvocation(
-                                current.FirstToken, CoreFunction.FLOAT_TO_STRING, null, [current], this.Owner);
+                                current.FirstToken, CoreFunction.INT_TO_STRING, [current], this.Owner);
+                            break;
+                        case "double":
+                            current = new CoreFunctionInvocation(
+                                current.FirstToken, CoreFunction.FLOAT_TO_STRING, [current], this.Owner);
                             break;
                         case "bool":
                             current = new CoreFunctionInvocation(
-                                current.FirstToken, CoreFunction.BOOL_TO_STRING, null, [current], this.Owner);
+                                current.FirstToken, CoreFunction.BOOL_TO_STRING, [current], this.Owner);
                             break;
                         case "char":
                             current = new CoreFunctionInvocation(
-                                current.FirstToken, CoreFunction.CHAR_TO_STRING, current, [], this.Owner);
+                                current.FirstToken, CoreFunction.CHAR_TO_STRING, [current], this.Owner);
                             break;
                         case "string":
                             break;

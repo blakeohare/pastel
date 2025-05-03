@@ -13,6 +13,7 @@ void runner() {
     testOps();
     testStringConcat();
     testInlineOptimization();
+    testFloatToString();
 }
 
 void testBase64() {
@@ -142,4 +143,34 @@ void testOneOffStuff() {
 
     @import("inline.pst");
     assertEqInt(42, x);
+}
+
+// TODO: negative nums
+void testFloatToString() {
+    string empty = "";
+    double zero = 0.0;
+    assertEqStr("3.0", zero + 3 + empty);
+    assertEqStr("1.5", zero + 1.5 + empty);
+    assertEqStr("0.0", zero + 0 + empty);
+    assertEqStr("0.1", zero + 0.1 + empty);
+    assertEqStr("0.01", zero + 0.01 + empty);
+    assertEqStr("0.001", zero + 0.001 + empty);
+
+    // TODO: uncomment these after consistency is added.
+    /*
+        assertEqStr("0.0001", zero + 0.0001 + empty);
+        assertEqStr("0.00001", zero + 0.00001 + empty);
+        assertEqStr("0.000001", zero + 0.000001 + empty);
+        assertEqStr("1.0e-7", zero + 0.0000001 + empty);
+        assertEqStr("1.0e-8", zero + 0.00000001 + empty);
+        assertEqStr("1.0e-9", zero + 0.000000001 + empty);
+
+
+        assertEqStr("100000000000000.0", zero + 100000000000000.0 + empty);
+        assertEqStr("999999999999999.0", zero + 999999999999999.0 + empty);
+        assertEqStr("1.0e+16", zero + 1000000000000000.0 + empty);
+    */
+
+    double pointOne = .1;
+    assertEqStr("0.19999999999999998", .3 - pointOne + empty);
 }

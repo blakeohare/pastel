@@ -11,20 +11,13 @@ namespace Pastel.Parser.ParseNodes
 
         public CoreFunctionInvocation(Token firstToken, CoreFunction function, IList<Expression> args, ICompilationEntity owner) : base(firstToken, owner)
         {
-            Function = function;
-            Args = args.ToArray();
+            this.Function = function;
+            this.Args = args.ToArray();
         }
 
         public CoreFunctionInvocation(Token firstToken, CoreFunction function, Expression context, IList<Expression> args, ICompilationEntity owner)
-           : this(firstToken, function, PushInFront(context, args), owner)
+           : this(firstToken, function, [context, ..args], owner)
         { }
-
-        private static IList<Expression> PushInFront(Expression ex, IList<Expression> others)
-        {
-            List<Expression> expressions = new List<Expression>() { ex };
-            expressions.AddRange(others);
-            return expressions;
-        }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
