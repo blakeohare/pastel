@@ -4,6 +4,7 @@
 void runner() {
     testUnixTime();
     testBase64();
+    testGoQuickImpl();
 }
 
 void testBase64() {
@@ -24,4 +25,41 @@ void testUnixTime() {
     double now = Core.CurrentTimeSeconds();
     assertTrue(now > 1746108176);
     assertTrue(now < 0x7FFFFFFF);
+}
+
+// Go is missing a bunch of basic stuff, adding it here to exercise the codepath
+void testGoQuickImpl() {
+    string s = Core.FloatToString(37.5);
+    assertEqStr("37.5", s);
+
+    List<int> nums = new List<int>();
+    assertEqInt(0, nums.Size());
+    nums.Add(42);
+    assertEqInt(1, nums.Size());
+    nums.Clear();
+    assertEqInt(0, nums.Size());
+
+    List<int> a = new List<int>();
+    List<int> b = new List<int>();
+    a.Add(1);
+    a.Add(2);
+    b.Add(3);
+    b.Add(4);
+    List<int> c = Core.ListConcat(a, b);
+    assertEqInt(4, c.Size());
+    assertEqInt(2, b.Size());
+    a.Add(5);
+    assertEqInt(4, c.Size());
+    assertEqInt(3, a.Size());
+
+    int x = 42;
+    x = -x;
+    assertEqStr("-42", Core.IntToString(x));
+
+    assertTrue(Core.RandomFloat() >= 0);
+    assertTrue(Core.RandomFloat() < 1);
+
+    assertEqStr(
+        "\"abc\\n123\\r\\n'\"",
+        Core.ToCodeString("abc\n123\r\n'"));
 }

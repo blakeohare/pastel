@@ -306,7 +306,7 @@ private static <T> ArrayList<T> PST_multiplyList(ArrayList<T> list, int n) {
 
 // PASTEL_ENTITY_ID: PST_concatLists
 private static <T> ArrayList<T> PST_concatLists(ArrayList<T> a, ArrayList<T> b) {
-  ArrayList<T> output = new ArrayList(a.size() + b.size());
+  ArrayList<T> output = new ArrayList<T>(a.size() + b.size());
   output.addAll(a);
   output.addAll(b);
   return output;
@@ -428,4 +428,26 @@ private static String PST_bytesToBase64(int[] arr) {
   }
   byte[] o = java.util.Base64.getEncoder().encode(buf);
   return new String(o);
+}
+
+
+// PASTEL_ENTITY_ID: PST_toCodeString
+private static String PST_toCodeString(String s) {
+  StringBuilder sb = new StringBuilder();
+  sb.append('"');
+  int len = s.length();
+  char c;
+  for (int i = 0; i < len; i++) {
+    c = s.charAt(i);
+    switch (c) {
+      case '"': sb.append("\\\""); break;
+      case '\n': sb.append("\\n"); break;
+      case '\r': sb.append("\\r"); break;
+      case '\t': sb.append("\\t"); break;
+      case '\\': sb.append("\\\\"); break;
+      default: sb.append(c); break;
+    }
+  }
+  sb.append('"');
+  return sb.toString();
 }

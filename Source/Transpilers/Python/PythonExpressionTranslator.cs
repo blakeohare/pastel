@@ -730,13 +730,14 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("print(")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateRandomFloat()
         {
+            this.MarkFeatureAsUsed("IMPORT:random");
             return StringBuffer
                 .Of("random.random()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -746,7 +747,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("PST_sortedCopyOfList(")
-                .Push(TranslateExpression(intArray))
+                .Push(this.TranslateExpression(intArray))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -1090,7 +1091,12 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateToCodeString(Expression str)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:json");
+            return StringBuffer
+                .Of("json.dumps(")
+                .Push(this.TranslateExpression(str))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateTryParseFloat(Expression stringValue, Expression floatOutList)

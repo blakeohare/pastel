@@ -1063,7 +1063,11 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateToCodeString(Expression str)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_toCodeString(")
+                .Push(this.TranslateExpression(str))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateTryParseFloat(Expression stringValue, Expression floatOutList)
