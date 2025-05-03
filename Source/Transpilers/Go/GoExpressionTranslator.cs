@@ -205,7 +205,9 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateEmitComment(string value)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("// ")
+                .Push(value);
         }
 
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
@@ -249,7 +251,11 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strconv");
+            return StringBuffer.Of("PST_str(strconv.FormatFloat(")
+                .Push(this.TranslateExpression(floatExpr))
+                .Push(", 'f', -1, 64))")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args)
@@ -326,17 +332,25 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateListClear(Expression list)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("PST_listClear(")
+                .Push(this.TranslateExpression(list))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListConcat(Expression list, Expression items)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("PST_listConcat(")
+                .Push(this.TranslateExpression(list))
+                .Push(", ")
+                .Push(this.TranslateExpression(items))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListGet(Expression list, Expression index)
         {
-            throw new NotImplementedException();
+            return this.TranslateArrayGet(list, index);
         }
 
         public override StringBuffer TranslateListInsert(Expression list, Expression index, Expression item)
@@ -384,7 +398,7 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateListSet(Expression list, Expression index, Expression value)
         {
-            throw new NotImplementedException();
+            return this.TranslateArraySet(list, index, value);
         }
 
         public override StringBuffer TranslateListShuffle(Expression list)
@@ -394,7 +408,10 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateListSize(Expression list)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("len(")
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(".items)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListToArray(Expression list)
@@ -455,7 +472,9 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateNegative(UnaryOp unaryOp)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("-")
+                .Push(this.TranslateExpression(unaryOp.Expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateNullConstant()
@@ -527,7 +546,10 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateRandomFloat()
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:math/rand");
+            return StringBuffer
+                .Of("rand.Float64()")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateSortedCopyOfIntArray(Expression intArray)
@@ -790,7 +812,11 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateToCodeString(Expression str)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:encoding/json");
+            return StringBuffer.Of("PST_stringToCode(")
+                .Push(this.TranslateExpressionStringUnwrap(str, false))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateTryParseFloat(Expression stringValue, Expression floatOutList)

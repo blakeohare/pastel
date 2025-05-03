@@ -290,3 +290,39 @@ func PST_bytesToBase64(arr *plist) *pstring {
   }
   return PST_str(base64.StdEncoding.EncodeToString(buf))
 }
+
+// PASTEL_ENTITY_ID: PST_listClear
+func PST_listClear(p *plist) {
+	p.items = make([]any, 0)
+}
+
+// PASTEL_ENTITY_ID: PST_listConcat
+func PST_listConcat(a *plist, b *plist) *plist {
+	o := new(plist)
+	buf := make([]any, 0)
+	i := 0
+	arr1 := a.items
+	sz1 := len(arr1)
+	for i < sz1 {
+		buf = append(buf, arr1[i])
+		i = i + 1
+	}
+	i = 0
+	arr2 := a.items
+	sz2 := len(arr2)
+	for i < sz2 {
+		buf = append(buf, arr2[i])
+		i = i + 1
+	}
+	o.items = buf
+	return o
+}
+
+// PASTEL_ENTITY_ID: PST_stringToCode
+func PST_stringToCode(s string) *pstring {
+  o, err := json.Marshal(s)
+  if err != nil {
+    return nil
+  }
+  return PST_str(string(o))
+}
