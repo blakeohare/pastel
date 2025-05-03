@@ -121,17 +121,24 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateCharConstant(char value)
         {
-            throw new NotImplementedException();
+            int num = (int)value;
+            return StringBuffer
+                .Of("" + num)
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateCharToString(Expression charValue)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_charToStr(")
+                .Push(this.TranslateExpression(charValue))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateChr(Expression charCode)
         {
-            throw new NotImplementedException();
+            return this.TranslateExpression(charCode);
         }
 
         public override StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation)
@@ -486,7 +493,7 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateOrd(Expression charValue)
         {
-            throw new NotImplementedException();
+            return this.TranslateExpression(charValue);
         }
 
         public override StringBuffer TranslateOpChain(OpChain opChain)

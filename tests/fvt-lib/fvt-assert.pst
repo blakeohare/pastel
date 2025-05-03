@@ -8,11 +8,15 @@ object fail(string msg) {
 }
 
 void assertTrue(bool val) {
-    if (!val) fail("Expected true but found false");
+    if (!val) fail("Expected true but found false instead.");
 }
 
 void assertFalse(bool val) {
-    if (val) fail("Expected false but found true");
+    if (val) fail("Expected false but found true instead.");
+}
+
+void assertEqChar(char expected, char actual) {
+    if (expected != actual) fail("Expected '" + Core.CharToString(expected) + "' but found '" + Core.CharToString(actual) + "' instead.");
 }
 
 void assertEqStr(string expected, string actual) {

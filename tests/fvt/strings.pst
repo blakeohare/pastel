@@ -45,6 +45,20 @@ void runner() {
     assertTrue(haystack.EndsWith("456"));
     assertFalse(haystack.StartsWith("1"));
     assertFalse(haystack.EndsWith("5"));
+
+    testCharacters();
+}
+
+void testCharacters() {
+    char c = 'x';
+    int charCode = Core.Ord(c);
+    assertEqInt(charCode, 96 + 24);
+    char cRoundTrip = Core.Chr(charCode + 1);
+    assertEqChar('y', cRoundTrip);
+
+    // TODO: implement updated op chain logic
+    // assertEqStr("yz", cRoundTrip + "z");
+    // assertEqStr("xy", "x" + cRoundTrip);
 }
 
 string readableWrap(string v) {

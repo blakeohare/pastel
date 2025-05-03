@@ -12,6 +12,7 @@ namespace Pastel.Transpilers.Go
                 case "bool": return "bool";
                 case "int": return "int";
                 case "double": return "float64";
+                case "char": return "int";
                 case "string": return "*pstring";
                 case "object": return "any"; 
 

@@ -194,9 +194,9 @@ namespace Pastel.Transpilers.Java
         public override StringBuffer TranslateChr(Expression charCode)
         {
             return StringBuffer
-                .Of("Character.toString((char) ")
-                .Push(TranslateExpression(charCode))
-                .Push(")");
+                .Of("(char) ")
+                .Push(this.TranslateExpression(charCode).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateConstructorInvocation(ConstructorInvocation constructorInvocation)

@@ -326,3 +326,10 @@ func PST_stringToCode(s string) *pstring {
   }
   return PST_str(string(o))
 }
+
+// PASTEL_ENTITY_ID: PST_charToStr
+func PST_charToStr(c int) *pstring {
+  arr := make([]int, 1)
+  arr[0] = c
+  return PST_strFromUChars(arr, true)
+}
