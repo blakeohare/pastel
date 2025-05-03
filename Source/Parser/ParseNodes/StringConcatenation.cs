@@ -74,7 +74,7 @@ namespace Pastel.Parser.ParseNodes
                             break;
                         case "char":
                             current = new CoreFunctionInvocation(
-                                current.FirstToken, CoreFunction.CHAR_TO_STRING, null, [current], this.Owner);
+                                current.FirstToken, CoreFunction.CHAR_TO_STRING, current, [], this.Owner);
                             break;
                         case "string":
                             break;

@@ -134,7 +134,7 @@ namespace Pastel.Transpilers.CSharp
 
         public override StringBuffer TranslateCharToString(Expression charValue)
         {
-            return TranslateExpression(charValue)
+            return this.TranslateExpression(charValue)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToString()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
