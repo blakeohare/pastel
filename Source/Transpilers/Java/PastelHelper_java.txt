@@ -113,26 +113,6 @@ private static String PST_base64ToString(String b64Value) {
   return sb.toString();
 }
 
-// PASTEL_ENTITY_ID: PST_convertIntegerSetToArray
-private static int[] PST_convertIntegerSetToArray(java.util.Set<Integer> original) {
-  int[] output = new int[original.size()];
-  int i = 0;
-  for (int value : original) {
-    output[i++] = value;
-  }
-  return output;
-}
-
-// PASTEL_ENTITY_ID: PST_convertStringSetToArray
-private static String[] PST_convertStringSetToArray(java.util.Set<String> original) {
-  String[] output = new String[original.size()];
-  int i = 0;
-  for (String value : original) {
-    output[i++] = value;
-  }
-  return output;
-}
-
 // PASTEL_ENTITY_ID: PST_isValidInteger
 private static boolean PST_isValidInteger(String value) {
   try {
@@ -430,7 +410,6 @@ private static String PST_bytesToBase64(int[] arr) {
   return new String(o);
 }
 
-
 // PASTEL_ENTITY_ID: PST_toCodeString
 private static String PST_toCodeString(String s) {
   StringBuilder sb = new StringBuilder();
@@ -450,4 +429,48 @@ private static String PST_toCodeString(String s) {
   }
   sb.append('"');
   return sb.toString();
+}
+
+// PASTEL_ENTITY_ID: PST_toArray_bool
+private static boolean[] PST_toArray_bool(Collection<Boolean> wrapped) {
+  int sz = wrapped.size();
+  boolean[] arr = new boolean[sz];
+  int i = 0;
+  for (Boolean v : wrapped) {
+    arr[i++] = v;
+  }
+  return arr;
+}
+
+// PASTEL_ENTITY_ID: PST_toArray_char
+private static char[] PST_toArray_char(Collection<Character> wrapped) {
+  int sz = wrapped.size();
+  char[] arr = new char[sz];
+  int i = 0;
+  for (Character v : wrapped) {
+    arr[i++] = v;
+  }
+  return arr;
+}
+
+// PASTEL_ENTITY_ID: PST_toArray_int
+private static int[] PST_toArray_int(Collection<Integer> wrapped) {
+  int sz = wrapped.size();
+  int[] arr = new int[sz];
+  int i = 0;
+  for (Integer v : wrapped) {
+    arr[i++] = v;
+  }
+  return arr;
+}
+
+// PASTEL_ENTITY_ID: PST_toArray_double
+private static double[] PST_toArray_double(Collection<Double> wrapped) {
+  int sz = wrapped.size();
+  double[] arr = new double[sz];
+  int i = 0;
+  for (Double v : wrapped) {
+    arr[i++] = v;
+  }
+  return arr;
 }

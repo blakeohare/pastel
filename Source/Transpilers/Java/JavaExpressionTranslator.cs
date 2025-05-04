@@ -149,7 +149,7 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
-            DotField dotField = expression as DotField;
+            DotField? dotField = expression as DotField;
             if (dotField != null &&
                 CrayonHacks.IsJavaValueStruct(dotField.Root.ResolvedType.StructDef) &&
                 dotField.FieldName.Value == "internalValue")
@@ -248,32 +248,19 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateDictionaryKeys(Expression dictionary)
         {
-            StringBuffer buf = StringBuffer.Of("PST_convert");
-            switch (dictionary.ResolvedType.Generics[0].RootValue)
-            {
-                case "int": buf.Push("Integer"); break;
-                case "string": buf.Push("String"); break;
-
-                default:
-                    // TODO: Explicitly disallow dictionaries with non-intenger or non-string keys at compile time.
-                    throw new NotImplementedException();
-            }
-            return buf
-                .Push("SetToArray(")
-                .Push(TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
-                .Push(".keySet())")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-
-            // TODO: do a simple .keySet().toArray(TranslationHelper.STATIC_INSTANCE_OF_ZERO_LENGTH_INT_OR_STRING_ARRAY);
+            StringBuffer sb = this.TranslateExpression(dictionary)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                .Push(".keySet()");
+            return this.JavaToArray(sb, dictionary.ResolvedType.Generics[0]);
         }
 
         public override StringBuffer TranslateDictionaryNew(PType keyType, PType valueType)
         {
             return StringBuffer
                 .Of("new HashMap<")
-                .Push(JavaTypeTranspiler.TranslateJavaNestedType(keyType))
+                .Push(this.JavaTypeTranspiler.TranslateJavaNestedType(keyType))
                 .Push(", ")
-                .Push(JavaTypeTranspiler.TranslateJavaNestedType(valueType))
+                .Push(this.JavaTypeTranspiler.TranslateJavaNestedType(valueType))
                 .Push(">()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -308,12 +295,44 @@ namespace Pastel.Transpilers.Java
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        private StringBuffer JavaToArray(StringBuffer collection, PType type)
+        {
+            StringBuffer sb;
+            switch (type.RootValue)
+            {
+                case "char":
+                case "bool":
+                case "int":
+                case "double":
+                    sb = StringBuffer
+                        .Of("PST_toArray_")
+                        .Push(type.RootValue)
+                        .Push("(")
+                        .Push(collection)
+                        .Push(")");
+                    break;
+                case "object":
+                    sb = collection.Push(".toArray()");
+                    break;
+                default:
+                    sb = collection
+                        .Push(".toArray(new ")
+                        .Push(this.TypeTranspiler.TranslateType(type))
+                        .Push("[0])");
+                    break;
+            }
+
+            return sb.WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateDictionaryValues(Expression dictionary)
         {
-            return TranslateExpression(dictionary)
+            PType valueType = dictionary.ResolvedType.Generics[1];
+            StringBuffer sb = this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".values()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+            return this.JavaToArray(sb, valueType);
         }
 
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
@@ -554,65 +573,7 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateListToArray(Expression list)
         {
-            PType itemType = list.ResolvedType.Generics[0];
-            switch (itemType.TypeName)
-            {
-                case "bool":
-                case "byte":
-                case "int":
-                case "double":
-                case "char":
-                    string primitiveName = itemType.TypeName;
-                    return StringBuffer
-                        .Of("PST_listToArray")
-                        .Push("" + (char)(primitiveName[0] + 'A' - 'a'))
-                        .Push(primitiveName.Substring(1))
-                        .Push("(")
-                        .Push(TranslateExpression(list))
-                        .Push(")")
-                        .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-
-                case "string":
-                    return TranslateExpression(list)
-                        .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                        .Push(".toArray(PST_emptyArrayString)")
-                        .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-
-                case "object":
-                    return TranslateExpression(list)
-                        .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                        .Push(".toArray()")
-                        .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-
-                case "List":
-                    return TranslateExpression(list)
-                        .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                        .Push(".toArray(PST_emptyArrayList)")
-                        .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-
-                case "Dictionary":
-                    return TranslateExpression(list)
-                        .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                        .Push(".toArray(PST_emptyArrayMap)")
-                        .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-
-                case "Array":
-                    throw new NotImplementedException("not implemented: java list of arrays to array");
-
-                default:
-                    if (itemType.IsStruct)
-                    {
-                        return TranslateExpression(list)
-                            .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
-                            .Push(".toArray(")
-                            .Push(TypeTranspiler.TranslateType(itemType))
-                            .Push(".EMPTY_ARRAY)")
-                            .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-                    }
-
-                    // I think I covered all the types that are supported.
-                    throw new NotImplementedException();
-            }
+            return this.JavaToArray(this.TranslateExpression(list), list.ResolvedType.Generics[0]);
         }
 
         public override StringBuffer TranslateMathArcCos(Expression ratio)
