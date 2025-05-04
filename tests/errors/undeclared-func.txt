@@ -4,4 +4,4 @@ void foo() {
 
 ########
 
-test.pst, Line: 3, Col: 5, The function 'thisFunctionIsNotDefined' is not defined.
+test.pst, Line: 2, Col: 5, The function 'thisFunctionIsNotDefined' is not defined.
