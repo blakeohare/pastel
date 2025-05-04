@@ -44,4 +44,11 @@ void testDictionaries() {
         sum += nums[keys[i]];
     }
     assertEqInt(6, sum);
+
+    assertTrue(nums.Contains("a"));
+    assertFalse(nums.Contains("d"));
+
+    nums.Remove("b");
+    assertFalse(nums.Contains("b"));
+    assertEqInt(2, nums.Keys().Size());
 }

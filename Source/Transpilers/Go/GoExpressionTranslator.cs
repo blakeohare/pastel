@@ -244,7 +244,16 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateDictionaryRemove(Expression dictionary, Expression key)
         {
-            throw new NotImplementedException();
+            bool isString = this.IsStringDict(dictionary);
+            return StringBuffer
+                .Of(isString ? "PST_dictRemoveStr(" : "PST_dictRemoveInt(")
+                .Push(this.TranslateExpression(dictionary))
+                .Push(", ")
+                .Push(isString
+                    ? this.TranslateExpressionStringUnwrap(key, false)
+                    : this.TranslateExpression(key))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value)

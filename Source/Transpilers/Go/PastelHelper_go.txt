@@ -454,3 +454,41 @@ func PST_dictKeysInt(d *pdict_i) *plist {
     o.items = arr
     return o
 }
+
+// PASTEL_ENTITY_ID: PST_dictRemoveStr
+func PST_dictRemoveStr(d *pdict_s, k string) {
+  idx, exists := d.lu[k]
+  if exists {
+    sz := len(d.k)
+    end := sz - 1
+    delete(d.lu, k)
+    if idx != end {
+      d.k[idx] = d.k[end]
+      d.v[idx] = d.v[end]
+      d.lu[*d.k[idx].str] = idx
+    }
+    d.k = d.k[:end]
+    d.v = d.v[:end]
+  } else {
+    panic("Key not found")
+  }
+}
+
+// PASTEL_ENTITY_ID: PST_dictRemoveInt
+func PST_dictRemoveInt(d *pdict_i, k int) {
+  idx, exists := d.lu[k]
+  if exists {
+    sz := len(d.k)
+    end := sz - 1
+    delete(d.lu, k)
+    if idx != end {
+      d.k[idx] = d.k[end]
+      d.v[idx] = d.v[end]
+      d.lu[d.k[idx]] = idx
+    }
+    d.k = d.k[:end]
+    d.v = d.v[:end]
+  } else {
+    panic("Key not found")
+  }
+}
