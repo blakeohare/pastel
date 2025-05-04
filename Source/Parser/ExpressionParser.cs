@@ -143,20 +143,41 @@ namespace Pastel.Parser
             {
                 Token newToken = tokens.Pop();
                 PType typeToConstruct = PType.Parse(tokens);
-                if (!tokens.IsNext("(")) tokens.PopExpected("("); // intentional error if not present.
-                Expression constructorReference = new ConstructorReference(newToken, typeToConstruct, this.parser.ActiveEntity);
-                return ParseEntityChain(constructorReference, tokens);
+                Expression[]? implicitCtorArgs = null;
+                if (tokens.PopIfPresent("["))
+                {
+                    Expression arraySize = this.ParseExpression(tokens);
+                    tokens.PopExpected("]");
+                    typeToConstruct = PType.ArrayOf(typeToConstruct.FirstToken, typeToConstruct);
+                    implicitCtorArgs = [arraySize];
+                }
+                else if (!tokens.IsNext("("))
+                {
+                    tokens.PopExpected("("); // This will intentionally throw an error here.
+                }
+
+                Expression expr = new ConstructorReference(newToken, typeToConstruct, this.parser.ActiveEntity);
+                if (implicitCtorArgs != null)
+                {
+                    expr = new FunctionInvocation(expr, newToken, implicitCtorArgs);
+                }
+                else
+                {
+                    expr = this.ParseEntityChain(expr, tokens);
+                }
+
+                return this.ParseOutEntitySuffixes(tokens, expr);
             }
 
             if (tokens.PopIfPresent("("))
             {
                 Expression expression = ParseExpression(tokens);
                 tokens.PopExpected(")");
-                return ParseOutEntitySuffixes(tokens, expression);
+                return this.ParseOutEntitySuffixes(tokens, expression);
             }
 
             Expression root = ParseEntityRoot(tokens);
-            return ParseOutEntitySuffixes(tokens, root);
+            return this.ParseOutEntitySuffixes(tokens, root);
         }
 
         private Expression ParseOutEntitySuffixes(TokenStream tokens, Expression root)

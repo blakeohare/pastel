@@ -54,6 +54,11 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
+        public static PType ArrayOf(Token firstToken, PType itemType)
+        {
+            return new PType(firstToken, null, "Array", itemType);
+        }
+
         public static PType FunctionOf(Token tokenOfFunctionRefOccurrence, PType returnType, IList<PType> argumentTypes)
         {
             List<PType> generics = new List<PType>();
@@ -426,9 +431,11 @@ namespace Pastel.Parser.ParseNodes
                 return null;
             }
 
-            if (tokens.IsNext("[") && tokens.PeekAhead(1) == "]")
+            while (tokens.IsNext("[") && tokens.PeekAhead(1) == "]")
             {
-                throw new ParserException(tokens.Peek(), "Array types are defined with the Array class, not square brackets.");
+                tokens.PopExpected("[");
+                tokens.PopExpected("]");
+                type = new PType(type.FirstToken, null, "Array", type);
             }
 
             return type;

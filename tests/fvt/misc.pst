@@ -149,6 +149,14 @@ void testOneOffStuff() {
 
     @import("inline.pst");
     assertEqInt(42, x);
+
+    int[] arr = new int[3];
+    arr[0] = 1;
+    arr[1] = 2;
+    arr[2] = 3;
+    object arrPtr = arr;
+    int[] foo = (int[]) arrPtr;
+    assertEqInt(1, foo[0]);
 }
 
 // TODO: negative nums
