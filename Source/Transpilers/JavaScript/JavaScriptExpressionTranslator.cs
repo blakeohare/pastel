@@ -227,15 +227,6 @@ namespace Pastel.Transpilers.JavaScript
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
-        public override StringBuffer TranslateFloatToInt(Expression floatExpr)
-        {
-            return StringBuffer
-                .Of("Math.floor(")
-                .Push(TranslateExpression(floatExpr))
-                .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return StringBuffer.Of("PST$floatToStr(")
@@ -427,6 +418,15 @@ namespace Pastel.Transpilers.JavaScript
                 .WithTightness(ExpressionTightness.ATOMIC);
         }
 
+        public override StringBuffer TranslateMathAbs(Expression num)
+        {
+            return StringBuffer
+                .Of("Math.abs(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateMathArcCos(Expression ratio)
         {
             return StringBuffer
@@ -456,11 +456,29 @@ namespace Pastel.Transpilers.JavaScript
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateMathCeil(Expression num)
+        {
+            return StringBuffer
+                .Of("Math.ceil(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateMathCos(Expression thetaRadians)
         {
             return StringBuffer
                 .Of("Math.cos(")
                 .Push(TranslateExpression(thetaRadians))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
+        public override StringBuffer TranslateMathFloor(Expression num)
+        {
+            return StringBuffer
+                .Of("Math.floor(")
+                .Push(this.TranslateExpression(num))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }

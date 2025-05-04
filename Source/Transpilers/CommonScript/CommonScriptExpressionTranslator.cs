@@ -204,12 +204,6 @@ namespace Pastel.Transpilers.CommonScript
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
-
-        public override StringBuffer TranslateFloatToInt(Expression floatExpr)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             throw new NotImplementedException();
@@ -350,6 +344,11 @@ namespace Pastel.Transpilers.CommonScript
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateMathAbs(Expression num)
+        {
+            throw new NotImplementedException();
+        }
+
         public override StringBuffer TranslateMathArcCos(Expression ratio)
         {
             throw new NotImplementedException();
@@ -365,7 +364,17 @@ namespace Pastel.Transpilers.CommonScript
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateMathCeil(Expression num)
+        {
+            throw new NotImplementedException();
+        }
+
         public override StringBuffer TranslateMathCos(Expression thetaRadians)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override StringBuffer TranslateMathFloor(Expression num)
         {
             throw new NotImplementedException();
         }

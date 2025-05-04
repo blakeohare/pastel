@@ -31,6 +31,27 @@ namespace Pastel
             return returnTypes[functionId];
         }
 
+        public static bool PerformAdditionalTypeResolution(CoreFunctionReference funcRef, Expression[] args)
+        {
+            PType firstType = args.Length > 0 ? args[0].ResolvedType : PType.VOID;
+            switch (funcRef.CoreFunctionId)
+            {
+                case CoreFunction.MATH_ABS:
+                    if (firstType.RootValue != "int" && firstType.RootValue != "double")
+                    {
+                        throw new ParserException(
+                            funcRef.FirstToken,
+                            "Math.abs() is only applicable to numeric types.");
+                    }
+
+                    funcRef.ReturnType = firstType;
+                    funcRef.ArgTypes = [firstType];
+                    return true;
+            }
+
+            return false;
+        }
+
         public static bool[] GetCoreFunctionIsArgTypeRepeated(CoreFunction functionId)
         {
             if (returnTypes == null)

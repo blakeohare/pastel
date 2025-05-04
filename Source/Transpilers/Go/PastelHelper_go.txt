@@ -509,3 +509,11 @@ func PST_dictRemoveInt(d *pdict_i, k int) {
     panic("Key not found")
   }
 }
+
+// PASTEL_ENTITY_ID: PST_mathAbsInt
+func PST_mathAbsInt(x int) int {
+  if x < 0 {
+    return -x
+  }
+  return x
+}

@@ -280,15 +280,6 @@ namespace Pastel.Transpilers.Php
                 .Push(TranslateExpression(floatDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION));
         }
 
-        public override StringBuffer TranslateFloatToInt(Expression floatExpr)
-        {
-            return StringBuffer
-                .Of("intval(")
-                .Push(TranslateExpression(floatExpr))
-                .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return TranslateExpression(floatExpr)
@@ -497,6 +488,11 @@ namespace Pastel.Transpilers.Php
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateMathAbs(Expression num)
+        {
+            throw new NotImplementedException();
+        }
+
         public override StringBuffer TranslateMathArcCos(Expression ratio)
         {
             return StringBuffer
@@ -526,6 +522,11 @@ namespace Pastel.Transpilers.Php
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateMathCeil(Expression num)
+        {
+            throw new NotImplementedException();
+        }
+
         public override StringBuffer TranslateMathCos(Expression thetaRadians)
         {
             return StringBuffer
@@ -533,6 +534,11 @@ namespace Pastel.Transpilers.Php
                 .Push(TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
+        public override StringBuffer TranslateMathFloor(Expression num)
+        {
+            throw new NotImplementedException();
         }
 
         public override StringBuffer TranslateMathLog(Expression value)

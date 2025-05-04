@@ -206,7 +206,6 @@ namespace Pastel.Transpilers
                 case CoreFunction.FLOAT_DIVISION: return this.TranslateFloatDivision(args[0], args[1]);
                 case CoreFunction.FLOAT_TO_STRING: return this.TranslateFloatToString(args[0]);
                 case CoreFunction.GET_FUNCTION: return this.TranslateGetFunction(args[0]);
-                case CoreFunction.INT: return this.TranslateFloatToInt(args[0]);
                 case CoreFunction.INT_BUFFER_16: return this.TranslateIntBuffer16();
                 case CoreFunction.INTEGER_DIVISION: return this.TranslateIntegerDivision(args[0], args[1]);
                 case CoreFunction.INT_TO_STRING: return this.TranslateIntToString(args[0]);
@@ -226,10 +225,13 @@ namespace Pastel.Transpilers
                 case CoreFunction.LIST_SHUFFLE: return this.TranslateListShuffle(args[0]);
                 case CoreFunction.LIST_SIZE: return this.TranslateListSize(args[0]);
                 case CoreFunction.LIST_TO_ARRAY: return this.TranslateListToArray(args[0]);
+                case CoreFunction.MATH_ABS: return this.TranslateMathAbs(args[0]);
                 case CoreFunction.MATH_ARCCOS: return this.TranslateMathArcCos(args[0]);
                 case CoreFunction.MATH_ARCSIN: return this.TranslateMathArcSin(args[0]);
                 case CoreFunction.MATH_ARCTAN: return this.TranslateMathArcTan(args[0], args[1]);
+                case CoreFunction.MATH_CEIL: return this.TranslateMathCeil(args[0]);
                 case CoreFunction.MATH_COS: return this.TranslateMathCos(args[0]);
+                case CoreFunction.MATH_FLOOR: return this.TranslateMathFloor(args[0]);
                 case CoreFunction.MATH_LOG: return this.TranslateMathLog(args[0]);
                 case CoreFunction.MATH_POW: return this.TranslateMathPow(args[0], args[1]);
                 case CoreFunction.MATH_SIN: return this.TranslateMathSin(args[0]);
@@ -376,7 +378,6 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateFloatBuffer16();
         public abstract StringBuffer TranslateFloatConstant(double value);
         public abstract StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator);
-        public abstract StringBuffer TranslateFloatToInt(Expression floatExpr);
         public abstract StringBuffer TranslateFloatToString(Expression floatExpr);
         public abstract StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args);
         public abstract StringBuffer TranslateFunctionReference(FunctionReference funcRef);
@@ -403,10 +404,13 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateListSize(Expression list);
         public abstract StringBuffer TranslateStringBuilderNew();
         public abstract StringBuffer TranslateListToArray(Expression list);
+        public abstract StringBuffer TranslateMathAbs(Expression num);
         public abstract StringBuffer TranslateMathArcCos(Expression ratio);
         public abstract StringBuffer TranslateMathArcSin(Expression ratio);
         public abstract StringBuffer TranslateMathArcTan(Expression yComponent, Expression xComponent);
+        public abstract StringBuffer TranslateMathCeil(Expression num);
         public abstract StringBuffer TranslateMathCos(Expression thetaRadians);
+        public abstract StringBuffer TranslateMathFloor(Expression num);
         public abstract StringBuffer TranslateMathLog(Expression value);
         public abstract StringBuffer TranslateMathPow(Expression expBase, Expression exponent);
         public abstract StringBuffer TranslateMathSin(Expression thetaRadians);

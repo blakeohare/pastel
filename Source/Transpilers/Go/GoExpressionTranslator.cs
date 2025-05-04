@@ -333,11 +333,6 @@ namespace Pastel.Transpilers.Go
                 .Push("))");
         }
 
-        public override StringBuffer TranslateFloatToInt(Expression floatExpr)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             this.MarkFeatureAsUsed("IMPORT:strconv");
@@ -509,6 +504,27 @@ namespace Pastel.Transpilers.Go
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateMathAbs(Expression num)
+        {
+            string funcName;
+            if (num.ResolvedType.RootValue == "double")
+            {
+                this.MarkFeatureAsUsed("IMPORT:math");
+                funcName = "math.Abs";
+            }
+            else
+            {
+                funcName = "PST_mathAbsInt";
+            }
+
+            return StringBuffer
+                .Of(funcName)
+                .Push("(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateMathArcCos(Expression ratio)
         {
             throw new NotImplementedException();
@@ -524,9 +540,29 @@ namespace Pastel.Transpilers.Go
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateMathCeil(Expression num)
+        {
+            this.MarkFeatureAsUsed("IMPORT:math");
+            return StringBuffer
+                .Of("int(math.Ceil(")
+                .Push(this.TranslateExpression(num))
+                .Push("))")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateMathCos(Expression thetaRadians)
         {
             throw new NotImplementedException();
+        }
+
+        public override StringBuffer TranslateMathFloor(Expression num)
+        {
+            this.MarkFeatureAsUsed("IMPORT:math");
+            return StringBuffer
+                .Of("int(math.Floor(")
+                .Push(this.TranslateExpression(num))
+                .Push("))")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateMathLog(Expression value)

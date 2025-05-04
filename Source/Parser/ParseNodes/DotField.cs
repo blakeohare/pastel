@@ -31,7 +31,7 @@ namespace Pastel.Parser.ParseNodes
                 return enumValue.CloneWithNewToken(FirstToken);
             }
 
-            if (Root is CoreNamespaceReference)
+            if (this.Root is CoreNamespaceReference)
             {
                 CoreFunction coreFunction = GetCoreFunction(FieldName.Value);
                 switch (coreFunction)
@@ -42,7 +42,7 @@ namespace Pastel.Parser.ParseNodes
                         return new CoreFunctionInvocation(FirstToken, coreFunction, new Expression[0], Owner);
 
                     default:
-                        return new CoreFunctionReference(FirstToken, coreFunction, Owner);
+                        return new CoreFunctionReference(this.FirstToken, coreFunction, this.Owner);
                 }
             }
 
@@ -111,6 +111,7 @@ namespace Pastel.Parser.ParseNodes
         {
             switch (field)
             {
+                case "Abs": return CoreFunction.MATH_ABS;
                 case "ArcCos": return CoreFunction.MATH_ARCCOS;
                 case "ArcSin": return CoreFunction.MATH_ARCSIN;
                 case "ArcTan": return CoreFunction.MATH_ARCTAN;
@@ -119,6 +120,7 @@ namespace Pastel.Parser.ParseNodes
                 case "BoolToString": return CoreFunction.BOOL_TO_STRING;
                 case "BytesToBase64": return CoreFunction.BYTES_TO_BASE64;
                 case "CharToString": return CoreFunction.CHAR_TO_STRING;
+                case "Ceil": return CoreFunction.MATH_CEIL;
                 case "Chr": return CoreFunction.CHR;
                 case "Cos": return CoreFunction.MATH_COS;
                 case "CurrentTimeSeconds": return CoreFunction.CURRENT_TIME_SECONDS;
@@ -127,9 +129,9 @@ namespace Pastel.Parser.ParseNodes
                 case "FloatBuffer16": return CoreFunction.FLOAT_BUFFER_16;
                 case "FloatDivision": return CoreFunction.FLOAT_DIVISION;
                 case "FloatToString": return CoreFunction.FLOAT_TO_STRING;
+                case "Floor": return CoreFunction.MATH_FLOOR;
                 case "ForceParens": return CoreFunction.FORCE_PARENS;
                 case "GetFunction": return CoreFunction.GET_FUNCTION;
-                case "Int": return CoreFunction.INT;
                 case "IntBuffer16": return CoreFunction.INT_BUFFER_16;
                 case "IntegerDivision": return CoreFunction.INTEGER_DIVISION;
                 case "IntToString": return CoreFunction.INT_TO_STRING;

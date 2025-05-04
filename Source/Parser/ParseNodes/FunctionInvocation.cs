@@ -104,17 +104,23 @@ namespace Pastel.Parser.ParseNodes
                 ResolvedType = functionDefinition.ReturnType;
                 return this;
             }
-            else if (Root is CoreFunctionReference)
+            else if (this.Root is CoreFunctionReference cfr)
             {
-                CoreFunctionReference nfr = (CoreFunctionReference)Root;
+                bool hasTypeHint = CoreFunctionUtil.PerformAdditionalTypeResolution(cfr, this.Args);
                 CoreFunctionInvocation nfi;
-                if (nfr.Context == null)
+                if (cfr.Context == null)
                 {
-                    nfi = new CoreFunctionInvocation(FirstToken, nfr.CoreFunctionId, Args, Owner);
+                    nfi = new CoreFunctionInvocation(this.FirstToken, cfr.CoreFunctionId, this.Args, this.Owner);
                 }
                 else
                 {
-                    nfi = new CoreFunctionInvocation(FirstToken, nfr.CoreFunctionId, nfr.Context, Args, Owner);
+                    nfi = new CoreFunctionInvocation(this.FirstToken, cfr.CoreFunctionId, cfr.Context, this.Args, this.Owner);
+                }
+
+                if (hasTypeHint)
+                {
+                    nfi.ResolvedType = cfr.ReturnType;
+                    return nfi;
                 }
 
                 return nfi.ResolveType(varScope, resolver);

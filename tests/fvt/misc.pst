@@ -14,6 +14,7 @@ void runner() {
     testStringConcat();
     testInlineOptimization();
     testFloatToString();
+    testNewMathStuff();
 }
 
 void testBase64() {
@@ -173,4 +174,18 @@ void testFloatToString() {
 
     double pointOne = .1;
     assertEqStr("0.19999999999999998", .3 - pointOne + empty);
+}
+
+void testNewMathStuff() {
+    int x = -1;
+    assertEqInt(1, Core.Abs(x));
+    assertEqInt(1, Core.Abs(-x));
+
+    double pie = 3.14159265358979;
+    double negPie = -pie;
+    // Use string assertion to verify type
+    assertEqStr("4", "" + Core.Ceil(pie));
+    assertEqStr("3", "" + Core.Floor(pie));
+    assertEqStr("-3", "" + Core.Ceil(negPie));
+    assertEqStr("-4", "" + Core.Floor(negPie));
 }

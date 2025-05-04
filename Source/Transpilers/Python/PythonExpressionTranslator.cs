@@ -330,15 +330,6 @@ namespace Pastel.Transpilers.Python
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
-        public override StringBuffer TranslateFloatToInt(Expression floatExpr)
-        {
-            return StringBuffer
-                .Of("int(")
-                .Push(TranslateExpression(floatExpr))
-                .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return StringBuffer
@@ -562,6 +553,15 @@ namespace Pastel.Transpilers.Python
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateMathAbs(Expression num)
+        {
+            return StringBuffer
+                .Of("abs(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateMathArcCos(Expression ratio)
         {
             return StringBuffer
@@ -582,6 +582,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateMathArcTan(Expression yComponent, Expression xComponent)
         {
+            this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.atan2(")
                 .Push(TranslateExpression(yComponent))
@@ -591,8 +592,19 @@ namespace Pastel.Transpilers.Python
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateMathCeil(Expression num)
+        {
+            this.MarkFeatureAsUsed("IMPORT:math");
+            return StringBuffer
+                .Of("math.ceil(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateMathCos(Expression thetaRadians)
         {
+            this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.cos(")
                 .Push(TranslateExpression(thetaRadians))
@@ -600,8 +612,19 @@ namespace Pastel.Transpilers.Python
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateMathFloor(Expression num)
+        {
+            this.MarkFeatureAsUsed("IMPORT:math");
+            return StringBuffer
+                .Of("math.floor(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateMathLog(Expression value)
         {
+            this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.log(")
                 .Push(TranslateExpression(value))
@@ -620,6 +643,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateMathSin(Expression thetaRadians)
         {
+            this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.sin(")
                 .Push(TranslateExpression(thetaRadians))
@@ -629,6 +653,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateMathTan(Expression thetaRadians)
         {
+            this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.tan(")
                 .Push(TranslateExpression(thetaRadians))

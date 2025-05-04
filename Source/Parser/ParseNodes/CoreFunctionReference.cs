@@ -13,12 +13,12 @@ namespace Pastel.Parser.ParseNodes
         public CoreFunctionReference(Token firstToken, CoreFunction coreFunctionId, ICompilationEntity owner) : this(firstToken, coreFunctionId, null, owner) { }
         public CoreFunctionReference(Token firstToken, CoreFunction coreFunctionId, Expression context, ICompilationEntity owner) : base(firstToken, owner)
         {
-            CoreFunctionId = coreFunctionId;
-            Context = context;
+            this.CoreFunctionId = coreFunctionId;
+            this.Context = context;
 
-            ReturnType = CoreFunctionUtil.GetCoreFunctionReturnType(CoreFunctionId);
-            ArgTypes = CoreFunctionUtil.GetCoreFunctionArgTypes(CoreFunctionId);
-            ArgTypesIsRepeated = CoreFunctionUtil.GetCoreFunctionIsArgTypeRepeated(CoreFunctionId);
+            this.ReturnType = CoreFunctionUtil.GetCoreFunctionReturnType(this.CoreFunctionId);
+            this.ArgTypes = CoreFunctionUtil.GetCoreFunctionArgTypes(this.CoreFunctionId);
+            this.ArgTypesIsRepeated = CoreFunctionUtil.GetCoreFunctionIsArgTypeRepeated(this.CoreFunctionId);
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)

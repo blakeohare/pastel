@@ -275,13 +275,6 @@ namespace Pastel.Transpilers.CSharp
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
-        public override StringBuffer TranslateFloatToInt(Expression floatExpr)
-        {
-            return StringBuffer.Of("(int)")
-                .Push(TranslateExpression(floatExpr).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
-                .WithTightness(ExpressionTightness.UNARY_PREFIX);
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return StringBuffer.Of("PST_FloatToString(")
@@ -474,6 +467,15 @@ namespace Pastel.Transpilers.CSharp
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateMathAbs(Expression num)
+        {
+            return StringBuffer
+                .Of("System.Math.Abs(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateMathArcCos(Expression ratio)
         {
             return StringBuffer
@@ -503,6 +505,15 @@ namespace Pastel.Transpilers.CSharp
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateMathCeil(Expression num)
+        {
+            return StringBuffer
+                .Of("(int) System.Math.Ceiling(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.UNARY_PREFIX);
+        }
+
         public override StringBuffer TranslateMathCos(Expression thetaRadians)
         {
             return StringBuffer
@@ -510,6 +521,15 @@ namespace Pastel.Transpilers.CSharp
                 .Push(TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
+        public override StringBuffer TranslateMathFloor(Expression num)
+        {
+            return StringBuffer
+                .Of("(int) System.Math.Floor(")
+                .Push(this.TranslateExpression(num))
+                .Push(")")
+                .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateMathLog(Expression value)
