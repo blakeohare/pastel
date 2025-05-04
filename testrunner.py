@@ -57,6 +57,8 @@ def run_fvt_tests(pastel_exec_path, platforms):
     test_libs['PastelTest.sln'] = sln_code
 
     test_ids = [file[:-len('.pst')] for file in os.listdir(fvt_dir) if file.endswith('.pst')]
+    test_ids.sort()
+
     for test_id in test_ids:
         test_code = file_read_text(os.path.join(fvt_dir, test_id + '.pst'))
         dst_dir = get_temp_dir(test_id)
