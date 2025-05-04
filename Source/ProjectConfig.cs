@@ -40,8 +40,8 @@ namespace Pastel
         public string OutputDirStructs { get; set; }
         public string OutputFileFunctions { get; set; }
         public string WrappingClassNameForFunctions { get; set; }
-        public string NamespaceForStructs { get; set; }
-        public string NamespaceForFunctions { get; set; }
+        public string? NamespaceForStructs { get; set; }
+        public string? NamespaceForFunctions { get; set; }
         public HashSet<string> Imports { get; set; }
 
         public static ProjectConfig Parse(string path, string targetId)

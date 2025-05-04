@@ -34,17 +34,16 @@ namespace Pastel.Transpilers.Java
                 .. this.SplitAndIndent(funcCode, "\t"),
                 "}",
                 "",
-            ]).TrimStart();
+            ]).Trim() + "\n";
         }
 
         private void GenerateStructImplementation(Dictionary<string, string> filesOut, PastelContext ctx, ProjectConfig config, string structName, string structCode)
         {
             filesOut["@STRUCT_DIR/" + structName + ".java"] = string.Join('\n', [
-                "package " + config.NamespaceForStructs + ";",
+                config.NamespaceForStructs == null ? "" : ("package " + config.NamespaceForFunctions + ";"),
                 "",
                 structCode.Trim(),
-                "",
-            ]);
+            ]).Trim() + "\n";
         }
     }
 }
