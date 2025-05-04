@@ -1,0 +1,7 @@
+void foo() {
+    thisFunctionIsNotDefined(1, 2, 3);
+}
+
+########
+
+test.pst, Line: 3, Col: 5, The function 'thisFunctionIsNotDefined' is not defined.

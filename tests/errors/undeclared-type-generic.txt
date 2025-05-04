@@ -1,0 +1,7 @@
+void foo() {
+    object apffbw = new List<AbstractProxyFooFactoryBuilderWatcher>(); 
+}
+
+########
+
+test.pst, Line: 2, Col: 30, Could not find a class or struct by the name of 'AbstractProxyFooFactoryBuilderWatcher'

@@ -220,6 +220,7 @@ def create_python_target(name, func_path):
 def run_error_tests(pastel_exec_path):
     error_dir = os.path.join('tests', 'errors')
     test_ids = [f[:-len('.txt')] for f in os.listdir(error_dir) if f.lower().endswith('.txt')]
+    test_ids.sort()
     for test_id in test_ids:
         dst_path = get_temp_dir(test_id)
         test_path = os.path.join(error_dir, test_id + '.txt')

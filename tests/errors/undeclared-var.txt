@@ -1,0 +1,9 @@
+void foo() {
+    int x = 1;
+    int y = x;
+    x = y + z;
+}
+
+########
+
+test.pst, Line: 4, Col: 13, The variable 'z' is not defined.
