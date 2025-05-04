@@ -188,24 +188,58 @@ namespace Pastel.Transpilers.Go
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
+        private bool IsStringDict(Expression dictExpr)
+        {
+            return dictExpr.ResolvedType.Generics[0].RootValue == "string";
+        }
+
         public override StringBuffer TranslateDictionaryContainsKey(Expression dictionary, Expression key)
         {
-            throw new NotImplementedException();
+            bool isString = this.IsStringDict(dictionary);
+            return StringBuffer
+                .Of(isString ? "PST_dictContainsStr(" : "PST_dictContainsInt(")
+                .Push(this.TranslateExpression(dictionary))
+                .Push(", ")
+                .Push(this.TranslateExpressionStringUnwrap(key, false))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionaryGet(Expression dictionary, Expression key)
         {
-            throw new NotImplementedException();
+            bool isString = this.IsStringDict(dictionary);
+            PType valueType = dictionary.ResolvedType.Generics[1];
+            StringBuffer sb = StringBuffer
+                .Of(isString ? "PST_dictGetStr(" : "PST_dictGetInt(")
+                .Push(this.TranslateExpression(dictionary))
+                .Push(", ")
+                .Push(this.TranslateExpressionStringUnwrap(key, false))
+                .Push(")");
+            if (valueType.RootValue != "object")
+            {
+                sb
+                    .Push(".(")
+                    .Push(this.TypeTranspiler.TranslateType(valueType))
+                    .Push(")");
+            }
+            return sb.WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionaryKeys(Expression dictionary)
         {
-            throw new NotImplementedException();
+            bool isString = this.IsStringDict(dictionary);
+            return StringBuffer
+                .Of(isString ? "PST_dictKeysStr(" : "PST_dictKeysInt(")
+                .Push(this.TranslateExpression(dictionary))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionaryNew(PType keyType, PType valueType)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of(keyType.RootValue == "string" ? "PST_newDictStr()" : "PST_newDictInt()")
+                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateDictionaryRemove(Expression dictionary, Expression key)
@@ -215,12 +249,26 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value)
         {
-            throw new NotImplementedException();
+            bool isString = this.IsStringDict(dictionary);
+            return StringBuffer
+                .Of(isString ? "PST_dictSetStr(" : "PST_dictSetInt")
+                .Push(this.TranslateExpression(dictionary))
+                .Push(", ")
+                // String is consumed by the helper function directly in its wrapped form as it will need to be wrapped anyway
+                .Push(this.TranslateExpression(key))
+                .Push(", ")
+                .Push(this.TranslateExpression(value))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionarySize(Expression dictionary)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("len(")
+                .Push(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(".k)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionaryValues(Expression dictionary)

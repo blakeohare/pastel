@@ -359,3 +359,98 @@ func PST_boolToStr(v bool) *pstring {
   }
   return PST_falseStr
 }
+
+// PASTEL_ENTITY_ID: PST_newDictStr
+func PST_newDictStr() *pdict_s {
+    d := new(pdict_s)
+    d.k = make([]*pstring, 0)
+    d.v = make([]any, 0)
+    d.lu = make(map[string]int, 0)
+    return d
+}
+
+// PASTEL_ENTITY_ID: PST_newDictInt
+func PST_newDictStr() *pdict_i {
+    d := new(pdict_i)
+    d.k = make([]int, 0)
+    d.v = make([]any, 0)
+    d.lu = make(map[string]int, 0)
+    return d
+}
+
+// PASTEL_ENTITY_ID: PST_dictContainsStr
+func PST_dictContainsStr(d *pdict_s, k string) bool {
+  _, ok := d.lu[k]
+  return ok
+}
+
+// PASTEL_ENTITY_ID: PST_dictContainsInt
+func PST_dictContainsInt(d *pdict_i, k int) bool {
+  _, ok := d.lu[k]
+  return ok
+}
+
+// PASTEL_ENTITY_ID: PST_dictGetStr
+func PST_dictGetStr(d *pdict_s, k string) any {
+  return d.v[d.lu[k]]
+}
+
+// PASTEL_ENTITY_ID: PST_dictGetInt
+func PST_dictGetInt(d *pdict_i, k int) any {
+  return d.v[d.lu[k]]
+}
+
+// PASTEL_ENTITY_ID: PST_dictSetStr
+func PST_dictSetStr(d *pdict_s, k *pstring, v any) {
+  kRaw := *k.str
+  idx, exists := d.lu[kRaw]
+  if exists {
+    d.v[idx] = v
+  } else {
+    idx = len(d.k)
+    d.k = append(d.k, k)
+    d.v = append(d.v, v)
+    d.lu[kRaw] = idx
+  }
+}
+
+// PASTEL_ENTITY_ID: PST_dictSetInt
+func PST_dictSetInt(d *pdict_i, k int, v any) {
+  idx, exists := d.lu[k]
+  if exists {
+    d.v[idx] = v
+  } else {
+    idx = len(d.k)
+    d.k = append(d.k, k)
+    d.v = append(d.v, v)
+    d.lu[d.k] = idx
+  }
+}
+
+// PASTEL_ENTITY_ID: PST_dictKeysStr
+func PST_dictKeysStr(d *pdict_s) *plist {
+    sz := len(d.k)
+    arr := make([]any, sz)
+    i := 0
+    for i < sz {
+        arr[i] = d.k[i]
+        i = i + 1
+    }
+    o := new(plist)
+    o.items = arr
+    return o
+}
+
+// PASTEL_ENTITY_ID: PST_dictKeysInt
+func PST_dictKeysInt(d *pdict_i) *plist {
+    sz := len(d.k)
+    arr := make([]any, sz)
+    i := 0
+    for i < sz {
+        arr[i] = d.k[i]
+        i = i + 1
+    }
+    o := new(plist)
+    o.items = arr
+    return o
+}

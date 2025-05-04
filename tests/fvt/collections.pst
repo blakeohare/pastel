@@ -2,6 +2,8 @@
 
 void runner() {
     testArrays();
+    testLists();
+    testDictionaries();
 }
 
 void testArrays() {
@@ -31,8 +33,6 @@ void testLists() {
 }
 
 void testDictionaries() {
-    // TODO: this is not implemented in Go, yet.
-    /*
     Dictionary<string, int> nums = new Dictionary<string, int>();
     nums["a"] = 1;
     nums["b"] = 2;
@@ -44,5 +44,4 @@ void testDictionaries() {
         sum += nums[keys[i]];
     }
     assertEqInt(6, sum);
-    */
 }

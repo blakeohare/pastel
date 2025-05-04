@@ -43,6 +43,16 @@ namespace Pastel.Transpilers.Go
                 "  str    *string",
                 "  uchars []int",
                 "}",
+                "type pdict_s struct {",
+                "  k  []*pstring",
+                "  v  []any",
+                "  lu map[string]int",
+                "}",
+                "type pdict_i struct {",
+                "  k  []int",
+                "  v  []any",
+                "  lu map[string]int",
+                "}",
             ]);
 
             filesOut["@FUNC_FILE"] = string.Join('\n', [

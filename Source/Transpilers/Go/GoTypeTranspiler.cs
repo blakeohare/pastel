@@ -19,6 +19,9 @@ namespace Pastel.Transpilers.Go
                 case "Array":
                 case "List":
                     return "*plist";
+
+                case "Dictionary":
+                    return type.Generics[0].RootValue == "string" ? "*pdict_s" : "*pdict_i";
             }
 
             if (type.IsStruct)
