@@ -613,43 +613,6 @@ namespace Pastel.Transpilers.Go
             return this.TranslateExpression(charValue);
         }
 
-        public override StringBuffer TranslateOpChain(OpChain opChain)
-        {
-            bool isFloat = false;
-            bool containsInt = false;
-            Expression[] expressions = opChain.Expressions;
-            for (int i = 0; i < expressions.Length; i++)
-            {
-                string type = expressions[i].ResolvedType.RootValue;
-                if (type == "double")
-                {
-                    isFloat = true;
-                }
-                else if (type == "int")
-                {
-                    containsInt = true;
-                }
-            }
-
-            bool doIntToFloatConversion = isFloat && containsInt;
-
-            StringBuffer buf = StringBuffer.Of("(");
-            for (int i = 0; i < opChain.Expressions.Length; i++)
-            {
-                if (i > 0)
-                {
-                    buf.Push(" ").Push(opChain.Ops[i - 1].Value).Push(" ");
-                }
-                Expression expr = opChain.Expressions[i];
-                bool convertToFloat = doIntToFloatConversion && expr.ResolvedType.RootValue == "int";
-                buf
-                    .Push(convertToFloat ? "float64(" : "(")
-                    .Push(TranslateExpression(opChain.Expressions[i]))
-                    .Push(")");
-            }
-            return buf.Push(")");
-        }
-
         private ExpressionTightness GetTightnessOfOp(string op)
         {
             switch (op)

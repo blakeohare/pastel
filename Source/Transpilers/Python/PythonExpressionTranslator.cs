@@ -757,49 +757,6 @@ namespace Pastel.Transpilers.Python
                 .WithTightness(opTightness);
         }
 
-        public override StringBuffer TranslateOpChain(OpChain opChain)
-        {
-            int expressionCount = opChain.Expressions.Length;
-            string firstOp = opChain.Ops[0].Value;
-            bool shortCircuit = firstOp == "&&" || firstOp == "||";
-
-            int exprLeftIndex = shortCircuit ? expressionCount - 2 : 0;
-            StringBuffer acc = TranslateExpression(opChain.Expressions[shortCircuit ? expressionCount - 1 : 0]);
-            for (int i = 1; i < expressionCount; i++)
-            {
-                int operatorIndex = exprLeftIndex; // in lock step but naming is clear
-                int exprRightIndex = exprLeftIndex + 1;
-                string op = opChain.Ops[operatorIndex].Value;
-                string pyOp = this.TranslateOp(op);
-                ExpressionTightness opTightness = GetOpTightness(op);
-
-                if (shortCircuit)
-                {
-                    acc
-                        .EnsureGreaterTightness(opTightness)
-                        .Prepend(" ")
-                        .Prepend(pyOp)
-                        .Prepend(" ")
-                        .Prepend(TranslateExpression(opChain.Expressions[exprLeftIndex]).EnsureGreaterTightness(opTightness))
-                        .WithTightness(opTightness);
-                }
-                else
-                {
-                    acc
-                        .EnsureTightness(opTightness)
-                        .Push(" ")
-                        .Push(pyOp)
-                        .Push(" ")
-                        .Push(TranslateExpression(opChain.Expressions[exprRightIndex]).EnsureGreaterTightness(opTightness))
-                        .WithTightness(opTightness);
-                }
-
-                exprLeftIndex += shortCircuit ? -1 : 1;
-            }
-
-            return acc;
-        }
-
         public override StringBuffer TranslateParseFloatUnsafe(Expression stringValue)
         {
             return StringBuffer

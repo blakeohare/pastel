@@ -428,7 +428,6 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateNegative(UnaryOp unaryOp);
         public abstract StringBuffer TranslateNullConstant();
         public abstract StringBuffer TranslateOrd(Expression charValue);
-        public abstract StringBuffer TranslateOpChain(OpChain opChain);
         public abstract StringBuffer TranslateOpPair(OpPair opPair);
         public abstract StringBuffer TranslateParseFloatUnsafe(Expression stringValue);
         public abstract StringBuffer TranslateParseInt(Expression safeStringValue);

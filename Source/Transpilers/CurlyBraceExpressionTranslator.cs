@@ -147,66 +147,6 @@ namespace Pastel.Transpilers
             }
         }
 
-        public override StringBuffer TranslateOpChain(OpChain opChain)
-        {
-            StringBuffer acc;
-            string firstOp = opChain.Ops[0].Value;
-            ExpressionTightness opTightness = GetTightnessOfOp(firstOp);
-            int expressionLength = opChain.Expressions.Length;
-            int opLength = expressionLength - 1;
-            bool isShortCircuit = false;
-            if (firstOp == "&&" || firstOp == "||")
-            {
-                bool allSame = true;
-                for (int i = 1; i < opLength; i++)
-                {
-                    if (opChain.Ops[i].Value != firstOp)
-                    {
-                        allSame = false;
-                        break;
-                    }
-                }
-
-                if (!allSame) isShortCircuit = true;
-            }
-
-            if (isShortCircuit)
-            {
-                // For shortcircuit operators, paren wrapping should start from the back.
-                acc = this.TranslateExpression(opChain.Expressions[expressionLength - 1]);
-                for (int i = expressionLength - 2; i >= 0; i--)
-                {
-                    string op = opChain.Ops[i].Value;
-                    StringBuffer next = this.TranslateExpression(opChain.Expressions[i])
-                        .EnsureGreaterTightness(ExpressionTightness.BOOLEAN_LOGIC);
-
-                    acc = next
-                        .Push(" ")
-                        .Push(op)
-                        .Push(" ")
-                        .Push(acc.EnsureGreaterTightness(opTightness))
-                        .WithTightness(opTightness);
-                }
-            }
-            else
-            {
-                acc = this.TranslateExpression(opChain.Expressions[0]);
-                for (int i = 1; i < expressionLength; i++)
-                {
-                    string op = opChain.Ops[i - 1].Value;
-                    acc
-                        .EnsureTightness(opTightness)
-                        .Push(" ")
-                        .Push(op)
-                        .Push(" ")
-                        .Push(this.TranslateExpression(opChain.Expressions[i]).EnsureGreaterTightness(opTightness))
-                        .WithTightness(opTightness);
-                }
-            }
-
-            return acc;
-        }
-
         public override StringBuffer TranslateOpPair(OpPair opPair)
         {
             StringBuffer leftSb = this.TranslateExpression(opPair.Left);
