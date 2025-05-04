@@ -22,9 +22,12 @@ namespace Pastel.Transpilers.Java
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
+            int offsetForWarningSuppression = sb.CurrentStringBuilderSize;
+            this.JavaTypeTranspiler.UncheckedTypeWarning = false;
+
             sb.Append(sb.CurrentTab);
             sb.Append("public static ");
-            sb.Append(TypeTranspiler.TranslateType(funcDef.ReturnType));
+            sb.Append(this.TypeTranspiler.TranslateType(funcDef.ReturnType));
             sb.Append(' ');
             sb.Append(funcDef.NameToken.Value);
             sb.Append('(');
@@ -33,7 +36,7 @@ namespace Pastel.Transpilers.Java
             for (int i = 0; i < argTypes.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append(TypeTranspiler.TranslateType(argTypes[i]));
+                sb.Append(this.TypeTranspiler.TranslateType(argTypes[i]));
                 sb.Append(' ');
                 sb.Append(argNames[i].Value);
             }
@@ -43,6 +46,12 @@ namespace Pastel.Transpilers.Java
             sb.TabDepth--;
             sb.Append(sb.CurrentTab);
             sb.Append("}\n");
+
+            if (this.JavaTypeTranspiler.UncheckedTypeWarning)
+            {
+                this.JavaTypeTranspiler.UncheckedTypeWarning = false;
+                sb.InjectStringAtIndex(offsetForWarningSuppression, sb.CurrentTab + "@SuppressWarnings(\"unchecked\")\n");
+            }
         }
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)

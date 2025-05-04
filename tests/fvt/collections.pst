@@ -19,6 +19,32 @@ void testArrays() {
     assertEqInt(6, sum);
 }
 
+void testArrayInitDefaultValue() {
+    int[] intArr = new int[3];
+    assertEqStr("0", intArr[1] + "");
+
+    double[] floatArr = new double[3];
+    assertEqStr("0.0", floatArr[1] + "");
+
+    string[] strArr = new string[3];
+    if (strArr[1] != null) fail("string[] should have nulls as initial values.");
+
+    bool[] boolArr = new bool[3];
+    assertEqStr("false", boolArr[1] + "");
+
+    char[] charArr = new char[3];
+    if (charArr[1] != '\0') fail("char[] should have null-term as initial values.");
+
+    List<int>[] listArr = new List<int>[3];
+    if (listArr[1] != null) fail("array-of-lists should have nulls as initial values.");
+
+    object[] objArr = new object[3];
+    if (objArr[1] != null) fail("object-array should have nulls as initial values.");
+
+    int[][] intJaggyArr = new int[][3];
+    if (intJaggyArr[1] != null) fail("jaggy-array should have nulls as initial values.");
+}
+
 void testLists() {
     List<int> nums = new List<int>();
     nums.Add(1);

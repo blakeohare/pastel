@@ -89,19 +89,21 @@ namespace Pastel.Transpilers.Java
             StringBuffer buf = StringBuffer.Of("new ");
             if (arrayType.RootValue == "Dictionary")
             {
+                this.JavaTypeTranspiler.UncheckedTypeWarning = true;
                 buf.Push("HashMap");
             }
             else if (arrayType.RootValue == "List")
             {
+                this.JavaTypeTranspiler.UncheckedTypeWarning = true;
                 buf.Push("ArrayList");
             }
             else
             {
-                buf.Push(TypeTranspiler.TranslateType(arrayType));
+                buf.Push(this.TypeTranspiler.TranslateType(arrayType));
             }
             buf
                 .Push("[")
-                .Push(TranslateExpression(lengthExpression))
+                .Push(this.TranslateExpression(lengthExpression))
                 .Push("]");
 
             while (bracketSuffixCount-- > 0)

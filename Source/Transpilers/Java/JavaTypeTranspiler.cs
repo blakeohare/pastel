@@ -5,6 +5,8 @@ namespace Pastel.Transpilers.Java
 {
     internal class JavaTypeTranspiler : AbstractTypeTranspiler
     {
+        internal bool UncheckedTypeWarning { get; set; }
+
         public override string TranslateType(PType type)
         {
             switch (type.RootValue)
@@ -19,7 +21,7 @@ namespace Pastel.Transpilers.Java
                 case "string": return "String";
 
                 case "Array":
-                    string innerType = TranslateType(type.Generics[0]);
+                    string innerType = this.TranslateType(type.Generics[0]);
                     return innerType + "[]";
 
                 case "List":
@@ -54,7 +56,7 @@ namespace Pastel.Transpilers.Java
                 case "double": return "Double";
                 case "int": return "Integer";
                 default:
-                    return TranslateType(type);
+                    return this.TranslateType(type);
             }
         }
 

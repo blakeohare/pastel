@@ -23,6 +23,7 @@ namespace Pastel.Transpilers
         private HashSet<string> featureUsage = new HashSet<string>();
         public PastelContext PastelContext { get; private set; }
         internal string? VariablePrefix { get; set; } = null;
+        public int CurrentStringBuilderSize { get { return this.buffer.Length; } }
 
         internal TranspilerContext(PastelContext ctx)
         {
@@ -33,6 +34,11 @@ namespace Pastel.Transpilers
                 this.SwitchStatements = new List<PythonFakeSwitchStatement>();
             }
             this.TabDepth = 0;
+        }
+
+        public void InjectStringAtIndex(int index, string value)
+        {
+            this.buffer.Insert(index, value);
         }
 
         public string WrapVariableName(string name)
