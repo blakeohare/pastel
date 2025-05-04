@@ -129,17 +129,26 @@ namespace Pastel.Transpilers.C
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateDivideFloat(Expression left, Expression right)
+        {
+            return this.TranslateExpression(left)
+                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
+                .Push(" / ")
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
+        }
+
+        public override StringBuffer TranslateDivideInteger(Expression left, Expression right)
+        {
+            return this.TranslateDivideFloat(left, right);
+        }
+
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
             throw new NotImplementedException();
         }
 
         public override StringBuffer TranslateFloatBuffer16()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator)
         {
             throw new NotImplementedException();
         }
@@ -155,11 +164,6 @@ namespace Pastel.Transpilers.C
         }
 
         public override StringBuffer TranslateIntBuffer16()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator)
         {
             throw new NotImplementedException();
         }

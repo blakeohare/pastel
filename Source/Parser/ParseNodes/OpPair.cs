@@ -130,12 +130,12 @@ namespace Pastel.Parser.ParseNodes
                     return PType.BOOL;
 
                 case "int/int":
+                    return PType.INT;
+
                 case "int/double":
                 case "double/int":
                 case "double/double":
-                    throw new ParserException(
-                        this.OpToken,
-                        "Due to varying platform behavior of / use Core.IntegerDivision(numerator, denominator) or Core.FloatDivision(numerator, denominator)");
+                    return PType.DOUBLE;
 
                 case "string+string":
                 case "string+bool":

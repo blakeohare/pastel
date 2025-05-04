@@ -290,6 +290,30 @@ namespace Pastel.Transpilers.Go
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateDivideFloat(Expression left, Expression right)
+        {
+            bool leftFloat = left.ResolvedType.RootValue == "double";
+            bool rightFloat = right.ResolvedType.RootValue == "double";
+            StringBuffer leftSb = this.TranslateExpression(left);
+            StringBuffer rightSb = this.TranslateExpression(right);
+            if (!leftFloat) leftSb.Prepend("float64(").Push(")").WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+            if (!rightFloat) rightSb.Prepend("float64(").Push(")").WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+            return
+                leftSb.EnsureTightness(ExpressionTightness.MULTIPLICATION)
+                .Push(" / ")
+                .Push(rightSb.EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
+        }
+
+        public override StringBuffer TranslateDivideInteger(Expression left, Expression right)
+        {
+            return this.TranslateExpression(left)
+                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
+                .Push(" / ")
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
+        }
+
         public override StringBuffer TranslateEmitComment(string value)
         {
             return StringBuffer
@@ -317,20 +341,6 @@ namespace Pastel.Transpilers.Go
             return StringBuffer
                 .Of(CodeUtil.FloatToString(value))
                 .WithTightness(ExpressionTightness.ATOMIC);
-        }
-
-        public override StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator)
-        {
-            bool wrapA = floatNumerator.ResolvedType.RootValue == "int";
-            bool wrapB = floatDenominator.ResolvedType.RootValue == "int";
-            return StringBuffer
-                .Of("(")
-                .Push(wrapA ? "float64(" : "(")
-                .Push(TranslateExpression(floatNumerator))
-                .Push(") / ")
-                .Push(wrapB ? "float64(" : "(")
-                .Push(TranslateExpression(floatDenominator))
-                .Push("))");
         }
 
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
@@ -378,16 +388,6 @@ namespace Pastel.Transpilers.Go
         public override StringBuffer TranslateIntegerConstant(int value)
         {
             return StringBuffer.Of(value.ToString());
-        }
-
-        public override StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator)
-        {
-            return StringBuffer
-                .Of("((")
-                .Push(TranslateExpression(integerNumerator))
-                .Push(") / (")
-                .Push(TranslateExpression(integerDenominator))
-                .Push("))");
         }
 
         public override StringBuffer TranslateIntToString(Expression integer)

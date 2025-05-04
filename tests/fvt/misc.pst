@@ -75,16 +75,15 @@ void testGoQuickImpl() {
 }
 
 void testOps() {
-
     assertEqInt(7, passThruInt(3) + 4);
     assertEqInt(7, 3 + 4);
     assertEqInt(-1, passThruInt(3) - 4);
     assertEqInt(-1, 3 - 4);
     assertEqInt(12, passThruInt(3) * 4);
     assertEqInt(12, 3 * 4);
-    // TODO: automatically use appropriate division based on type
-    // assertEqInt(0, passThruInt(3) / 4);
-    // assertEqInt(0, 3 / 4);
+
+    assertEqInt(0, passThruInt(3) / 4);
+    assertEqInt(0, 3 / 4);
     assertEqInt(7, passThruInt(3) | 4);
     assertEqInt(7, 3 | 4);
     assertEqInt(0, passThruInt(3) & 4);
@@ -96,26 +95,32 @@ void testOps() {
     assertEqInt(18, passThruInt(300) >> 4);
     assertEqInt(18, 300 >> 4);
 
-    // TODO: remove the FloatToString conversions as they should be automatic now.
-    assertEqStr("7.0", Core.FloatToString(passThruFloat(3.0) + 4) + "");
-    assertEqStr("7.0", Core.FloatToString(3.0 + 4) + "");
-    assertEqStr("-1.0", Core.FloatToString(passThruFloat(3.0) - 4) + "");
-    assertEqStr("-1.0", Core.FloatToString(3.0 - 4) + "");
-    assertEqStr("12.0", Core.FloatToString(passThruFloat(3.0) * 4) + "");
-    assertEqStr("12.0", Core.FloatToString(3.0 * 4) + "");
-    // TODO: automatically use appropriate division based on type
-    // assertEqInt("0.75", passThruFloat(3.0) / 4);
-    // assertEqInt("0.75", 3.0 / 4);
+    assertEqStr("7.0", passThruFloat(3.0) + 4 + "");
+    assertEqStr("7.0", 3.0 + 4 + "");
+    assertEqStr("-1.0", passThruFloat(3.0) - 4 + "");
+    assertEqStr("-1.0", 3.0 - 4 + "");
+    assertEqStr("12.0", passThruFloat(3.0) * 4 + "");
+    assertEqStr("12.0", 3.0 * 4 + "");
+    assertEqStr("0.75", passThruFloat(3.0) / 4 + "");
+    assertEqStr("0.75", 3.0 / 4 + "");
 
-    assertEqStr("7.0", Core.FloatToString(passThruInt(3) + 4.0) + "");
-    assertEqStr("7.0", Core.FloatToString(3 + 4.0) + "");
-    assertEqStr("-1.0", Core.FloatToString(passThruInt(3) - 4.0) + "");
-    assertEqStr("-1.0", Core.FloatToString(3 - 4.0) + "");
-    assertEqStr("12.0", Core.FloatToString(passThruInt(3) * 4.0) + "");
-    assertEqStr("12.0", Core.FloatToString(3 * 4.0) + "");
-    // TODO: automatically use appropriate division based on type
-    // assertEqInt("0.75", passThruInt(3) / 4.0);
-    // assertEqInt("0.75", 3 / 4.0);
+    assertEqStr("7.0", passThruInt(3) + 4.0 + "");
+    assertEqStr("7.0", 3 + 4.0 + "");
+    assertEqStr("-1.0", passThruInt(3) - 4.0 + "");
+    assertEqStr("-1.0", 3 - 4.0 + "");
+    assertEqStr("12.0", passThruInt(3) * 4.0 + "");
+    assertEqStr("12.0", 3 * 4.0 + "");
+    assertEqStr("0.75", passThruInt(3) / 4.0 + "");
+    assertEqStr("0.75", 3 / 4.0 + "");
+
+    assertEqStr("7.0", passThruFloat(3.0) + 4.0 + "");
+    assertEqStr("7.0", 3.0 + 4.0 + "");
+    assertEqStr("-1.0", passThruFloat(3.0) - 4.0 + "");
+    assertEqStr("-1.0", 3.0 - 4.0 + "");
+    assertEqStr("12.0", passThruFloat(3.0) * 4.0 + "");
+    assertEqStr("12.0", 3.0 * 4.0 + "");
+    assertEqStr("0.75", passThruFloat(3.0) / 4.0 + "");
+    assertEqStr("0.75", 3.0 / 4.0 + "");
 }
 
 void testStringConcat() {

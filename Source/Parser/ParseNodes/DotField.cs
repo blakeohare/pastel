@@ -127,13 +127,11 @@ namespace Pastel.Parser.ParseNodes
                 case "EmitComment": return CoreFunction.EMIT_COMMENT;
                 case "ExtensibleCallbackInvoke": return CoreFunction.EXTENSIBLE_CALLBACK_INVOKE;
                 case "FloatBuffer16": return CoreFunction.FLOAT_BUFFER_16;
-                case "FloatDivision": return CoreFunction.FLOAT_DIVISION;
                 case "FloatToString": return CoreFunction.FLOAT_TO_STRING;
                 case "Floor": return CoreFunction.MATH_FLOOR;
                 case "ForceParens": return CoreFunction.FORCE_PARENS;
                 case "GetFunction": return CoreFunction.GET_FUNCTION;
                 case "IntBuffer16": return CoreFunction.INT_BUFFER_16;
-                case "IntegerDivision": return CoreFunction.INTEGER_DIVISION;
                 case "IntToString": return CoreFunction.INT_TO_STRING;
                 case "IsValidInteger": return CoreFunction.IS_VALID_INTEGER;
                 case "ListConcat": return CoreFunction.LIST_CONCAT;

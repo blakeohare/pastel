@@ -179,6 +179,20 @@ namespace Pastel.Transpilers.CommonScript
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateDivideFloat(Expression left, Expression right)
+        {
+            return this.TranslateExpression(left)
+                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
+                .Push(" / ")
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
+        }
+
+        public override StringBuffer TranslateDivideInteger(Expression left, Expression right)
+        {
+            return this.TranslateDivideFloat(left, right);
+        }
+
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
             return StringBuffer
@@ -195,15 +209,6 @@ namespace Pastel.Transpilers.CommonScript
             throw new NotImplementedException();
         }
 
-        public override StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator)
-        {
-            return TranslateExpression(floatNumerator)
-                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
-                .Push(" / ")
-                .Push(TranslateExpression(floatDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
-                .WithTightness(ExpressionTightness.MULTIPLICATION);
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             throw new NotImplementedException();
@@ -217,15 +222,6 @@ namespace Pastel.Transpilers.CommonScript
         public override StringBuffer TranslateIntBuffer16()
         {
             throw new NotImplementedException();
-        }
-
-        public override StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator)
-        {
-            return TranslateExpression(integerNumerator)
-                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
-                .Push(" / ")
-                .Push(TranslateExpression(integerDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
-                .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
         public override StringBuffer TranslateIntToString(Expression integer)

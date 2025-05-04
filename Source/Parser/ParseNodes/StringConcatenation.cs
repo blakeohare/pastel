@@ -37,7 +37,7 @@ namespace Pastel.Parser.ParseNodes
                         case "bool":
                             current = InlineConstant.Of((bool)inlineConst.Value ? "true" : "false", token, this.Owner);
                             break;
-                        case "float":
+                        case "double":
                             current = InlineConstant.Of(CodeUtil.FloatToString((double)inlineConst.Value), token, this.Owner);
                             break;
                         case "char":

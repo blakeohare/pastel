@@ -262,6 +262,25 @@ namespace Pastel.Transpilers.Php
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateDivideFloat(Expression left, Expression right)
+        {
+            return this.TranslateExpression(left)
+                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
+                .Push(" / ")
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .WithTightness(ExpressionTightness.MULTIPLICATION);
+        }
+
+        public override StringBuffer TranslateDivideInteger(Expression left, Expression right)
+        {
+            return StringBuffer.Of("intdiv(")
+                .Push(this.TranslateExpression(left) .EnsureTightness(ExpressionTightness.MULTIPLICATION))
+                .Push(", ")
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
             throw new NotImplementedException();
@@ -270,14 +289,6 @@ namespace Pastel.Transpilers.Php
         public override StringBuffer TranslateFloatBuffer16()
         {
             throw new NotImplementedException();
-        }
-
-        public override StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator)
-        {
-            return TranslateExpression(floatNumerator)
-                .EnsureTightness(ExpressionTightness.MULTIPLICATION)
-                .Push(" / ")
-                .Push(TranslateExpression(floatDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION));
         }
 
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
@@ -302,17 +313,6 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_intBuffer16")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
-        public override StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator)
-        {
-            return StringBuffer
-                .Of("intval(")
-                .Push(TranslateExpression(integerNumerator).EnsureTightness(ExpressionTightness.MULTIPLICATION))
-                .Push(" / ")
-                .Push(TranslateExpression(integerDenominator).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
-                .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 

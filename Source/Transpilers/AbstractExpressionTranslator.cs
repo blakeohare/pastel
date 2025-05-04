@@ -39,7 +39,18 @@ namespace Pastel.Transpilers
                 case "FunctionReference": return this.TranslateFunctionReference((FunctionReference)expression);
                 case "FunctionPointerInvocation": return this.TranslateFunctionPointerInvocation((FunctionPointerInvocation)expression);
                 case "CoreFunctionInvocation": return this.TranslateCoreFunctionInvocation((CoreFunctionInvocation)expression);
-                case "OpPair": return this.TranslateOpPair((OpPair)expression);
+                case "OpPair":
+                    OpPair opPair = (OpPair)expression;
+                    if (opPair.Op == "/")
+                    {
+                        if (opPair.Left.ResolvedType.RootValue == "int" &&
+                            opPair.Right.ResolvedType.RootValue == "int")
+                        {
+                            return this.TranslateDivideInteger(opPair.Left, opPair.Right);
+                        }
+                        return this.TranslateDivideFloat(opPair.Left, opPair.Right);
+                    }
+                    return this.TranslateOpPair(opPair);
                 case "OpChain": throw new InvalidOperationException(); // This should have been resolved into more specific actions.
 
                 case "ExtensibleFunctionInvocation":
@@ -203,11 +214,9 @@ namespace Pastel.Transpilers
                 case CoreFunction.EMIT_COMMENT: return this.TranslateEmitComment(((InlineConstant)args[0]).Value.ToString());
                 case CoreFunction.EXTENSIBLE_CALLBACK_INVOKE: return this.TranslateExtensibleCallbackInvoke(args[0], args[1]);
                 case CoreFunction.FLOAT_BUFFER_16: return this.TranslateFloatBuffer16();
-                case CoreFunction.FLOAT_DIVISION: return this.TranslateFloatDivision(args[0], args[1]);
                 case CoreFunction.FLOAT_TO_STRING: return this.TranslateFloatToString(args[0]);
                 case CoreFunction.GET_FUNCTION: return this.TranslateGetFunction(args[0]);
                 case CoreFunction.INT_BUFFER_16: return this.TranslateIntBuffer16();
-                case CoreFunction.INTEGER_DIVISION: return this.TranslateIntegerDivision(args[0], args[1]);
                 case CoreFunction.INT_TO_STRING: return this.TranslateIntToString(args[0]);
                 case CoreFunction.IS_VALID_INTEGER: return this.TranslateIsValidInteger(args[0]);
                 case CoreFunction.LIST_ADD: return this.TranslateListAdd(args[0], args[1]);
@@ -373,11 +382,12 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value);
         public abstract StringBuffer TranslateDictionarySize(Expression dictionary);
         public abstract StringBuffer TranslateDictionaryValues(Expression dictionary);
+        public abstract StringBuffer TranslateDivideFloat(Expression left, Expression right);
+        public abstract StringBuffer TranslateDivideInteger(Expression left, Expression right);
         public abstract StringBuffer TranslateEmitComment(string value);
         public abstract StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray);
         public abstract StringBuffer TranslateFloatBuffer16();
         public abstract StringBuffer TranslateFloatConstant(double value);
-        public abstract StringBuffer TranslateFloatDivision(Expression floatNumerator, Expression floatDenominator);
         public abstract StringBuffer TranslateFloatToString(Expression floatExpr);
         public abstract StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args);
         public abstract StringBuffer TranslateFunctionReference(FunctionReference funcRef);
@@ -385,7 +395,6 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition);
         public abstract StringBuffer TranslateIntBuffer16();
         public abstract StringBuffer TranslateIntegerConstant(int value);
-        public abstract StringBuffer TranslateIntegerDivision(Expression integerNumerator, Expression integerDenominator);
         public abstract StringBuffer TranslateIntToString(Expression integer);
         public abstract StringBuffer TranslateIsValidInteger(Expression stringValue);
         public abstract StringBuffer TranslateListAdd(Expression list, Expression item);
