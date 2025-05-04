@@ -79,22 +79,31 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateArrayNew(PType arrayType, Expression lengthExpression)
         {
-            if (lengthExpression is InlineConstant)
+            string defaultVal;
+            switch (arrayType.RootValue)
             {
-                InlineConstant ic = (InlineConstant)lengthExpression;
+                case "bool": defaultVal = "False"; break;
+                case "int": defaultVal = "0"; break;
+                case "byte": defaultVal = "0"; break;
+                case "double": defaultVal = "0.0"; break;
+                case "char": defaultVal = "'\\0'"; break;
+                default: defaultVal = "None"; break;
+            }
+
+            if (lengthExpression is InlineConstant ic)
+            {
                 int length = (int)ic.Value;
                 switch (length)
                 {
                     case 0: return StringBuffer.Of("[]").WithTightness(ExpressionTightness.ATOMIC);
-                    case 1: return StringBuffer.Of("[None]").WithTightness(ExpressionTightness.ATOMIC);
-                    case 2: return StringBuffer.Of("[None, None]").WithTightness(ExpressionTightness.ATOMIC);
-                    default: break;
+                    case 1: return StringBuffer.Of("[" + defaultVal + "]").WithTightness(ExpressionTightness.ATOMIC);
+                    case 2: return StringBuffer.Of("[" + defaultVal + ", " + defaultVal + "]").WithTightness(ExpressionTightness.ATOMIC);
                 }
             }
 
             return StringBuffer
-                .Of("PST_NoneListOfOne * ")
-                .Push(TranslateExpression(lengthExpression).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .Of("[" + defaultVal + "] * ")
+                .Push(this.TranslateExpression(lengthExpression).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 

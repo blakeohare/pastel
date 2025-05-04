@@ -63,9 +63,21 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateArrayNew(PType arrayType, Expression lengthExpression)
         {
+            string defaultVal;
+            switch (arrayType.RootValue)
+            {
+                case "bool": defaultVal = "false"; break;
+                case "byte": defaultVal = "byte(0)"; break;
+                case "char": defaultVal = "0"; break;
+                case "int": defaultVal = "0"; break;
+                case "double": defaultVal = "0.0"; break;
+                default: defaultVal = "nil"; break;
+            }
             return StringBuffer
                 .Of("PST_newList(")
                 .Push(this.TranslateExpression(lengthExpression))
+                .Push(", ")
+                .Push(defaultVal)
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -462,7 +474,7 @@ namespace Pastel.Transpilers.Go
         public override StringBuffer TranslateListNew(PType type)
         {
             return StringBuffer
-                .Of("PST_newList(0)")
+                .Of("PST_newList(0, nil)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 

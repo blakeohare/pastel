@@ -39,9 +39,22 @@ namespace Pastel.Transpilers.JavaScript
 
         public override StringBuffer TranslateArrayNew(PType arrayType, Expression lengthExpression)
         {
+            string defaultVal;
+            switch (arrayType.RootValue)
+            {
+                case "bool": defaultVal = "false"; break;
+                case "int": defaultVal = "0"; break;
+                case "byte": defaultVal = "0"; break;
+                case "double": defaultVal = "0"; break;
+                case "char": defaultVal = "'\\0'"; break;
+                default: defaultVal = "null"; break;
+            }
+
             return StringBuffer
                 .Of("PST$createNewArray(")
-                .Push(TranslateExpression(lengthExpression))
+                .Push(this.TranslateExpression(lengthExpression))
+                .Push(", ")
+                .Push(defaultVal)
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }

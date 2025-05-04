@@ -26,9 +26,9 @@ let PST$floatParseHelper = (o, s) => {
 };
 
 // PASTEL_ENTITY_ID: PST$createNewArray
-let PST$createNewArray = s => {
+let PST$createNewArray = (s, val) => {
 	let o = [];
-	while (s --> 0) o.push(null);
+	while (s --> 0) o.push(val);
 	return o;
 };
 

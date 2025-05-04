@@ -72,9 +72,17 @@ func PST_listJoin(list *plist, sep string) *pstring {
 }
 
 // PASTEL_ENTITY_ID: PST_newList
-func PST_newList(sz int) *plist {
+func PST_newList(sz int, item any) *plist {
   o := new(plist)
-  o.items = make([]any, sz)
+  items := make([]any, sz)
+  if item != nil {
+    i := 0
+    for i < sz {
+      items[i] = item
+      i = i + 1
+    }
+  }
+  o.items = items
   return o
 }
 
