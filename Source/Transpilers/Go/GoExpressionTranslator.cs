@@ -282,7 +282,12 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateDictionaryValues(Expression dictionary)
         {
-            throw new NotImplementedException();
+            bool isString = this.IsStringDict(dictionary);
+            return StringBuffer
+                .Of("PST_wrapArray(")
+                .Push(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(".v, true)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateEmitComment(string value)

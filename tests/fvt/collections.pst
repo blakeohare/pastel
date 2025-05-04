@@ -51,4 +51,8 @@ void testDictionaries() {
     nums.Remove("b");
     assertFalse(nums.Contains("b"));
     assertEqInt(2, nums.Keys().Size());
+
+    Array<int> vals = nums.Values();
+    assertEqInt(2, vals.Size());
+    assertEqInt(4, vals[0] + vals[1]);
 }
