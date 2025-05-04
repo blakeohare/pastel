@@ -1,9 +1,16 @@
 @import("fvt-assert.pst");
 
+struct FooStruct {
+    TestStruct tsRef; // Reference made before type is declared. This is okay!
+}
+
 struct TestStruct {
     int intField;
     bool boolField;
     string strField;
+    TestStruct selfRef;
+    Array<TestStruct> selfRefArr;
+    List<TestStruct> selfRefList;
 }
 
 TestStruct funcThatHasStructInSignature(TestStruct value, Array<TestStruct> values, List<TestStruct> valuesAgain) {
@@ -11,19 +18,23 @@ TestStruct funcThatHasStructInSignature(TestStruct value, Array<TestStruct> valu
 }
 
 void runner() {
-    TestStruct ts = new TestStruct(1, true, "hello");
-    
+    TestStruct ts = new TestStruct(1, true, "hello", null, null, null);
+    ts.selfRef = ts;
+
     assertEqInt(1, ts.intField);
     assertEqStr("hello", ts.strField);
     assertTrue(ts.boolField);
 
     ts.intField = ts.intField + 1;
     assertEqInt(2, ts.intField);
+    assertEqInt(2, ts.selfRef.selfRef.selfRef.selfRef.intField);
 
     ts.strField = null;
     if (ts.strField != null) {
         fail("Expected null");
     }
+
+    object tsAsObj = ts;
 
     ts = null;
 
@@ -31,4 +42,7 @@ void runner() {
     if (ts != null) {
         fail("Expected null");
     }
+
+    ts = (TestStruct) tsAsObj;
+    assertEqInt(2, ts.intField);
 }
