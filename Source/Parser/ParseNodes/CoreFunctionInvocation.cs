@@ -29,16 +29,8 @@ namespace Pastel.Parser.ParseNodes
             // The args were already resolved.
             // This ensures that they match the core function definition
 
-            PType[] expectedTypes = CoreFunctionUtil.GetCoreFunctionArgTypes(Function);
-            bool[] isArgRepeated = CoreFunctionUtil.GetCoreFunctionIsArgTypeRepeated(Function);
-
-            switch (Function)
-            {
-                case CoreFunction.FORCE_PARENS:
-                    if (Args.Length != 1) throw new ParserException(FirstToken, "Expected 1 arg.");
-
-                    return new ForcedParenthesis(FirstToken, Args[0]);
-            }
+            PType[] expectedTypes = CoreFunctionUtil.GetCoreFunctionArgTypes(this.Function);
+            bool[] isArgRepeated = CoreFunctionUtil.GetCoreFunctionIsArgTypeRepeated(this.Function);
 
             Dictionary<string, PType> templateLookup = new Dictionary<string, PType>();
 

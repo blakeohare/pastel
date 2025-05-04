@@ -23,39 +23,30 @@ namespace Pastel.Parser.ParseNodes
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Root = Root.ResolveNamesAndCullUnusedCode(resolver);
+            this.Root = this.Root.ResolveNamesAndCullUnusedCode(resolver);
 
-            if (Root is EnumReference)
+            if (this.Root is EnumReference)
             {
-                InlineConstant enumValue = ((EnumReference)Root).EnumDef.GetValue(FieldName);
-                return enumValue.CloneWithNewToken(FirstToken);
+                InlineConstant enumValue = ((EnumReference)this.Root).EnumDef.GetValue(this.FieldName);
+                return enumValue.CloneWithNewToken(this.FirstToken);
             }
 
             if (this.Root is CoreNamespaceReference)
             {
-                CoreFunction coreFunction = GetCoreFunction(FieldName.Value);
-                switch (coreFunction)
-                {
-                    case CoreFunction.FLOAT_BUFFER_16:
-                    case CoreFunction.INT_BUFFER_16:
-                    case CoreFunction.STRING_BUFFER_16:
-                        return new CoreFunctionInvocation(FirstToken, coreFunction, new Expression[0], Owner);
-
-                    default:
-                        return new CoreFunctionReference(this.FirstToken, coreFunction, this.Owner);
-                }
+                CoreFunction coreFunction = this.GetCoreFunction(this.FieldName.Value);
+                return new CoreFunctionReference(this.FirstToken, coreFunction, this.Owner);
             }
 
-            if (Root is ExtensibleNamespaceReference)
+            if (this.Root is ExtensibleNamespaceReference)
             {
-                string name = FieldName.Value;
-                return new ExtensibleFunctionReference(FirstToken, name, Owner);
+                string name = this.FieldName.Value;
+                return new ExtensibleFunctionReference(this.FirstToken, name, this.Owner);
             }
 
-            if (Root is EnumReference)
+            if (this.Root is EnumReference enumRef)
             {
-                EnumDefinition enumDef = ((EnumReference)Root).EnumDef;
-                InlineConstant enumValue = enumDef.GetValue(FieldName);
+                EnumDefinition enumDef = enumRef.EnumDef;
+                InlineConstant enumValue = enumDef.GetValue(this.FieldName);
                 return enumValue;
             }
 
@@ -126,12 +117,9 @@ namespace Pastel.Parser.ParseNodes
                 case "CurrentTimeSeconds": return CoreFunction.CURRENT_TIME_SECONDS;
                 case "EmitComment": return CoreFunction.EMIT_COMMENT;
                 case "ExtensibleCallbackInvoke": return CoreFunction.EXTENSIBLE_CALLBACK_INVOKE;
-                case "FloatBuffer16": return CoreFunction.FLOAT_BUFFER_16;
                 case "FloatToString": return CoreFunction.FLOAT_TO_STRING;
                 case "Floor": return CoreFunction.MATH_FLOOR;
-                case "ForceParens": return CoreFunction.FORCE_PARENS;
                 case "GetFunction": return CoreFunction.GET_FUNCTION;
-                case "IntBuffer16": return CoreFunction.INT_BUFFER_16;
                 case "IntToString": return CoreFunction.INT_TO_STRING;
                 case "IsValidInteger": return CoreFunction.IS_VALID_INTEGER;
                 case "ListConcat": return CoreFunction.LIST_CONCAT;
@@ -147,7 +135,6 @@ namespace Pastel.Parser.ParseNodes
                 case "RandomFloat": return CoreFunction.RANDOM_FLOAT;
                 case "Sin": return CoreFunction.MATH_SIN;
                 case "StringAppend": return CoreFunction.STRING_APPEND;
-                case "StringBuffer16": return CoreFunction.STRING_BUFFER_16;
                 case "StringCompareIsReverse": return CoreFunction.STRING_COMPARE_IS_REVERSE;
                 case "StringConcatAll": return CoreFunction.STRING_CONCAT_ALL;
                 case "StringEquals": return CoreFunction.STRING_EQUALS;

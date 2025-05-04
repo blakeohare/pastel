@@ -137,12 +137,6 @@ namespace Pastel.Transpilers
                     if (uo.OpToken.Value == "-") return this.TranslateNegative(uo);
                     return this.TranslateBooleanNot(uo);
 
-                case "ForcedParenthesis":
-                    // TODO: operator precedence detection should be robust enough to remove this entirely.
-                    return this.TranslateExpression(((ForcedParenthesis)expression).Expression)
-                        .Prepend("(")
-                        .Push(")")
-                        .WithTightness(ExpressionTightness.ATOMIC);
                 case "StringConcatenation":
                     return this.TranslateStringConcatenation(((StringConcatenation)expression).Expressions.ToArray());
             }
@@ -213,10 +207,8 @@ namespace Pastel.Transpilers
                 case CoreFunction.DICTIONARY_VALUES: return this.TranslateDictionaryValues(args[0]);
                 case CoreFunction.EMIT_COMMENT: return this.TranslateEmitComment(((InlineConstant)args[0]).Value.ToString());
                 case CoreFunction.EXTENSIBLE_CALLBACK_INVOKE: return this.TranslateExtensibleCallbackInvoke(args[0], args[1]);
-                case CoreFunction.FLOAT_BUFFER_16: return this.TranslateFloatBuffer16();
                 case CoreFunction.FLOAT_TO_STRING: return this.TranslateFloatToString(args[0]);
                 case CoreFunction.GET_FUNCTION: return this.TranslateGetFunction(args[0]);
-                case CoreFunction.INT_BUFFER_16: return this.TranslateIntBuffer16();
                 case CoreFunction.INT_TO_STRING: return this.TranslateIntToString(args[0]);
                 case CoreFunction.IS_VALID_INTEGER: return this.TranslateIsValidInteger(args[0]);
                 case CoreFunction.LIST_ADD: return this.TranslateListAdd(args[0], args[1]);
@@ -255,7 +247,6 @@ namespace Pastel.Transpilers
                 case CoreFunction.SORTED_COPY_OF_INT_ARRAY: return this.TranslateSortedCopyOfIntArray(args[0]);
                 case CoreFunction.SORTED_COPY_OF_STRING_ARRAY: return this.TranslateSortedCopyOfStringArray(args[0]);
                 case CoreFunction.STRING_APPEND: return this.TranslateStringAppend(args[0], args[1]);
-                case CoreFunction.STRING_BUFFER_16: return this.TranslateStringBuffer16();
                 case CoreFunction.STRING_CHAR_AT: return this.TranslateStringCharAt(args[0], args[1]);
                 case CoreFunction.STRING_CHAR_CODE_AT: return this.TranslateStringCharCodeAt(args[0], args[1]);
                 case CoreFunction.STRING_COMPARE_IS_REVERSE: return this.TranslateStringCompareIsReverse(args[0], args[1]);
