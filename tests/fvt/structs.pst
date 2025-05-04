@@ -1,0 +1,34 @@
+@import("fvt-assert.pst");
+
+struct TestStruct {
+    int intField;
+    bool boolField;
+    string strField;
+}
+
+TestStruct funcThatHasStructInSignature(TestStruct value, Array<TestStruct> values, List<TestStruct> valuesAgain) {
+    return null;
+}
+
+void runner() {
+    TestStruct ts = new TestStruct(1, true, "hello");
+    
+    assertEqInt(1, ts.intField);
+    assertEqStr("hello", ts.strField);
+    assertTrue(ts.boolField);
+
+    ts.intField = ts.intField + 1;
+    assertEqInt(2, ts.intField);
+
+    ts.strField = null;
+    if (ts.strField != null) {
+        fail("Expected null");
+    }
+
+    ts = null;
+
+    ts = funcThatHasStructInSignature(ts, new Array<TestStruct>(0), new List<TestStruct>());
+    if (ts != null) {
+        fail("Expected null");
+    }
+}
