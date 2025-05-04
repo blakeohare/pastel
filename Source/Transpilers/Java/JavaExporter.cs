@@ -42,6 +42,8 @@ namespace Pastel.Transpilers.Java
             filesOut["@STRUCT_DIR/" + structName + ".java"] = string.Join('\n', [
                 config.NamespaceForStructs == null ? "" : ("package " + config.NamespaceForFunctions + ";"),
                 "",
+                "import java.util.*;",
+                "",
                 structCode.Trim(),
             ]).Trim() + "\n";
         }
