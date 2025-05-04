@@ -1,0 +1,48 @@
+@import("fvt-assert.pst");
+
+void runner() {
+    testArrays();
+}
+
+void testArrays() {
+    Array<int> nums = new Array<int>(3);
+    nums[0] = 1;
+    nums[1] = 2;
+    nums[2] = 3;
+
+    int sum = 0;
+    for (int i = 0; i < nums.Size(); i += 1) {
+        sum += nums[i];
+    }
+    assertEqInt(6, sum);
+}
+
+void testLists() {
+    List<int> nums = new List<int>();
+    nums.Add(1);
+    nums.Add(2);
+    nums.Add(3);
+
+    int sum = 0;
+    for (int i = 0; i < nums.Size(); i += 1) {
+        sum += nums[i];
+    }
+    assertEqInt(6, sum);
+}
+
+void testDictionaries() {
+    // TODO: this is not implemented in Go, yet.
+    /*
+    Dictionary<string, int> nums = new Dictionary<string, int>();
+    nums["a"] = 1;
+    nums["b"] = 2;
+    nums["c"] = 3;
+
+    int sum = 0;
+    Array<string> keys = nums.Keys();
+    for (int i = 0; i < keys.Size(); i += 1) {
+        sum += nums[keys[i]];
+    }
+    assertEqInt(6, sum);
+    */
+}
