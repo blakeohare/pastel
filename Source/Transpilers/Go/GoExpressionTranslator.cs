@@ -129,7 +129,12 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
-            throw new NotImplementedException();
+            return this.TranslateExpression(expression)
+                .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
+                .Push(".(")
+                .Push(this.TypeTranspiler.TranslateType(type))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateCharConstant(char value)
