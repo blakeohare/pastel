@@ -9,7 +9,7 @@ namespace Pastel.Transpilers.JavaScript
     {
         protected override string PreferredTab => "\t";
         protected override string PreferredNewline => "\n";
-
+        
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
@@ -46,7 +46,7 @@ namespace Pastel.Transpilers.JavaScript
             sb.Append("return [PST$registerExtensibleCallback");
             for (int i = 0; i < funcNames.Length; i++)
             {
-                sb.Append(", ");
+                sb.Append(", $");
                 sb.Append(funcNames[i]);
             }
             sb.Append("];\n");

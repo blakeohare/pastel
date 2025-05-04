@@ -12,7 +12,9 @@ namespace Pastel.Transpilers.Python
                 null,
                 new PythonExpressionTranslator(transpilerCtx),
                 new PythonStatementTranslator(transpilerCtx))
-        { }
+        {
+            transpilerCtx.VariablePrefix = "V_";
+        }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/Python/PastelHelper.py"; } }
 
@@ -22,13 +24,13 @@ namespace Pastel.Transpilers.Python
 
             sb.Append(sb.CurrentTab);
             sb.Append("def ");
-            sb.Append(funcDef.NameToken.Value);
+            sb.AppendVariableNameSafe(funcDef.NameToken.Value);
             sb.Append('(');
             int argCount = funcDef.ArgNames.Length;
             for (int i = 0; i < argCount; ++i)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append(funcDef.ArgNames[i].Value);
+                sb.AppendVariableNameSafe(funcDef.ArgNames[i].Value);
             }
             sb.Append("):\n");
             sb.TabDepth++;

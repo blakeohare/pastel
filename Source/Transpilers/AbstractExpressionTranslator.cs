@@ -166,6 +166,16 @@ namespace Pastel.Transpilers
             return sb;
         }
 
+        public StringBuffer TranslateVariableName(string varName)
+        {
+            StringBuffer sb = StringBuffer.Of(varName);
+            if (this.transpilerCtx.VariablePrefix != null)
+            {
+                sb.Prepend(this.transpilerCtx.VariablePrefix);
+            }
+            return sb.WithTightness(ExpressionTightness.ATOMIC);
+        }
+
         public StringBuffer TranslateCoreFunctionInvocation(CoreFunctionInvocation coreFuncInvocation)
         {
             Expression[] args = coreFuncInvocation.Args;

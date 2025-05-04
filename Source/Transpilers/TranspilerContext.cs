@@ -22,6 +22,7 @@ namespace Pastel.Transpilers
         internal AbstractTranspiler Transpiler { get; set; }
         private HashSet<string> featureUsage = new HashSet<string>();
         public PastelContext PastelContext { get; private set; }
+        internal string? VariablePrefix { get; set; } = null;
 
         internal TranspilerContext(PastelContext ctx)
         {
@@ -34,6 +35,11 @@ namespace Pastel.Transpilers
             this.TabDepth = 0;
         }
 
+        public string WrapVariableName(string name)
+        {
+            return this.VariablePrefix == null ? name : (this.VariablePrefix + name);
+        }
+        
         public void MarkFeatureAsBeingUsed(string value)
         {
             this.featureUsage.Add(value);
@@ -71,6 +77,16 @@ namespace Pastel.Transpilers
         public TranspilerContext Append(string s)
         {
             this.buffer.Append(s);
+            return this;
+        }
+
+        public TranspilerContext AppendVariableNameSafe(string varName)
+        {
+            if (this.VariablePrefix != null)
+            {
+                this.buffer.Append(this.VariablePrefix);
+            }
+            this.buffer.Append(varName);
             return this;
         }
 

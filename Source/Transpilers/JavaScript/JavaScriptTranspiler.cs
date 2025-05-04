@@ -14,20 +14,22 @@ namespace Pastel.Transpilers.JavaScript
                 new JavaScriptExpressionTranslator(transpilerCtx),
                 new JavaScriptStatementTranslator(transpilerCtx)
             )
-        { }
+        {
+            transpilerCtx.VariablePrefix = "$";
+        }
 
         public override string HelperCodeResourcePath { get { return "Transpilers/JavaScript/PastelHelper.js"; } }
 
         public override void GenerateCodeForFunction(TranspilerContext sb, FunctionDefinition funcDef, bool isStatic)
         {
             sb.Append("let ");
-            sb.Append(funcDef.NameToken.Value);
+            sb.AppendVariableNameSafe(funcDef.NameToken.Value);
             sb.Append(" = function(");
             Token[] args = funcDef.ArgNames;
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append(args[i].Value);
+                sb.AppendVariableNameSafe(args[i].Value);
             }
             sb.Append(") {\n");
 
@@ -40,7 +42,7 @@ namespace Pastel.Transpilers.JavaScript
 
         public override void GenerateCodeForStruct(TranspilerContext sb, StructDefinition structDef)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
     }
 }

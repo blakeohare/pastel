@@ -1,0 +1,34 @@
+@import("fvt-assert.pst");
+@import("fvt-util.pst");
+
+void runner() {
+    testVarDeclaration();
+    // testBuiltinOverwrite();
+}
+
+void testBuiltinOverwrite() {
+
+    // overwriting is not strictly forbidden in some of the languages that use these.
+    int len = 1;
+    int length = 1;
+    int strlen = 1;
+    passThru(len + length + strlen); // must be used to make Go happy
+
+    // But now we need to use the length property
+    string foo = "hello";
+    assertEqInt(5, foo.Size());
+}
+
+void testVarDeclaration() {
+    // Use reserved words in target languages as variable names.
+    int x = 1;
+    int System = x;
+    int java = System;
+    int def = java;
+    int typedef = def;
+    int function = typedef;
+    int undefined = function;
+    int None = undefined;
+
+    assertEqInt(1, None);
+}

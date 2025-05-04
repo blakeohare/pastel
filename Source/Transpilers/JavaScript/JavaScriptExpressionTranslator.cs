@@ -205,7 +205,7 @@ namespace Pastel.Transpilers.JavaScript
             return StringBuffer
                 .Of("(PST$extCallbacks[")
                 .Push(TranslateExpression(name))
-                .Push("] || ((o) => null))(")
+                .Push("] || (() => null))(")
                 .Push(TranslateExpression(argsArray))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);

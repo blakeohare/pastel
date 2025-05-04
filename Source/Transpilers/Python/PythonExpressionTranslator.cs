@@ -364,9 +364,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateFunctionReference(FunctionReference funcRef)
         {
-            return StringBuffer
-                .Of(funcRef.Function.NameToken.Value)
-                .WithTightness(ExpressionTightness.ATOMIC);
+            return this.TranslateVariableName(funcRef.Function.NameToken.Value);
         }
 
         public override StringBuffer TranslateGetFunction(Expression name)
@@ -1199,9 +1197,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateVariable(Variable variable)
         {
-            return StringBuffer
-                .Of(variable.Name)
-                .WithTightness(ExpressionTightness.ATOMIC);
+            return this.TranslateVariableName(variable.Name);
         }
     }
 }

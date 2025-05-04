@@ -136,7 +136,7 @@ namespace Pastel.Transpilers.Python
         public override void TranslateVariableDeclaration(TranspilerContext sb, VariableDeclaration varDecl)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append(varDecl.VariableNameToken.Value);
+            sb.AppendVariableNameSafe(varDecl.VariableNameToken.Value);
             sb.Append(" = ");
             sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(varDecl.Value));
             sb.Append("\n");

@@ -9,7 +9,7 @@ namespace Pastel.Transpilers.JavaScript
         public override void TranslateDictionaryTryGet(TranspilerContext sb, Expression dictionary, Expression key, Expression fallbackValue, Variable varOut)
         {
             sb.Append(sb.CurrentTab);
-            sb.Append(varOut.Name);
+            sb.AppendVariableNameSafe(varOut.Name);
             sb.Append(" = ");
             sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(dictionary));
             sb.Append('[');
@@ -17,9 +17,9 @@ namespace Pastel.Transpilers.JavaScript
             sb.Append("];\n");
             sb.Append(sb.CurrentTab);
             sb.Append("if (");
-            sb.Append(varOut.Name);
+            sb.AppendVariableNameSafe(varOut.Name);
             sb.Append(" === undefined) ");
-            sb.Append(varOut.Name);
+            sb.AppendVariableNameSafe(varOut.Name);
             sb.Append(" = ");
             sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(fallbackValue));
             sb.Append(";\n");
@@ -29,7 +29,7 @@ namespace Pastel.Transpilers.JavaScript
         {
             sb.Append(sb.CurrentTab);
             sb.Append("let ");
-            sb.Append(varDecl.VariableNameToken.Value);
+            sb.AppendVariableNameSafe(varDecl.VariableNameToken.Value);
             sb.Append(" = ");
             if (varDecl.Value == null)
             {

@@ -68,11 +68,8 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateFunctionReference(FunctionReference funcRef)
         {
-            return StringBuffer
-                .Of(funcRef.Function.NameToken.Value)
-                .WithTightness(ExpressionTightness.ATOMIC);
+            return this.TranslateVariableName(funcRef.Function.NameToken.Value);
         }
-
 
         public override StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition)
         {
@@ -234,10 +231,7 @@ namespace Pastel.Transpilers
 
         public override StringBuffer TranslateVariable(Variable variable)
         {
-            return StringBuffer
-                .Of(variable.Name)
-                .WithTightness(ExpressionTightness.ATOMIC);
+            return this.TranslateVariableName(variable.Name);
         }
-
     }
 }

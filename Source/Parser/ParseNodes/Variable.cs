@@ -4,25 +4,17 @@ namespace Pastel.Parser.ParseNodes
 {
     internal class Variable : Expression
     {
-        public readonly static HashSet<string> BANNED_NAMES = new HashSet<string>() {
-            "len",
-        };
-
         public Variable(Token token, ICompilationEntity owner) : base(token, owner)
         {
-            IsFunctionInvocation = false;
-            ApplyPrefix = true;
-            if (BANNED_NAMES.Contains(token.Value))
-            {
-                throw new ParserException(token, "The name '" + token.Value + "' is reserved for some platforms and cannot be used.");
-            }
+            this.IsFunctionInvocation = false;
+            this.ApplyPrefix = true;
         }
 
         // Some generated code needs to namespace itself different to prevent collision with translated variables.
         // For example, some of the Python switch statement stuff uses temporary variables that are not in the original code.
         public bool ApplyPrefix { get; set; }
 
-        public string Name { get { return FirstToken.Value; } }
+        public string Name { get { return this.FirstToken.Value; } }
 
         public bool IsFunctionInvocation { get; set; }
 
