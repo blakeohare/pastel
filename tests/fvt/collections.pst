@@ -33,11 +33,11 @@ void testArrayInitDefaultValue() {
     char[] charArr = new char[3];
     if (charArr[1] != '\0') fail("char[] should have null-term as initial values.");
 
-    // TODO: fix type error in Go.
-    /*
     object[] objArr = new object[3];
     if (objArr[1] != null) fail("object-array should have nulls as initial values.");
 
+    // TODO: fix type error in Go.
+    /*
     int[][] intJaggyArr = new int[][3];
     if (intJaggyArr[1] != null) fail("jaggy-array should have nulls as initial values.");
 

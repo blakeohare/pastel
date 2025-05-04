@@ -35,16 +35,29 @@ namespace Pastel.Transpilers.Go
             return output;
         }
 
-        public override StringBuffer TranslateArrayGet(Expression array, Expression index)
+        private StringBuffer TranslateArrayGetNoCast(Expression array, Expression index)
         {
-            return TranslateExpression(array)
+            return this.TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".items[")
-                .Push(TranslateExpression(index))
-                .Push("].(")
-                .Push(this.TypeTranspiler.TranslateType(array.ResolvedType.Generics[0]))
-                .Push(")")
+                .Push(this.TranslateExpression(index))
+                .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
+        public override StringBuffer TranslateArrayGet(Expression array, Expression index)
+        {
+            StringBuffer sb = this.TranslateArrayGetNoCast(array, index);
+            PType itemType = array.ResolvedType.Generics[0];
+            if (itemType.RootValue != "object")
+            {
+                sb
+                    .Push(".(")
+                    .Push(this.TypeTranspiler.TranslateType(array.ResolvedType.Generics[0]))
+                    .Push(")");
+            }
+
+            return sb.WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateArrayJoin(Expression array, Expression sep)
