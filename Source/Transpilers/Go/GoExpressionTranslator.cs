@@ -159,10 +159,7 @@ namespace Pastel.Transpilers.Go
             StructDefinition sDef = constructorInvocation.StructDefinition;
             string name = sDef.NameToken.Value;
             StringBuffer buf = StringBuffer
-                .Of("PtrBox_")
-                .Push(name)
-                .Push("{ o: ")
-                .Push("&S_")
+                .Of("&S_")
                 .Push(name)
                 .Push("{ ");
             for (int i = 0; i < sDef.FieldNames.Length; i++)
@@ -172,9 +169,10 @@ namespace Pastel.Transpilers.Go
                     .Push("f_")
                     .Push(sDef.FieldNames[i].Value)
                     .Push(": ")
-                    .Push(TranslateExpression(constructorInvocation.Args[i]));
+                    .Push(this.TranslateExpression(constructorInvocation.Args[i]));
             }
-            return buf.Push(" } }");
+
+            return buf.Push(" }");
         }
 
         public override StringBuffer TranslateCurrentTimeSeconds()
@@ -932,7 +930,7 @@ namespace Pastel.Transpilers.Go
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
             return TranslateExpression(root)
-                .Push(".o.f_")
+                .Push(".f_")
                 .Push(fieldName);
         }
 

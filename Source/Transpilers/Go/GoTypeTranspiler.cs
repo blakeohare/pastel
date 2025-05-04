@@ -23,7 +23,7 @@ namespace Pastel.Transpilers.Go
 
             if (type.IsStruct)
             {
-                return "PtrBox_" + type.RootValue;
+                return "*S_" + type.RootValue;
             }
 
             throw new NotImplementedException();

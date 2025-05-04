@@ -64,21 +64,7 @@ namespace Pastel.Transpilers.Go
                 sb.Append('\n');
             }
             sb.TabDepth--;
-
-            sb
-                .Append("}\n")
-                .Append("type PtrBox_")
-                .Append(structDef.NameToken.Value)
-                .Append(" struct {\n");
-            sb.TabDepth++;
-            sb
-                .Append(sb.CurrentTab)
-                .Append("o *S_")
-                .Append(structDef.NameToken.Value)
-                .Append("\n");
-            sb.TabDepth--;
-            sb
-                .Append("}\n");
+            sb.Append("}\n");
         }
     }
 }
