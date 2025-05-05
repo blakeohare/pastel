@@ -2,7 +2,8 @@
 {
     internal abstract class NamespaceReference : Expression
     {
-        public NamespaceReference(Token firstToken, ICompilationEntity owner) : base(firstToken, owner) { }
+        public NamespaceReference(Token firstToken, ICompilationEntity owner) 
+            : base(ExpressionType.NAMESPACE_REFERENCE, firstToken, owner) { }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {

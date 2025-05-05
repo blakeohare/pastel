@@ -5,15 +5,15 @@ namespace Pastel.Parser.ParseNodes
     internal abstract class Expression
     {
         public Token FirstToken { get; private set; }
-
         public PType ResolvedType { get; set; }
-
         public ICompilationEntity Owner { get; private set; }
-
-        public Expression(Token firstToken, ICompilationEntity owner)
+        internal ExpressionType Type { get; private set; }
+        
+        public Expression(ExpressionType type, Token firstToken, ICompilationEntity owner)
         {
-            FirstToken = firstToken;
-            Owner = owner;
+            this.Type = type;
+            this.FirstToken = firstToken;
+            this.Owner = owner;
         }
 
         public abstract Expression ResolveNamesAndCullUnusedCode(Resolver resolver);

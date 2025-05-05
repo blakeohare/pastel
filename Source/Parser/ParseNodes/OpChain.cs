@@ -11,7 +11,8 @@ namespace Pastel.Parser.ParseNodes
 
         public OpChain(
             IList<Expression> expressions,
-            IList<Token> ops) : base(expressions[0].FirstToken, expressions[0].Owner)
+            IList<Token> ops) 
+            : base(ExpressionType.OP_CHAIN, expressions[0].FirstToken, expressions[0].Owner)
         {
             Expressions = expressions.ToArray();
             Ops = ops.ToArray();

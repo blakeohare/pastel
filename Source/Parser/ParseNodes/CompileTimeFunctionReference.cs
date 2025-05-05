@@ -6,7 +6,8 @@ namespace Pastel.Parser.ParseNodes
     {
         public Token NameToken { get; set; }
 
-        public CompileTimeFunctionReference(Token atToken, Token nameToken, ICompilationEntity owner) : base(atToken, owner)
+        public CompileTimeFunctionReference(Token atToken, Token nameToken, ICompilationEntity owner) 
+            : base(ExpressionType.COMPILE_TIME_FUNCTION_REFERENCE, atToken, owner)
         {
             NameToken = nameToken;
         }

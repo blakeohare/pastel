@@ -12,7 +12,8 @@ namespace Pastel.Parser.ParseNodes
         public FunctionInvocation(
             Expression root,
             Token openParen,
-            IList<Expression> args) : base(root.FirstToken, root.Owner)
+            IList<Expression> args) 
+            : base(ExpressionType.FUNCTION_INVOCATION, root.FirstToken, root.Owner)
         {
             if (root is Variable)
             {

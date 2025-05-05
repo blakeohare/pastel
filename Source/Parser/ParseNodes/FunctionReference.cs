@@ -5,7 +5,8 @@
         public FunctionDefinition Function { get; set; }
         public bool IsLibraryScopedFunction { get; set; }
 
-        public FunctionReference(Token firstToken, FunctionDefinition functionDefinition, ICompilationEntity owner) : base(firstToken, owner)
+        public FunctionReference(Token firstToken, FunctionDefinition functionDefinition, ICompilationEntity owner) 
+            : base(ExpressionType.FUNCTION_REFERENCE, firstToken, owner)
         {
             Function = functionDefinition;
             IsLibraryScopedFunction = false;

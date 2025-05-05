@@ -32,14 +32,13 @@ namespace Pastel.Transpilers
 
         public StringBuffer TranslateExpression(Expression expression)
         {
-            string typeName = expression.GetType().Name;
-            switch (typeName)
+            switch (expression.Type)
             {
-                case "CastExpression": return this.TranslateCast(((CastExpression)expression).Type, ((CastExpression)expression).Expression);
-                case "FunctionReference": return this.TranslateFunctionReference((FunctionReference)expression);
-                case "FunctionPointerInvocation": return this.TranslateFunctionPointerInvocation((FunctionPointerInvocation)expression);
-                case "CoreFunctionInvocation": return this.TranslateCoreFunctionInvocation((CoreFunctionInvocation)expression);
-                case "OpPair":
+                case ExpressionType.CAST: return this.TranslateCast(((CastExpression)expression).Type, ((CastExpression)expression).Expression);
+                case ExpressionType.FUNCTION_REFERENCE: return this.TranslateFunctionReference((FunctionReference)expression);
+                case ExpressionType.FUNCTION_POINTER_INVOCATION: return this.TranslateFunctionPointerInvocation((FunctionPointerInvocation)expression);
+                case ExpressionType.CORE_FUNCTION_INVOCATION: return this.TranslateCoreFunctionInvocation((CoreFunctionInvocation)expression);
+                case ExpressionType.OP_PAIR:
                     OpPair opPair = (OpPair)expression;
                     if (opPair.Op == "/")
                     {
@@ -50,24 +49,24 @@ namespace Pastel.Transpilers
                         return this.TranslateDivideFloat(opPair.Left, opPair.Right);
                     }
                     return this.TranslateOpPair(opPair);
-                case "OpChain": throw new InvalidOperationException(); // This should have been resolved into more specific actions.
+                case ExpressionType.OP_CHAIN: throw new InvalidOperationException(); // This should have been resolved into more specific actions.
 
-                case "ExtensibleFunctionInvocation":
+                case ExpressionType.EXTENSIBLE_FUNCTION_INVOCATION:
                     return this.TranslateExtensibleFunctionInvocation((ExtensibleFunctionInvocation)expression);
 
-                case "InlineIncrement":
+                case ExpressionType.INLINE_INCREMENT:
                     InlineIncrement ii = (InlineIncrement)expression;
                     return this.TranslateInlineIncrement(ii.Expression, ii.IsPrefix, ii.IncrementToken.Value == "++");
 
-                case "FunctionInvocation":
+                case ExpressionType.FUNCTION_INVOCATION:
                     FunctionInvocation funcInvocation = (FunctionInvocation)expression;
                     return this.TranslateFunctionInvocation((FunctionReference)funcInvocation.Root, funcInvocation.Args);
 
-                case "Variable":
+                case ExpressionType.VARIABLE:
                     Variable v = (Variable)expression;
                     return this.TranslateVariable(v);
 
-                case "ConstructorInvocation":
+                case ExpressionType.CONSTRUCTOR_INVOCATION:
                     ConstructorInvocation constructor = (ConstructorInvocation)expression;
                     string rootType = constructor.Type.RootValue;
                     switch (rootType)
@@ -107,7 +106,7 @@ namespace Pastel.Transpilers
                             return this.TranslateConstructorInvocation(constructor);
                     }
 
-                case "DotField":
+                case ExpressionType.DOT_FIELD:
                     DotField df = (DotField)expression;
                     StructDefinition structDef = df.StructType;
                     string fieldName = df.FieldName.Value;
@@ -118,7 +117,7 @@ namespace Pastel.Transpilers
                     }
                     throw new InvalidOperationException(); // should have been thrown by the compiler
 
-                case "InlineConstant":
+                case ExpressionType.INLINE_CONSTANT:
                     InlineConstant ic = (InlineConstant)expression;
                     switch (ic.ResolvedType.RootValue)
                     {
@@ -131,15 +130,15 @@ namespace Pastel.Transpilers
                     }
                     throw new NotImplementedException();
 
-                case "UnaryOp":
+                case ExpressionType.UNARY_OP:
                     UnaryOp uo = (UnaryOp)expression;
                     if (uo.OpToken.Value == "-") return this.TranslateNegative(uo);
                     return this.TranslateBooleanNot(uo);
 
-                case "StringConcatenation":
+                case ExpressionType.STRING_CONCATENATION:
                     return this.TranslateStringConcatenation(((StringConcatenation)expression).Expressions.ToArray());
             }
-            throw new NotImplementedException(typeName);
+            throw new NotImplementedException(expression.Type + "");
         }
 
         public StringBuffer TranslateStringConcatenation(Expression[] expressions)

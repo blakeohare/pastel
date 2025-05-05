@@ -6,7 +6,8 @@ namespace Pastel.Parser.ParseNodes
     {
         public PType TypeToConstruct { get; set; }
 
-        public ConstructorReference(Token newToken, PType type, ICompilationEntity owner) : base(newToken, owner)
+        public ConstructorReference(Token newToken, PType type, ICompilationEntity owner) 
+            : base(ExpressionType.CONSTRUCTOR_REFERENCE, newToken, owner)
         {
             TypeToConstruct = type;
         }

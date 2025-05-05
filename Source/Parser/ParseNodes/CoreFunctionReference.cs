@@ -11,7 +11,8 @@ namespace Pastel.Parser.ParseNodes
         public bool[] ArgTypesIsRepeated { get; set; }
 
         public CoreFunctionReference(Token firstToken, CoreFunction coreFunctionId, ICompilationEntity owner) : this(firstToken, coreFunctionId, null, owner) { }
-        public CoreFunctionReference(Token firstToken, CoreFunction coreFunctionId, Expression context, ICompilationEntity owner) : base(firstToken, owner)
+        public CoreFunctionReference(Token firstToken, CoreFunction coreFunctionId, Expression context, ICompilationEntity owner) 
+            : base(ExpressionType.CORE_FUNCTION_REFERENCE, firstToken, owner)
         {
             this.CoreFunctionId = coreFunctionId;
             this.Context = context;

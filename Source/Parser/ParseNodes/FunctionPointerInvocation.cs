@@ -11,7 +11,7 @@ namespace Pastel.Parser.ParseNodes
 
         // Note that this class is instantiated in the ResolveType phase.
         public FunctionPointerInvocation(Resolver resolver, Token firstToken, Expression root, IList<Expression> Args)
-            : base(firstToken, root.Owner)
+            : base(ExpressionType.FUNCTION_POINTER_INVOCATION, firstToken, root.Owner)
         {
             Root = root;
             this.Args = Args.ToArray();

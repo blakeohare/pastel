@@ -4,7 +4,8 @@ namespace Pastel.Parser.ParseNodes
 {
     internal class Variable : Expression
     {
-        public Variable(Token token, ICompilationEntity owner) : base(token, owner)
+        public Variable(Token token, ICompilationEntity owner) 
+            : base(ExpressionType.VARIABLE, token, owner)
         {
             this.IsFunctionInvocation = false;
             this.ApplyPrefix = true;

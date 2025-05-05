@@ -5,7 +5,8 @@
         public Expression Expression { get; set; }
         public Token OpToken { get; set; }
 
-        public UnaryOp(Token op, Expression root) : base(op, root.Owner)
+        public UnaryOp(Token op, Expression root) 
+            : base(ExpressionType.UNARY_OP, op, root.Owner)
         {
             Expression = root;
             OpToken = op;

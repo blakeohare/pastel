@@ -6,7 +6,8 @@ namespace Pastel.Parser.ParseNodes
     {
         public string Name { get; set; }
 
-        public ExtensibleFunctionReference(Token token, string name, ICompilationEntity owner) : base(token, owner)
+        public ExtensibleFunctionReference(Token token, string name, ICompilationEntity owner) 
+            : base(ExpressionType.EXTENSIBLE_FUNCTION_REFERENCE, token, owner)
         {
             Name = name;
         }

@@ -10,7 +10,7 @@ namespace Pastel.Parser.ParseNodes
         public string Op { get; private set; }
         
         public OpPair(Expression left, Token opToken, Expression right)
-            : base(left.FirstToken, left.Owner)
+            : base(ExpressionType.OP_PAIR, left.FirstToken, left.Owner)
         {
             this.Left = left;
             this.Right = right;

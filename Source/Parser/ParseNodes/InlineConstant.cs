@@ -24,7 +24,7 @@ namespace Pastel.Parser.ParseNodes
         }
 
         public InlineConstant(PType type, Token firstToken, object value, ICompilationEntity owner)
-            : base(firstToken, owner)
+            : base(ExpressionType.INLINE_CONSTANT, firstToken, owner)
         {
             this.Type = type;
             this.ResolvedType = type;

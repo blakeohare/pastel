@@ -6,7 +6,8 @@
         public Expression Expression { get; set; }
         public bool IsPrefix { get; set; }
 
-        public InlineIncrement(Token firstToken, Token incrementToken, Expression root, bool isPrefix) : base(firstToken, root.Owner)
+        public InlineIncrement(Token firstToken, Token incrementToken, Expression root, bool isPrefix) 
+            : base(ExpressionType.INLINE_INCREMENT, firstToken, root.Owner)
         {
             IncrementToken = incrementToken;
             Expression = root;

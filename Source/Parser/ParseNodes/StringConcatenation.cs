@@ -7,7 +7,7 @@ namespace Pastel.Parser.ParseNodes
         public List<Expression> Expressions { get; private set; }
     
         public StringConcatenation(Expression left, Expression right)
-            : base(left.FirstToken, left.Owner)
+            : base(ExpressionType.STRING_CONCATENATION, left.FirstToken, left.Owner)
         {
             this.Expressions = [left, right];
             this.ResolvedType = PType.STRING;

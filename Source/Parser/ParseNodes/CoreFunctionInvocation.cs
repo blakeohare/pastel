@@ -9,7 +9,8 @@ namespace Pastel.Parser.ParseNodes
         public CoreFunction Function { get; set; }
         public Expression[] Args { get; set; }
 
-        public CoreFunctionInvocation(Token firstToken, CoreFunction function, IList<Expression> args, ICompilationEntity owner) : base(firstToken, owner)
+        public CoreFunctionInvocation(Token firstToken, CoreFunction function, IList<Expression> args, ICompilationEntity owner) 
+            : base(ExpressionType.CORE_FUNCTION_INVOCATION, firstToken, owner)
         {
             this.Function = function;
             this.Args = args.ToArray();

@@ -10,8 +10,8 @@ namespace Pastel.Parser.ParseNodes
         public Expression[] Args { get; set; }
         public StructDefinition StructDefinition { get; set; }
 
-        public ConstructorInvocation(Token firstToken, PType type, IList<Expression> args, ICompilationEntity owner)
-            : base(firstToken, owner)
+        public ConstructorInvocation(Token firstToken, PType type, IList<Expression> args, ICompilationEntity owner) 
+            : base(ExpressionType.CONSTRUCTOR_INVOCATION, firstToken, owner)
         {
             this.Type = type;
             this.Args = args.ToArray();

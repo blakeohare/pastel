@@ -6,7 +6,8 @@ namespace Pastel.Parser.ParseNodes
     {
         public EnumDefinition EnumDef { get; set; }
 
-        public EnumReference(Token firstToken, EnumDefinition enumDef, ICompilationEntity owner) : base(firstToken, owner)
+        public EnumReference(Token firstToken, EnumDefinition enumDef, ICompilationEntity owner) 
+            : base(ExpressionType.ENUM_REFERENCE, firstToken, owner)
         {
             EnumDef = enumDef;
         }

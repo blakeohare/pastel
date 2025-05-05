@@ -8,7 +8,8 @@ namespace Pastel.Parser.ParseNodes
         public Token BracketToken { get; set; }
         public Expression Index { get; set; }
 
-        public BracketIndex(Expression root, Token bracketToken, Expression index) : base(root.FirstToken, root.Owner)
+        public BracketIndex(Expression root, Token bracketToken, Expression index) 
+            : base(ExpressionType.BRACKET_INDEX, root.FirstToken, root.Owner)
         {
             Root = root;
             BracketToken = bracketToken;

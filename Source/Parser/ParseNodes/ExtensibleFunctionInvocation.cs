@@ -13,7 +13,7 @@ namespace Pastel.Parser.ParseNodes
             Token firstToken,
             ExtensibleFunctionReference functionRef,
             IList<Expression> args)
-            : base(firstToken, functionRef.Owner)
+            : base(ExpressionType.EXTENSIBLE_FUNCTION_INVOCATION, firstToken, functionRef.Owner)
         {
             FunctionRef = functionRef;
             Args = args.ToArray();

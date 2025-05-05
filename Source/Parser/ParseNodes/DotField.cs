@@ -13,7 +13,7 @@ namespace Pastel.Parser.ParseNodes
         public StructDefinition StructType { get; set; }
 
         public DotField(Expression root, Token dotToken, Token fieldName)
-            : base(root.FirstToken, root.Owner)
+            : base(ExpressionType.DOT_FIELD, root.FirstToken, root.Owner)
         {
             this.Root = root;
             this.DotToken = dotToken;

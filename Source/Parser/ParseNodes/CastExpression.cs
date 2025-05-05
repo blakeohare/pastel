@@ -5,10 +5,11 @@
         public PType Type { get; set; }
         public Expression Expression { get; set; }
 
-        public CastExpression(Token openParenToken, PType type, Expression expression) : base(openParenToken, expression.Owner)
+        public CastExpression(Token openParenToken, PType type, Expression expression) 
+            : base(ExpressionType.CAST, openParenToken, expression.Owner)
         {
-            Type = type;
-            Expression = expression;
+            this.Type = type;
+            this.Expression = expression;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
