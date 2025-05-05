@@ -64,7 +64,7 @@ def run_fvt_tests(pastel_exec_path, platforms):
         dst_dir = get_temp_dir(test_id)
         files = test_libs.copy()
         files['test.json'] = json.dumps({
-            'source': 'test.pst',
+            'source': 'index.pst',
             'targets': [
                 create_csharp_target('csharp', 'PastelTest.GeneratedCode', 'FunctionWrapper.cs', 'csgen'),
                 create_go_target('go', 'gogen', 'gofuncs.go', '.'),
@@ -81,6 +81,15 @@ def run_fvt_tests(pastel_exec_path, platforms):
         all_pass = True
         for platform in platforms:
             print("Running FVT: " + test_id + " [" + platform + "]")
+
+            file_write_text(os.path.join(dst_dir, 'platform.pst'), '\n'.join([
+                'const bool IS_CSHARP = ' + str(platform == 'csharp').lower() + ';',
+                'const bool IS_GO = ' + str(platform == 'go').lower() + ';',
+                'const bool IS_JAVA = ' + str(platform == 'java').lower() + ';',
+                'const bool IS_JS = ' + str(platform == 'js').lower() + ';',
+                'const bool IS_PYTHON = ' + str(platform == 'python').lower() + ';',
+                '',
+            ]))
             result = run_command(pastel_exec_path, [build_path, platform]).strip()
 
             if result != '':

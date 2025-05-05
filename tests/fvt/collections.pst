@@ -36,17 +36,17 @@ void testArrayInitDefaultValue() {
     object[] objArr = new object[3];
     if (objArr[1] != null) fail("object-array should have nulls as initial values.");
 
-    // TODO: fix type error in Go.
-    /*
-    int[][] intJaggyArr = new int[][3];
-    if (intJaggyArr[1] != null) fail("jaggy-array should have nulls as initial values.");
+    // https://github.com/blakeohare/pastel/issues/10
+    if (!IS_GO) {
+        int[][] intJaggyArr = new int[][3];
+        if (intJaggyArr[1] != null) fail("jaggy-array should have nulls as initial values.");
 
-    string[] strArr = new string[3];
-    if (strArr[1] != null) fail("string[] should have nulls as initial values.");
+        string[] strArr = new string[3];
+        if (strArr[1] != null) fail("string[] should have nulls as initial values.");
 
-    List<int>[] listArr = new List<int>[3];
-    if (listArr[1] != null) fail("array-of-lists should have nulls as initial values.");
-    */
+        List<int>[] listArr = new List<int>[3];
+        if (listArr[1] != null) fail("array-of-lists should have nulls as initial values.");
+    }
 }
 
 void testLists() {
