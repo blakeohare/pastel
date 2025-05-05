@@ -14,7 +14,7 @@ let PST$multiplyList = (l, n) => {
 }
 
 // PASTEL_ENTITY_ID: PST$checksubstring
-let PST$checksubstring = (s, index, lookfor) => s.substring(index, index + lookfor.length) === lookfor; };
+let PST$checksubstring = (s, index, lookfor) => s.substring(index, index + lookfor.length) === lookfor;
 
 // PASTEL_ENTITY_ID: PST$floatParseHelper
 let PST$floatParseHelper = (o, s) => {

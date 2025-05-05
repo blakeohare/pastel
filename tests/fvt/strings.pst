@@ -118,14 +118,12 @@ void testSplit() {
 }
 
 void testSubStringEqual() {
-    if (!IS_JS) {
-        string test = "0123456789";
-        assertTrue(test.SubStringIsEqualTo(0, "012"));
-        assertTrue(test.SubStringIsEqualTo(8, "89"));
-        assertTrue(test.SubStringIsEqualTo(4, ""));
-        assertTrue(test.SubStringIsEqualTo(0, "0123456789"));
-        assertFalse(test.SubStringIsEqualTo(1, "0123"));
-    }
+    string test = "0123456789";
+    assertTrue(test.SubStringIsEqualTo(0, "012"));
+    assertTrue(test.SubStringIsEqualTo(8, "89"));
+    assertTrue(test.SubStringIsEqualTo(4, ""));
+    assertTrue(test.SubStringIsEqualTo(0, "0123456789"));
+    assertFalse(test.SubStringIsEqualTo(1, "0123"));
 }
 
 void testReplace() {
