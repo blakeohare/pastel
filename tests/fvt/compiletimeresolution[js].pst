@@ -1,0 +1,29 @@
+// This tests the compile-time resolution of various things.
+// There is basically no point to run this test in multiple target platforms.
+// Therefore this test runs in JavaScript. No reason why other than it loads
+// pretty quickly.
+
+// TODO: there are many problems to fix here.
+
+void runner() {
+    /*
+    assertEqInt(1, ONE);
+    assertEqInt(2, Numbers.TWO);
+    assertEqInt(3, Numbers.THREE);
+    assertEqInt(4, Numbers.FOUR);
+    assertEqInt(5, FIVE);
+    assertEqInt(6, Numbers.SIX);
+    */
+}
+
+/*
+const int ONE = 1;
+enum Numbers {
+    TWO = ONE + 1,
+    THREE = Numbers.TWO + 1,
+    FOUR,
+    SIX = FIVE + ONE,
+}
+
+const int FIVE = ONE + Numbers.THREE + ONE;
+*/

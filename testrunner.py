@@ -79,7 +79,13 @@ def run_fvt_tests(pastel_exec_path, platforms):
 
         build_path = os.path.join(dst_dir, 'test.json')
         all_pass = True
-        for platform in platforms:
+        applicable_platforms = platforms[:]
+        if test_id.endswith(']'):
+            t = test_id.split('[')
+            applicable_platforms = [t.pop()[:-1]]
+            test_id = '['.join(t)
+
+        for platform in applicable_platforms:
             print("Running FVT: " + test_id + " [" + platform + "]")
 
             file_write_text(os.path.join(dst_dir, 'platform.pst'), '\n'.join([
