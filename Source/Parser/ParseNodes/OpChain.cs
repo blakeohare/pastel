@@ -60,13 +60,13 @@ namespace Pastel.Parser.ParseNodes
                 switch (lookup)
                 {
                     case "int+int":
-                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value + (int)next.Value, next.Owner);
+                        current = InlineConstant.OfInteger((int)current.Value + (int)next.Value, current.FirstToken, next.Owner);
                         break;
                     case "int-int":
-                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value - (int)next.Value, next.Owner);
+                        current = InlineConstant.OfInteger((int)current.Value - (int)next.Value, current.FirstToken, next.Owner);
                         break;
                     case "int*int":
-                        current = new InlineConstant(PType.INT, current.FirstToken, (int)current.Value * (int)next.Value, next.Owner);
+                        current = InlineConstant.OfInteger((int)current.Value * (int)next.Value, current.FirstToken, next.Owner);
                         break;
                     default:
                         throw new NotImplementedException();

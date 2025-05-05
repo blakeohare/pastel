@@ -20,18 +20,18 @@
             {
                 if (this.FirstToken.Value == "!" && ic.Value is bool boolVal)
                 {
-                    return new InlineConstant(PType.BOOL, this.FirstToken, !boolVal, this.Owner);
+                    return InlineConstant.OfBoolean(!boolVal, this.FirstToken, this.Owner);
                 }
                 
                 if (this.FirstToken.Value == "-")
                 {
                     if (ic.Value is int intVal)
                     {
-                        return new InlineConstant(PType.INT, this.FirstToken, -intVal, this.Owner);
+                        return InlineConstant.OfInteger(-intVal, this.FirstToken, this.Owner);
                     }
                     if (ic.Value is double floatVal)
                     {
-                        return new InlineConstant(PType.DOUBLE, this.FirstToken, -floatVal, this.Owner);
+                        return InlineConstant.OfFloat(-floatVal, this.FirstToken, this.Owner);
                     }
                 }
                 throw new ParserException(

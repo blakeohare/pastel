@@ -215,22 +215,22 @@ namespace Pastel.Parser.ParseNodes
         
         private InlineConstant CreateBoolean(bool value)
         {
-            return new InlineConstant(PType.BOOL, this.FirstToken, value, Owner) { ResolvedType = PType.BOOL };
+            return InlineConstant.OfBoolean(value, this.FirstToken, this.Owner);
         }
 
         private InlineConstant CreateInteger(int value)
         {
-            return new InlineConstant(PType.INT, this.FirstToken, value, Owner) { ResolvedType = PType.INT };
+            return InlineConstant.OfInteger(value, this.FirstToken, this.Owner);
         }
 
         private InlineConstant CreateFloat(double value)
         {
-            return new InlineConstant(PType.DOUBLE, this.FirstToken, value, Owner) { ResolvedType = PType.DOUBLE };
+            return InlineConstant.OfFloat(value, this.FirstToken, this.Owner);
         }
 
         private InlineConstant CreateString(string value)
         {
-            return new InlineConstant(PType.STRING, this.FirstToken, value, Owner) { ResolvedType = PType.STRING };
+            return InlineConstant.OfString(value, this.FirstToken, this.Owner);
         }
     }
 }

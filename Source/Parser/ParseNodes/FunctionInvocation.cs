@@ -31,17 +31,15 @@ namespace Pastel.Parser.ParseNodes
                 switch (constFunc.NameToken.Value)
                 {
                     case "ext_boolean":
-                        return new InlineConstant(
-                            PType.BOOL,
-                            this.FirstToken,
+                        return InlineConstant.OfBoolean(
                             parser.GetParseTimeBooleanConstant(argValue),
+                            this.FirstToken,
                             this.Owner);
 
                     case "pastel_flag":
-                        return new InlineConstant(
-                            PType.BOOL,
-                            this.FirstToken,
+                        return InlineConstant.OfBoolean(
                             parser.GetPastelFlagConstant(constFunc.NameToken, argValue),
+                            this.FirstToken,
                             this.Owner);
 
                     // This will be resolved later.
