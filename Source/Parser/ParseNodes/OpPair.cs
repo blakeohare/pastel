@@ -206,7 +206,7 @@ namespace Pastel.Parser.ParseNodes
                 default:
                     if (this.Op == "%")
                     {
-                        // TODO(cleanup): modulo operator is not defined for compile-time resolution.
+                        // TODO: modulo operator is not defined for compile-time resolution.
                         throw new System.NotImplementedException("Remember when you implement this to prevent negatives.");
                     }
                     throw new UNTESTED_ParserException(

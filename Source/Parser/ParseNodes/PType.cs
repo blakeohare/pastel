@@ -81,7 +81,7 @@ namespace Pastel.Parser.ParseNodes
             return new PType(tokenOfFunctionRefOccurrence, null, "Func", generics.ToArray());
         }
 
-        // TODO(cleanup): get rid of namespaceName
+        // TODO: get rid of namespaceName
         public PType(Token firstToken, string namespaceName, string typeName, params PType[] generics) : this(firstToken, namespaceName, typeName, new List<PType>(generics)) { }
         public PType(Token firstToken, string namespaceName, string typeName, List<PType> generics)
         {

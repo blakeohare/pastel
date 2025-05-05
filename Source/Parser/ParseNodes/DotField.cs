@@ -31,18 +31,11 @@ namespace Pastel.Parser.ParseNodes
             
             this.Root = this.Root.ResolveNamesAndCullUnusedCode(resolver);
 
-            // TODO(cleanup): is this a typo? what is going on here?
-            if (this.Root is EnumReference)
-            {
-                InlineConstant enumValue = ((EnumReference)this.Root).EnumDef.GetValue(this.FieldName);
-                return enumValue.CloneWithNewToken(this.FirstToken);
-            }
-
             if (this.Root is EnumReference enumRef)
             {
                 EnumDefinition enumDef = enumRef.EnumDef;
                 InlineConstant enumValue = enumDef.GetValue(this.FieldName);
-                return enumValue;
+                return enumValue.CloneWithNewToken(this.FirstToken);
             }
 
             return this;
