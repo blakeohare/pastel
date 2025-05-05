@@ -12,7 +12,7 @@ namespace Pastel.Transpilers.C
         protected override Dictionary<string, string> GenerateFiles(ProjectConfig config, PastelContext context)
         {
             Dictionary<string, string> files = [];
-            GenerateFunctionImplementation(files, context, config, context.GetCodeForFunctions());
+            this.GenerateFunctionImplementation(files, context, config, context.GetCodeForFunctions());
             Dictionary<string, string> structDefinitions = context.GetCodeForStructs();
             string[] structOrder = [.. structDefinitions.Keys.OrderBy(k => k.ToLower())];
 

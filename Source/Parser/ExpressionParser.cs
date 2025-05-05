@@ -17,7 +17,7 @@ namespace Pastel.Parser
 
         public Expression ParseExpression(TokenStream tokens)
         {
-            return ParseBooleanCombination(tokens);
+            return this.ParseBooleanCombination(tokens);
         }
 
         private Expression ParseOpChain(TokenStream tokens, HashSet<string> opsToLookFor, Func<TokenStream, Expression> fp)
@@ -40,34 +40,34 @@ namespace Pastel.Parser
         private static readonly HashSet<string> OPS_BOOLEAN_COMBINATION = new HashSet<string>(new string[] { "&&", "||" });
         private Expression ParseBooleanCombination(TokenStream tokens)
         {
-            return ParseOpChain(tokens, OPS_BOOLEAN_COMBINATION, ParseBitwise);
+            return this.ParseOpChain(tokens, OPS_BOOLEAN_COMBINATION, ParseBitwise);
         }
 
         private static readonly HashSet<string> OPS_BITWISE = new HashSet<string>(new string[] { "&", "|", "^" });
         private Expression ParseBitwise(TokenStream tokens)
         {
-            return ParseOpChain(tokens, OPS_BITWISE, ParseEquality);
+            return this.ParseOpChain(tokens, OPS_BITWISE, ParseEquality);
         }
 
         private static readonly HashSet<string> OPS_EQUALITY = new HashSet<string>(new string[] { "==", "!=" });
         private Expression ParseEquality(TokenStream tokens)
         {
-            return ParseOpChain(tokens, OPS_EQUALITY, ParseInequality);
+            return this.ParseOpChain(tokens, OPS_EQUALITY, ParseInequality);
         }
 
         private static readonly HashSet<string> OPS_INEQUALITY = new HashSet<string>(new string[] { "<", ">", "<=", ">=" });
         private Expression ParseInequality(TokenStream tokens)
         {
-            return ParseOpChain(tokens, OPS_INEQUALITY, ParseBitShift);
+            return this.ParseOpChain(tokens, OPS_INEQUALITY, ParseBitShift);
         }
 
         private Expression ParseBitShift(TokenStream tokens)
         {
-            Expression left = ParseAddition(tokens);
+            Expression left = this.ParseAddition(tokens);
             Token bitShift = tokens.PopBitShiftHackIfPresent();
             if (bitShift != null)
             {
-                Expression right = ParseAddition(tokens);
+                Expression right = this.ParseAddition(tokens);
                 return new OpChain(new Expression[] { left, right }, new Token[] { bitShift });
             }
             return left;
@@ -76,13 +76,13 @@ namespace Pastel.Parser
         private static readonly HashSet<string> OPS_ADDITION = new HashSet<string>(new string[] { "+", "-" });
         private Expression ParseAddition(TokenStream tokens)
         {
-            return ParseOpChain(tokens, OPS_ADDITION, ParseMultiplication);
+            return this.ParseOpChain(tokens, OPS_ADDITION, this.ParseMultiplication);
         }
 
         private static readonly HashSet<string> OPS_MULTIPLICATION = new HashSet<string>(new string[] { "*", "/", "%" });
         private Expression ParseMultiplication(TokenStream tokens)
         {
-            return ParseOpChain(tokens, OPS_MULTIPLICATION, ParsePrefixes);
+            return this.ParseOpChain(tokens, OPS_MULTIPLICATION, this.ParsePrefixes);
         }
 
         private Expression ParsePrefixes(TokenStream tokens)
@@ -91,11 +91,11 @@ namespace Pastel.Parser
             if (next == "-" || next == "!")
             {
                 Token op = tokens.Pop();
-                Expression root = ParsePrefixes(tokens);
+                Expression root = this.ParsePrefixes(tokens);
                 return new UnaryOp(op, root);
             }
 
-            return ParseIncrementOrCast(tokens);
+            return this.ParseIncrementOrCast(tokens);
         }
 
         private Expression ParseIncrementOrCast(TokenStream tokens)
@@ -110,19 +110,19 @@ namespace Pastel.Parser
             int tokenIndex = tokens.SnapshotState();
             if (prefix == null &&
                 tokens.PeekValue() == "(" &&
-                IsValidName(tokens.PeekAhead(1)))
+                ExpressionParser.IsValidName(tokens.PeekAhead(1)))
             {
                 Token parenthesis = tokens.Pop();
                 PType castType = PType.TryParse(tokens);
                 if (castType != null && tokens.PopIfPresent(")"))
                 {
-                    expression = ParseIncrementOrCast(tokens);
+                    expression = this.ParseIncrementOrCast(tokens);
                     return new CastExpression(parenthesis, castType, expression);
                 }
                 tokens.RevertState(tokenIndex);
             }
 
-            expression = ParseEntity(tokens);
+            expression = this.ParseEntity(tokens);
 
             if (prefix != null)
             {
@@ -171,12 +171,12 @@ namespace Pastel.Parser
 
             if (tokens.PopIfPresent("("))
             {
-                Expression expression = ParseExpression(tokens);
+                Expression expression = this.ParseExpression(tokens);
                 tokens.PopExpected(")");
                 return this.ParseOutEntitySuffixes(tokens, expression);
             }
 
-            Expression root = ParseEntityRoot(tokens);
+            Expression root = this.ParseEntityRoot(tokens);
             return this.ParseOutEntitySuffixes(tokens, root);
         }
 
@@ -189,7 +189,7 @@ namespace Pastel.Parser
                     case ".":
                     case "[":
                     case "(":
-                        root = ParseEntityChain(root, tokens);
+                        root = this.ParseEntityChain(root, tokens);
                         break;
                     default:
                         return root;
@@ -210,24 +210,25 @@ namespace Pastel.Parser
             {
                 case "true":
                 case "false":
-                    return new InlineConstant(PType.BOOL, tokens.Pop(), next == "true", this.parser.ActiveEntity);
+                    return InlineConstant.OfBoolean(next == "true", tokens.Pop(), this.parser.ActiveEntity);
+                
                 case "null":
-                    return new InlineConstant(PType.NULL, tokens.Pop(), null, this.parser.ActiveEntity);
+                    return InlineConstant.OfNull(tokens.Pop(), this.parser.ActiveEntity);
             }
 
             if (nextToken.Type == TokenType.INTEGER)
             {
                 tokens.Pop();
-                int numValue = EnsureInteger(nextToken, true, true);
-                return new InlineConstant(PType.INT, nextToken, numValue, this.parser.ActiveEntity);
+                int numValue = this.EnsureInteger(nextToken, true, true);
+                return InlineConstant.OfInteger(numValue, nextToken, this.parser.ActiveEntity);
             }
 
             if (nextToken.Type == TokenType.FLOAT)
             {
                 tokens.Pop();
-                if (double.TryParse(next, out double dblValue))
+                if (double.TryParse(next, out double floatVal))
                 {
-                    return new InlineConstant(PType.DOUBLE, nextToken, dblValue, this.parser.ActiveEntity);
+                    return InlineConstant.OfFloat(floatVal, nextToken, this.parser.ActiveEntity);
                 }
             }
 
@@ -235,17 +236,25 @@ namespace Pastel.Parser
             switch (firstChar)
             {
                 case '\'':
-                    return new InlineConstant(PType.CHAR, tokens.Pop(), CodeUtil.ConvertStringTokenToValue(nextToken, next), this.parser.ActiveEntity);
+                    return InlineConstant.OfCharacter(
+                        CodeUtil.ConvertStringTokenToValue(nextToken, next), 
+                        tokens.Pop(),
+                        this.parser.ActiveEntity);
+                
                 case '"':
-                    return new InlineConstant(PType.STRING, tokens.Pop(), CodeUtil.ConvertStringTokenToValue(nextToken, next), this.parser.ActiveEntity);
+                    return InlineConstant.OfString(
+                        CodeUtil.ConvertStringTokenToValue(nextToken, next),
+                        tokens.Pop(), 
+                        this.parser.ActiveEntity);
+                
                 case '@':
                     Token atToken = tokens.PopExpected("@");
-                    Token compileTimeFunction = EnsureTokenIsValidName(tokens.Pop(), "Expected compile time function name.");
+                    Token compileTimeFunction = ExpressionParser.EnsureTokenIsValidName(tokens.Pop(), "Expected compile time function name.");
                     if (!tokens.IsNext("(")) tokens.PopExpected("(");
                     return new CompileTimeFunctionReference(atToken, compileTimeFunction, this.parser.ActiveEntity);
             }
 
-            if (IsValidName(tokens.PeekValue()))
+            if (ExpressionParser.IsValidName(tokens.PeekValue()))
             {
                 return new Variable(tokens.Pop(), this.parser.ActiveEntity);
             }
@@ -259,11 +268,11 @@ namespace Pastel.Parser
             {
                 case ".":
                     Token dotToken = tokens.Pop();
-                    Token field = EnsureTokenIsValidName(tokens.Pop(), "Invalid field name");
+                    Token field = ExpressionParser.EnsureTokenIsValidName(tokens.Pop(), "Invalid field name");
                     return new DotField(root, dotToken, field);
                 case "[":
                     Token openBracket = tokens.Pop();
-                    Expression index = ParseExpression(tokens);
+                    Expression index = this.ParseExpression(tokens);
                     tokens.PopExpected("]");
                     return new BracketIndex(root, openBracket, index);
                 case "(":
@@ -272,11 +281,14 @@ namespace Pastel.Parser
                     while (!tokens.PopIfPresent(")"))
                     {
                         if (args.Count > 0) tokens.PopExpected(",");
-                        args.Add(ParseExpression(tokens));
+                        args.Add(this.ParseExpression(tokens));
                     }
                     return new FunctionInvocation(root, openParen, args).MaybeImmediatelyResolve(this.parser);
+                
                 default:
-                    throw new Exception();
+                    // Should be checked before calling this function.
+                    // TODO(cleanup): no, that's silly.
+                    throw new InvalidOperationException();
             }
         }
 
@@ -325,7 +337,7 @@ namespace Pastel.Parser
         // TODO: Token Types to answer this question
         public static Token EnsureTokenIsValidName(Token token, string errorMessage)
         {
-            if (IsValidName(token.Value))
+            if (ExpressionParser.IsValidName(token.Value))
             {
                 return token;
             }

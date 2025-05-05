@@ -10,8 +10,8 @@ namespace Pastel.Parser.ParseNodes
 
         public SwitchStatement(Token switchToken, Expression condition, IList<SwitchChunk> chunks) : base(switchToken)
         {
-            Condition = condition;
-            Chunks = chunks.ToArray();
+            this.Condition = condition;
+            this.Chunks = chunks.ToArray();
         }
 
         public class SwitchChunk
@@ -23,25 +23,25 @@ namespace Pastel.Parser.ParseNodes
 
             public SwitchChunk(IList<Token> caseAndDefaultTokens, IList<Expression> caseExpressionsOrNullForDefault, IList<Statement> code)
             {
-                CaseAndDefaultTokens = caseAndDefaultTokens.ToArray();
-                Cases = caseExpressionsOrNullForDefault.ToArray();
-                Code = code.ToArray();
+                this.CaseAndDefaultTokens = caseAndDefaultTokens.ToArray();
+                this.Cases = caseExpressionsOrNullForDefault.ToArray();
+                this.Code = code.ToArray();
 
-                for (int i = 0; i < Cases.Length - 1; ++i)
+                for (int i = 0; i < this.Cases.Length - 1; ++i)
                 {
-                    if (Cases[i] == null)
+                    if (this.Cases[i] == null)
                     {
                         throw new ParserException(caseAndDefaultTokens[i], "default cannot appear before other cases.");
                     }
                 }
 
-                HasDefault = Cases[Cases.Length - 1] == null;
+                this.HasDefault = this.Cases[this.Cases.Length - 1] == null;
             }
         }
 
         public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Condition = Condition.ResolveNamesAndCullUnusedCode(resolver);
+            this.Condition = this.Condition.ResolveNamesAndCullUnusedCode(resolver);
             for (int i = 0; i < Chunks.Length; ++i)
             {
                 SwitchChunk chunk = Chunks[i];
@@ -60,19 +60,19 @@ namespace Pastel.Parser.ParseNodes
 
         internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            Condition = Condition.ResolveType(varScope, resolver);
-            PType conditionType = Condition.ResolvedType;
+            this.Condition = this.Condition.ResolveType(varScope, resolver);
+            PType conditionType = this.Condition.ResolvedType;
             bool isInt = conditionType.IsIdentical(resolver, PType.INT);
             bool isChar = !isInt && conditionType.IsIdentical(resolver, PType.CHAR);
             if (!isInt && !isChar)
             {
-                throw new ParserException(Condition.FirstToken, "Only ints and chars can be used in switch statements.");
+                throw new ParserException(this.Condition.FirstToken, "Only ints and chars can be used in switch statements.");
             }
 
             // consider it all one scope
-            for (int i = 0; i < Chunks.Length; ++i)
+            for (int i = 0; i < this.Chunks.Length; ++i)
             {
-                SwitchChunk chunk = Chunks[i];
+                SwitchChunk chunk = this.Chunks[i];
                 for (int j = 0; j < chunk.Cases.Length; ++j)
                 {
                     Expression ex = chunk.Cases[j];
@@ -88,17 +88,17 @@ namespace Pastel.Parser.ParseNodes
                     }
                 }
 
-                ResolveTypes(chunk.Code, varScope, resolver);
+                Statement.ResolveTypes(chunk.Code, varScope, resolver);
             }
         }
 
         internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            Condition = Condition.ResolveWithTypeContext(resolver);
+            this.Condition = this.Condition.ResolveWithTypeContext(resolver);
             HashSet<int> values = new HashSet<int>();
-            for (int i = 0; i < Chunks.Length; ++i)
+            for (int i = 0; i < this.Chunks.Length; ++i)
             {
-                SwitchChunk chunk = Chunks[i];
+                SwitchChunk chunk = this.Chunks[i];
                 for (int j = 0; j < chunk.Cases.Length; ++j)
                 {
                     if (chunk.Cases[j] != null)
@@ -107,7 +107,9 @@ namespace Pastel.Parser.ParseNodes
                         InlineConstant ic = chunk.Cases[j] as InlineConstant;
                         if (ic == null)
                         {
-                            throw new ParserException(chunk.Cases[j].FirstToken, "Only constants may be used as switch cases.");
+                            throw new ParserException(
+                                chunk.Cases[j].FirstToken, 
+                                "Only constants may be used as switch cases.");
                         }
                         int value;
                         if (ic.ResolvedType.IsChar)
@@ -125,7 +127,7 @@ namespace Pastel.Parser.ParseNodes
                         values.Add(value);
                     }
                 }
-                ResolveWithTypeContext(resolver, chunk.Code);
+                Statement.ResolveWithTypeContext(resolver, chunk.Code);
             }
             return this;
         }

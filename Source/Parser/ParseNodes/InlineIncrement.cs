@@ -9,25 +9,25 @@
         public InlineIncrement(Token firstToken, Token incrementToken, Expression root, bool isPrefix) 
             : base(ExpressionType.INLINE_INCREMENT, firstToken, root.Owner)
         {
-            IncrementToken = incrementToken;
-            Expression = root;
-            IsPrefix = isPrefix;
+            this.IncrementToken = incrementToken;
+            this.Expression = root;
+            this.IsPrefix = isPrefix;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Expression = Expression.ResolveNamesAndCullUnusedCode(resolver);
+            this.Expression = this.Expression.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Expression = Expression.ResolveType(varScope, resolver);
-            if (!Expression.ResolvedType.IsIdentical(resolver, PType.INT))
+            this.Expression = this.Expression.ResolveType(varScope, resolver);
+            if (!this.Expression.ResolvedType.IsIdentical(resolver, PType.INT))
             {
-                throw new ParserException(IncrementToken, "++ and -- can only be applied to integer types.");
+                throw new ParserException(this.IncrementToken, "++ and -- can only be applied to integer types.");
             }
-            ResolvedType = PType.INT;
+            this.ResolvedType = PType.INT;
             return this;
         }
 

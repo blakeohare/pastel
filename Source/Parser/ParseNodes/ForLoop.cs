@@ -17,10 +17,10 @@ namespace Pastel.Parser.ParseNodes
             IList<Statement> stepCode,
             IList<Statement> code) : base(forToken)
         {
-            InitCode = initCode.ToArray();
-            Condition = condition;
-            StepCode = stepCode.ToArray();
-            Code = code.ToArray();
+            this.InitCode = initCode.ToArray();
+            this.Condition = condition;
+            this.StepCode = stepCode.ToArray();
+            this.Code = code.ToArray();
         }
 
         public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
@@ -40,27 +40,30 @@ namespace Pastel.Parser.ParseNodes
         {
             // This gets compiled as a wihle loop with the init added before the loop, so it should go in the same variable scope.
             // The implication is that multiple declarations in the init for successive loops will collide.
-            ResolveTypes(InitCode, varScope, resolver);
-            Condition = Condition.ResolveType(varScope, resolver);
-            ResolveTypes(StepCode, varScope, resolver);
+            Statement.ResolveTypes(this.InitCode, varScope, resolver);
+            this.Condition = this.Condition.ResolveType(varScope, resolver);
+            Statement.ResolveTypes(this.StepCode, varScope, resolver);
             VariableScope innerScope = new VariableScope(varScope);
-            ResolveTypes(Code, innerScope, resolver);
+            Statement.ResolveTypes(this.Code, innerScope, resolver);
         }
 
         internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            ResolveWithTypeContext(resolver, InitCode);
+            Statement.ResolveWithTypeContext(resolver, this.InitCode);
             this.Condition = this.Condition.ResolveWithTypeContext(resolver);
-            ResolveWithTypeContext(resolver, StepCode);
-            ResolveWithTypeContext(resolver, Code);
-
-            // Canonialize the for loop into a while loop.
-            List<Statement> loopCode = new List<Statement>(Code);
-            loopCode.AddRange(StepCode);
-            WhileLoop whileLoop = new WhileLoop(FirstToken, Condition, loopCode);
-            loopCode = new List<Statement>(InitCode);
-            loopCode.Add(whileLoop);
-            return new StatementBatch(FirstToken, loopCode);
+            Statement.ResolveWithTypeContext(resolver, this.StepCode);
+            Statement.ResolveWithTypeContext(resolver, this.Code);
+            
+            // Canonicalize the for loop into a while loop.
+            return new StatementBatch(this.FirstToken, [
+                ..this.InitCode, 
+                new WhileLoop(
+                    this.FirstToken, 
+                    this.Condition, [
+                        ..this.Code, 
+                        ..this.StepCode
+                    ])
+            ]);
         }
     }
 }

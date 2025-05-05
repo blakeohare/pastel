@@ -9,7 +9,7 @@ namespace Pastel.Parser.ParseNodes
         public EnumReference(Token firstToken, EnumDefinition enumDef, ICompilationEntity owner) 
             : base(ExpressionType.ENUM_REFERENCE, firstToken, owner)
         {
-            EnumDef = enumDef;
+            this.EnumDef = enumDef;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)

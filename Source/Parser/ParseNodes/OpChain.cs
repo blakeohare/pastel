@@ -14,8 +14,8 @@ namespace Pastel.Parser.ParseNodes
             IList<Token> ops) 
             : base(ExpressionType.OP_CHAIN, expressions[0].FirstToken, expressions[0].Owner)
         {
-            Expressions = expressions.ToArray();
-            Ops = ops.ToArray();
+            this.Expressions = expressions.ToArray();
+            this.Ops = ops.ToArray();
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
@@ -47,16 +47,16 @@ namespace Pastel.Parser.ParseNodes
 
         internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
         {
-            for (int i = 0; i < Expressions.Length; ++i)
+            for (int i = 0; i < this.Expressions.Length; ++i)
             {
-                Expressions[i] = Expressions[i].DoConstantResolution(cycleDetection, resolver);
+                this.Expressions[i] = this.Expressions[i].DoConstantResolution(cycleDetection, resolver);
             }
 
-            InlineConstant current = (InlineConstant)Expressions[0];
-            for (int i = 1; i < Expressions.Length; ++i)
+            InlineConstant current = (InlineConstant)this.Expressions[0];
+            for (int i = 1; i < this.Expressions.Length; ++i)
             {
-                InlineConstant next = (InlineConstant)Expressions[i];
-                string lookup = current.Type.RootValue + Ops[i - 1].Value + next.Type.RootValue;
+                InlineConstant next = (InlineConstant)this.Expressions[i];
+                string lookup = current.Type.RootValue + this.Ops[i - 1].Value + next.Type.RootValue;
                 switch (lookup)
                 {
                     case "int+int":

@@ -38,12 +38,12 @@ namespace Pastel.Parser.ParseNodes
 
         public InlineConstant CloneWithNewToken(Token token)
         {
-            return new InlineConstant(Type, token, Value, Owner);
+            return new InlineConstant(this.Type, token, this.Value, this.Owner);
         }
 
         public InlineConstant CloneWithNewTokenAndOwner(Token token, ICompilationEntity owner)
         {
-            return new InlineConstant(Type, token, Value, owner);
+            return new InlineConstant(this.Type, token, this.Value, owner);
         }
 
         internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
@@ -69,6 +69,41 @@ namespace Pastel.Parser.ParseNodes
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
             return this;
+        }
+
+        internal static InlineConstant OfNull(Token token, ICompilationEntity owner)
+        {
+            return new InlineConstant(PType.NULL, token, null, owner) { ResolvedType = PType.NULL };
+        }
+
+        internal static InlineConstant OfBoolean(bool value, Token token, ICompilationEntity owner)
+        {
+            return new InlineConstant(PType.BOOL, token, value, owner) { ResolvedType = PType.BOOL };
+        }
+        
+        internal static InlineConstant OfInteger(int value, Token token, ICompilationEntity owner)
+        {
+            return new InlineConstant(PType.INT, token, value, owner) { ResolvedType = PType.INT };
+        }
+        
+        internal static InlineConstant OfFloat(double value, Token token, ICompilationEntity owner)
+        {
+            return new InlineConstant(PType.DOUBLE, token, value, owner) { ResolvedType = PType.DOUBLE };
+        }
+        
+        internal static InlineConstant OfString(string value, Token token, ICompilationEntity owner)
+        {
+            return new InlineConstant(PType.STRING, token, value, owner) { ResolvedType = PType.STRING };
+        }
+        
+        internal static InlineConstant OfCharacter(string value, Token token, ICompilationEntity owner)
+        {
+            return new InlineConstant(PType.CHAR, token, value, owner) { ResolvedType = PType.CHAR };
+        }
+
+        internal static InlineConstant OfCharacter(char value, Token token, ICompilationEntity owner)
+        {
+            return new InlineConstant(PType.CHAR, token, value + "", owner) { ResolvedType = PType.CHAR };
         }
     }
 }

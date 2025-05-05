@@ -8,7 +8,7 @@ namespace Pastel.Parser.ParseNodes
         public StatementBatch(Token firstToken, IList<Statement> statements) : base(firstToken)
         {
             List<Statement> items = new List<Statement>();
-            AddAllItems(items, statements);
+            this.AddAllItems(items, statements);
             this.Statements = items.ToArray();
         }
 
@@ -19,9 +19,9 @@ namespace Pastel.Parser.ParseNodes
             for (int i = 0; i < length; ++i)
             {
                 item = statements[i];
-                if (item is StatementBatch)
+                if (item is StatementBatch batch)
                 {
-                    AddAllItems(items, ((StatementBatch)item).Statements);
+                    this.AddAllItems(items, batch.Statements);
                 }
                 else
                 {
@@ -65,7 +65,7 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            ResolveWithTypeContext(resolver, this.Statements);
+            Statement.ResolveWithTypeContext(resolver, this.Statements);
             return this;
         }
     }

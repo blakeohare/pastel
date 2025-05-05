@@ -8,62 +8,67 @@
         public UnaryOp(Token op, Expression root) 
             : base(ExpressionType.UNARY_OP, op, root.Owner)
         {
-            Expression = root;
-            OpToken = op;
+            this.Expression = root;
+            this.OpToken = op;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Expression = Expression.ResolveNamesAndCullUnusedCode(resolver);
+            this.Expression = this.Expression.ResolveNamesAndCullUnusedCode(resolver);
 
-            if (Expression is InlineConstant)
+            if (this.Expression is InlineConstant ic)
             {
-                InlineConstant ic = (InlineConstant)Expression;
-                if (FirstToken.Value == "!" && ic.Value is bool)
+                if (this.FirstToken.Value == "!" && ic.Value is bool boolVal)
                 {
-                    return new InlineConstant(PType.BOOL, FirstToken, !(bool)ic.Value, Owner);
+                    return new InlineConstant(PType.BOOL, this.FirstToken, !boolVal, this.Owner);
                 }
-                if (FirstToken.Value == "-")
+                
+                if (this.FirstToken.Value == "-")
                 {
-                    if (ic.Value is int)
+                    if (ic.Value is int intVal)
                     {
-                        return new InlineConstant(PType.INT, FirstToken, -(int)ic.Value, Owner);
+                        return new InlineConstant(PType.INT, this.FirstToken, -intVal, this.Owner);
                     }
-                    if (ic.Value is double)
+                    if (ic.Value is double floatVal)
                     {
-                        return new InlineConstant(PType.DOUBLE, FirstToken, -(double)ic.Value, Owner);
+                        return new InlineConstant(PType.DOUBLE, this.FirstToken, -floatVal, this.Owner);
                     }
                 }
-                throw new ParserException(OpToken, "The op '" + OpToken.Value + "' is not valid on this type of expression.");
+                throw new ParserException(
+                    this.OpToken, 
+                    "The op '" + this.OpToken.Value + "' is not valid on this type of expression.");
             }
+            
             return this;
         }
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Expression = Expression.ResolveType(varScope, resolver);
-            ResolvedType = Expression.ResolvedType;
+            this.Expression = this.Expression.ResolveType(varScope, resolver);
+            this.ResolvedType = this.Expression.ResolvedType;
 
-            if (OpToken.Value == "-")
+            if (this.OpToken.Value == "-")
             {
-                if (!(ResolvedType.IsIdentical(resolver, PType.INT) || ResolvedType.IsIdentical(resolver, PType.DOUBLE)))
+                if (!(this.ResolvedType.IsIdentical(resolver, PType.INT) || 
+                      this.ResolvedType.IsIdentical(resolver, PType.DOUBLE)))
                 {
-                    throw new ParserException(OpToken, "Cannot apply '-' to type: " + ResolvedType.ToString());
+                    throw new ParserException(this.OpToken, "Cannot apply '-' to type: " + this.ResolvedType.ToString());
                 }
             }
             else // '!'
             {
-                if (!ResolvedType.IsIdentical(resolver, PType.BOOL))
+                if (!this.ResolvedType.IsIdentical(resolver, PType.BOOL))
                 {
-                    throw new ParserException(OpToken, "Cannot apply '!' to type: " + ResolvedType.ToString());
+                    throw new ParserException(this.OpToken, "Cannot apply '!' to type: " + this.ResolvedType.ToString());
                 }
             }
+            
             return this;
         }
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Expression = Expression.ResolveWithTypeContext(resolver);
+            this.Expression = this.Expression.ResolveWithTypeContext(resolver);
             return this;
         }
     }

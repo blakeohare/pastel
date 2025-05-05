@@ -8,7 +8,7 @@ namespace Pastel.Parser.ParseNodes
 
         public Statement(Token firstToken)
         {
-            FirstToken = firstToken;
+            this.FirstToken = firstToken;
         }
 
         public abstract Statement ResolveNamesAndCullUnusedCode(Resolver resolver);

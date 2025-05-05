@@ -30,7 +30,7 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            if (Context != null)
+            if (this.Context != null)
             {
                 // CoreFunctionReferences only get introduced before the ResolveType phase for Core.* functions, in which case they have no Context and nothing to resolve.
                 throw new Exception();
@@ -40,7 +40,7 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            throw new ParserException(FirstToken, "Core Functions must be invoked and cannot be passed as function pointers in this manner.");
+            throw new ParserException(this.FirstToken, "Core Functions must be invoked and cannot be passed as function pointers in this manner.");
         }
     }
 }

@@ -8,8 +8,8 @@
         public FunctionReference(Token firstToken, FunctionDefinition functionDefinition, ICompilationEntity owner) 
             : base(ExpressionType.FUNCTION_REFERENCE, firstToken, owner)
         {
-            Function = functionDefinition;
-            IsLibraryScopedFunction = false;
+            this.Function = functionDefinition;
+            this.IsLibraryScopedFunction = false;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
@@ -19,7 +19,10 @@
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            ResolvedType = PType.FunctionOf(FirstToken, Function.ReturnType, Function.ArgTypes);
+            this.ResolvedType = PType.FunctionOf(
+                this.FirstToken,
+                this.Function.ReturnType,
+                this.Function.ArgTypes);
             return this;
         }
 

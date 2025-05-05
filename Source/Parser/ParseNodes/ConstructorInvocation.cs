@@ -30,12 +30,12 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            for (int i = 0; i < Args.Length; ++i)
+            for (int i = 0; i < this.Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(resolver);
+                this.Args[i] = this.Args[i].ResolveWithTypeContext(resolver);
             }
 
-            string type = Type.RootValue;
+            string type = this.Type.RootValue;
             switch (type)
             {
                 case "Array":
@@ -59,7 +59,7 @@ namespace Pastel.Parser.ParseNodes
                     }
 
                     int fieldCount = resolvedArgTypes.Length;
-                    if (fieldCount != Args.Length)
+                    if (fieldCount != this.Args.Length)
                     {
                         throw new ParserException(this.FirstToken, "Incorrect number of args in constructor. Expected " + fieldCount + ", found " + Args.Length);
                     }

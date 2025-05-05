@@ -11,45 +11,47 @@ namespace Pastel.Parser.ParseNodes
         public BracketIndex(Expression root, Token bracketToken, Expression index) 
             : base(ExpressionType.BRACKET_INDEX, root.FirstToken, root.Owner)
         {
-            Root = root;
-            BracketToken = bracketToken;
-            Index = index;
+            this.Root = root;
+            this.BracketToken = bracketToken;
+            this.Index = index;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Root = Root.ResolveNamesAndCullUnusedCode(resolver);
-            Index = Index.ResolveNamesAndCullUnusedCode(resolver);
+            this.Root = this.Root.ResolveNamesAndCullUnusedCode(resolver);
+            this.Index = this.Index.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Root = Root.ResolveType(varScope, resolver);
-            Index = Index.ResolveType(varScope, resolver);
+            this.Root = this.Root.ResolveType(varScope, resolver);
+            this.Index = this.Index.ResolveType(varScope, resolver);
 
-            PType rootType = Root.ResolvedType;
-            PType indexType = Index.ResolvedType;
+            PType rootType = this.Root.ResolvedType;
+            PType indexType = this.Index.ResolvedType;
 
             bool badIndex = false;
             if (rootType.IsList || rootType.IsArray)
             {
                 badIndex = !indexType.IsIdentical(resolver, PType.INT);
-                ResolvedType = rootType.Generics[0];
+                this.ResolvedType = rootType.Generics[0];
             }
             else if (rootType.IsDictionary)
             {
                 badIndex = !indexType.IsIdentical(resolver, rootType.Generics[0]);
-                ResolvedType = rootType.Generics[1];
+                this.ResolvedType = rootType.Generics[1];
             }
             else if (rootType.IsString)
             {
-                badIndex = !indexType.IsIdentical(resolver, PType.INT);
-                ResolvedType = PType.CHAR;
-                if (Root is InlineConstant && Index is InlineConstant)
+                badIndex = !indexType.IsInteger;
+                this.ResolvedType = PType.CHAR;
+                // TODO(cleanup): shouldn't badIndex be checked here?
+                if (this.Root is InlineConstant rootIc && this.Index is InlineConstant indexIc)
                 {
-                    string c = ((string)((InlineConstant)Root).Value)[(int)((InlineConstant)Index).Value].ToString();
-                    InlineConstant newValue = new InlineConstant(PType.CHAR, FirstToken, c, Owner);
+                    string rootStr = (string)rootIc.Value; 
+                    string c = rootStr[(int)indexIc.Value].ToString();
+                    InlineConstant newValue = InlineConstant.OfCharacter(c, this.FirstToken, this.Owner);
                     newValue.ResolveType(varScope, resolver);
                     return newValue;
                 }
@@ -61,7 +63,7 @@ namespace Pastel.Parser.ParseNodes
 
             if (badIndex)
             {
-                throw new ParserException(BracketToken, "Cannot index into a " + rootType + " with a " + indexType + ".");
+                throw new ParserException(this.BracketToken, "Cannot index into a " + rootType + " with a " + indexType + ".");
             }
 
             return this;
@@ -69,12 +71,12 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Root = Root.ResolveWithTypeContext(resolver);
-            Index = Index.ResolveWithTypeContext(resolver);
+            this.Root = this.Root.ResolveWithTypeContext(resolver);
+            this.Index = this.Index.ResolveWithTypeContext(resolver);
 
-            Expression[] args = new Expression[] { Root, Index };
+            Expression[] args = [ Root, Index ];
             CoreFunction nf;
-            switch (Root.ResolvedType.RootValue)
+            switch (this.Root.ResolvedType.RootValue)
             {
                 case "string": nf = CoreFunction.STRING_CHAR_AT; break;
                 case "List": nf = CoreFunction.LIST_GET; break;
@@ -82,7 +84,8 @@ namespace Pastel.Parser.ParseNodes
                 case "Array": nf = CoreFunction.ARRAY_GET; break;
                 default: throw new InvalidOperationException(); // this should have been caught earlier in ResolveType()
             }
-            return new CoreFunctionInvocation(FirstToken, nf, args, Owner) { ResolvedType = ResolvedType };
+
+            return new CoreFunctionInvocation(this.FirstToken, nf, args, this.Owner) { ResolvedType = this.ResolvedType };
         }
     }
 }

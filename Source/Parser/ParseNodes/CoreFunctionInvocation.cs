@@ -43,33 +43,36 @@ namespace Pastel.Parser.ParseNodes
 
             for (int i = 0; i < verificationLength; ++i)
             {
-                if (!PType.CheckAssignmentWithTemplateOutput(resolver, expectedTypes[i], Args[i].ResolvedType, templateLookup))
+                if (!PType.CheckAssignmentWithTemplateOutput(resolver, expectedTypes[i], this.Args[i].ResolvedType, templateLookup))
                 {
                     PType expectedType = expectedTypes[i];
                     if (templateLookup.ContainsKey(expectedType.ToString()))
                     {
                         expectedType = templateLookup[expectedType.ToString()];
                     }
-                    throw new ParserException(Args[i].FirstToken, "Incorrect type. Expected " + expectedType + " but found " + Args[i].ResolvedType + ".");
+                    throw new ParserException(
+                        this.Args[i].FirstToken, 
+                        "Incorrect type. Expected " + expectedType + " but found " + this.Args[i].ResolvedType + ".");
                 }
             }
 
-            if (expectedTypes.Length < Args.Length)
+            if (expectedTypes.Length < this.Args.Length)
             {
-                if (isArgRepeated[isArgRepeated.Length - 1])
-                {
-                    PType expectedType = expectedTypes[expectedTypes.Length - 1];
-                    for (int i = expectedTypes.Length; i < Args.Length; ++i)
-                    {
-                        if (!PType.CheckAssignment(resolver, expectedType, Args[i].ResolvedType))
-                        {
-                            throw new ParserException(Args[i].FirstToken, "Incorrect type. Expected " + expectedTypes[i] + " but found " + Args[i].ResolvedType + ".");
-                        }
-                    }
-                }
-                else
+                if (!isArgRepeated[isArgRepeated.Length - 1])
                 {
                     throw new ParserException(FirstToken, "Too many arguments.");
+                }
+
+                PType expectedType = expectedTypes[expectedTypes.Length - 1];
+                for (int i = expectedTypes.Length; i < this.Args.Length; ++i)
+                {
+                    Expression arg = this.Args[i];
+                    if (!PType.CheckAssignment(resolver, expectedType, arg.ResolvedType))
+                    {
+                        throw new ParserException(
+                            arg.FirstToken,
+                            "Incorrect type. Expected " + expectedTypes[i] + " but found " + arg.ResolvedType + ".");
+                    }
                 }
             }
 
@@ -80,7 +83,7 @@ namespace Pastel.Parser.ParseNodes
                 returnType = returnType.ResolveTemplates(templateLookup);
             }
 
-            ResolvedType = returnType;
+            this.ResolvedType = returnType;
 
             return this;
         }
@@ -104,8 +107,7 @@ namespace Pastel.Parser.ParseNodes
             {
                 // TODO: why is it coming as both types? Is it still coming as both?
                 char c = (ic.Value is string str) ? str[0] : (char)ic.Value;
-                InlineConstant output = new InlineConstant(
-                    PType.INT, this.FirstToken, (int)c, this.Owner);
+                InlineConstant output = InlineConstant.OfInteger((int)c, this.FirstToken, this.Owner);
                 return output;
             }
 
@@ -116,7 +118,7 @@ namespace Pastel.Parser.ParseNodes
         {
             for (int i = 0; i < Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(resolver);
+                this.Args[i] = this.Args[i].ResolveWithTypeContext(resolver);
             }
 
             return this.TryCompileTimeResolve() ?? (Expression)this;

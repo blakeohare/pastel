@@ -11,14 +11,14 @@ namespace Pastel.Parser
 
         public TokenStream(IList<Token> tokens)
         {
-            index = 0;
+            this.index = 0;
             this.tokens = tokens.ToArray();
-            length = this.tokens.Length;
+            this.length = this.tokens.Length;
         }
 
         public int SnapshotState()
         {
-            return index;
+            return this.index;
         }
 
         public void RevertState(int index)
@@ -28,29 +28,29 @@ namespace Pastel.Parser
 
         public bool IsNext(string token)
         {
-            if (index < length)
+            if (this.index < this.length)
             {
-                return tokens[index].Value == token;
+                return this.tokens[this.index].Value == token;
             }
             return false;
         }
 
         public Token Peek()
         {
-            if (index < length)
+            if (this.index < this.length)
             {
-                return tokens[index];
+                return this.tokens[this.index];
             }
             return null;
         }
 
         public Token Pop()
         {
-            if (index < length)
+            if (this.index < this.length)
             {
-                return tokens[index++];
+                return this.tokens[this.index++];
             }
-            throw new EofException(tokens[0].FileName);
+            throw new EofException(this.tokens[0].FileName);
         }
 
         public Token PopIdentifier()
@@ -70,27 +70,27 @@ namespace Pastel.Parser
 
         public string PeekValue()
         {
-            if (index < length)
+            if (this.index < this.length)
             {
-                return tokens[index].Value;
+                return this.tokens[this.index].Value;
             }
             return null;
         }
 
         public string PeekAhead(int offset)
         {
-            if (index + offset < length)
+            if (this.index + offset < this.length)
             {
-                return tokens[index + offset].Value;
+                return this.tokens[this.index + offset].Value;
             }
             return null;
         }
 
         public bool PopIfPresent(string value)
         {
-            if (index < length && tokens[index].Value == value)
+            if (this.index < this.length && this.tokens[this.index].Value == value)
             {
-                index++;
+                this.index++;
                 return true;
             }
             return false;
@@ -111,7 +111,7 @@ namespace Pastel.Parser
         {
             get
             {
-                return index < length;
+                return this.index < this.length;
             }
         }
 
@@ -119,19 +119,20 @@ namespace Pastel.Parser
         {
             string val1 = PeekValue();
             if (val1 == "<<") return this.Pop(); // << is unambiguouos
-            if (val1 == ">" && index + 1 < length) // could be a >>
+            if (val1 == ">" && this.index + 1 < this.length) // could be a >>
             {
-                Token token1 = tokens[index];
-                Token token2 = tokens[index + 1];
+                Token token1 = this.tokens[this.index];
+                Token token2 = this.tokens[this.index + 1];
                 if (token2.Value == ">" &&
                     token1.Line == token2.Line &&
                     token1.Col + 1 == token2.Col)
                 {
-                    Pop();
-                    Pop();
+                    this.Pop();
+                    this.Pop();
                     return new Token(">>", token1.FileName, token1.Line, token1.Col, TokenType.PUNCTUATION);
                 }
             }
+
             return null;
         }
     }

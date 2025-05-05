@@ -11,28 +11,28 @@
             Token opToken,
             Expression value) : base(target.FirstToken)
         {
-            Target = target;
-            OpToken = opToken;
-            Value = value;
+            this.Target = target;
+            this.OpToken = opToken;
+            this.Value = value;
         }
 
         public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Target = Target.ResolveNamesAndCullUnusedCode(resolver);
-            Value = Value.ResolveNamesAndCullUnusedCode(resolver);
+            this.Target = this.Target.ResolveNamesAndCullUnusedCode(resolver);
+            this.Value = this.Value.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
         internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            Value = Value.ResolveType(varScope, resolver);
-            Target = Target.ResolveType(varScope, resolver);
+            this.Value = this.Value.ResolveType(varScope, resolver);
+            this.Target = this.Target.ResolveType(varScope, resolver);
 
-            if (!PType.CheckAssignment(resolver, Target.ResolvedType, Value.ResolvedType))
+            if (!PType.CheckAssignment(resolver, this.Target.ResolvedType, this.Value.ResolvedType))
             {
-                if (OpToken.Value != "=" &&
-                    Target.ResolvedType.IsIdentical(resolver, PType.DOUBLE) &&
-                    Value.ResolvedType.IsIdentical(resolver, PType.INT))
+                if (this.OpToken.Value != "=" &&
+                    this.Target.ResolvedType.IsIdentical(resolver, PType.DOUBLE) &&
+                    this.Value.ResolvedType.IsIdentical(resolver, PType.INT))
                 {
                     // You can apply incremental ops such as += with an int to a float and that is fine without explicit conversion in any platform.
                 }
@@ -45,17 +45,16 @@
 
         internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            if (Target is BracketIndex)
+            if (this.Target is BracketIndex bi)
             {
-                BracketIndex bi = (BracketIndex)Target;
-                if (OpToken.Value != "=" && bi.Root.ResolvedType.RootValue != "Array")
+                if (this.OpToken.Value != "=" && bi.Root.ResolvedType.RootValue != "Array")
                 {
                     // Java will need to be special as it will require things to be broken down into a get-then-set.
-                    throw new ParserException(OpToken, "Incremental assignment on a key/index is not currently supported (although it really ought to be).");
+                    throw new ParserException(this.OpToken, "Incremental assignment on a key/index is not currently supported (although it really ought to be).");
                 }
 
                 string rootType = bi.Root.ResolvedType.RootValue;
-                Expression[] args = new Expression[] { bi.Root, bi.Index, Value };
+                Expression[] args = [bi.Root, bi.Index, this.Value];
                 CoreFunction nf;
                 if (rootType == "Array")
                 {
@@ -73,15 +72,16 @@
                 {
                     throw new ParserException(bi.BracketToken, "Can't use brackets here.");
                 }
+                
                 return new ExpressionAsStatement(new CoreFunctionInvocation(
-                    FirstToken,
+                    this.FirstToken,
                     nf,
                     args,
                     bi.Owner)).ResolveWithTypeContext(resolver);
             }
 
-            Target = Target.ResolveWithTypeContext(resolver);
-            Value = Value.ResolveWithTypeContext(resolver);
+            this.Target = this.Target.ResolveWithTypeContext(resolver);
+            this.Value = this.Value.ResolveWithTypeContext(resolver);
 
             return this;
         }

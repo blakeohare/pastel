@@ -95,30 +95,30 @@ namespace Pastel.Parser.ParseNodes
                 this.Category = TypeCategory.CORE_FUNCTION;
             }
 
-            if (Generics.Length == 1)
+            if (this.Generics.Length == 1)
             {
-                if (RootValue == "List") Category = TypeCategory.LIST;
-                else if (RootValue == "Array") Category = TypeCategory.ARRAY;
-                else if (RootValue == "Func") Category = TypeCategory.FUNCTION;
+                if (this.RootValue == "List") this.Category = TypeCategory.LIST;
+                else if (this.RootValue == "Array") this.Category = TypeCategory.ARRAY;
+                else if (this.RootValue == "Func") this.Category = TypeCategory.FUNCTION;
                 else throw new ParserException(firstToken, "A generic cannot be applied to this type.");
             }
-            else if (Generics.Length == 2)
+            else if (this.Generics.Length == 2)
             {
-                if (RootValue == "Dictionary") Category = TypeCategory.DICTIONARY;
-                else if (RootValue == "Func") Category = TypeCategory.FUNCTION;
+                if (this.RootValue == "Dictionary") this.Category = TypeCategory.DICTIONARY;
+                else if (this.RootValue == "Func") this.Category = TypeCategory.FUNCTION;
                 else throw new ParserException(firstToken, "Two generics cannot be applied to this type.");
             }
-            else if (Generics.Length > 2)
+            else if (this.Generics.Length > 2)
             {
-                if (RootValue == "Func") Category = TypeCategory.FUNCTION;
+                if (this.RootValue == "Func") this.Category = TypeCategory.FUNCTION;
                 else throw new ParserException(firstToken, "Invalid number of generics.");
             }
             else
             {
-                switch (RootValue)
+                switch (this.RootValue)
                 {
                     case "null":
-                        Category = TypeCategory.NULL;
+                        this.Category = TypeCategory.NULL;
                         break;
 
                     case "int":
@@ -129,40 +129,40 @@ namespace Pastel.Parser.ParseNodes
                     case "number":
                     case "byte":
                     case "StringBuilder":
-                        Category = TypeCategory.PRIMITIVE;
+                        this.Category = TypeCategory.PRIMITIVE;
                         break;
 
                     case "object":
-                        Category = TypeCategory.OBJECT;
+                        this.Category = TypeCategory.OBJECT;
                         break;
 
                     case "void":
-                        Category = TypeCategory.VOID;
+                        this.Category = TypeCategory.VOID;
                         break;
 
                     case "List":
                     case "Array":
                     case "Dictionary":
-                        throw new ParserException(FirstToken, "This type requires generics");
+                        throw new ParserException(this.FirstToken, "This type requires generics");
 
                     case "@CoreFunc":
-                        Category = TypeCategory.CORE_FUNCTION;
+                        this.Category = TypeCategory.CORE_FUNCTION;
                         break;
 
                     default:
-                        if (RootValue.Length == 1)
+                        if (this.RootValue.Length == 1)
                         {
-                            Category = TypeCategory.TEMPLATE;
+                            this.Category = TypeCategory.TEMPLATE;
                         }
                         else
                         {
-                            Category = TypeCategory.STRUCT;
+                            this.Category = TypeCategory.STRUCT;
                         }
                         break;
                 }
             }
 
-            switch (Category)
+            switch (this.Category)
             {
                 case TypeCategory.STRUCT:
                 case TypeCategory.ARRAY:
@@ -171,24 +171,24 @@ namespace Pastel.Parser.ParseNodes
                 case TypeCategory.FUNCTION:
                 case TypeCategory.OBJECT:
                 case TypeCategory.NULL:
-                    IsNullable = true;
+                    this.IsNullable = true;
                     break;
                 case TypeCategory.PRIMITIVE:
-                    IsNullable = RootValue == "string" || RootValue == "StringBuilder";
+                    this.IsNullable = this.RootValue == "string" || this.RootValue == "StringBuilder";
                     break;
                 default:
-                    IsNullable = false;
+                    this.IsNullable = false;
                     break;
             }
 
-            HasTemplates = Category == TypeCategory.TEMPLATE;
-            if (!HasTemplates && Generics.Length > 0)
+            this.HasTemplates = this.Category == TypeCategory.TEMPLATE;
+            if (!this.HasTemplates && this.Generics.Length > 0)
             {
-                for (int i = 0; i < Generics.Length; ++i)
+                for (int i = 0; i < this.Generics.Length; ++i)
                 {
-                    if (Generics[i].HasTemplates)
+                    if (this.Generics[i].HasTemplates)
                     {
-                        HasTemplates = true;
+                        this.HasTemplates = true;
                         break;
                     }
                 }
@@ -219,7 +219,9 @@ namespace Pastel.Parser.ParseNodes
 
                 if (this.structReference == null)
                 {
-                    throw new ParserException(this.FirstToken, "Could not find a class or struct by the name of '" + this.RootValue + "'");
+                    throw new ParserException(
+                        this.FirstToken, 
+                        "Could not find a class or struct by the name of '" + this.RootValue + "'");
                 }
             }
 
@@ -254,7 +256,11 @@ namespace Pastel.Parser.ParseNodes
         }
 
         // when a templated type coincides with an actual value, add that template key to the lookup output param.
-        internal static bool CheckAssignmentWithTemplateOutput(Resolver resolver, PType templatedType, PType actualValue, Dictionary<string, PType> output)
+        internal static bool CheckAssignmentWithTemplateOutput(
+            Resolver resolver, 
+            PType templatedType, 
+            PType actualValue, 
+            Dictionary<string, PType> output)
         {
             if (templatedType.Category == TypeCategory.OBJECT) return true;
 
@@ -359,21 +365,21 @@ namespace Pastel.Parser.ParseNodes
         private bool IsParentOf(Resolver resolver, PType moreSpecificTypeOrSame)
         {
             if (moreSpecificTypeOrSame == this) return true;
-            if (Category == TypeCategory.OBJECT) return true;
-            if (Generics.Length == 0)
+            if (this.Category == TypeCategory.OBJECT) return true;
+            if (this.Generics.Length == 0)
             {
                 // why no treatment of int as a subtype of double? because there needs to be an explicit type conversion
                 // for languages that aren't strongly typed and won't auto-convert.
-                return RootValue == moreSpecificTypeOrSame.RootValue;
+                return this.RootValue == moreSpecificTypeOrSame.RootValue;
             }
 
             // All that's left are Arrays, Lists, and Dictionaries, which must match exactly.
-            return IsIdentical(resolver, moreSpecificTypeOrSame);
+            return this.IsIdentical(resolver, moreSpecificTypeOrSame);
         }
 
         internal bool IsIdenticalOrChildOf(Resolver resolver, PType other)
         {
-            if (IsIdentical(resolver, other)) return true;
+            if (this.IsIdentical(resolver, other)) return true;
 
             // only structs should be here if this is to return true. If not, then it's a no.
             if (!this.IsStruct || !other.IsStruct) return false;
@@ -492,7 +498,7 @@ namespace Pastel.Parser.ParseNodes
 
         private static PType ParseImpl(TokenStream tokens)
         {
-            int consecutiveTokenCount = ParseRootNameImpl(tokens);
+            int consecutiveTokenCount = PType.ParseRootNameImpl(tokens);
             if (consecutiveTokenCount == 0) return null;
             Token namespaceToken = null;
             string namespaceTokenValue = null;
@@ -541,7 +547,7 @@ namespace Pastel.Parser.ParseNodes
                         }
                     }
 
-                    PType generic = ParseImpl(tokens);
+                    PType generic = PType.ParseImpl(tokens);
                     if (generic == null) return null;
 
                     generics.Add(generic);
@@ -564,14 +570,14 @@ namespace Pastel.Parser.ParseNodes
         public override string ToString()
         {
             // only used for debugging and errors, so string concatenation is fine.
-            string output = RootValue;
-            if (Generics.Length > 0)
+            string output = this.RootValue;
+            if (this.Generics.Length > 0)
             {
                 output += "<";
-                for (int i = 0; i < Generics.Length; ++i)
+                for (int i = 0; i < this.Generics.Length; ++i)
                 {
                     if (i > 0) output += ", ";
-                    output += Generics[i].ToString();
+                    output += this.Generics[i].ToString();
                 }
                 output += ">";
             }

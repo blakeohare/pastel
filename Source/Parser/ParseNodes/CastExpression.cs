@@ -14,21 +14,21 @@
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            Expression = Expression.ResolveNamesAndCullUnusedCode(resolver);
+            this.Expression = this.Expression.ResolveNamesAndCullUnusedCode(resolver);
             return this;
         }
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            Expression = Expression.ResolveType(varScope, resolver);
+            this.Expression = this.Expression.ResolveType(varScope, resolver);
             // TODO: check for silly casts
-            ResolvedType = Type;
+            this.ResolvedType = this.Type;
             return this;
         }
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Expression = Expression.ResolveWithTypeContext(resolver);
+            this.Expression = this.Expression.ResolveWithTypeContext(resolver);
             return this;
         }
     }

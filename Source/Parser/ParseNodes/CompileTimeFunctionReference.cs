@@ -9,12 +9,12 @@ namespace Pastel.Parser.ParseNodes
         public CompileTimeFunctionReference(Token atToken, Token nameToken, ICompilationEntity owner) 
             : base(ExpressionType.COMPILE_TIME_FUNCTION_REFERENCE, atToken, owner)
         {
-            NameToken = nameToken;
+            this.NameToken = nameToken;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            throw new ParserException(FirstToken, "Compile time functions must be invoked and cannot be used like pointers.");
+            throw new ParserException(this.FirstToken, "Compile time functions must be invoked and cannot be used like pointers.");
         }
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
