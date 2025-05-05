@@ -351,14 +351,7 @@ namespace Pastel.Parser.ParseNodes
 
         internal static bool CheckReturnType(Resolver resolver, PType returnType, PType value)
         {
-            // This is an assert, not a user-facing exception. Null should never appear here.
-            // TODO(cleanup): then it should be an invalid operation exception
-            if (value == null)
-            {
-                throw new UNTESTED_ParserException(
-                    returnType.FirstToken, 
-                    "This should not happen.");
-            }
+            if (value == null) throw new System.InvalidOperationException(); // This should not happen.
 
             if (value.IsIdenticalOrChildOf(resolver, returnType)) return true;
             if (returnType.Category == TypeCategory.OBJECT) return true;
