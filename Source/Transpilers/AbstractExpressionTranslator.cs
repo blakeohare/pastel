@@ -206,7 +206,6 @@ namespace Pastel.Transpilers
                 case CoreFunction.EMIT_COMMENT: return this.TranslateEmitComment(((InlineConstant)args[0]).Value.ToString());
                 case CoreFunction.EXTENSIBLE_CALLBACK_INVOKE: return this.TranslateExtensibleCallbackInvoke(args[0], args[1]);
                 case CoreFunction.FLOAT_TO_STRING: return this.TranslateFloatToString(args[0]);
-                case CoreFunction.GET_FUNCTION: return this.TranslateGetFunction(args[0]);
                 case CoreFunction.INT_TO_STRING: return this.TranslateIntToString(args[0]);
                 case CoreFunction.IS_VALID_INTEGER: return this.TranslateIsValidInteger(args[0]);
                 case CoreFunction.LIST_ADD: return this.TranslateListAdd(args[0], args[1]);
@@ -378,7 +377,6 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateFloatToString(Expression floatExpr);
         public abstract StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args);
         public abstract StringBuffer TranslateFunctionReference(FunctionReference funcRef);
-        public abstract StringBuffer TranslateGetFunction(Expression name);
         public abstract StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition);
         public abstract StringBuffer TranslateIntegerConstant(int value);
         public abstract StringBuffer TranslateIntToString(Expression integer);

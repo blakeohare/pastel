@@ -295,15 +295,6 @@ namespace Pastel.Transpilers.Php
                 .WithTightness(ExpressionTightness.PHP_STRING_CONCAT);
         }
 
-        public override StringBuffer TranslateGetFunction(Expression name)
-        {
-            return StringBuffer
-                .Of("TranslationHelper_getFunction(")
-                .Push(TranslateExpression(name))
-                .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
         public override StringBuffer TranslateIntToString(Expression integer)
         {
             return TranslateFloatToString(integer); // same

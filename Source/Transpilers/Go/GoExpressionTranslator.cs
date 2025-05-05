@@ -390,11 +390,6 @@ namespace Pastel.Transpilers.Go
             return StringBuffer.Of("fn_").Push(funcRef.Function.Name);
         }
 
-        public override StringBuffer TranslateGetFunction(Expression name)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition)
         {
             throw new NotImplementedException();

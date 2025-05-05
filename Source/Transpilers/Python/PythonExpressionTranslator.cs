@@ -369,14 +369,6 @@ namespace Pastel.Transpilers.Python
             return this.TranslateVariableName(funcRef.Function.NameToken.Value);
         }
 
-        public override StringBuffer TranslateGetFunction(Expression name)
-        {
-            return StringBuffer.Of("TranslationHelper_getFunction(")
-                .Push(TranslateExpression(name))
-                .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
         public override StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition)
         {
             throw new ParserException(

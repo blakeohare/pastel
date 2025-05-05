@@ -281,13 +281,6 @@ namespace Pastel.Transpilers.CSharp
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateGetFunction(Expression name)
-        {
-            return StringBuffer.Of("TranslationHelper.GetFunctionPointer(")
-                .Push(TranslateExpression(name))
-                .Push(")");
-        }
-
         public override StringBuffer TranslateIntToString(Expression integer)
         {
             // NOTE: string constants will have been already converted at this point so no

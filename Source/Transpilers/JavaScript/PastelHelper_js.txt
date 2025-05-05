@@ -56,16 +56,6 @@ let PST$extCallbacks = {};
 // PASTEL_ENTITY_ID: PST_RegisterExtensibleCallback
 let PST$registerExtensibleCallback = (name, fn) => { PST$extCallbacks[name] = fn; };
 
-// PASTEL_ENTITY_ID: PST$getFunction
-let PST$getFunction = (name) => {
-	let p = name.split(',');
-	let check = p[p.length - 1];
-	if (window[check] !== undefined) {
-		return window[check];
-	}
-	return null;
-};
-
 // PASTEL_ENTITY_ID: PST$stdout
 let PST$stdout = v => { console.log(v); };
 

@@ -153,11 +153,6 @@ namespace Pastel.Transpilers.C
             throw new NotImplementedException();
         }
 
-        public override StringBuffer TranslateGetFunction(Expression name)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateIntToString(Expression integer)
         {
             throw new NotImplementedException();

@@ -4,9 +4,6 @@
     {
         NONE,
 
-        // TODO: port this to the standalone Pastel
-        GET_FUNCTION,
-
         ARRAY_GET,
         ARRAY_JOIN,
         ARRAY_LENGTH,

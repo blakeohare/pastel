@@ -209,11 +209,6 @@ namespace Pastel.Transpilers.CommonScript
             throw new NotImplementedException();
         }
 
-        public override StringBuffer TranslateGetFunction(Expression name)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateIntToString(Expression integer)
         {
             return this.TranslateExpression(integer)

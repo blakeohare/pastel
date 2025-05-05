@@ -250,15 +250,6 @@ namespace Pastel.Transpilers.JavaScript
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateGetFunction(Expression name)
-        {
-            return StringBuffer
-                .Of("PST$getFunction(")
-                .Push(TranslateExpression(name))
-                .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
         public override StringBuffer TranslateIntToString(Expression integer)
         {
             return TranslateExpression(integer)

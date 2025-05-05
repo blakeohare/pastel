@@ -113,7 +113,6 @@ namespace Pastel.Parser.ParseNodes
                 case "ExtensibleCallbackInvoke": return CoreFunction.EXTENSIBLE_CALLBACK_INVOKE;
                 case "FloatToString": return CoreFunction.FLOAT_TO_STRING;
                 case "Floor": return CoreFunction.MATH_FLOOR;
-                case "GetFunction": return CoreFunction.GET_FUNCTION;
                 case "IntToString": return CoreFunction.INT_TO_STRING;
                 case "IsValidInteger": return CoreFunction.IS_VALID_INTEGER;
                 case "ListConcat": return CoreFunction.LIST_CONCAT;
