@@ -59,7 +59,9 @@ namespace Pastel.Parser.ParseNodes
                 string strValue = this.Value.ToString();
                 if (strValue.Length > 1)
                 {
-                    throw new ParserException(FirstToken, "Character constant with a coded value longer than 1 actual character.");
+                    throw new UNTESTED_ParserException(
+                        this.FirstToken,
+                        "Character constant with a coded value longer than 1 actual character.");
                 }
                 this.Value = strValue[0];
             }

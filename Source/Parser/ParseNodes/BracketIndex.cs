@@ -63,7 +63,9 @@ namespace Pastel.Parser.ParseNodes
 
             if (badIndex)
             {
-                throw new ParserException(this.BracketToken, "Cannot index into a " + rootType + " with a " + indexType + ".");
+                throw new UNTESTED_ParserException(
+                    this.BracketToken,
+                    "Cannot index into a " + rootType + " with a " + indexType + ".");
             }
 
             return this;

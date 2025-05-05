@@ -108,7 +108,7 @@ namespace Pastel.Parser
                         string functionName = fnDef.NameToken.Value;
                         if (this.FunctionDefinitions.ContainsKey(functionName))
                         {
-                            throw new ParserException(fnDef.FirstToken, "Multiple definitions of function: '" + functionName + "'");
+                            throw new UNTESTED_ParserException(fnDef.FirstToken, "Multiple definitions of function: '" + functionName + "'");
                         }
                         this.FunctionDefinitions[functionName] = fnDef;
                         break;
@@ -118,7 +118,7 @@ namespace Pastel.Parser
                         string structName = structDef.NameToken.Value;
                         if (this.StructDefinitions.ContainsKey(structName))
                         {
-                            throw new ParserException(structDef.FirstToken, "Multiple definitions of function: '" + structName + "'");
+                            throw new UNTESTED_ParserException(structDef.FirstToken, "Multiple definitions of function: '" + structName + "'");
                         }
                         this.StructDefinitions[structName] = structDef;
                         break;
@@ -128,7 +128,7 @@ namespace Pastel.Parser
                         string enumName = enumDef.NameToken.Value;
                         if (this.EnumDefinitions.ContainsKey(enumName))
                         {
-                            throw new ParserException(enumDef.FirstToken, "Multiple definitions of function: '" + enumName + "'");
+                            throw new UNTESTED_ParserException(enumDef.FirstToken, "Multiple definitions of function: '" + enumName + "'");
                         }
                         this.EnumDefinitions[enumName] = enumDef;
                         break;
@@ -139,7 +139,7 @@ namespace Pastel.Parser
                         Dictionary<string, VariableDeclaration> lookup = this.ConstantDefinitions;
                         if (lookup.ContainsKey(targetName))
                         {
-                            throw new ParserException(
+                            throw new UNTESTED_ParserException(
                                 assignment.FirstToken,
                                 "Multiple definitions of : '" + targetName + "'");
                         }

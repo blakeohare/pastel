@@ -29,7 +29,9 @@ namespace Pastel.Parser.ParseNodes
             this.Condition = this.Condition.ResolveType(varScope, resolver);
             if (!this.Condition.ResolvedType.IsIdentical(resolver, PType.BOOL))
             {
-                throw new ParserException(this.Condition.FirstToken, "While loop must have a boolean condition.");
+                throw new UNTESTED_ParserException(
+                    this.Condition.FirstToken,
+                    "While loop must have a boolean condition.");
             }
 
             Statement.ResolveTypes(this.Code, varScope, resolver);

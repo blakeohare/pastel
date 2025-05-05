@@ -40,7 +40,9 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            throw new ParserException(this.FirstToken, "Core Functions must be invoked and cannot be passed as function pointers in this manner.");
+            throw new UNTESTED_ParserException(
+                this.FirstToken, 
+                "Core Functions must be invoked and cannot be passed as function pointers in this manner.");
         }
     }
 }

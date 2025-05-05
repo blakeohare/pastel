@@ -128,7 +128,12 @@ namespace Pastel
                 path = System.IO.Path.Combine(this.root, path);
                 path = System.IO.Path.GetFullPath(path);
                 string code = DiskUtil.TryReadTextFile(path);
-                if (code == null) throw new ParserException(throwLocation, "File does not exist: " + path);
+                if (code == null)
+                {
+                    throw new UNTESTED_ParserException(
+                        throwLocation,
+                        "File does not exist: " + path);
+                }
                 return code;
             }
         }

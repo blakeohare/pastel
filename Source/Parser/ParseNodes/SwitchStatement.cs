@@ -31,7 +31,9 @@ namespace Pastel.Parser.ParseNodes
                 {
                     if (this.Cases[i] == null)
                     {
-                        throw new ParserException(caseAndDefaultTokens[i], "default cannot appear before other cases.");
+                        throw new UNTESTED_ParserException(
+                            caseAndDefaultTokens[i],
+                            "default cannot appear before other cases.");
                     }
                 }
 
@@ -66,7 +68,9 @@ namespace Pastel.Parser.ParseNodes
             bool isChar = !isInt && conditionType.IsIdentical(resolver, PType.CHAR);
             if (!isInt && !isChar)
             {
-                throw new ParserException(this.Condition.FirstToken, "Only ints and chars can be used in switch statements.");
+                throw new UNTESTED_ParserException(
+                    this.Condition.FirstToken,
+                    "Only ints and chars can be used in switch statements.");
             }
 
             // consider it all one scope
@@ -83,7 +87,9 @@ namespace Pastel.Parser.ParseNodes
                         if (isInt && ex.ResolvedType.RootValue != "int" ||
                             isChar && ex.ResolvedType.RootValue != "char")
                         {
-                            throw new ParserException(ex.FirstToken, isInt ? "Only ints may be used." : "Only chars may be used.");
+                            throw new UNTESTED_ParserException(
+                                ex.FirstToken, 
+                                isInt ? "Only ints may be used." : "Only chars may be used.");
                         }
                     }
                 }
@@ -107,8 +113,8 @@ namespace Pastel.Parser.ParseNodes
                         InlineConstant ic = chunk.Cases[j] as InlineConstant;
                         if (ic == null)
                         {
-                            throw new ParserException(
-                                chunk.Cases[j].FirstToken, 
+                            throw new UNTESTED_ParserException(
+                                chunk.Cases[j].FirstToken,
                                 "Only constants may be used as switch cases.");
                         }
                         int value;
@@ -122,7 +128,9 @@ namespace Pastel.Parser.ParseNodes
                         }
                         if (values.Contains(value))
                         {
-                            throw new ParserException(chunk.Cases[j].FirstToken, "This cases appears multiple times.");
+                            throw new UNTESTED_ParserException(
+                                chunk.Cases[j].FirstToken, 
+                                "This cases appears multiple times.");
                         }
                         values.Add(value);
                     }

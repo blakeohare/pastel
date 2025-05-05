@@ -34,7 +34,7 @@
                         return InlineConstant.OfFloat(-floatVal, this.FirstToken, this.Owner);
                     }
                 }
-                throw new ParserException(
+                throw new UNTESTED_ParserException(
                     this.OpToken, 
                     "The op '" + this.OpToken.Value + "' is not valid on this type of expression.");
             }
@@ -52,14 +52,14 @@
                 if (!(this.ResolvedType.IsIdentical(resolver, PType.INT) || 
                       this.ResolvedType.IsIdentical(resolver, PType.DOUBLE)))
                 {
-                    throw new ParserException(this.OpToken, "Cannot apply '-' to type: " + this.ResolvedType.ToString());
+                    throw new UNTESTED_ParserException(this.OpToken, "Cannot apply '-' to type: " + this.ResolvedType.ToString());
                 }
             }
             else // '!'
             {
                 if (!this.ResolvedType.IsIdentical(resolver, PType.BOOL))
                 {
-                    throw new ParserException(this.OpToken, "Cannot apply '!' to type: " + this.ResolvedType.ToString());
+                    throw new UNTESTED_ParserException(this.OpToken, "Cannot apply '!' to type: " + this.ResolvedType.ToString());
                 }
             }
             

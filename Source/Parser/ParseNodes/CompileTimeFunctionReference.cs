@@ -14,7 +14,9 @@ namespace Pastel.Parser.ParseNodes
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            throw new ParserException(this.FirstToken, "Compile time functions must be invoked and cannot be used like pointers.");
+            throw new UNTESTED_ParserException(
+                this.FirstToken,
+                "Compile time functions must be invoked and cannot be used like pointers.");
         }
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)

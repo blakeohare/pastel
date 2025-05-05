@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace Pastel.Parser.ParseNodes
 {
@@ -80,6 +81,7 @@ namespace Pastel.Parser.ParseNodes
             return new PType(tokenOfFunctionRefOccurrence, null, "Func", generics.ToArray());
         }
 
+        // TODO(cleanup): get rid of namespaceName
         public PType(Token firstToken, string namespaceName, string typeName, params PType[] generics) : this(firstToken, namespaceName, typeName, new List<PType>(generics)) { }
         public PType(Token firstToken, string namespaceName, string typeName, List<PType> generics)
         {
@@ -100,18 +102,18 @@ namespace Pastel.Parser.ParseNodes
                 if (this.RootValue == "List") this.Category = TypeCategory.LIST;
                 else if (this.RootValue == "Array") this.Category = TypeCategory.ARRAY;
                 else if (this.RootValue == "Func") this.Category = TypeCategory.FUNCTION;
-                else throw new ParserException(firstToken, "A generic cannot be applied to this type.");
+                else throw new UNTESTED_ParserException(firstToken, "A generic cannot be applied to this type.");
             }
             else if (this.Generics.Length == 2)
             {
                 if (this.RootValue == "Dictionary") this.Category = TypeCategory.DICTIONARY;
                 else if (this.RootValue == "Func") this.Category = TypeCategory.FUNCTION;
-                else throw new ParserException(firstToken, "Two generics cannot be applied to this type.");
+                else throw new UNTESTED_ParserException(firstToken, "Two generics cannot be applied to this type.");
             }
             else if (this.Generics.Length > 2)
             {
                 if (this.RootValue == "Func") this.Category = TypeCategory.FUNCTION;
-                else throw new ParserException(firstToken, "Invalid number of generics.");
+                else throw new UNTESTED_ParserException(firstToken, "Invalid number of generics.");
             }
             else
             {
@@ -143,7 +145,9 @@ namespace Pastel.Parser.ParseNodes
                     case "List":
                     case "Array":
                     case "Dictionary":
-                        throw new ParserException(this.FirstToken, "This type requires generics");
+                        throw new UNTESTED_ParserException(
+                            this.FirstToken,
+                            "This type requires generics");
 
                     case "@CoreFunc":
                         this.Category = TypeCategory.CORE_FUNCTION;
@@ -219,7 +223,7 @@ namespace Pastel.Parser.ParseNodes
 
                 if (this.structReference == null)
                 {
-                    throw new ParserException(
+                    throw new TestedParserException(
                         this.FirstToken, 
                         "Could not find a class or struct by the name of '" + this.RootValue + "'");
                 }
@@ -348,7 +352,13 @@ namespace Pastel.Parser.ParseNodes
         internal static bool CheckReturnType(Resolver resolver, PType returnType, PType value)
         {
             // This is an assert, not a user-facing exception. Null should never appear here.
-            if (value == null) throw new ParserException(returnType.FirstToken, "This should not happen.");
+            // TODO(cleanup): then it should be an invalid operation exception
+            if (value == null)
+            {
+                throw new UNTESTED_ParserException(
+                    returnType.FirstToken, 
+                    "This should not happen.");
+            }
 
             if (value.IsIdenticalOrChildOf(resolver, returnType)) return true;
             if (returnType.Category == TypeCategory.OBJECT) return true;
@@ -436,7 +446,9 @@ namespace Pastel.Parser.ParseNodes
         {
             PType type = TryParse(tokens);
             if (type != null) return type;
-            throw new ParserException(tokens.Peek(), "Expected a type here.");
+            throw new UNTESTED_ParserException(
+                tokens.Peek(),
+                "Expected a type here.");
         }
 
         internal static PType TryParse(TokenStream tokens)
@@ -567,21 +579,39 @@ namespace Pastel.Parser.ParseNodes
             }
         }
 
-        public override string ToString()
+        private void ToReadableStringImpl(System.Text.StringBuilder sb)
         {
-            // only used for debugging and errors, so string concatenation is fine.
-            string output = this.RootValue;
+            if (this.IsArray)
+            {
+                this.Generics[0].ToReadableStringImpl(sb);
+                sb.Append("[]");
+                return;
+            }
+            
+            sb.Append(this.RootValue);
             if (this.Generics.Length > 0)
             {
-                output += "<";
+                sb.Append('<');
                 for (int i = 0; i < this.Generics.Length; ++i)
                 {
-                    if (i > 0) output += ", ";
-                    output += this.Generics[i].ToString();
+                    if (i > 0) sb.Append(", ");
+                    this.Generics[i].ToReadableStringImpl(sb);
                 }
-                output += ">";
+
+                sb.Append('>');
             }
-            return output;
+        } 
+        
+        public string ToReadableString()
+        {
+            System.Text.StringBuilder sb = new StringBuilder();
+            this.ToReadableStringImpl(sb);
+            return sb.ToString();
+        }
+        
+        public override string ToString()
+        {
+            return this.ToReadableString();
         }
     }
 }

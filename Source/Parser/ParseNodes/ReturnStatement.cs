@@ -31,27 +31,28 @@
                     this.Expression = this.Expression.ResolveType(varScope, resolver);
                     if (!PType.CheckReturnType(resolver, fd.ReturnType, this.Expression.ResolvedType))
                     {
-                        throw new ParserException(this.Expression.FirstToken, "This expression is not the expected return type of this function.");
+                        throw new UNTESTED_ParserException(
+                            this.Expression.FirstToken,
+                            "This expression is not the expected return type of this function.");
                     }
                 }
                 else
                 {
                     if (!fd.ReturnType.IsIdentical(resolver, PType.VOID))
                     {
-                        throw new ParserException(this.FirstToken, "Must return a value in this function.");
+                        throw new UNTESTED_ParserException(
+                            this.FirstToken,
+                            "Must return a value in this function.");
                     }
                 }
             }
             else // constructors
             {
-                if (this.Expression == null)
+                if (this.Expression != null)
                 {
-                    // This is fine.
-                }
-                else
-                {
-                    // This isn't.
-                    throw new ParserException(this.FirstToken, "You cannot return a value from a constructor.");
+                    throw new UNTESTED_ParserException(
+                        this.FirstToken,
+                        "You cannot return a value from a constructor.");
                 }
             }
         }

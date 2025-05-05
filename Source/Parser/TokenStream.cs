@@ -65,7 +65,9 @@ namespace Pastel.Parser
             {
                 return token;
             }
-            throw new ParserException(token, "Expected identifier. Found '" + value + "'");
+            throw new UNTESTED_ParserException(
+                token, 
+                "Expected identifier. Found '" + value + "'");
         }
 
         public string PeekValue()
@@ -98,11 +100,11 @@ namespace Pastel.Parser
 
         public Token PopExpected(string value)
         {
-            Token token = Pop();
+            Token token = this.Pop();
             if (token.Value != value)
             {
                 string message = "Unexpected token. Expected: '" + value + "' but found '" + token.Value + "'.";
-                throw new ParserException(token, message);
+                throw new UNTESTED_ParserException(token, message);
             }
             return token;
         }

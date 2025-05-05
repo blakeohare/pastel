@@ -35,7 +35,7 @@ namespace Pastel.Parser.ParseNodes
                 string name = this.ValueTokens[i].Value;
                 if (this.ValuesByName.ContainsKey(name))
                 {
-                    throw new ParserException(
+                    throw new UNTESTED_ParserException(
                         this.FirstToken, 
                         "The enum '" + this.NameToken.Value + "' has multiple definitions of '" + name + "'");
                 }
@@ -60,7 +60,7 @@ namespace Pastel.Parser.ParseNodes
                         }
                         else
                         {
-                            throw new ParserException(expression.FirstToken, "Only integers are allowed as enum values.");
+                            throw new UNTESTED_ParserException(expression.FirstToken, "Only integers are allowed as enum values.");
                         }
                     }
                     else
@@ -84,7 +84,7 @@ namespace Pastel.Parser.ParseNodes
             {
                 return (InlineConstant)value;
             }
-            throw new ParserException(
+            throw new UNTESTED_ParserException(
                 name, 
                 "The enum value '" + name.Value + "' does not exist in the definition of '" + this.NameToken.Value + "'.");
         }
@@ -97,7 +97,7 @@ namespace Pastel.Parser.ParseNodes
                 string cycleKey = prefix + name;
                 if (cycleDetection.Contains(cycleKey))
                 {
-                    throw new ParserException(
+                    throw new UNTESTED_ParserException(
                         this.FirstToken, 
                         "This enum has a cycle in its value declarations in '" + name + "'");
                 }
@@ -106,7 +106,9 @@ namespace Pastel.Parser.ParseNodes
                 InlineConstant ic = this.ValuesByName[cycleKey].DoConstantResolution(cycleDetection, resolver);
                 if (!(ic.Value is int))
                 {
-                    throw new ParserException(ic.FirstToken, "Enum values must resolve into integers. This does not.");
+                    throw new UNTESTED_ParserException(
+                        ic.FirstToken,
+                        "Enum values must resolve into integers.");
                 }
 
                 this.ValuesByName[cycleKey] = ic;

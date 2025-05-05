@@ -50,8 +50,8 @@ namespace Pastel.Parser.ParseNodes
                     {
                         expectedType = templateLookup[expectedType.ToString()];
                     }
-                    throw new ParserException(
-                        this.Args[i].FirstToken, 
+                    throw new UNTESTED_ParserException(
+                        this.Args[i].FirstToken,
                         "Incorrect type. Expected " + expectedType + " but found " + this.Args[i].ResolvedType + ".");
                 }
             }
@@ -60,7 +60,7 @@ namespace Pastel.Parser.ParseNodes
             {
                 if (!isArgRepeated[isArgRepeated.Length - 1])
                 {
-                    throw new ParserException(FirstToken, "Too many arguments.");
+                    throw new UNTESTED_ParserException(this.FirstToken, "Too many arguments.");
                 }
 
                 PType expectedType = expectedTypes[expectedTypes.Length - 1];
@@ -69,7 +69,7 @@ namespace Pastel.Parser.ParseNodes
                     Expression arg = this.Args[i];
                     if (!PType.CheckAssignment(resolver, expectedType, arg.ResolvedType))
                     {
-                        throw new ParserException(
+                        throw new UNTESTED_ParserException(
                             arg.FirstToken,
                             "Incorrect type. Expected " + expectedTypes[i] + " but found " + arg.ResolvedType + ".");
                     }

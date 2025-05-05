@@ -55,13 +55,17 @@ namespace Pastel.Parser.ParseNodes
                     }
                     else
                     {
-                        throw new ParserException(this.FirstToken, "Cannot instantiate this item.");
+                        throw new UNTESTED_ParserException(
+                            this.FirstToken,
+                            "Cannot instantiate this item.");
                     }
 
                     int fieldCount = resolvedArgTypes.Length;
                     if (fieldCount != this.Args.Length)
                     {
-                        throw new ParserException(this.FirstToken, "Incorrect number of args in constructor. Expected " + fieldCount + ", found " + Args.Length);
+                        throw new UNTESTED_ParserException(
+                            this.FirstToken,
+                            "Incorrect number of args in constructor. Expected " + fieldCount + ", found " + Args.Length);
                     }
 
                     for (int i = 0; i < fieldCount; ++i)
@@ -70,12 +74,12 @@ namespace Pastel.Parser.ParseNodes
                         PType expectedType = resolvedArgTypes[i];
                         if (!PType.CheckAssignment(resolver, expectedType, actualType))
                         {
-                            throw new ParserException(
+                            throw new UNTESTED_ParserException(
                                 this.Args[i].FirstToken,
                                 "Cannot use an arg of this type for this struct field. Expected " +
-                                expectedType.ToString() +
+                                expectedType.ToReadableString() +
                                 " but found " +
-                                actualType.ToString());
+                                actualType.ToReadableString());
                         }
                     }
                     break;

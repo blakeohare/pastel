@@ -78,7 +78,9 @@ namespace Pastel.Parser
                 case "STATICALLY_TYPED": return yesNo("cs java", "js php py");
 
                 default:
-                    throw new ParserException(throwToken, "Unknown @pastel_flag constant: '" + name + "'.");
+                    throw new UNTESTED_ParserException(
+                        throwToken,
+                        "Unknown @pastel_flag constant: '" + name + "'.");
             }
         }
 

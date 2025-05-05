@@ -20,7 +20,7 @@ namespace Pastel.Parser.ParseNodes
 
             if (this.Root.ResolvedType.Generics.Length - 1 != this.Args.Length)
             {
-                throw new ParserException(
+                throw new UNTESTED_ParserException(
                     this.Root.FirstToken, 
                     "This function has the incorrect number of arguments.");
             }
@@ -30,7 +30,7 @@ namespace Pastel.Parser.ParseNodes
                 PType actualArgType = this.Args[i].ResolvedType;
                 if (!actualArgType.IsIdentical(resolver, expectedArgType))
                 {
-                    throw new ParserException(
+                    throw new UNTESTED_ParserException(
                         this.Args[i].FirstToken, 
                         "Incorrect argument type. Expected " + expectedArgType + " but found " + actualArgType + ".");
                 }

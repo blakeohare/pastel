@@ -41,35 +41,37 @@ namespace Pastel.Parser.ParseNodes
             string name = this.VariableNameToken.Value;
             if (resolver.GetFunctionDefinition(name) != null)
             {
-                throw new ParserException(
+                throw new TestedParserException(
                     this.VariableNameToken,
                     "Name conflict: '" + name + "' is the name of a function and cannot be used as a variable name.");
             }
 
             if (resolver.GetEnumDefinition(name) != null)
             {
-                throw new ParserException(
+                throw new TestedParserException(
                     this.VariableNameToken,
                     "Name conflict: '" + name + "' is the name of an enum and cannot be used as a variable name.");
             }
             
             if (resolver.CompilerContext.StructDefinitions.ContainsKey(name))
             {
-                throw new ParserException(
+                throw new TestedParserException(
                     this.VariableNameToken,
                     "Name conflict: '" + name + "' is the name of a struct and cannot be used as a variable name.");
             }
 
             if (resolver.CompilerContext.ConstantDefinitions.ContainsKey(name))
             {
-                throw new ParserException(
+                throw new TestedParserException(
                     this.VariableNameToken,
                     "Name conflict: '" + name + "' is the name of a constant and cannot be used as a variable name.");
             }
 
             if (this.Value == null)
             {
-                throw new ParserException(this.FirstToken, "Cannot have variable declaration without a value.");
+                throw new UNTESTED_ParserException(
+                    this.FirstToken,
+                    "Cannot have variable declaration without a value.");
             }
             this.Value = this.Value.ResolveNamesAndCullUnusedCode(resolver);
 
@@ -87,7 +89,9 @@ namespace Pastel.Parser.ParseNodes
 
             if (!PType.CheckAssignment(resolver, this.Type, this.Value.ResolvedType))
             {
-                throw new ParserException(this.Value.FirstToken, "Cannot assign this type to a " + this.Type);
+                throw new UNTESTED_ParserException(
+                    this.Value.FirstToken,
+                    "Cannot assign this type to a " + this.Type);
             }
 
             varScope.DeclareVariables(this.VariableNameToken, this.Type);

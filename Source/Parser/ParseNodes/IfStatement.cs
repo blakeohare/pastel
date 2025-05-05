@@ -49,7 +49,9 @@ namespace Pastel.Parser.ParseNodes
             this.Condition = this.Condition.ResolveType(varScope, resolver);
             if (!this.Condition.ResolvedType.IsBoolean)
             {
-                throw new ParserException(this.Condition.FirstToken, "Only booleans can be used in if statements.");
+                throw new UNTESTED_ParserException(
+                    this.Condition.FirstToken,
+                    "Only booleans can be used in if statements.");
             }
 
             Statement.ResolveTypes(this.IfCode, new VariableScope(varScope), resolver);

@@ -24,7 +24,7 @@ namespace Pastel.Parser.ParseNodes
                     case "import":
                         if (argc != 1 || !(args[0] is InlineConstant ic) || !(ic.Value is string path))
                         {
-                            throw new ParserException(
+                            throw new UNTESTED_ParserException(
                                 funcInvoke.FirstToken,
                                 "@import() expects 1 string constant argument.");
                         }
@@ -32,7 +32,8 @@ namespace Pastel.Parser.ParseNodes
                         return parser.StatementParser.ParseImportedCode(compTimeFn.FirstToken, path);
 
                     default:
-                        throw new ParserException(funcInvoke.FirstToken,
+                        throw new UNTESTED_ParserException(
+                            funcInvoke.FirstToken,
                             "Unknown compile-time function: @" + funcName);
                 }
             }

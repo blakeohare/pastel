@@ -286,7 +286,9 @@ namespace Pastel
                 if (!typeDefinitionsLookup.ContainsKey(exFunctionName))
                 {
                     Token throwToken = this.ExtensionPlatformValuesDefinitionTokens[exFunctionName];
-                    throw new ParserException(throwToken, "No type information defined for extensible function '" + exFunctionName + "'");
+                    throw new UNTESTED_ParserException(
+                        throwToken,
+                        "No type information defined for extensible function '" + exFunctionName + "'");
                 }
 
                 ExtensibleFunction exFn = typeDefinitionsLookup[exFunctionName];

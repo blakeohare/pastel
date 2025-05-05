@@ -50,13 +50,20 @@ namespace Pastel.Parser.ParseNodes
 
         internal override InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
         {
-            Variable varRoot = this.Root as Variable;
-            if (varRoot == null) throw new ParserException(this.FirstToken, "Not able to resolve this constant.");
+            if (this.Root.Type != ExpressionType.VARIABLE) {
+                throw new UNTESTED_ParserException(
+                    this.FirstToken,
+                    "Not able to resolve this constant.");
+            }
+         
+            Variable varRoot = (Variable)this.Root;   
             string enumName = varRoot.Name;
             EnumDefinition enumDef = resolver.GetEnumDefinition(enumName);
             if (enumDef == null)
             {
-                throw new ParserException(this.FirstToken, "Not able to resolve this constant.");
+                throw new UNTESTED_ParserException(
+                    this.FirstToken,
+                    "Not able to resolve this constant.");
             }
 
             return enumDef.GetValue(this.FieldName);
@@ -75,7 +82,7 @@ namespace Pastel.Parser.ParseNodes
                 int fieldIndex;
                 if (!this.StructType.FieldIndexByName.TryGetValue(fieldName, out fieldIndex))
                 {
-                    throw new ParserException(
+                    throw new UNTESTED_ParserException(
                         this.FieldName, 
                         "The struct '" + this.StructType.NameToken.Value + "' does not have a field called '" + fieldName + "'.");
                 }
@@ -145,7 +152,9 @@ namespace Pastel.Parser.ParseNodes
                 case "SortedCopyOfIntArray": return CoreFunction.SORTED_COPY_OF_INT_ARRAY;
 
                 default:
-                    throw new ParserException(this.FirstToken, "Invalid Core function: 'Core." + field + "'.");
+                    throw new UNTESTED_ParserException(
+                        this.FirstToken,
+                        "Invalid Core function: 'Core." + field + "'.");
             }
         }
 
@@ -161,7 +170,7 @@ namespace Pastel.Parser.ParseNodes
                         case "EndsWith": return CoreFunction.STRING_ENDS_WITH;
                         case "IndexOf": return CoreFunction.STRING_INDEX_OF;
                         case "LastIndexOf": return CoreFunction.STRING_LAST_INDEX_OF;
-                        case "Length": throw new ParserException(this.FieldName, "String uses .Size() for its length.");
+                        case "Length": throw new UNTESTED_ParserException(this.FieldName, "String uses .Size() for its length.");
                         case "Replace": return CoreFunction.STRING_REPLACE;
                         case "Reverse": return CoreFunction.STRING_REVERSE;
                         case "Size": return CoreFunction.STRING_LENGTH;
@@ -175,7 +184,7 @@ namespace Pastel.Parser.ParseNodes
                         case "Trim": return CoreFunction.STRING_TRIM;
                         case "TrimEnd": return CoreFunction.STRING_TRIM_END;
                         case "TrimStart": return CoreFunction.STRING_TRIM_START;
-                        default: throw new ParserException(this.FieldName, "Unresolved string method: " + field);
+                        default: throw new UNTESTED_ParserException(this.FieldName, "Unresolved string method: " + field);
                     }
 
                 case "Array":
@@ -185,7 +194,7 @@ namespace Pastel.Parser.ParseNodes
                         case "Length": return CoreFunction.ARRAY_LENGTH;
                         // TODO: deprecate this
                         case "Size": return CoreFunction.ARRAY_LENGTH;
-                        default: throw new ParserException(this.FieldName, "Unresolved Array method: " + field);
+                        default: throw new UNTESTED_ParserException(this.FieldName, "Unresolved Array method: " + field);
                     }
 
                 case "List":
@@ -200,7 +209,7 @@ namespace Pastel.Parser.ParseNodes
                             {
                                 case "string": return CoreFunction.LIST_JOIN_STRINGS;
                                 case "char": return CoreFunction.LIST_JOIN_CHARS;
-                                default: throw new ParserException(this.FieldName, "Unresolved List<" + memberType + "> method: " + field);
+                                default: throw new UNTESTED_ParserException(this.FieldName, "Unresolved List<" + memberType + "> method: " + field);
                             }
 
                         case "Pop": return CoreFunction.LIST_POP;
@@ -208,20 +217,20 @@ namespace Pastel.Parser.ParseNodes
                         case "Reverse": return CoreFunction.LIST_REVERSE;
                         case "Shuffle": return CoreFunction.LIST_SHUFFLE;
                         case "Size": return CoreFunction.LIST_SIZE;
-                        default: throw new ParserException(this.FieldName, "Unresolved List method: " + field);
+                        default: throw new UNTESTED_ParserException(this.FieldName, "Unresolved List method: " + field);
                     }
 
                 case "Dictionary":
                     switch (field)
                     {
-                        case "Add": throw new ParserException(this.FieldName, "Use bracket notation instead of .Add() to add values to a dictionary.");
+                        case "Add": throw new UNTESTED_ParserException(this.FieldName, "Use bracket notation instead of .Add() to add values to a dictionary.");
                         case "Contains": return CoreFunction.DICTIONARY_CONTAINS_KEY;
                         case "Keys": return CoreFunction.DICTIONARY_KEYS;
                         case "Remove": return CoreFunction.DICTIONARY_REMOVE;
                         case "Size": return CoreFunction.DICTIONARY_SIZE;
                         case "TryGet": return CoreFunction.DICTIONARY_TRY_GET;
                         case "Values": return CoreFunction.DICTIONARY_VALUES;
-                        default: throw new ParserException(this.FieldName, "Unresolved Dictionary method: " + field);
+                        default: throw new UNTESTED_ParserException(this.FieldName, "Unresolved Dictionary method: " + field);
                     }
 
                 case "StringBuilder":
@@ -230,11 +239,11 @@ namespace Pastel.Parser.ParseNodes
                         case "Add": return CoreFunction.STRINGBUILDER_ADD;
                         case "Clear": return CoreFunction.STRINGBUILDER_CLEAR;
                         case "ToString": return CoreFunction.STRINGBUILDER_TOSTRING;
-                        default: throw new ParserException(this.FieldName, "Unresolved StringBuilder method: " + field);
+                        default: throw new UNTESTED_ParserException(this.FieldName, "Unresolved StringBuilder method: " + field);
                     }
 
                 default:
-                    throw new ParserException(this.FieldName, "Unresolved field.");
+                    throw new UNTESTED_ParserException(this.FieldName, "Unresolved field.");
             }
         }
 

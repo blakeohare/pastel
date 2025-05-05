@@ -370,7 +370,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition)
         {
-            throw new ParserException(
+            throw new UNTESTED_ParserException(
                 innerExpression.FirstToken,
                 "Python does not support ++ or --. Please check all usages with if (@ext_boolean(\"HAS_INCREMENT\")) { ... }");
         }

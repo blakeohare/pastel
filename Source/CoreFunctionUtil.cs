@@ -39,7 +39,7 @@ namespace Pastel
                 case CoreFunction.MATH_ABS:
                     if (firstType.RootValue != "int" && firstType.RootValue != "double")
                     {
-                        throw new ParserException(
+                        throw new UNTESTED_ParserException(
                             funcRef.FirstToken,
                             "Math.abs() is only applicable to numeric types.");
                     }

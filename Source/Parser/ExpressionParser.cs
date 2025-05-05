@@ -259,7 +259,9 @@ namespace Pastel.Parser
                 return new Variable(tokens.Pop(), this.parser.ActiveEntity);
             }
 
-            throw new ParserException(tokens.Peek(), "Unrecognized expression.");
+            throw new UNTESTED_ParserException(
+                tokens.Peek(),
+                "Unrecognized expression.");
         }
 
         private Expression ParseEntityChain(Expression root, TokenStream tokens)
@@ -322,14 +324,18 @@ namespace Pastel.Parser
                 c = value[i];
                 if (c < '0' || c > '9')
                 {
-                    throw new ParserException(token, "Expected number");
+                    throw new UNTESTED_ParserException(
+                        token,
+                        "Expected number");
                 }
             }
             if (!calculateValue) return 0;
             int output;
             if (!int.TryParse(value, out output))
             {
-                throw new ParserException(token, "Integer is too big.");
+                throw new UNTESTED_ParserException(
+                    token,
+                    "Integer is too big.");
             }
             return output;
         }
@@ -341,7 +347,7 @@ namespace Pastel.Parser
             {
                 return token;
             }
-            throw new ParserException(token, errorMessage);
+            throw new UNTESTED_ParserException(token, errorMessage);
         }
 
         public static bool IsValidName(string value)

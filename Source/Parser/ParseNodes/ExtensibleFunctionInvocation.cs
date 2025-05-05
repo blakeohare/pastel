@@ -32,7 +32,9 @@ namespace Pastel.Parser.ParseNodes
             ExtensibleFunction extensibleFunction;
             if (!resolver.CompilerContext.ExtensionSet.ExtensionLookup.TryGetValue(name, out extensibleFunction))
             {
-                throw new ParserException(FirstToken, "Type information for '" + name + "' extensible function is not defined.");
+                throw new UNTESTED_ParserException(
+                    this.FirstToken,
+                    "Type information for '" + name + "' extensible function is not defined.");
             }
             this.ResolvedType = extensibleFunction.ReturnType;
 
@@ -40,14 +42,16 @@ namespace Pastel.Parser.ParseNodes
 
             if (argTypes.Length != this.Args.Length)
             {
-                throw new ParserException(this.FirstToken, "Incorrect number of args for this function. Expected " + argTypes.Length + " but instead found " + Args.Length + ".");
+                throw new UNTESTED_ParserException(
+                    this.FirstToken,
+                    "Incorrect number of args for this function. Expected " + argTypes.Length + " but instead found " + this.Args.Length + ".");
             }
 
             for (int i = 0; i < this.Args.Length; ++i)
             {
                 if (!PType.CheckAssignment(resolver, argTypes[i], this.Args[i].ResolvedType))
                 {
-                    throw new ParserException(
+                    throw new UNTESTED_ParserException(
                         this.Args[i].FirstToken, 
                         "Invalid argument type. Expected '" + argTypes[i] + "' but found '" + this.Args[i].ResolvedType + "'.");
                 }

@@ -149,10 +149,9 @@ namespace Pastel.Parser.ParseNodes
                     return PType.STRING;
             }
 
-            throw new ParserException(
+            throw new UNTESTED_ParserException(
                 this.OpToken,
-                "The operator '" + op + "' is not defined for types: " +
-                tleft.TypeName + " and " + tright.TypeName + ".");
+                "The operator '" + op + "' is not defined for types: " + tleft.TypeName + " and " + tright.TypeName + ".");
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
@@ -207,9 +206,12 @@ namespace Pastel.Parser.ParseNodes
                 default:
                     if (this.Op == "%")
                     {
+                        // TODO(cleanup): modulo operator is not defined for compile-time resolution.
                         throw new System.NotImplementedException("Remember when you implement this to prevent negatives.");
                     }
-                    throw new ParserException(this.OpToken, "The operator is not defined for these two constants.");
+                    throw new UNTESTED_ParserException(
+                        this.OpToken,
+                        "The operator is not defined for these two constants.");
             }
         }
         

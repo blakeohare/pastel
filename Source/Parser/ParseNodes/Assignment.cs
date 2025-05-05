@@ -38,7 +38,9 @@
                 }
                 else
                 {
-                    throw new ParserException(OpToken, "Cannot assign a " + Value.ResolvedType + " to a " + Target.ResolvedType);
+                    throw new UNTESTED_ParserException(
+                        this.OpToken,
+                        "Cannot assign a " + this.Value.ResolvedType + " to a " + this.Target.ResolvedType);
                 }
             }
         }
@@ -50,7 +52,9 @@
                 if (this.OpToken.Value != "=" && bi.Root.ResolvedType.RootValue != "Array")
                 {
                     // Java will need to be special as it will require things to be broken down into a get-then-set.
-                    throw new ParserException(this.OpToken, "Incremental assignment on a key/index is not currently supported (although it really ought to be).");
+                    throw new UNTESTED_ParserException(
+                        this.OpToken,
+                        "Incremental assignment on a key/index is not currently supported (although it really ought to be).");
                 }
 
                 string rootType = bi.Root.ResolvedType.RootValue;
@@ -70,7 +74,9 @@
                 }
                 else
                 {
-                    throw new ParserException(bi.BracketToken, "Can't use brackets here.");
+                    throw new UNTESTED_ParserException(
+                        bi.BracketToken,
+                        "Can't use brackets here.");
                 }
                 
                 return new ExpressionAsStatement(new CoreFunctionInvocation(

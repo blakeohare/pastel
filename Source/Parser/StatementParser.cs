@@ -286,7 +286,9 @@ namespace Pastel.Parser
             VariableDeclaration? assignment = stmnt as VariableDeclaration;
             if (assignment == null)
             {
-                throw new ParserException(newToken, "Expected an assignment here.");
+                throw new UNTESTED_ParserException(
+                    newToken,
+                    "Expected an assignment here.");
             }
             assignment.FirstToken = newToken;
             return assignment;

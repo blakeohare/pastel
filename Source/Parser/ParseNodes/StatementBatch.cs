@@ -36,9 +36,9 @@ namespace Pastel.Parser.ParseNodes
             for (int i = 0; i < this.Statements.Length; ++i)
             {
                 Statement stmnt = this.Statements[i].ResolveNamesAndCullUnusedCode(resolver);
-                if (stmnt is StatementBatch)
+                if (stmnt is StatementBatch batch)
                 {
-                    statements.AddRange(((StatementBatch)stmnt).Statements);
+                    statements.AddRange(batch.Statements);
                 }
                 else
                 {

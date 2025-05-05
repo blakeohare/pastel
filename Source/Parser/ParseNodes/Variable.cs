@@ -31,7 +31,9 @@ namespace Pastel.Parser.ParseNodes
 
             if (name == "Core")
             {
-                throw new ParserException(this.FirstToken, "Core is a namespace and cannot be used like this.");
+                throw new UNTESTED_ParserException(
+                    this.FirstToken,
+                    "Core is a namespace and cannot be used like this.");
             }
 
             FunctionDefinition functionDefinition = resolver.GetFunctionDefinition(name);
@@ -55,9 +57,16 @@ namespace Pastel.Parser.ParseNodes
             this.ResolvedType = type;
             if (type == null)
             {
-                throw new ParserException(
+                if (this.IsFunctionInvocation)
+                {
+                    throw new TestedParserException(
+                        this.FirstToken,
+                        "The function '" + this.Name + "' is not defined.");
+                }
+
+                throw new TestedParserException(
                     this.FirstToken,
-                    "The " + (this.IsFunctionInvocation ? "function" : "variable") + " '" + this.Name + "' is not defined.");
+                    "The variable '" + this.Name + "' is not defined.");
             }
 
             return this;

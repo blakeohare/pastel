@@ -25,7 +25,9 @@
             this.Expression = this.Expression.ResolveType(varScope, resolver);
             if (!this.Expression.ResolvedType.IsIdentical(resolver, PType.INT))
             {
-                throw new ParserException(this.IncrementToken, "++ and -- can only be applied to integer types.");
+                throw new UNTESTED_ParserException(
+                    this.IncrementToken,
+                    "++ and -- can only be applied to integer types.");
             }
             this.ResolvedType = PType.INT;
             return this;
