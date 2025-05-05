@@ -1,2 +1,7 @@
 @import("./platform.pst");
+
+@import("./fvt-assert.pst");
+@import("./fvt-convert.pst");
+@import("./fvt-util.pst");
+
 @import("./test.pst");

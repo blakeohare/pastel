@@ -1,6 +1,3 @@
-@import("fvt-assert.pst");
-@import("fvt-util.pst");
-
 void runner() {
     testVarDeclaration();
     // testBuiltinOverwrite();

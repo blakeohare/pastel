@@ -1,5 +1,3 @@
-@import("fvt-assert.pst");
-
 struct FooStruct {
     TestStruct tsRef; // Reference made before type is declared. This is okay!
 }

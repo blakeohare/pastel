@@ -1,6 +1,5 @@
-@import("fvt-assert.pst");
-
 void runner() {
+    testConcatAll();
 
     string s = ""
         + "abc XYZ 123 .?" // ASCII
@@ -63,4 +62,10 @@ void testCharacters() {
 
 string readableWrap(string v) {
     return "[" + v + "]";
+}
+
+void testConcatAll() {
+    // Not a good way to check but look at the generated code to see if this whole line is concatenated into a single StringBuilder pattern, if applicable.
+    string val = "a" + passThruInt(2) + "c" + passThruInt(4) + "e";
+    assertEqStr("a2c4e", val);
 }

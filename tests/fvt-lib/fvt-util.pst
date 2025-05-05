@@ -1,3 +1,6 @@
-object passThru(object o) {
-    return o;
-}
+object passThru(object o) { return o; }
+int passThruInt(int x) { return x; }
+double passThruFloat(double x) { return x; }
+string passThruString(string x) { return x; }
+bool passThruBool(bool x) { return x; }
+string returnNullString() { return null; }
