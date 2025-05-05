@@ -37,9 +37,6 @@ private static function PST_dictGetKeys($d, $isIntDict) {
 	return $keys;
 }
 
-// PASTEL_ENTITY_ID: PST_intBuffer16
-public static $PST_intBuffer16 = null;
-
 // PASTEL_ENTITY_ID: PST_stringEndsWith
 private static function PST_stringEndsWith($haystack, $needle) {
 	$nLen = strlen($needle);

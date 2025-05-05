@@ -362,13 +362,6 @@ namespace Pastel.Transpilers.Java
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateFloatBuffer16()
-        {
-            return StringBuffer
-                .Of("PST_floatBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return StringBuffer.Of("Double.toString(")
@@ -383,13 +376,6 @@ namespace Pastel.Transpilers.Java
                 .Push(TranslateExpression(name))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
-        public override StringBuffer TranslateIntBuffer16()
-        {
-            return StringBuffer
-                .Of("PST_intBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateIntToString(Expression integer)
@@ -743,13 +729,6 @@ namespace Pastel.Transpilers.Java
             return TranslateExpression(str1)
                 .Push(" += ")
                 .Push(TranslateExpression(str2));
-        }
-
-        public override StringBuffer TranslateStringBuffer16()
-        {
-            return StringBuffer
-                .Of("PST_stringBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)

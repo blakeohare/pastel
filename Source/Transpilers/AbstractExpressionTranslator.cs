@@ -376,14 +376,12 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateDivideInteger(Expression left, Expression right);
         public abstract StringBuffer TranslateEmitComment(string value);
         public abstract StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray);
-        public abstract StringBuffer TranslateFloatBuffer16();
         public abstract StringBuffer TranslateFloatConstant(double value);
         public abstract StringBuffer TranslateFloatToString(Expression floatExpr);
         public abstract StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args);
         public abstract StringBuffer TranslateFunctionReference(FunctionReference funcRef);
         public abstract StringBuffer TranslateGetFunction(Expression name);
         public abstract StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition);
-        public abstract StringBuffer TranslateIntBuffer16();
         public abstract StringBuffer TranslateIntegerConstant(int value);
         public abstract StringBuffer TranslateIntToString(Expression integer);
         public abstract StringBuffer TranslateIsValidInteger(Expression stringValue);
@@ -427,7 +425,6 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateSortedCopyOfIntArray(Expression intArray);
         public abstract StringBuffer TranslateSortedCopyOfStringArray(Expression stringArray);
         public abstract StringBuffer TranslateStringAppend(Expression str1, Expression str2);
-        public abstract StringBuffer TranslateStringBuffer16();
         public abstract StringBuffer TranslateStringBuilderAdd(Expression sbInst, Expression obj);
         public abstract StringBuffer TranslateStringBuilderClear(Expression sbInst);
         public abstract StringBuffer TranslateStringBuilderToString(Expression sbInst);

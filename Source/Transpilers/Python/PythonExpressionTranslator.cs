@@ -334,13 +334,6 @@ namespace Pastel.Transpilers.Python
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateFloatBuffer16()
-        {
-            return StringBuffer
-                .Of("PST_FloatBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
-        }
-
         public override StringBuffer TranslateFloatConstant(double value)
         {
             return StringBuffer
@@ -389,13 +382,6 @@ namespace Pastel.Transpilers.Python
             throw new ParserException(
                 innerExpression.FirstToken,
                 "Python does not support ++ or --. Please check all usages with if (@ext_boolean(\"HAS_INCREMENT\")) { ... }");
-        }
-
-        public override StringBuffer TranslateIntBuffer16()
-        {
-            return StringBuffer
-                .Of("PST_IntBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateIntegerConstant(int value)
@@ -833,11 +819,6 @@ namespace Pastel.Transpilers.Python
             return TranslateExpression(str1)
                 .Push(" += ")
                 .Push(TranslateExpression(str2));
-        }
-
-        public override StringBuffer TranslateStringBuffer16()
-        {
-            return StringBuffer.Of("PST_StringBuffer16");
         }
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)

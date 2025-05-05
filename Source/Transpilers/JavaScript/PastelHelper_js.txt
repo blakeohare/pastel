@@ -50,15 +50,6 @@ let PST$shuffle = arr => {
 	}
 };
 
-// PASTEL_ENTITY_ID: PST$intBuffer16
-let PST$intBuffer16 = PST$multiplyList([0], 16);
-
-// PASTEL_ENTITY_ID: PST$floatBuffer16
-let PST$floatBuffer16 = PST$multiplyList([0], 16);
-
-// PASTEL_ENTITY_ID: PST$stringBuffer16
-let PST$stringBuffer16 = PST$multiplyList([''], 16);
-
 // PASTEL_ENTITY_ID: PST_ExtCallbacks
 let PST$extCallbacks = {};
 

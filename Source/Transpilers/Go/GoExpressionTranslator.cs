@@ -356,11 +356,6 @@ namespace Pastel.Transpilers.Go
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateFloatBuffer16()
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateFloatConstant(double value)
         {
             return StringBuffer
@@ -401,11 +396,6 @@ namespace Pastel.Transpilers.Go
         }
 
         public override StringBuffer TranslateInlineIncrement(Expression innerExpression, bool isPrefix, bool isAddition)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override StringBuffer TranslateIntBuffer16()
         {
             throw new NotImplementedException();
         }
@@ -761,11 +751,6 @@ namespace Pastel.Transpilers.Go
         }
 
         public override StringBuffer TranslateStringAppend(Expression str1, Expression str2)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override StringBuffer TranslateStringBuffer16()
         {
             throw new NotImplementedException();
         }

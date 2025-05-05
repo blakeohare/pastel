@@ -286,11 +286,6 @@ namespace Pastel.Transpilers.Php
             throw new NotImplementedException();
         }
 
-        public override StringBuffer TranslateFloatBuffer16()
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return TranslateExpression(floatExpr)
@@ -306,13 +301,6 @@ namespace Pastel.Transpilers.Php
                 .Of("TranslationHelper_getFunction(")
                 .Push(TranslateExpression(name))
                 .Push(")")
-                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
-        public override StringBuffer TranslateIntBuffer16()
-        {
-            return StringBuffer
-                .Of("self::PST_intBuffer16")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
@@ -642,11 +630,6 @@ namespace Pastel.Transpilers.Php
             return TranslateExpression(str1)
                 .Push(" .= ")
                 .Push(TranslateExpression(str2));
-        }
-
-        public override StringBuffer TranslateStringBuffer16()
-        {
-            throw new NotImplementedException();
         }
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)

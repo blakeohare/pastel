@@ -1,13 +1,4 @@
-﻿// PASTEL_ENTITY_ID: PST_IntBuffer16
-private static readonly int[] PST_IntBuffer16 = new int[16];
-
-// PASTEL_ENTITY_ID: PST_FloatBuffer16
-private static readonly double[] PST_FloatBuffer16 = new double[16];
-
-// PASTEL_ENTITY_ID: PST_StringBuffer16
-private static readonly string[] PST_StringBuffer16 = new string[16];
-
-// PASTEL_ENTITY_ID: PST_Random
+﻿// PASTEL_ENTITY_ID: PST_Random
 private static readonly System.Random PST_Random = new System.Random();
 
 // PASTEL_ENTITY_ID: AlwaysTrue

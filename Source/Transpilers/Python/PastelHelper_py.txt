@@ -1,12 +1,3 @@
-# PASTEL_ENTITY_ID: PST_StringBuffer16
-PST_StringBuffer16 = [None] * 16
-
-# PASTEL_ENTITY_ID: PST_IntBuffer16
-PST_IntBuffer16 = [0] * 16
-
-# PASTEL_ENTITY_ID: PST_FloatBuffer16
-PST_FloatBuffer16 = [0.0] * 16
-
 # PASTEL_ENTITY_ID: PST_NoneListOfOne
 PST_NoneListOfOne = [None]
 

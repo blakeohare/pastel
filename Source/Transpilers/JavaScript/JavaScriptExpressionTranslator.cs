@@ -242,13 +242,6 @@ namespace Pastel.Transpilers.JavaScript
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateFloatBuffer16()
-        {
-            return StringBuffer
-                .Of("PST$floatBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return StringBuffer.Of("PST$floatToStr(")
@@ -264,13 +257,6 @@ namespace Pastel.Transpilers.JavaScript
                 .Push(TranslateExpression(name))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
-        }
-
-        public override StringBuffer TranslateIntBuffer16()
-        {
-            return StringBuffer
-                .Of("PST$intBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateIntToString(Expression integer)
@@ -624,13 +610,6 @@ namespace Pastel.Transpilers.JavaScript
             return TranslateExpression(str1)
                 .Push(" += ")
                 .Push(TranslateExpression(str2));
-        }
-
-        public override StringBuffer TranslateStringBuffer16()
-        {
-            return StringBuffer
-                .Of("PST$stringBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)

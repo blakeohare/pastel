@@ -204,22 +204,12 @@ namespace Pastel.Transpilers.CommonScript
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
-        public override StringBuffer TranslateFloatBuffer16()
-        {
-            throw new NotImplementedException();
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             throw new NotImplementedException();
         }
 
         public override StringBuffer TranslateGetFunction(Expression name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override StringBuffer TranslateIntBuffer16()
         {
             throw new NotImplementedException();
         }
@@ -459,11 +449,6 @@ namespace Pastel.Transpilers.CommonScript
         }
 
         public override StringBuffer TranslateStringAppend(Expression str1, Expression str2)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override StringBuffer TranslateStringBuffer16()
         {
             throw new NotImplementedException();
         }

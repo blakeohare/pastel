@@ -273,13 +273,6 @@ namespace Pastel.Transpilers.CSharp
                 .WithTightness(ExpressionTightness.TERNARY);
         }
 
-        public override StringBuffer TranslateFloatBuffer16()
-        {
-            return StringBuffer
-                .Of("PST_FloatBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
-        }
-
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return StringBuffer.Of("PST_FloatToString(")
@@ -293,13 +286,6 @@ namespace Pastel.Transpilers.CSharp
             return StringBuffer.Of("TranslationHelper.GetFunctionPointer(")
                 .Push(TranslateExpression(name))
                 .Push(")");
-        }
-
-        public override StringBuffer TranslateIntBuffer16()
-        {
-            return StringBuffer
-                .Of("PST_IntBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateIntToString(Expression integer)
@@ -643,13 +629,6 @@ namespace Pastel.Transpilers.CSharp
             return TranslateExpression(str1)
                 .Push(" += ")
                 .Push(TranslateExpression(str2));
-        }
-
-        public override StringBuffer TranslateStringBuffer16()
-        {
-            return StringBuffer
-                .Of("PST_StringBuffer16")
-                .WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)
