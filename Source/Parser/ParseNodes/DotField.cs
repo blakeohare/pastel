@@ -23,24 +23,18 @@ namespace Pastel.Parser.ParseNodes
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
+            if (this.Root.Type == ExpressionType.VARIABLE && ((Variable)this.Root).Name == "Core")
+            {
+                CoreFunction coreFunction = this.GetCoreFunction(this.FieldName.Value);
+                return new CoreFunctionReference(this.FirstToken, coreFunction, this.Owner);
+            }
+            
             this.Root = this.Root.ResolveNamesAndCullUnusedCode(resolver);
 
             if (this.Root is EnumReference)
             {
                 InlineConstant enumValue = ((EnumReference)this.Root).EnumDef.GetValue(this.FieldName);
                 return enumValue.CloneWithNewToken(this.FirstToken);
-            }
-
-            if (this.Root is CoreNamespaceReference)
-            {
-                CoreFunction coreFunction = this.GetCoreFunction(this.FieldName.Value);
-                return new CoreFunctionReference(this.FirstToken, coreFunction, this.Owner);
-            }
-
-            if (this.Root is ExtensibleNamespaceReference)
-            {
-                string name = this.FieldName.Value;
-                return new ExtensibleFunctionReference(this.FirstToken, name, this.Owner);
             }
 
             if (this.Root is EnumReference enumRef)

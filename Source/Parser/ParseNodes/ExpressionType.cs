@@ -18,7 +18,6 @@ namespace Pastel.Parser.ParseNodes
         FUNCTION_REFERENCE,
         INLINE_CONSTANT,
         INLINE_INCREMENT,
-        NAMESPACE_REFERENCE,
         OP_CHAIN,
         OP_PAIR,
         STRING_CONCATENATION,

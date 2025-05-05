@@ -31,12 +31,7 @@ namespace Pastel.Parser.ParseNodes
 
             if (name == "Core")
             {
-                return new CoreNamespaceReference(FirstToken, Owner);
-            }
-
-            if (name == "Extension")
-            {
-                return new ExtensibleNamespaceReference(FirstToken, Owner);
+                throw new ParserException(this.FirstToken, "Core is a namespace and cannot be used like this.");
             }
 
             FunctionDefinition functionDefinition = resolver.GetFunctionDefinition(name);
