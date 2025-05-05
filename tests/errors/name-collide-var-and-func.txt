@@ -3,7 +3,7 @@ void foo() {
 }
 
 int bar() {
-    int foo = 42; // name collision with foo() 
+    int foo = 42; // name collision with foo()
     int baz = foo - 1;
     return baz;
 }

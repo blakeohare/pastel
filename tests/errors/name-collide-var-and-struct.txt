@@ -1,0 +1,13 @@
+struct foo {
+    int fooMember;
+}
+
+int bar() {
+    int foo = 42; // name collision with foo
+    int baz = foo - 1;
+    return baz;
+}
+
+########
+
+test.pst, Line: 6, Col: 9, Name conflict: 'foo' is the name of a struct and cannot be used as a variable name.

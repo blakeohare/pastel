@@ -46,6 +46,27 @@ namespace Pastel.Parser.ParseNodes
                     "Name conflict: '" + name + "' is the name of a function and cannot be used as a variable name.");
             }
 
+            if (resolver.GetEnumDefinition(name) != null)
+            {
+                throw new ParserException(
+                    this.VariableNameToken,
+                    "Name conflict: '" + name + "' is the name of an enum and cannot be used as a variable name.");
+            }
+            
+            if (resolver.CompilerContext.StructDefinitions.ContainsKey(name))
+            {
+                throw new ParserException(
+                    this.VariableNameToken,
+                    "Name conflict: '" + name + "' is the name of a struct and cannot be used as a variable name.");
+            }
+
+            if (resolver.CompilerContext.ConstantDefinitions.ContainsKey(name))
+            {
+                throw new ParserException(
+                    this.VariableNameToken,
+                    "Name conflict: '" + name + "' is the name of a constant and cannot be used as a variable name.");
+            }
+
             if (this.Value == null)
             {
                 throw new ParserException(this.FirstToken, "Cannot have variable declaration without a value.");
