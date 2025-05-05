@@ -9,7 +9,7 @@ namespace Pastel.Parser.ParseNodes
         {
             get
             {
-                if (IsConstant) return CompilationEntityType.CONSTANT;
+                if (this.IsConstant) return CompilationEntityType.CONSTANT;
                 throw new Exception(); // this shouldn't have been a top-level thing.
             }
         }
@@ -29,46 +29,54 @@ namespace Pastel.Parser.ParseNodes
             Expression assignmentValue,
             PastelContext context) : base(type.FirstToken)
         {
-            Context = context;
-            Type = type;
-            VariableNameToken = variableNameToken;
-            EqualsToken = equalsToken;
-            Value = assignmentValue;
+            this.Context = context;
+            this.Type = type;
+            this.VariableNameToken = variableNameToken;
+            this.EqualsToken = equalsToken;
+            this.Value = assignmentValue;
         }
 
         public override Statement ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            if (Value == null)
+            string name = this.VariableNameToken.Value;
+            if (resolver.GetFunctionDefinition(name) != null)
             {
-                throw new ParserException(FirstToken, "Cannot have variable declaration without a value.");
+                throw new ParserException(
+                    this.VariableNameToken,
+                    "Name conflict: '" + name + "' is the name of a function and cannot be used as a variable name.");
             }
-            Value = Value.ResolveNamesAndCullUnusedCode(resolver);
+
+            if (this.Value == null)
+            {
+                throw new ParserException(this.FirstToken, "Cannot have variable declaration without a value.");
+            }
+            this.Value = this.Value.ResolveNamesAndCullUnusedCode(resolver);
 
             return this;
         }
 
         public void DoConstantResolutions(HashSet<string> cycleDetection, Resolver resolver)
         {
-            Value = Value.DoConstantResolution(cycleDetection, resolver);
+            this.Value = this.Value.DoConstantResolution(cycleDetection, resolver);
         }
 
         internal override void ResolveTypes(VariableScope varScope, Resolver resolver)
         {
-            Value = Value.ResolveType(varScope, resolver);
+            this.Value = this.Value.ResolveType(varScope, resolver);
 
-            if (!PType.CheckAssignment(resolver, Type, Value.ResolvedType))
+            if (!PType.CheckAssignment(resolver, this.Type, this.Value.ResolvedType))
             {
-                throw new ParserException(Value.FirstToken, "Cannot assign this type to a " + Type);
+                throw new ParserException(this.Value.FirstToken, "Cannot assign this type to a " + this.Type);
             }
 
-            varScope.DeclareVariables(VariableNameToken, Type);
+            varScope.DeclareVariables(this.VariableNameToken, this.Type);
         }
 
         internal override Statement ResolveWithTypeContext(Resolver resolver)
         {
-            if (Value != null)
+            if (this.Value != null)
             {
-                Value = Value.ResolveWithTypeContext(resolver);
+                this.Value = this.Value.ResolveWithTypeContext(resolver);
             }
             return this;
         }
