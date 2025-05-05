@@ -136,7 +136,6 @@ namespace Pastel.Parser.ParseNodes
                 case "Sin": return CoreFunction.MATH_SIN;
                 case "StringAppend": return CoreFunction.STRING_APPEND;
                 case "StringCompareIsReverse": return CoreFunction.STRING_COMPARE_IS_REVERSE;
-                case "StringConcatAll": return CoreFunction.STRING_CONCAT_ALL;
                 case "StringEquals": return CoreFunction.STRING_EQUALS;
                 case "StringFromCharCode": return CoreFunction.STRING_FROM_CHAR_CODE;
                 case "StrongReferenceEquality": return CoreFunction.STRONG_REFERENCE_EQUALITY;

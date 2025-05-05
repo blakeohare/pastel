@@ -250,7 +250,6 @@ namespace Pastel.Transpilers
                 case CoreFunction.STRING_CHAR_AT: return this.TranslateStringCharAt(args[0], args[1]);
                 case CoreFunction.STRING_CHAR_CODE_AT: return this.TranslateStringCharCodeAt(args[0], args[1]);
                 case CoreFunction.STRING_COMPARE_IS_REVERSE: return this.TranslateStringCompareIsReverse(args[0], args[1]);
-                case CoreFunction.STRING_CONCAT_ALL: return (args.Length == 2) ? this.TranslateStringConcatPair(args[0], args[1]) : this.TranslateStringConcatAll(args);
                 case CoreFunction.STRING_CONTAINS: return this.TranslateStringContains(args[0], args[1]);
                 case CoreFunction.STRING_ENDS_WITH: return this.TranslateStringEndsWith(args[0], args[1]);
                 case CoreFunction.STRING_EQUALS: return this.TranslateStringEquals(args[0], args[1]);
