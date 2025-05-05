@@ -1,6 +1,5 @@
 ﻿using Pastel.Parser;
 using Pastel.Parser.ParseNodes;
-using System;
 
 namespace Pastel.Transpilers.Python
 {
@@ -50,20 +49,20 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
-            return TranslateExpression(array)
+            return this.TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateArrayJoin(Expression array, Expression sep)
         {
-            return TranslateExpression(sep)
+            return this.TranslateExpression(sep)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".join(")
-                .Push(TranslateExpression(array))
+                .Push(this.TranslateExpression(array))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -72,7 +71,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("len(")
-                .Push(TranslateExpression(array))
+                .Push(this.TranslateExpression(array))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -109,12 +108,12 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateArraySet(Expression array, Expression index, Expression value)
         {
-            return TranslateExpression(array)
+            return this.TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("] = ")
-                .Push(TranslateExpression(value));
+                .Push(this.TranslateExpression(value));
         }
 
         public override StringBuffer TranslateBase64ToBytes(Expression base64String)
@@ -191,14 +190,14 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateCharToString(Expression charValue)
         {
-            return TranslateExpression(charValue);
+            return this.TranslateExpression(charValue);
         }
 
         public override StringBuffer TranslateChr(Expression charCode)
         {
             return StringBuffer
                 .Of("chr(")
-                .Push(TranslateExpression(charCode))
+                .Push(this.TranslateExpression(charCode))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -211,7 +210,7 @@ namespace Pastel.Transpilers.Python
             for (int i = 0; i < args; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(TranslateExpression(constructorInvocation.Args[i]));
+                buf.Push(this.TranslateExpression(constructorInvocation.Args[i]));
             }
             return buf
                 .Push("]")
@@ -228,19 +227,19 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateDictionaryContainsKey(Expression dictionary, Expression key)
         {
-            return TranslateExpression(key)
+            return this.TranslateExpression(key)
                 .EnsureTightness(ExpressionTightness.PYTHON_COMPARE)
                 .Push(" in ")
-                .Push(TranslateExpression(dictionary).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
+                .Push(this.TranslateExpression(dictionary).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
                 .WithTightness(ExpressionTightness.PYTHON_COMPARE);
         }
 
         public override StringBuffer TranslateDictionaryGet(Expression dictionary, Expression key)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(key))
+                .Push(this.TranslateExpression(key))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -249,7 +248,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("list(")
-                .Push(TranslateExpression(dictionary))
+                .Push(this.TranslateExpression(dictionary))
                 .Push(".keys())")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -263,29 +262,29 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateDictionaryRemove(Expression dictionary, Expression key)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".pop(")
-                .Push(TranslateExpression(key))
+                .Push(this.TranslateExpression(key))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(key))
+                .Push(this.TranslateExpression(key))
                 .Push("] = ")
-                .Push(TranslateExpression(value));
+                .Push(this.TranslateExpression(value));
         }
 
         public override StringBuffer TranslateDictionarySize(Expression dictionary)
         {
             return StringBuffer
                 .Of("len(")
-                .Push(TranslateExpression(dictionary))
+                .Push(this.TranslateExpression(dictionary))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -294,7 +293,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("list(")
-                .Push(TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push(".values())")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -345,7 +344,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("str(")
-                .Push(TranslateExpression(floatExpr))
+                .Push(this.TranslateExpression(floatExpr))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -387,7 +386,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("str(")
-                .Push(TranslateExpression(integer))
+                .Push(this.TranslateExpression(integer))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -396,17 +395,17 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("PST_isValidInteger(")
-                .Push(TranslateExpression(stringValue))
+                .Push(this.TranslateExpression(stringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListAdd(Expression list, Expression item)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".append(")
-                .Push(TranslateExpression(item))
+                .Push(this.TranslateExpression(item))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -415,38 +414,38 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("del ")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("[:]")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateListConcat(Expression list, Expression items)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.ADDITION)
                 .Push(" + ")
-                .Push(TranslateExpression(items).EnsureGreaterTightness(ExpressionTightness.ADDITION))
+                .Push(this.TranslateExpression(items).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                 .WithTightness(ExpressionTightness.ADDITION);
         }
 
         public override StringBuffer TranslateListGet(Expression list, Expression index)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListInsert(Expression list, Expression index, Expression item)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".insert(")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(", ")
-                .Push(TranslateExpression(item))
+                .Push(this.TranslateExpression(item))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -455,17 +454,17 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("''.join(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListJoinStrings(Expression list, Expression sep)
         {
-            return TranslateExpression(sep)
+            return this.TranslateExpression(sep)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".join(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -479,7 +478,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateListPop(Expression list)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".pop()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -489,16 +488,16 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("del ")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
         public override StringBuffer TranslateListReverse(Expression list)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".reverse()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -506,19 +505,19 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateListSet(Expression list, Expression index, Expression value)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("] = ")
-                .Push(TranslateExpression(value));
+                .Push(this.TranslateExpression(value));
         }
 
         public override StringBuffer TranslateListShuffle(Expression list)
         {
             return StringBuffer
                 .Of("random.shuffle(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -527,14 +526,14 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("len(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListToArray(Expression list)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[:]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -553,7 +552,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("math.acos(")
-                .Push(TranslateExpression(ratio))
+                .Push(this.TranslateExpression(ratio))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -562,7 +561,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("math.asin(")
-                .Push(TranslateExpression(ratio))
+                .Push(this.TranslateExpression(ratio))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -572,9 +571,9 @@ namespace Pastel.Transpilers.Python
             this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.atan2(")
-                .Push(TranslateExpression(yComponent))
+                .Push(this.TranslateExpression(yComponent))
                 .Push(", ")
-                .Push(TranslateExpression(xComponent))
+                .Push(this.TranslateExpression(xComponent))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -594,7 +593,7 @@ namespace Pastel.Transpilers.Python
             this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.cos(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -614,17 +613,17 @@ namespace Pastel.Transpilers.Python
             this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.log(")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateMathPow(Expression expBase, Expression exponent)
         {
-            return TranslateExpression(expBase)
+            return this.TranslateExpression(expBase)
                 .EnsureTightness(ExpressionTightness.PYTHON_EXPONENT)
                 .Push(" ** ")
-                .Push(TranslateExpression(exponent).EnsureGreaterTightness(ExpressionTightness.PYTHON_EXPONENT))
+                .Push(this.TranslateExpression(exponent).EnsureGreaterTightness(ExpressionTightness.PYTHON_EXPONENT))
                 .WithTightness(ExpressionTightness.PYTHON_EXPONENT);
         }
 
@@ -633,7 +632,7 @@ namespace Pastel.Transpilers.Python
             this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.sin(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -643,23 +642,23 @@ namespace Pastel.Transpilers.Python
             this.MarkFeatureAsUsed("IMPORT:math");
             return StringBuffer
                 .Of("math.tan(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateMultiplyList(Expression list, Expression n)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.MULTIPLICATION)
                 .Push(" * ")
-                .Push(TranslateExpression(n).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .Push(this.TranslateExpression(n).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
                 .WithTightness(ExpressionTightness.MULTIPLICATION);
         }
 
         public override StringBuffer TranslateNegative(UnaryOp unaryOp)
         {
-            return TranslateExpression(unaryOp.Expression)
+            return this.TranslateExpression(unaryOp.Expression)
                 .EnsureTightness(ExpressionTightness.UNARY_PREFIX)
                 .Prepend("-")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
@@ -676,7 +675,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("ord(")
-                .Push(TranslateExpression(charValue))
+                .Push(this.TranslateExpression(charValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -748,7 +747,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("float(")
-                .Push(TranslateExpression(stringValue))
+                .Push(this.TranslateExpression(stringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -757,7 +756,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("int(")
-                .Push(TranslateExpression(safeStringValue))
+                .Push(this.TranslateExpression(safeStringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -766,7 +765,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("print(")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -801,24 +800,24 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("PST_sortedCopyOfList(")
-                .Push(TranslateExpression(stringArray))
+                .Push(this.TranslateExpression(stringArray))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringAppend(Expression str1, Expression str2)
         {
-            return TranslateExpression(str1)
+            return this.TranslateExpression(str1)
                 .Push(" += ")
-                .Push(TranslateExpression(str2));
+                .Push(this.TranslateExpression(str2));
         }
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -827,19 +826,19 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("ord(")
-                .Push(TranslateExpression(str).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(str).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("])")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringCompareIsReverse(Expression str1, Expression str2)
         {
-            return TranslateExpression(str1)
+            return this.TranslateExpression(str1)
                 .EnsureTightness(ExpressionTightness.PYTHON_COMPARE)
                 .Push(" > ")
-                .Push(TranslateExpression(str2).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
+                .Push(this.TranslateExpression(str2).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
                 .WithTightness(ExpressionTightness.PYTHON_COMPARE);
         }
 
@@ -849,7 +848,7 @@ namespace Pastel.Transpilers.Python
             for (int i = 0; i < strings.Length; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(TranslateExpression(strings[i]));
+                buf.Push(this.TranslateExpression(strings[i]));
             }
             return buf
                 .Push("])")
@@ -858,10 +857,10 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateStringConcatPair(Expression strLeft, Expression strRight)
         {
-            return TranslateExpression(strLeft)
+            return this.TranslateExpression(strLeft)
                 .EnsureTightness(ExpressionTightness.ADDITION)
                 .Push(" + ")
-                .Push(TranslateExpression(strRight).EnsureGreaterTightness(ExpressionTightness.ADDITION))
+                .Push(this.TranslateExpression(strRight).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                 .WithTightness(ExpressionTightness.ADDITION);
         }
 
@@ -874,29 +873,29 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateStringContains(Expression haystack, Expression needle)
         {
-            return TranslateExpression(needle)
+            return this.TranslateExpression(needle)
                 .EnsureTightness(ExpressionTightness.PYTHON_COMPARE)
                 .Push(" in ")
-                .Push(TranslateExpression(haystack).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
+                .Push(this.TranslateExpression(haystack).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
                 .WithTightness(ExpressionTightness.PYTHON_COMPARE);
         }
 
         public override StringBuffer TranslateStringEndsWith(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".endswith(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringEquals(Expression left, Expression right)
         {
-            return TranslateExpression(left)
+            return this.TranslateExpression(left)
                 .EnsureTightness(ExpressionTightness.PYTHON_COMPARE)
                 .Push(" == ")
-                .Push(TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
                 .WithTightness(ExpressionTightness.PYTHON_COMPARE);
         }
 
@@ -904,39 +903,39 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("chr(")
-                .Push(TranslateExpression(charCode))
+                .Push(this.TranslateExpression(charCode))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringIndexOf(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".find(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringIndexOfWithStart(Expression haystack, Expression needle, Expression startIndex)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".find(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(", ")
-                .Push(TranslateExpression(startIndex))
+                .Push(this.TranslateExpression(startIndex))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringLastIndexOf(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".rfind(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -945,26 +944,26 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("len(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringReplace(Expression haystack, Expression needle, Expression newNeedle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".replace(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(", ")
-                .Push(TranslateExpression(newNeedle))
+                .Push(this.TranslateExpression(newNeedle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringReverse(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[::-1]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -972,35 +971,35 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateStringSplit(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".split(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringStartsWith(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".startswith(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringSubstring(Expression str, Expression start, Expression length)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(start))
+                .Push(this.TranslateExpression(start))
                 .Push(":")
                 .Push(
-                    TranslateExpression(start).EnsureTightness(ExpressionTightness.ADDITION)
+                    this.TranslateExpression(start).EnsureTightness(ExpressionTightness.ADDITION)
                     .Push(" + ")
-                    .Push(TranslateExpression(length).EnsureGreaterTightness(ExpressionTightness.ADDITION))
+                    .Push(this.TranslateExpression(length).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                 )
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -1010,18 +1009,18 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("PST_stringCheckSlice(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(startIndex))
+                .Push(this.TranslateExpression(startIndex))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringToLower(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".lower()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -1029,7 +1028,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateStringToUpper(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".upper()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -1039,14 +1038,14 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("PST_stringToUtf8Bytes(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringTrim(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".strip()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -1054,7 +1053,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateStringTrimEnd(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".rstrip()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -1062,7 +1061,7 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateStringTrimStart(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".lstrip()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -1070,20 +1069,20 @@ namespace Pastel.Transpilers.Python
 
         public override StringBuffer TranslateStringBuilderAdd(Expression sbInst, Expression obj)
         {
-            StringBuffer buf = TranslateExpression(sbInst)
+            StringBuffer buf = this.TranslateExpression(sbInst)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".append(");
             string t = obj.ResolvedType.RootValue;
             bool isString = t == "string" || t == "char";
             if (isString)
             {
-                buf.Push(TranslateExpression(obj));
+                buf.Push(this.TranslateExpression(obj));
             }
             else
             {
                 buf
                     .Push("str(")
-                    .Push(TranslateExpression(obj))
+                    .Push(this.TranslateExpression(obj))
                     .Push(")");
             }
             return buf
@@ -1107,23 +1106,23 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("''.join(")
-                .Push(TranslateExpression(sbInst))
+                .Push(this.TranslateExpression(sbInst))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStrongReferenceEquality(Expression left, Expression right)
         {
-            return TranslateExpression(left)
+            return this.TranslateExpression(left)
                 .EnsureTightness(ExpressionTightness.PYTHON_COMPARE)
                 .Push(" is ")
-                .Push(TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.PYTHON_COMPARE))
                 .WithTightness(ExpressionTightness.PYTHON_COMPARE);
         }
 
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
-            return TranslateExpression(root)
+            return this.TranslateExpression(root)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[" + fieldIndex + "]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -1143,9 +1142,9 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("PST_tryParseFloat(")
-                .Push(TranslateExpression(stringValue))
+                .Push(this.TranslateExpression(stringValue))
                 .Push(", ")
-                .Push(TranslateExpression(floatOutList))
+                .Push(this.TranslateExpression(floatOutList))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -1154,7 +1153,7 @@ namespace Pastel.Transpilers.Python
         {
             return StringBuffer
                 .Of("bytes(")
-                .Push(TranslateExpression(bytes))
+                .Push(this.TranslateExpression(bytes))
                 .Push(").decode('utf-8')")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }

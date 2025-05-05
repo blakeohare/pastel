@@ -14,9 +14,9 @@ namespace Pastel.Transpilers.Java
         public override StringBuffer TranslateFunctionPointerInvocation(FunctionPointerInvocation fpi)
         {
             StringBuffer buf = StringBuffer.Of("(")
-                .Push(TypeTranspiler.TranslateType(fpi.ResolvedType))
+                .Push(this.TypeTranspiler.TranslateType(fpi.ResolvedType))
                 .Push(") TranslationHelper.invokeFunctionPointer(")
-                .Push(TranslateExpression(fpi.Root))
+                .Push(this.TranslateExpression(fpi.Root))
                 .Push(", new Object[] {");
             Expression[] args = fpi.Args;
             for (int i = 0; i < args.Length; i++)
@@ -33,7 +33,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PlatformTranslationHelper.printStdErr(")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -42,16 +42,16 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PlatformTranslationHelper.printStdOut(")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
-            return TranslateExpression(array)
+            return this.TranslateExpression(array)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -60,16 +60,16 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("String.join(")
-                .Push(TranslateExpression(sep))
+                .Push(this.TranslateExpression(sep))
                 .Push(", ")
-                .Push(TranslateExpression(array))
+                .Push(this.TranslateExpression(array))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateArrayLength(Expression array)
         {
-            return TranslateExpression(array)
+            return this.TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".length")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -115,19 +115,19 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateArraySet(Expression array, Expression index, Expression value)
         {
-            return TranslateExpression(array)
+            return this.TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("] = ")
-                .Push(TranslateExpression(value));
+                .Push(this.TranslateExpression(value));
         }
 
         public override StringBuffer TranslateBase64ToBytes(Expression base64String)
         {
             return StringBuffer
                 .Of("PST_base64ToBytes(")
-                .Push(TranslateExpression(base64String))
+                .Push(this.TranslateExpression(base64String))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -135,7 +135,7 @@ namespace Pastel.Transpilers.Java
         public override StringBuffer TranslateBase64ToString(Expression base64String)
         {
             return StringBuffer.Of("PST_base64ToString(")
-                .Push(TranslateExpression(base64String))
+                .Push(this.TranslateExpression(base64String))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -158,23 +158,23 @@ namespace Pastel.Transpilers.Java
             {
                 if (type.IsInteger)
                 {
-                    return TranslateExpression(dotField.Root)
+                    return this.TranslateExpression(dotField.Root)
                         .Push(".intValue");
                 }
                 else if (type.IsBoolean)
                 {
                     return StringBuffer
                         .Of("(")
-                        .Push(TranslateExpression(dotField.Root))
+                        .Push(this.TranslateExpression(dotField.Root))
                         .Push(".intValue == 1)");
                 }
             }
 
             return StringBuffer
                 .Of("(")
-                .Push(TypeTranspiler.TranslateType(type))
+                .Push(this.TypeTranspiler.TranslateType(type))
                 .Push(") ")
-                .Push(TranslateExpression(expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(this.TranslateExpression(expression).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
         }
 
@@ -189,7 +189,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("\"\" + ")
-                .Push(TranslateExpression(charValue).EnsureGreaterTightness(ExpressionTightness.ADDITION))
+                .Push(this.TranslateExpression(charValue).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                 .WithTightness(ExpressionTightness.ADDITION);
         }
 
@@ -214,7 +214,7 @@ namespace Pastel.Transpilers.Java
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(TranslateExpression(args[i]));
+                buf.Push(this.TranslateExpression(args[i]));
             }
             return buf.
                 Push(")")
@@ -230,20 +230,20 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateDictionaryContainsKey(Expression dictionary, Expression key)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".containsKey(")
-                .Push(TranslateExpression(key))
+                .Push(this.TranslateExpression(key))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionaryGet(Expression dictionary, Expression key)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".get(")
-                .Push(TranslateExpression(key))
+                .Push(this.TranslateExpression(key))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -269,29 +269,29 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateDictionaryRemove(Expression dictionary, Expression key)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".remove(")
-                .Push(TranslateExpression(key))
+                .Push(this.TranslateExpression(key))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".put(")
-                .Push(TranslateExpression(key))
+                .Push(this.TranslateExpression(key))
                 .Push(", ")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateDictionarySize(Expression dictionary)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".size()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -365,7 +365,7 @@ namespace Pastel.Transpilers.Java
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
             return StringBuffer.Of("Double.toString(")
-                .Push(TranslateExpression(floatExpr))
+                .Push(this.TranslateExpression(floatExpr))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -374,7 +374,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Integer.toString(")
-                .Push(TranslateExpression(integer))
+                .Push(this.TranslateExpression(integer))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -390,17 +390,17 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateListAdd(Expression list, Expression item)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".add(")
-                .Push(TranslateExpression(item))
+                .Push(this.TranslateExpression(item))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListClear(Expression list)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".clear()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -411,30 +411,30 @@ namespace Pastel.Transpilers.Java
             // Fun fact: this is actually not implemented. The only place that this is used is by Value.
             return StringBuffer
                 .Of("PST_concatLists(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(", ")
-                .Push(TranslateExpression(items))
+                .Push(this.TranslateExpression(items))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListGet(Expression list, Expression index)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".get(")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListInsert(Expression list, Expression index, Expression item)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .Push(".add(")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(", ")
-                .Push(TranslateExpression(item))
+                .Push(this.TranslateExpression(item))
                 .Push(")");
         }
 
@@ -442,7 +442,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_joinChars(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -451,9 +451,9 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_joinList(")
-                .Push(TranslateExpression(sep))
+                .Push(this.TranslateExpression(sep))
                 .Push(", ")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -475,27 +475,27 @@ namespace Pastel.Transpilers.Java
 
             if (useInlineListPop)
             {
-                return TranslateExpression(list)
+                return this.TranslateExpression(list)
                     .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                     .Push(".remove(")
-                    .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                    .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                     .Push(".size() - 1)")
                     .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
             }
 
             return StringBuffer
                 .Of("PST_listPop(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListRemoveAt(Expression list, Expression index)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".remove(")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -504,19 +504,19 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("java.util.Collections.reverse(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListSet(Expression list, Expression index, Expression value)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".set(")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(", ")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -526,14 +526,14 @@ namespace Pastel.Transpilers.Java
             // This is currently only used and implemented by Value lists.
             return StringBuffer
                 .Of("PST_listShuffle(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListSize(Expression list)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".size()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -557,7 +557,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Math.acos(")
-                .Push(TranslateExpression(ratio))
+                .Push(this.TranslateExpression(ratio))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -566,7 +566,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Math.asin(")
-                .Push(TranslateExpression(ratio))
+                .Push(this.TranslateExpression(ratio))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -575,9 +575,9 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Math.atan2(")
-                .Push(TranslateExpression(yComponent))
+                .Push(this.TranslateExpression(yComponent))
                 .Push(", ")
-                .Push(TranslateExpression(xComponent))
+                .Push(this.TranslateExpression(xComponent))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -595,7 +595,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Math.cos(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -613,7 +613,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Math.log(")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")");
         }
 
@@ -621,9 +621,9 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Math.pow(")
-                .Push(TranslateExpression(expBase))
+                .Push(this.TranslateExpression(expBase))
                 .Push(", ")
-                .Push(TranslateExpression(exponent))
+                .Push(this.TranslateExpression(exponent))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -632,7 +632,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Math.sin(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -641,7 +641,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Math.tan(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -651,9 +651,9 @@ namespace Pastel.Transpilers.Java
             // TODO: this helper function is not actually implemented yet.
             return StringBuffer
                 .Of("PST_multiplyList(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(", ")
-                .Push(TranslateExpression(n))
+                .Push(this.TranslateExpression(n))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -667,7 +667,7 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateOrd(Expression charValue)
         {
-            return TranslateExpression(charValue)
+            return this.TranslateExpression(charValue)
                 .EnsureTightness(ExpressionTightness.UNARY_PREFIX)
                 .Prepend("(int) ")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
@@ -677,7 +677,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Double.parseDouble(")
-                .Push(TranslateExpression(stringValue))
+                .Push(this.TranslateExpression(stringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -686,7 +686,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Integer.parseInt(")
-                .Push(TranslateExpression(safeStringValue))
+                .Push(this.TranslateExpression(safeStringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -702,7 +702,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_sortedCopyOfIntArray(")
-                .Push(TranslateExpression(intArray))
+                .Push(this.TranslateExpression(intArray))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -711,34 +711,34 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_sortedCopyOfStringArray(")
-                .Push(TranslateExpression(stringArray))
+                .Push(this.TranslateExpression(stringArray))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringAppend(Expression str1, Expression str2)
         {
-            return TranslateExpression(str1)
+            return this.TranslateExpression(str1)
                 .Push(" += ")
-                .Push(TranslateExpression(str2));
+                .Push(this.TranslateExpression(str2));
         }
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".charAt(")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringCharCodeAt(Expression str, Expression index)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".charAt(")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(")")
                 .Prepend("(int) ")
                 .WithTightness(ExpressionTightness.UNARY_PREFIX);
@@ -746,10 +746,10 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateStringCompareIsReverse(Expression str1, Expression str2)
         {
-            return TranslateExpression(str1)
+            return this.TranslateExpression(str1)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".compareTo(")
-                .Push(TranslateExpression(str2))
+                .Push(this.TranslateExpression(str2))
                 .Push(") > 0")
                 .WithTightness(ExpressionTightness.INEQUALITY);
         }
@@ -758,13 +758,13 @@ namespace Pastel.Transpilers.Java
         {
             // Java, when presented with sequential inline additions of strings, automatically
             // uses a string builder.
-            StringBuffer acc = TranslateExpression(strings[0]);
+            StringBuffer acc = this.TranslateExpression(strings[0]);
             for (int i = 1; i < strings.Length; ++i)
             {
                 acc
                     .EnsureTightness(ExpressionTightness.ADDITION)
                     .Push(" + ")
-                    .Push(TranslateExpression(strings[i]).EnsureGreaterTightness(ExpressionTightness.ADDITION))
+                    .Push(this.TranslateExpression(strings[i]).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                     .WithTightness(ExpressionTightness.ADDITION);
             }
             return acc;
@@ -772,39 +772,39 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateStringConcatPair(Expression strLeft, Expression strRight)
         {
-            return TranslateExpression(strLeft)
+            return this.TranslateExpression(strLeft)
                 .EnsureTightness(ExpressionTightness.ADDITION)
                 .Push(" + ")
-                .Push(TranslateExpression(strRight).EnsureGreaterTightness(ExpressionTightness.ADDITION))
+                .Push(this.TranslateExpression(strRight).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                 .WithTightness(ExpressionTightness.ADDITION);
         }
 
         public override StringBuffer TranslateStringContains(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".contains(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringEndsWith(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".endsWith(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringEquals(Expression left, Expression right)
         {
-            return TranslateExpression(left)
+            return this.TranslateExpression(left)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".equals(")
-                .Push(TranslateExpression(right))
+                .Push(this.TranslateExpression(right))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -813,46 +813,46 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("Character.toString((char) ")
-                .Push(TranslateExpression(charCode).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(this.TranslateExpression(charCode).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringIndexOf(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".indexOf(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringIndexOfWithStart(Expression haystack, Expression needle, Expression startIndex)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".indexOf(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(", ")
-                .Push(TranslateExpression(startIndex))
+                .Push(this.TranslateExpression(startIndex))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringLastIndexOf(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".lastIndexOf(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringLength(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".length()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -860,12 +860,12 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateStringReplace(Expression haystack, Expression needle, Expression newNeedle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".replace((CharSequence) ")
-                .Push(TranslateExpression(needle).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(this.TranslateExpression(needle).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .Push(", (CharSequence) ")
-                .Push(TranslateExpression(newNeedle).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
+                .Push(this.TranslateExpression(newNeedle).EnsureTightness(ExpressionTightness.UNARY_PREFIX))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -874,7 +874,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_reverseString(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -883,31 +883,31 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_literalStringSplit(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringStartsWith(Expression haystack, Expression needle)
         {
-            return TranslateExpression(haystack)
+            return this.TranslateExpression(haystack)
                 .Push(".startsWith(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")");
         }
 
         public override StringBuffer TranslateStringSubstring(Expression str, Expression start, Expression length)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".substring(")
-                .Push(TranslateExpression(start))
+                .Push(this.TranslateExpression(start))
                 .Push(", ")
-                .Push(TranslateExpression(start).EnsureTightness(ExpressionTightness.ADDITION))
+                .Push(this.TranslateExpression(start).EnsureTightness(ExpressionTightness.ADDITION))
                 .Push(" + ")
-                .Push(TranslateExpression(length).EnsureGreaterTightness(ExpressionTightness.ADDITION))
+                .Push(this.TranslateExpression(length).EnsureGreaterTightness(ExpressionTightness.ADDITION))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -916,18 +916,18 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_checkStringInString(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(startIndex))
+                .Push(this.TranslateExpression(startIndex))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringToLower(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".toLowerCase()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -935,7 +935,7 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateStringToUpper(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".toUpperCase()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -945,14 +945,14 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_stringToUtf8Bytes(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringTrim(Expression str)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".trim()")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -962,7 +962,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_trimSide(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(", false)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -971,7 +971,7 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_trimSide(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(", true)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -1003,7 +1003,7 @@ namespace Pastel.Transpilers.Java
 
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
-            return TranslateExpression(root)
+            return this.TranslateExpression(root)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".")
                 .Push(fieldName)
@@ -1023,9 +1023,9 @@ namespace Pastel.Transpilers.Java
         {
             return StringBuffer
                 .Of("PST_parseFloatOrReturnNull(")
-                .Push(TranslateExpression(floatOutList))
+                .Push(this.TranslateExpression(floatOutList))
                 .Push(", ")
-                .Push(TranslateExpression(stringValue))
+                .Push(this.TranslateExpression(stringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }

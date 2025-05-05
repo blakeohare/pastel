@@ -14,10 +14,10 @@ namespace Pastel.Transpilers.CSharp
             Dictionary<string, string> structDefinitions = context.GetCodeForStructs();
             foreach (string structName in structDefinitions.Keys)
             {
-                GenerateStructImplementation(files, context, config, structName, structDefinitions[structName]);
+                this.GenerateStructImplementation(files, context, config, structName, structDefinitions[structName]);
             }
 
-            GenerateFunctionImplementation(files, context, config, context.GetCodeForFunctions());
+            this.GenerateFunctionImplementation(files, context, config, context.GetCodeForFunctions());
             return files;
         }
 

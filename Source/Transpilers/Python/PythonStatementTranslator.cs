@@ -59,7 +59,7 @@ namespace Pastel.Transpilers.Python
         public override void TranslateIfStatement(TranspilerContext sb, IfStatement ifStatement)
         {
             sb.Append(sb.CurrentTab);
-            TranslateIfStatementNoIndent(sb, ifStatement);
+            this.TranslateIfStatementNoIndent(sb, ifStatement);
         }
 
         private void TranslateIfStatementNoIndent(TranspilerContext sb, IfStatement ifStatement)
@@ -76,7 +76,7 @@ namespace Pastel.Transpilers.Python
             }
             else
             {
-                TranslateStatements(sb, ifStatement.IfCode);
+                this.TranslateStatements(sb, ifStatement.IfCode);
             }
             sb.TabDepth--;
 
@@ -88,14 +88,14 @@ namespace Pastel.Transpilers.Python
             {
                 sb.Append(sb.CurrentTab);
                 sb.Append("el");
-                TranslateIfStatementNoIndent(sb, (IfStatement)elseCode[0]);
+                this.TranslateIfStatementNoIndent(sb, (IfStatement)elseCode[0]);
             }
             else
             {
                 sb.Append(sb.CurrentTab);
                 sb.Append("else:\n");
                 sb.TabDepth++;
-                TranslateStatements(sb, elseCode);
+                this.TranslateStatements(sb, elseCode);
                 sb.TabDepth--;
             }
         }
@@ -114,8 +114,8 @@ namespace Pastel.Transpilers.Python
 
         public override void TranslateSwitchStatement(TranspilerContext sb, SwitchStatement switchStatement)
         {
-            string functionName = transpilerCtx.CurrentFunctionDefinition.NameToken.Value;
-            int switchId = transpilerCtx.SwitchCounter++;
+            string functionName = this.transpilerCtx.CurrentFunctionDefinition.NameToken.Value;
+            int switchId = this.transpilerCtx.SwitchCounter++;
             PythonFakeSwitchStatement fakeSwitchStatement = PythonFakeSwitchStatement.Build(switchStatement, switchId, functionName);
 
             sb.Append(sb.CurrentTab);
@@ -127,7 +127,7 @@ namespace Pastel.Transpilers.Python
             sb.Append(", ");
             sb.Append(fakeSwitchStatement.DefaultId);
             sb.Append(")\n");
-            TranslateIfStatement(sb, fakeSwitchStatement.GenerateIfStatementBinarySearchTree());
+            this.TranslateIfStatement(sb, fakeSwitchStatement.GenerateIfStatementBinarySearchTree());
 
             // This list of switch statements will be serialized at the end of the function definition as globals.
             sb.SwitchStatements.Add(fakeSwitchStatement);
@@ -149,7 +149,7 @@ namespace Pastel.Transpilers.Python
             sb.Append(this.ExpressionTranslator.TranslateExpressionAsString(whileLoop.Condition));
             sb.Append(":\n");
             sb.TabDepth++;
-            TranslateStatements(sb, whileLoop.Code);
+            this.TranslateStatements(sb, whileLoop.Code);
             sb.TabDepth--;
         }
     }

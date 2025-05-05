@@ -18,14 +18,14 @@ namespace Pastel.Transpilers.Php
 
         public override StringBuffer TranslateFunctionPointerInvocation(FunctionPointerInvocation fpi)
         {
-            StringBuffer buf = TranslateExpression(fpi.Root)
+            StringBuffer buf = this.TranslateExpression(fpi.Root)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("(");
             Expression[] args = fpi.Args;
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(TranslateExpression(args[i]));
+                buf.Push(this.TranslateExpression(args[i]));
             }
             return buf
                 .Push(")")
@@ -41,15 +41,15 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("echo ")
-                .Push(TranslateExpression(value));
+                .Push(this.TranslateExpression(value));
         }
 
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
-            return TranslateExpression(array)
+            return this.TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("->arr[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -63,7 +63,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("count(")
-                .Push(TranslateExpression(array).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(array).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr)");
         }
 
@@ -71,7 +71,7 @@ namespace Pastel.Transpilers.Php
         {
             StringBuffer buf = StringBuffer
                 .Of("pastelWrapList(array_fill(0, ")
-                .Push(TranslateExpression(lengthExpression))
+                .Push(this.TranslateExpression(lengthExpression))
                 .Push(", ");
             switch (arrayType.RootValue)
             {
@@ -95,7 +95,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_bytesToIntArray(base64_decode(")
-                .Push(TranslateExpression(base64String))
+                .Push(this.TranslateExpression(base64String))
                 .Push(", true))")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -104,7 +104,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("base64_decode(")
-                .Push(TranslateExpression(base64String))
+                .Push(this.TranslateExpression(base64String))
                 .Push(", true)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -116,7 +116,7 @@ namespace Pastel.Transpilers.Php
 
         public override StringBuffer TranslateCast(PType type, Expression expression)
         {
-            return TranslateExpression(expression);
+            return this.TranslateExpression(expression);
         }
 
         public override StringBuffer TranslateCharConstant(char value)
@@ -128,14 +128,14 @@ namespace Pastel.Transpilers.Php
 
         public override StringBuffer TranslateCharToString(Expression charValue)
         {
-            return TranslateExpression(charValue);
+            return this.TranslateExpression(charValue);
         }
 
         public override StringBuffer TranslateChr(Expression charCode)
         {
             return StringBuffer
                 .Of("chr(")
-                .Push(TranslateExpression(charCode))
+                .Push(this.TranslateExpression(charCode))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -150,7 +150,7 @@ namespace Pastel.Transpilers.Php
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(TranslateExpression(args[i]));
+                buf.Push(this.TranslateExpression(args[i]));
             }
             return buf
                 .Push(")")
@@ -169,7 +169,7 @@ namespace Pastel.Transpilers.Php
         {
             if (keyExpr.ResolvedType.RootValue != "int")
             {
-                return TranslateExpression(keyExpr);
+                return this.TranslateExpression(keyExpr);
             }
 
             if (keyExpr is InlineConstant)
@@ -185,7 +185,7 @@ namespace Pastel.Transpilers.Php
                 .Of("'i' . ")
                 // Technically this should be PHP_STRING_CONCAT instead of ADDITION, but 'i' . a + b just looks
                 // really weird instead of 'i' . (a * b)
-                .Push(TranslateExpression(keyExpr).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
+                .Push(this.TranslateExpression(keyExpr).EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION))
                 .WithTightness(ExpressionTightness.PHP_STRING_CONCAT);
         }
 
@@ -193,7 +193,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("isset(")
-                .Push(TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr[")
                 .Push(TranslateDictionaryKeyExpression(key))
                 .Push("])")
@@ -202,7 +202,7 @@ namespace Pastel.Transpilers.Php
 
         public override StringBuffer TranslateDictionaryGet(Expression dictionary, Expression key)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("->arr[")
                 .Push(TranslateDictionaryKeyExpression(key))
@@ -213,7 +213,7 @@ namespace Pastel.Transpilers.Php
         public override StringBuffer TranslateDictionaryKeys(Expression dictionary)
         {
             return StringBuffer.Of("self::PST_dictGetKeys(")
-                .Push(TranslateExpression(dictionary))
+                .Push(this.TranslateExpression(dictionary))
                 .Push(", ")
                 .Push(dictionary.ResolvedType.Generics[0].IsInteger ? "true" : "false")
                 .Push(")")
@@ -231,7 +231,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("unset(")
-                .Push(TranslateExpression(dictionary))
+                .Push(this.TranslateExpression(dictionary))
                 .Push("->arr[")
                 .Push(TranslateDictionaryKeyExpression(key))
                 .Push("])")
@@ -240,19 +240,19 @@ namespace Pastel.Transpilers.Php
 
         public override StringBuffer TranslateDictionarySet(Expression dictionary, Expression key, Expression value)
         {
-            return TranslateExpression(dictionary)
+            return this.TranslateExpression(dictionary)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("->arr[")
                 .Push(TranslateDictionaryKeyExpression(key))
                 .Push("] = ")
-                .Push(TranslateExpression(value));
+                .Push(this.TranslateExpression(value));
         }
 
         public override StringBuffer TranslateDictionarySize(Expression dictionary)
         {
             return StringBuffer
                 .Of("count(")
-                .Push(TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(dictionary).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -288,7 +288,7 @@ namespace Pastel.Transpilers.Php
 
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
         {
-            return TranslateExpression(floatExpr)
+            return this.TranslateExpression(floatExpr)
                 // not correct, just an aesthetic choice to over-insert to make it not look weird
                 .EnsureGreaterTightness(ExpressionTightness.MULTIPLICATION)
                 .Push(" . ''")
@@ -304,7 +304,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_isValidInteger(")
-                .Push(TranslateExpression(stringValue))
+                .Push(this.TranslateExpression(stringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -313,16 +313,16 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("array_push(")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr, ")
-                .Push(TranslateExpression(item))
+                .Push(this.TranslateExpression(item))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateListClear(Expression list)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("->arr = array()");
         }
@@ -331,18 +331,18 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("pastelWrapList(array_merge(")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr, ")
-                .Push(TranslateExpression(items).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(items).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr))");
         }
 
         public override StringBuffer TranslateListGet(Expression list, Expression index)
         {
-            return TranslateExpression(list)
+            return this.TranslateExpression(list)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("->arr[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -351,11 +351,11 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("array_splice(")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr, ")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(", 0, array(")
-                .Push(TranslateExpression(item))
+                .Push(this.TranslateExpression(item))
                 .Push("))")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -364,7 +364,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("implode(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("->arr)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -374,9 +374,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("implode(")
-                .Push(TranslateExpression(sep))
+                .Push(this.TranslateExpression(sep))
                 .Push(", ")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -392,7 +392,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("array_pop(")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -401,9 +401,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("array_splice(")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr, ")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(", 1)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -412,7 +412,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_reverseArray(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -421,21 +421,21 @@ namespace Pastel.Transpilers.Php
         {
             if (list is Variable)
             {
-                return TranslateExpression(list)
+                return this.TranslateExpression(list)
                     .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                     .Push("->arr[")
-                    .Push(TranslateExpression(index))
+                    .Push(this.TranslateExpression(index))
                     .Push("] = ")
-                    .Push(TranslateExpression(value));
+                    .Push(this.TranslateExpression(value));
             }
 
             return StringBuffer
                 .Of("self::PST_assignIndexHack(")
-                .Push(TranslateExpression(list))
+                .Push(this.TranslateExpression(list))
                 .Push(", ")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push(", ")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -444,7 +444,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("shuffle(")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -453,7 +453,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("count(")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -462,7 +462,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("pastelWrapList(")
-                .Push(TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(list).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("->arr)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -476,7 +476,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("acos(")
-                .Push(TranslateExpression(ratio))
+                .Push(this.TranslateExpression(ratio))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -485,7 +485,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("asin(")
-                .Push(TranslateExpression(ratio))
+                .Push(this.TranslateExpression(ratio))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -494,9 +494,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("atan2(")
-                .Push(TranslateExpression(yComponent))
+                .Push(this.TranslateExpression(yComponent))
                 .Push(", ")
-                .Push(TranslateExpression(xComponent))
+                .Push(this.TranslateExpression(xComponent))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -510,7 +510,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("cos(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -524,7 +524,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("log(")
-                .Push(TranslateExpression(value))
+                .Push(this.TranslateExpression(value))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -533,9 +533,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("pow(")
-                .Push(TranslateExpression(expBase))
+                .Push(this.TranslateExpression(expBase))
                 .Push(", ")
-                .Push(TranslateExpression(exponent))
+                .Push(this.TranslateExpression(exponent))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -544,7 +544,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("sin(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -553,7 +553,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("tan(")
-                .Push(TranslateExpression(thetaRadians))
+                .Push(this.TranslateExpression(thetaRadians))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -577,7 +577,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("floatval(")
-                .Push(TranslateExpression(stringValue))
+                .Push(this.TranslateExpression(stringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -586,7 +586,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("intval(")
-                .Push(TranslateExpression(safeStringValue))
+                .Push(this.TranslateExpression(safeStringValue))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -602,7 +602,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_sortedCopyOfIntArray(")
-                .Push(TranslateExpression(intArray))
+                .Push(this.TranslateExpression(intArray))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -611,24 +611,24 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_sortedCopyOfStringArray(")
-                .Push(TranslateExpression(stringArray))
+                .Push(this.TranslateExpression(stringArray))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringAppend(Expression str1, Expression str2)
         {
-            return TranslateExpression(str1)
+            return this.TranslateExpression(str1)
                 .Push(" .= ")
-                .Push(TranslateExpression(str2));
+                .Push(this.TranslateExpression(str2));
         }
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)
         {
-            return TranslateExpression(str)
+            return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -637,9 +637,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("chr(")
-                .Push(TranslateExpression(str).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
+                .Push(this.TranslateExpression(str).EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE))
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("])")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -648,9 +648,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("strcmp(")
-                .Push(TranslateExpression(str1))
+                .Push(this.TranslateExpression(str1))
                 .Push(", ")
-                .Push(TranslateExpression(str2))
+                .Push(this.TranslateExpression(str2))
                 .Push(") > 0")
                 .WithTightness(ExpressionTightness.INEQUALITY);
         }
@@ -661,7 +661,7 @@ namespace Pastel.Transpilers.Php
             for (int i = 0; i < strings.Length; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(TranslateExpression(strings[i]));
+                buf.Push(this.TranslateExpression(strings[i]));
             }
             return buf
                 .Push("))")
@@ -670,10 +670,10 @@ namespace Pastel.Transpilers.Php
 
         public override StringBuffer TranslateStringConcatPair(Expression strLeft, Expression strRight)
         {
-            return TranslateExpression(strLeft)
+            return this.TranslateExpression(strLeft)
                 .EnsureTightness(ExpressionTightness.PHP_STRING_CONCAT)
                 .Push(" . ")
-                .Push(TranslateExpression(strRight).EnsureGreaterTightness(ExpressionTightness.PHP_STRING_CONCAT))
+                .Push(this.TranslateExpression(strRight).EnsureGreaterTightness(ExpressionTightness.PHP_STRING_CONCAT))
                 .WithTightness(ExpressionTightness.PHP_STRING_CONCAT);
         }
 
@@ -681,9 +681,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("strpos(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(") !== false")
                 .WithTightness(ExpressionTightness.EQUALITY);
         }
@@ -692,19 +692,19 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_stringEndsWith(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringEquals(Expression left, Expression right)
         {
-            return TranslateExpression(left)
+            return this.TranslateExpression(left)
                 .EnsureGreaterTightness(ExpressionTightness.EQUALITY)
                 .Push(" === ")
-                .Push(TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.EQUALITY))
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.EQUALITY))
                 .WithTightness(ExpressionTightness.EQUALITY);
         }
 
@@ -717,9 +717,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_stringIndexOf(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(", 0)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -728,11 +728,11 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_stringIndexOf(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(", ")
-                .Push(TranslateExpression(startIndex))
+                .Push(this.TranslateExpression(startIndex))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -741,9 +741,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_stringLastIndexOf(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(", 0)")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -752,7 +752,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("strlen(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -761,11 +761,11 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("str_replace(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(", ")
-                .Push(TranslateExpression(newNeedle))
+                .Push(this.TranslateExpression(newNeedle))
                 .Push(", ")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -774,7 +774,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("strrev(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -783,9 +783,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("pastelWrapList(explode(")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(", ")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push("))")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -794,9 +794,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_stringStartsWith(")
-                .Push(TranslateExpression(haystack))
+                .Push(this.TranslateExpression(haystack))
                 .Push(", ")
-                .Push(TranslateExpression(needle))
+                .Push(this.TranslateExpression(needle))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -805,11 +805,11 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("substr(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(", ")
-                .Push(TranslateExpression(start))
+                .Push(this.TranslateExpression(start))
                 .Push(", ")
-                .Push(TranslateExpression(length))
+                .Push(this.TranslateExpression(length))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -823,7 +823,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("strtolower(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -832,7 +832,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("strtoupper(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -841,7 +841,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_stringToUtf8Bytes(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -850,7 +850,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("trim(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -859,7 +859,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("rtrim(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -868,7 +868,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("ltrim(")
-                .Push(TranslateExpression(str))
+                .Push(this.TranslateExpression(str))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -895,16 +895,16 @@ namespace Pastel.Transpilers.Php
 
         public override StringBuffer TranslateStrongReferenceEquality(Expression left, Expression right)
         {
-            return TranslateExpression(left)
+            return this.TranslateExpression(left)
                 .EnsureGreaterTightness(ExpressionTightness.EQUALITY)
                 .Push(" === ")
-                .Push(TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.EQUALITY))
+                .Push(this.TranslateExpression(right).EnsureGreaterTightness(ExpressionTightness.EQUALITY))
                 .WithTightness(ExpressionTightness.EQUALITY);
         }
 
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
-            return TranslateExpression(root)
+            return this.TranslateExpression(root)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("->")
                 .Push(fieldName)
@@ -920,9 +920,9 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_tryParseFloat(")
-                .Push(TranslateExpression(stringValue))
+                .Push(this.TranslateExpression(stringValue))
                 .Push(", ")
-                .Push(TranslateExpression(floatOutList))
+                .Push(this.TranslateExpression(floatOutList))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -931,7 +931,7 @@ namespace Pastel.Transpilers.Php
         {
             return StringBuffer
                 .Of("self::PST_utf8BytesToString(")
-                .Push(TranslateExpression(bytes))
+                .Push(this.TranslateExpression(bytes))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }

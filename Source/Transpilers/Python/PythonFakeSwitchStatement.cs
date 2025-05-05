@@ -40,11 +40,11 @@ namespace Pastel.Transpilers.Python
         {
             get
             {
-                if (conditionVariableName == null)
+                if (this.conditionVariableName == null)
                 {
-                    conditionVariableName = "sc_" + switchId;
+                    this.conditionVariableName = "sc_" + this.switchId;
                 }
-                return conditionVariableName;
+                return this.conditionVariableName;
             }
         }
 
@@ -53,11 +53,11 @@ namespace Pastel.Transpilers.Python
         {
             get
             {
-                if (dictionaryGlobalName == null)
+                if (this.dictionaryGlobalName == null)
                 {
-                    dictionaryGlobalName = "swlookup__" + functionName + "__" + switchId;
+                    this.dictionaryGlobalName = "swlookup__" + this.functionName + "__" + this.switchId;
                 }
-                return dictionaryGlobalName;
+                return this.dictionaryGlobalName;
             }
         }
 
@@ -119,7 +119,7 @@ namespace Pastel.Transpilers.Python
             this.owner = owner;
             this.functionName = functionName;
             this.switchId = switchId;
-            DefaultId = defaultChunkId;
+            this.DefaultId = defaultChunkId;
             this.expressionsToChunkIds = expressionsToChunkIds;
             this.chunkIdsToCode = chunkIdsToCode;
         }
@@ -132,7 +132,7 @@ namespace Pastel.Transpilers.Python
 
             bool isInteger = false;
             bool first = true;
-            foreach (InlineConstant ic in expressionsToChunkIds.Keys)
+            foreach (InlineConstant ic in this.expressionsToChunkIds.Keys)
             {
                 if (first)
                 {
@@ -144,7 +144,7 @@ namespace Pastel.Transpilers.Python
                     dictionaryBuilder.Append(", ");
                 }
 
-                int id = expressionsToChunkIds[ic];
+                int id = this.expressionsToChunkIds[ic];
                 if (isInteger)
                 {
                     dictionaryBuilder.Append((int)ic.Value);
@@ -154,7 +154,7 @@ namespace Pastel.Transpilers.Python
                     dictionaryBuilder.Append(CodeUtil.ConvertStringValueToCode((string)ic.Value));
                 }
                 dictionaryBuilder.Append(": ");
-                dictionaryBuilder.Append(expressionsToChunkIds[ic]);
+                dictionaryBuilder.Append(this.expressionsToChunkIds[ic]);
             }
             dictionaryBuilder.Append(" }");
             return dictionaryBuilder.ToString();
@@ -162,7 +162,7 @@ namespace Pastel.Transpilers.Python
 
         public IfStatement GenerateIfStatementBinarySearchTree()
         {
-            return GenerateIfStatementBinarySearchTree(0, chunkIdsToCode.Count - 1, chunkIdsToCode);
+            return this.GenerateIfStatementBinarySearchTree(0, this.chunkIdsToCode.Count - 1, this.chunkIdsToCode);
         }
 
         private IfStatement GenerateIfStatementBinarySearchTree(int lowId, int highId, Dictionary<int, Statement[]> codeById)
@@ -179,8 +179,8 @@ namespace Pastel.Transpilers.Python
                 */
 
                 int midId = lowId + 1;
-                IfStatement inner = BuildIfStatement(midId, "==", codeById[midId], codeById[highId]);
-                IfStatement outer = BuildIfStatement(lowId, "==", codeById[lowId], new Statement[] { inner });
+                IfStatement inner = this.BuildIfStatement(midId, "==", codeById[midId], codeById[highId]);
+                IfStatement outer = this.BuildIfStatement(lowId, "==", codeById[lowId], new Statement[] { inner });
                 return outer;
             }
 
@@ -193,7 +193,7 @@ namespace Pastel.Transpilers.Python
                       ...
 
                 */
-                return BuildIfStatement(lowId, "==", codeById[lowId], codeById[highId]);
+                return this.BuildIfStatement(lowId, "==", codeById[lowId], codeById[highId]);
             }
 
             /*
@@ -206,9 +206,9 @@ namespace Pastel.Transpilers.Python
             int midId1 = (lowId + highId) / 2;
             int midId2 = midId1 + 1;
 
-            IfStatement lower = GenerateIfStatementBinarySearchTree(lowId, midId1, codeById);
-            IfStatement upper = GenerateIfStatementBinarySearchTree(midId2, highId, codeById);
-            return BuildIfStatement(midId2, "<", new Statement[] { lower }, new Statement[] { upper });
+            IfStatement lower = this.GenerateIfStatementBinarySearchTree(lowId, midId1, codeById);
+            IfStatement upper = this.GenerateIfStatementBinarySearchTree(midId2, highId, codeById);
+            return this.BuildIfStatement(midId2, "<", new Statement[] { lower }, new Statement[] { upper });
         }
 
         private IfStatement BuildIfStatement(int id, string op, Statement[] trueCode, Statement[] falseCode)
@@ -221,9 +221,9 @@ namespace Pastel.Transpilers.Python
             return new IfStatement(
                 Token.CreateDummyToken("if"),
                 condition,
-                TrimBreak(trueCode),
+                this.TrimBreak(trueCode),
                 Token.CreateDummyToken("else"),
-                TrimBreak(falseCode));
+                this.TrimBreak(falseCode));
         }
 
         private Statement[] TrimBreak(Statement[] statements)
