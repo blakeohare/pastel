@@ -44,7 +44,19 @@ namespace Pastel.Parser.ParseNodes
         public bool IsNullable { get; set; }
 
         private TypeCategory Category { get; set; }
-        public bool IsStruct { get { return Category == TypeCategory.STRUCT; } }
+        public bool IsStruct { get { return this.Category == TypeCategory.STRUCT; } }
+        public bool IsArray { get { return this.Category == TypeCategory.ARRAY; } }
+        public bool IsList { get { return this.Category == TypeCategory.LIST; } }
+        public bool IsDictionary { get { return this.Category == TypeCategory.DICTIONARY; } }
+        public bool IsFunction { get { return this.Category == TypeCategory.FUNCTION; } }
+        public bool IsString { get { return this.Category == TypeCategory.PRIMITIVE && this.RootValue == "string"; } }
+        public bool IsInteger { get { return this.Category == TypeCategory.PRIMITIVE && this.RootValue == "int"; } }
+        public bool IsFloat { get { return this.Category == TypeCategory.PRIMITIVE && this.RootValue == "double"; } }
+        public bool IsChar { get { return this.Category == TypeCategory.PRIMITIVE && this.RootValue == "char"; } }
+        public bool IsByte { get { return this.Category == TypeCategory.PRIMITIVE && this.RootValue == "byte"; } }
+        public bool IsBoolean { get { return this.Category == TypeCategory.PRIMITIVE && this.RootValue == "bool"; } }
+        public bool IsNull { get { return this.Category == TypeCategory.NULL; } }
+        public bool IsVoid { get { return this.Category == TypeCategory.VOID; } }
 
         internal StructDefinition StructDef
         {
@@ -71,16 +83,16 @@ namespace Pastel.Parser.ParseNodes
         public PType(Token firstToken, string namespaceName, string typeName, params PType[] generics) : this(firstToken, namespaceName, typeName, new List<PType>(generics)) { }
         public PType(Token firstToken, string namespaceName, string typeName, List<PType> generics)
         {
-            FirstToken = firstToken;
-            RootValue = namespaceName == null ? typeName : namespaceName + "." + typeName;
-            Namespace = namespaceName;
-            TypeName = typeName;
-            Generics = generics == null ? EMPTY_GENERICS : generics.ToArray();
+            this.FirstToken = firstToken;
+            this.RootValue = namespaceName == null ? typeName : namespaceName + "." + typeName;
+            this.Namespace = namespaceName;
+            this.TypeName = typeName;
+            this.Generics = generics == null ? EMPTY_GENERICS : generics.ToArray();
 
             // Uses an invalid character to prevent the possibility of creating this type directly in code.
-            if (RootValue == "@CoreFunc")
+            if (this.RootValue == "@CoreFunc")
             {
-                Category = TypeCategory.CORE_FUNCTION;
+                this.Category = TypeCategory.CORE_FUNCTION;
             }
 
             if (Generics.Length == 1)

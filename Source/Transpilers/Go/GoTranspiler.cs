@@ -33,7 +33,7 @@ namespace Pastel.Transpilers.Go
                     .Append(this.TypeTranspiler.TranslateType(funcDef.ArgTypes[i]));
             }
             sb.Append(')');
-            if (funcDef.ReturnType.RootValue != "void")
+            if (!funcDef.ReturnType.IsVoid)
             {
                 sb.Append(" ").Append(this.TypeTranspiler.TranslateType(funcDef.ReturnType));
             }

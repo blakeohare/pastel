@@ -59,7 +59,7 @@ namespace Pastel.Transpilers.CSharp
         public override StringBuffer TranslateArrayNew(PType arrayType, Expression lengthExpression)
         {
             int nestingLevel = 0;
-            while (arrayType.RootValue == "Array")
+            while (arrayType.IsArray)
             {
                 nestingLevel++;
                 arrayType = arrayType.Generics[0];

@@ -12,7 +12,7 @@ namespace Pastel.Transpilers.Go
 
         private StringBuffer TranslateExpressionStringUnwrap(Expression expr, bool asPtr)
         {
-            if (expr is InlineConstant ic && ic.Type.RootValue == "string")
+            if (expr is InlineConstant ic && ic.Type.IsString)
             {
                 return StringBuffer
                     .Of(CodeUtil.ConvertStringValueToCode((string)ic.Value))
@@ -215,7 +215,7 @@ namespace Pastel.Transpilers.Go
 
         private bool IsStringDict(Expression dictExpr)
         {
-            return dictExpr.ResolvedType.Generics[0].RootValue == "string";
+            return dictExpr.ResolvedType.Generics[0].IsString;
         }
 
         public override StringBuffer TranslateDictionaryContainsKey(Expression dictionary, Expression key)
@@ -263,7 +263,7 @@ namespace Pastel.Transpilers.Go
         public override StringBuffer TranslateDictionaryNew(PType keyType, PType valueType)
         {
             return StringBuffer
-                .Of(keyType.RootValue == "string" ? "PST_newDictStr()" : "PST_newDictInt()")
+                .Of(keyType.IsString ? "PST_newDictStr()" : "PST_newDictInt()")
                 .WithTightness(ExpressionTightness.ATOMIC);
         }
 
@@ -317,8 +317,8 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateDivideFloat(Expression left, Expression right)
         {
-            bool leftFloat = left.ResolvedType.RootValue == "double";
-            bool rightFloat = right.ResolvedType.RootValue == "double";
+            bool leftFloat = left.ResolvedType.IsFloat;
+            bool rightFloat = right.ResolvedType.IsFloat;
             StringBuffer leftSb = this.TranslateExpression(left);
             StringBuffer rightSb = this.TranslateExpression(right);
             if (!leftFloat) leftSb.Prepend("float64(").Push(")").WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
@@ -522,7 +522,7 @@ namespace Pastel.Transpilers.Go
         public override StringBuffer TranslateMathAbs(Expression num)
         {
             string funcName;
-            if (num.ResolvedType.RootValue == "double")
+            if (num.ResolvedType.IsFloat)
             {
                 this.MarkFeatureAsUsed("IMPORT:math");
                 funcName = "math.Abs";

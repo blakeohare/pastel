@@ -110,7 +110,7 @@ namespace Pastel.Parser.ParseNodes
                             throw new ParserException(chunk.Cases[j].FirstToken, "Only constants may be used as switch cases.");
                         }
                         int value;
-                        if (ic.ResolvedType.RootValue == "char")
+                        if (ic.ResolvedType.IsChar)
                         {
                             value = (char)ic.Value;
                         }

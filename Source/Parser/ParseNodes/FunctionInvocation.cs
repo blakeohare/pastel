@@ -129,13 +129,13 @@ namespace Pastel.Parser.ParseNodes
             {
                 return new ExtensibleFunctionInvocation(FirstToken, (ExtensibleFunctionReference)Root, Args).ResolveType(varScope, resolver);
             }
-            else if (Root is ConstructorReference)
+            else if (this.Root is ConstructorReference ctorRef)
             {
-                PType typeToConstruct = ((ConstructorReference)Root).TypeToConstruct;
+                PType typeToConstruct = ctorRef.TypeToConstruct;
                 typeToConstruct.FinalizeType(resolver);
-                return new ConstructorInvocation(FirstToken, typeToConstruct, Args, Owner);
+                return new ConstructorInvocation(this.FirstToken, typeToConstruct, this.Args, this.Owner);
             }
-            else if (Root.ResolvedType.RootValue == "Func")
+            else if (this.Root.ResolvedType.IsFunction)
             {
                 return new FunctionPointerInvocation(resolver, FirstToken, Root, Args);
             }

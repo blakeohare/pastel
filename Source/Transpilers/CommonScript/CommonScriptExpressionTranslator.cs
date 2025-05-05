@@ -31,7 +31,7 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateArrayNew(PType arrayType, Expression lengthExpression)
         {
-            if (lengthExpression is InlineConstant && lengthExpression.ResolvedType.RootValue == "int")
+            if (lengthExpression is InlineConstant && lengthExpression.ResolvedType.IsInteger)
             {
                 int length = (int)((InlineConstant)lengthExpression).Value;
                 StringBuffer buf = StringBuffer.Of("[");

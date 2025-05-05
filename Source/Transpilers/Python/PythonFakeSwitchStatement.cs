@@ -136,7 +136,7 @@ namespace Pastel.Transpilers.Python
             {
                 if (first)
                 {
-                    isInteger = ic.ResolvedType.RootValue == "int";
+                    isInteger = ic.ResolvedType.IsInteger;
                     first = false;
                 }
                 else

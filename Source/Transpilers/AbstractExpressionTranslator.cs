@@ -43,8 +43,7 @@ namespace Pastel.Transpilers
                     OpPair opPair = (OpPair)expression;
                     if (opPair.Op == "/")
                     {
-                        if (opPair.Left.ResolvedType.RootValue == "int" &&
-                            opPair.Right.ResolvedType.RootValue == "int")
+                        if (opPair.Left.ResolvedType.IsInteger && opPair.Right.ResolvedType.IsInteger)
                         {
                             return this.TranslateDivideInteger(opPair.Left, opPair.Right);
                         }

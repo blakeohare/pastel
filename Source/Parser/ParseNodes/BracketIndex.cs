@@ -31,17 +31,17 @@ namespace Pastel.Parser.ParseNodes
             PType indexType = Index.ResolvedType;
 
             bool badIndex = false;
-            if (rootType.RootValue == "List" || rootType.RootValue == "Array")
+            if (rootType.IsList || rootType.IsArray)
             {
                 badIndex = !indexType.IsIdentical(resolver, PType.INT);
                 ResolvedType = rootType.Generics[0];
             }
-            else if (rootType.RootValue == "Dictionary")
+            else if (rootType.IsDictionary)
             {
                 badIndex = !indexType.IsIdentical(resolver, rootType.Generics[0]);
                 ResolvedType = rootType.Generics[1];
             }
-            else if (rootType.RootValue == "string")
+            else if (rootType.IsString)
             {
                 badIndex = !indexType.IsIdentical(resolver, PType.INT);
                 ResolvedType = PType.CHAR;

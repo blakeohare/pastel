@@ -25,8 +25,8 @@ namespace Pastel.Parser.ParseNodes
 
             this.ResolvedType = this.DetermineResolvedType(this.Left.ResolvedType, this.Op, this.Right.ResolvedType);
 
-            bool isLeftStr = this.Left.ResolvedType.RootValue == "string";
-            bool isRightStr = this.Right.ResolvedType.RootValue == "string";
+            bool isLeftStr = this.Left.ResolvedType.IsString;
+            bool isRightStr = this.Right.ResolvedType.IsString;
             if (this.Op == "+" && (isLeftStr || isRightStr))
             {
                 StringConcatenation? leftStrConcat = this.Left as StringConcatenation;
@@ -60,9 +60,9 @@ namespace Pastel.Parser.ParseNodes
             if (op == "==" || op == "!=")
             {
                 if (tright.RootValue == tleft.RootValue ||
-                    tright.RootValue == "null" && tleft.IsNullable ||
-                    tright.IsNullable && tleft.RootValue == "null" ||
-                    tright.RootValue == "null" && tleft.RootValue == "null")
+                    (tright.IsNull && tleft.IsNullable) ||
+                    (tright.IsNullable && tleft.IsNull) ||
+                    (tright.IsNull && tleft.IsNull))
                 {
                     return PType.BOOL;
                 }

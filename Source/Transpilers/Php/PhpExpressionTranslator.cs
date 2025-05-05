@@ -215,7 +215,7 @@ namespace Pastel.Transpilers.Php
             return StringBuffer.Of("self::PST_dictGetKeys(")
                 .Push(TranslateExpression(dictionary))
                 .Push(", ")
-                .Push(dictionary.ResolvedType.Generics[0].RootValue == "int" ? "true" : "false")
+                .Push(dictionary.ResolvedType.Generics[0].IsInteger ? "true" : "false")
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }

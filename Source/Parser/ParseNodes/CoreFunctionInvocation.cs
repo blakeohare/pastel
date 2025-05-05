@@ -99,7 +99,7 @@ namespace Pastel.Parser.ParseNodes
         {
             if (this.Function == CoreFunction.ORD &&
                 this.Args[0] is InlineConstant ic &&
-                ic.Type.RootValue == "char")
+                ic.Type.IsChar)
             {
                 // TODO: why is it coming as both types? Is it still coming as both?
                 char c = (ic.Value is string str) ? str[0] : (char)ic.Value;

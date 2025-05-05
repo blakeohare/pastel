@@ -80,19 +80,19 @@ namespace Pastel.Transpilers.Java
             // In the event of multi-dimensional jagged arrays, the outermost array length goes in the innermost bracket.
             // Unwrap nested arrays in the type and run the code as normal, and then add that many []'s to the end.
             int bracketSuffixCount = 0;
-            while (arrayType.RootValue == "Array")
+            while (arrayType.IsArray)
             {
                 arrayType = arrayType.Generics[0];
                 bracketSuffixCount++;
             }
 
             StringBuffer buf = StringBuffer.Of("new ");
-            if (arrayType.RootValue == "Dictionary")
+            if (arrayType.IsDictionary)
             {
                 this.JavaTypeTranspiler.UncheckedTypeWarning = true;
                 buf.Push("HashMap");
             }
-            else if (arrayType.RootValue == "List")
+            else if (arrayType.IsList)
             {
                 this.JavaTypeTranspiler.UncheckedTypeWarning = true;
                 buf.Push("ArrayList");
@@ -156,12 +156,12 @@ namespace Pastel.Transpilers.Java
                 CrayonHacks.IsJavaValueStruct(dotField.Root.ResolvedType.StructDef) &&
                 dotField.FieldName.Value == "internalValue")
             {
-                if (type.RootValue == "int")
+                if (type.IsInteger)
                 {
                     return TranslateExpression(dotField.Root)
                         .Push(".intValue");
                 }
-                else if (type.RootValue == "bool")
+                else if (type.IsBoolean)
                 {
                     return StringBuffer
                         .Of("(")
