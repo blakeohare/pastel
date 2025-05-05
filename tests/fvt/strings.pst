@@ -6,6 +6,11 @@ void runner() {
     testLowerUpper();
     testReverse();
     testCharacters();
+    testCharCode();
+    testCompare();
+    testSplit();
+    testSubStringEqual();
+    testReplace();
 }
 
 void testLowerUpper() {
@@ -86,4 +91,47 @@ void testStartsEndsWith() {
     assertTrue(haystack.EndsWith("456"));
     assertFalse(haystack.StartsWith("1"));
     assertFalse(haystack.EndsWith("5"));
+}
+
+void testCompare() {
+    string a = "A";
+    string b = "B";
+    string b2 = b;
+    assertFalse(Core.StringCompareIsReverse(a, b));
+    assertTrue(Core.StringCompareIsReverse(b, a));
+    assertFalse(Core.StringCompareIsReverse(b, b2));
+}
+
+void testCharCode() {
+    string s = "abc";
+    assertEqInt(98, s.CharCodeAt(1));
+}
+
+void testSplit() {
+    string toSplit = "this is  a string ";
+    string[] parts = toSplit.Split(" ");
+    assertEqInt(6, parts.Size());
+    assertEqStr("this", parts[0]);
+    assertEqStr("", parts[2]);
+    assertEqStr("", parts[5]);
+    assertEqStr("string", parts[4]);
+}
+
+void testSubStringEqual() {
+    if (!IS_JS) {
+        string test = "0123456789";
+        assertTrue(test.SubStringIsEqualTo(0, "012"));
+        assertTrue(test.SubStringIsEqualTo(8, "89"));
+        assertTrue(test.SubStringIsEqualTo(4, ""));
+        assertTrue(test.SubStringIsEqualTo(0, "0123456789"));
+        assertFalse(test.SubStringIsEqualTo(1, "0123"));
+    }
+}
+
+void testReplace() {
+    string test = "12345";
+    string testSequences = "aaaaa";
+    assertEqStr("12THREE & FOUR5", test.Replace("34", "THREE & FOUR"));
+    assertEqStr("12THREE & FOUR5", test.Replace("34", "THREE & FOUR"));
+    assertEqStr("bba", testSequences.Replace("aa", "b"));
 }

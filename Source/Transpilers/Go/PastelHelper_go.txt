@@ -533,3 +533,60 @@ func PST_mathAbsInt(x int) int {
   }
   return x
 }
+
+// PASTEL_ENTITY_ID: PST_strFromCharCode
+func PST_strFromCharCode(x int) *pstring {
+  uchars := make([]int, 1)
+  uchars[0] = x
+  return PST_strFromUChars(uchars, true)
+}
+
+// PASTEL_ENTITY_ID: PST_strSplit
+func PST_strSplit(h string, n string) *plist {
+  arr := strings.Split(h, n)
+  sz := len(arr)
+  items := make([]any, sz)
+  i := 0
+  for i < sz {
+    items[i] = PST_str(arr[i])
+    i = i + 1
+  }
+  o := new(plist)
+  o.items = items
+  return o
+}
+
+// PASTEL_ENTITY_ID: PST_strSubstringEquals
+func PST_strSubstringEquals(h *pstring, start int, n *pstring) bool {
+  // Note that these force-instantiate uchars
+  hSz := PST_strLen(h)
+  nSz := PST_strLen(n)
+  if hSz < nSz + start || start < 0 {
+    return false
+  }
+  if nSz == 0 {
+    return true
+  }
+  if nSz == hSz {
+    return *h.str == *n.str
+  }
+  hchars := h.uchars
+  nchars := n.uchars
+  nSz = nSz - 1
+  if hchars[start + nSz] != nchars[nSz] {
+    return false
+  }
+  i := 0
+  for i < nSz {
+    if hchars[start + i] != nchars[i] {
+      return false
+    }
+    i = i + 1
+  }
+  return true
+}
+
+// PST_strReplace
+func PST_strReplace(h string, n string, newStr string) *pstring {
+  return PST_str(strings.Replace(h, n, newStr, -1))
+}

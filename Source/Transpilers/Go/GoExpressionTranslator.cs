@@ -762,12 +762,25 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringCharCodeAt(Expression str, Expression index)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("PST_strGetUChars(")
+                .Push(this.TranslateExpression(str))
+                .Push(")[")
+                .Push(this.TranslateExpression(index))
+                .Push("]")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringCompareIsReverse(Expression str1, Expression str2)
         {
-            throw new NotImplementedException();
+            StringBuffer left = this.TranslateExpression(str1).EnsureTightness(ExpressionTightness.UNARY_PREFIX);
+            StringBuffer right = this.TranslateExpression(str2).EnsureGreaterTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+            return StringBuffer
+                .Of("*")
+                .Push(left)
+                .Push(".str > *")
+                .Push(right)
+                .Push(".str")
+                .WithTightness(ExpressionTightness.INEQUALITY);
         }
 
         public override StringBuffer TranslateStringConcatAll(Expression[] strings)
@@ -846,7 +859,10 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringFromCharCode(Expression charCode)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("PST_strFromCharCode(")
+                .Push(this.TranslateExpression(charCode))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringIndexOf(Expression haystack, Expression needle)
@@ -875,7 +891,15 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringReplace(Expression haystack, Expression needle, Expression newNeedle)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer
+                .Of("PST_strReplace(")
+                .Push(this.TranslateExpressionStringUnwrap(haystack, false))
+                .Push(", ")
+                .Push(this.TranslateExpressionStringUnwrap(needle, false))
+                .Push(", ")
+                .Push(this.TranslateExpressionStringUnwrap(newNeedle, false))
+                .Push(")");
         }
 
         public override StringBuffer TranslateStringReverse(Expression str)
@@ -889,7 +913,13 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringSplit(Expression haystack, Expression needle)
         {
-            throw new NotImplementedException();
+            this.MarkFeatureAsUsed("IMPORT:strings");
+            return StringBuffer
+                .Of("PST_strSplit(")
+                .Push(this.TranslateExpressionStringUnwrap(haystack, false))
+                .Push(", ")
+                .Push(this.TranslateExpressionStringUnwrap(needle, false))
+                .Push(")");
         }
 
         public override StringBuffer TranslateStringStartsWith(Expression haystack, Expression needle)
@@ -918,7 +948,15 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringSubstringIsEqualTo(Expression haystack, Expression startIndex, Expression needle)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_strSubstringEquals(")
+                .Push(this.TranslateExpression(haystack))
+                .Push(", ")
+                .Push(this.TranslateExpression(startIndex))
+                .Push(", ")
+                .Push(this.TranslateExpression(needle))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringToLower(Expression str)
