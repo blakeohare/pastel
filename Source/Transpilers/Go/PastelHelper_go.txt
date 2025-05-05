@@ -276,6 +276,14 @@ func PST_strLower(s *pstring) *pstring {
   return PST_str(strings.ToLower(*s.str))
 }
 
+// PASTEL_ENTITY_ID: PST_strGetUChars
+func PST_strGetUChars(s *pstring) []int {
+    if s.uchars == nil {
+        PST_strLen(s)
+    }
+    return s.uchars
+}
+
 // PASTEL_ENTITY_ID: PST_strLen
 func PST_strLen(s *pstring) int {
   if s.uchars == nil {

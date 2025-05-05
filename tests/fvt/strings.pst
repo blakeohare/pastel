@@ -49,9 +49,17 @@ void testCharacters() {
     char cRoundTrip = Core.Chr(charCode + 1);
     assertEqChar('y', cRoundTrip);
 
-    // TODO: implement updated op chain logic
-    // assertEqStr("yz", cRoundTrip + "z");
-    // assertEqStr("xy", "x" + cRoundTrip);
+    assertEqStr("yz", cRoundTrip + "z");
+    assertEqStr("xy", "x" + cRoundTrip);
+
+    string zero = "零";
+    string foo = zero + "1234";
+
+    char c2 = foo[2];
+    assertEqStr("2", "" + c2);
+
+    char c0 = foo[0];
+    assertEqStr(zero, "" + c0);
 }
 
 string readableWrap(string v) {

@@ -752,7 +752,12 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringCharAt(Expression str, Expression index)
         {
-            throw new NotImplementedException();
+            return StringBuffer.Of("PST_strGetUChars(")
+                .Push(this.TranslateExpression(str))
+                .Push(")[")
+                .Push(this.TranslateExpression(index))
+                .Push("]")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringCharCodeAt(Expression str, Expression index)
