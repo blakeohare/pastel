@@ -1,0 +1,41 @@
+void runner() {
+    testShortcircuiting();
+}
+
+void testShortcircuiting() {
+    List<string> log = new List<string>();
+    if (passThruBoolWithLog(true, log, "A") && passThruBoolWithLog(true, log, "B")) {
+        passThruBoolWithLog(true, log, "C");
+    }
+    assertEqStr("ABC", log.Join(""));
+    log.Clear();
+
+    if (passThruBoolWithLog(true, log, "A") && passThruBoolWithLog(false, log, "B")) {
+        passThruBoolWithLog(true, log, "C");
+    }
+    assertEqStr("AB", log.Join(""));
+    log.Clear();
+
+    if (passThruBoolWithLog(true, log, "A") || passThruBoolWithLog(true, log, "B")) {
+        passThruBoolWithLog(true, log, "C");
+    }
+    assertEqStr("AC", log.Join(""));
+    log.Clear();
+
+    if (passThruBoolWithLog(false, log, "A") || passThruBoolWithLog(true, log, "B")) {
+        passThruBoolWithLog(true, log, "C");
+    }
+    assertEqStr("ABC", log.Join(""));
+    log.Clear();
+
+    if (passThruBoolWithLog(false, log, "A") || passThruBoolWithLog(true, log, "B") || passThruBoolWithLog(true, log, "C")) {
+        passThruBoolWithLog(true, log, "D");
+    }
+    assertEqStr("ABD", log.Join(""));
+    log.Clear();
+}
+
+bool passThruBoolWithLog(bool val, List<string> log, string logItem) {
+    log.Add(logItem);
+    return val;
+}
