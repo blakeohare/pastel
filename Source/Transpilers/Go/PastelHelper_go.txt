@@ -558,7 +558,7 @@ func PST_strSplit(h string, n string) *plist {
 
 // PASTEL_ENTITY_ID: PST_strSubstringEquals
 func PST_strSubstringEquals(h *pstring, start int, n *pstring) bool {
-  // Note that these force-instantiate uchars
+  // Note that these ensure .uchars is instantiated
   hSz := PST_strLen(h)
   nSz := PST_strLen(n)
   if hSz < nSz + start || start < 0 {
@@ -586,7 +586,38 @@ func PST_strSubstringEquals(h *pstring, start int, n *pstring) bool {
   return true
 }
 
-// PST_strReplace
+// PASTEL_ENTITY_ID: PST_strReplace
 func PST_strReplace(h string, n string, newStr string) *pstring {
   return PST_str(strings.Replace(h, n, newStr, -1))
+}
+
+// PASTEL_ENTITY_ID: PST_strFind
+func PST_strFind(h *pstring, n *pstring, isFwd bool, offset int) int {
+  hSz := PST_strLen(h)
+  nSz := PST_strLen(n)
+  if nSz > hSz {
+    return -1
+  }
+  if isFwd {
+    end := hSz - nSz
+    i := offset
+    for i <= end {
+      if PST_strSubstringEquals(h, i, n) {
+        return i
+      }
+      i = i + 1
+    }
+  } else {
+    if offset != 0 {
+      panic("offset not implemented for find-reverse")
+    }
+    i := hSz - nSz
+    for i >= 0 {
+      if PST_strSubstringEquals(h, i, n) {
+        return i
+      }
+      i = i - 1
+    }
+  }
+  return -1
 }

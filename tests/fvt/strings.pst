@@ -1,16 +1,17 @@
 void runner() {
-    testConcatAll();
-    testSlicingAndDicing();
-    testStartsEndsWith();
-    testTrim();
-    testLowerUpper();
-    testReverse();
-    testCharacters();
     testCharCode();
+    testCharacters();
     testCompare();
-    testSplit();
-    testSubStringEqual();
+    testConcatAll();
+    testFind();
+    testLowerUpper();
     testReplace();
+    testReverse();
+    testSlicingAndDicing();
+    testSplit();
+    testStartsEndsWith();
+    testSubStringEqual();
+    testTrim();
 }
 
 void testLowerUpper() {
@@ -132,4 +133,15 @@ void testReplace() {
     assertEqStr("12THREE & FOUR5", test.Replace("34", "THREE & FOUR"));
     assertEqStr("12THREE & FOUR5", test.Replace("34", "THREE & FOUR"));
     assertEqStr("bba", testSequences.Replace("aa", "b"));
+}
+
+void testFind() {
+    string test = "0123456789";
+    string twenty = test + test;
+    assertEqInt(-1, twenty.IndexOf("543"));
+    assertEqInt(0, twenty.IndexOf("0123"));
+    assertEqInt(10, twenty.LastIndexOf("0123"));
+    assertEqInt(3, twenty.IndexOf("34"));
+    assertEqInt(3, twenty.IndexOf("34", 3));
+    assertEqInt(13, twenty.IndexOf("34", 4));
 }

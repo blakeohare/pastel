@@ -867,17 +867,37 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStringIndexOf(Expression haystack, Expression needle)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_strFind(")
+                .Push(this.TranslateExpression(haystack))
+                .Push(", ")
+                .Push(this.TranslateExpression(needle))
+                .Push(", true, 0)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringIndexOfWithStart(Expression haystack, Expression needle, Expression startIndex)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_strFind(")
+                .Push(this.TranslateExpression(haystack))
+                .Push(", ")
+                .Push(this.TranslateExpression(needle))
+                .Push(", true, ")
+                .Push(this.TranslateExpression(startIndex))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringLastIndexOf(Expression haystack, Expression needle)
         {
-            throw new NotImplementedException();
+            return StringBuffer
+                .Of("PST_strFind(")
+                .Push(this.TranslateExpression(haystack))
+                .Push(", ")
+                .Push(this.TranslateExpression(needle))
+                .Push(", false, 0)")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateStringLength(Expression str)
