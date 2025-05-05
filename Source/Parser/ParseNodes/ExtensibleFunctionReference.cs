@@ -9,7 +9,7 @@ namespace Pastel.Parser.ParseNodes
         public ExtensibleFunctionReference(Token token, string name, ICompilationEntity owner) 
             : base(ExpressionType.EXTENSIBLE_FUNCTION_REFERENCE, token, owner)
         {
-            Name = name;
+            this.Name = name;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)

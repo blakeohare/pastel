@@ -20,16 +20,16 @@ namespace Pastel.Parser
             IInlineImportCodeLoader inlineImportCodeLoader,
             ExtensionSet extensionSet)
         {
-            Context = context;
+            this.Context = context;
 
-            CodeLoader = inlineImportCodeLoader;
-            Transpiler = context.Transpiler;
+            this.CodeLoader = inlineImportCodeLoader;
+            this.Transpiler = context.Transpiler;
             this.ExtensionSet = extensionSet;
-            StructDefinitions = new Dictionary<string, StructDefinition>();
-            EnumDefinitions = new Dictionary<string, EnumDefinition>();
-            ConstantDefinitions = new Dictionary<string, VariableDeclaration>();
-            FunctionDefinitions = new Dictionary<string, FunctionDefinition>();
-            parser = new PastelParser(context, constants, inlineImportCodeLoader);
+            this.StructDefinitions = new Dictionary<string, StructDefinition>();
+            this.EnumDefinitions = new Dictionary<string, EnumDefinition>();
+            this.ConstantDefinitions = new Dictionary<string, VariableDeclaration>();
+            this.FunctionDefinitions = new Dictionary<string, FunctionDefinition>();
+            this.parser = new PastelParser(context, constants, inlineImportCodeLoader);
         }
 
         public override string ToString()
@@ -46,7 +46,7 @@ namespace Pastel.Parser
 
         public StructDefinition[] GetStructDefinitions()
         {
-            return StructDefinitions.Keys
+            return this.StructDefinitions.Keys
                 .OrderBy(k => k)
                 .Select(key => StructDefinitions[key])
                 .ToArray();
@@ -54,51 +54,51 @@ namespace Pastel.Parser
 
         public FunctionDefinition[] GetFunctionDefinitions()
         {
-            return FunctionDefinitions.Keys
+            return this.FunctionDefinitions.Keys
                 .OrderBy(k => k)
-                .Select(key => FunctionDefinitions[key])
+                .Select(key => this.FunctionDefinitions[key])
                 .ToArray();
         }
 
         internal InlineConstant GetConstantDefinition(string name)
         {
-            if (ConstantDefinitions.ContainsKey(name))
+            if (this.ConstantDefinitions.ContainsKey(name))
             {
-                return (InlineConstant)ConstantDefinitions[name].Value;
+                return (InlineConstant)this.ConstantDefinitions[name].Value;
             }
             return null;
         }
 
         internal EnumDefinition GetEnumDefinition(string name)
         {
-            if (EnumDefinitions.ContainsKey(name))
+            if (this.EnumDefinitions.ContainsKey(name))
             {
-                return EnumDefinitions[name];
+                return this.EnumDefinitions[name];
             }
             return null;
         }
 
         internal StructDefinition GetStructDefinition(string name)
         {
-            if (StructDefinitions.ContainsKey(name))
+            if (this.StructDefinitions.ContainsKey(name))
             {
-                return StructDefinitions[name];
+                return this.StructDefinitions[name];
             }
             return null;
         }
 
         internal FunctionDefinition GetFunctionDefinition(string name)
         {
-            if (FunctionDefinitions.ContainsKey(name))
+            if (this.FunctionDefinitions.ContainsKey(name))
             {
-                return FunctionDefinitions[name];
+                return this.FunctionDefinitions[name];
             }
             return null;
         }
 
         public void CompileBlobOfCode(string name, string code)
         {
-            ICompilationEntity[] entities = parser.EntityParser.ParseText(name, code);
+            ICompilationEntity[] entities = this.parser.EntityParser.ParseText(name, code);
             foreach (ICompilationEntity entity in entities)
             {
                 switch (entity.EntityType)
@@ -106,40 +106,40 @@ namespace Pastel.Parser
                     case CompilationEntityType.FUNCTION:
                         FunctionDefinition fnDef = (FunctionDefinition)entity;
                         string functionName = fnDef.NameToken.Value;
-                        if (FunctionDefinitions.ContainsKey(functionName))
+                        if (this.FunctionDefinitions.ContainsKey(functionName))
                         {
-                            throw new ParserException(fnDef.FirstToken, "Multiple definitions of function: '" + functionName + "'");
+                            throw new UNTESTED_ParserException(fnDef.FirstToken, "Multiple definitions of function: '" + functionName + "'");
                         }
-                        FunctionDefinitions[functionName] = fnDef;
+                        this.FunctionDefinitions[functionName] = fnDef;
                         break;
 
                     case CompilationEntityType.STRUCT:
                         StructDefinition structDef = (StructDefinition)entity;
                         string structName = structDef.NameToken.Value;
-                        if (StructDefinitions.ContainsKey(structName))
+                        if (this.StructDefinitions.ContainsKey(structName))
                         {
-                            throw new ParserException(structDef.FirstToken, "Multiple definitions of function: '" + structName + "'");
+                            throw new UNTESTED_ParserException(structDef.FirstToken, "Multiple definitions of function: '" + structName + "'");
                         }
-                        StructDefinitions[structName] = structDef;
+                        this.StructDefinitions[structName] = structDef;
                         break;
 
                     case CompilationEntityType.ENUM:
                         EnumDefinition enumDef = (EnumDefinition)entity;
                         string enumName = enumDef.NameToken.Value;
-                        if (EnumDefinitions.ContainsKey(enumName))
+                        if (this.EnumDefinitions.ContainsKey(enumName))
                         {
-                            throw new ParserException(enumDef.FirstToken, "Multiple definitions of function: '" + enumName + "'");
+                            throw new UNTESTED_ParserException(enumDef.FirstToken, "Multiple definitions of function: '" + enumName + "'");
                         }
-                        EnumDefinitions[enumName] = enumDef;
+                        this.EnumDefinitions[enumName] = enumDef;
                         break;
 
                     case CompilationEntityType.CONSTANT:
                         VariableDeclaration assignment = (VariableDeclaration)entity;
                         string targetName = assignment.VariableNameToken.Value;
-                        Dictionary<string, VariableDeclaration> lookup = ConstantDefinitions;
+                        Dictionary<string, VariableDeclaration> lookup = this.ConstantDefinitions;
                         if (lookup.ContainsKey(targetName))
                         {
-                            throw new ParserException(
+                            throw new UNTESTED_ParserException(
                                 assignment.FirstToken,
                                 "Multiple definitions of : '" + targetName + "'");
                         }

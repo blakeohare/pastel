@@ -21,29 +21,31 @@ namespace Pastel.Parser.ParseNodes
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
         {
-            string name = Name;
+            string name = this.Name;
 
             InlineConstant constantValue = resolver.CompilerContext.GetConstantDefinition(name);
             if (constantValue != null)
             {
-                return constantValue.CloneWithNewToken(FirstToken);
+                return constantValue.CloneWithNewToken(this.FirstToken);
             }
 
             if (name == "Core")
             {
-                throw new ParserException(this.FirstToken, "Core is a namespace and cannot be used like this.");
+                throw new UNTESTED_ParserException(
+                    this.FirstToken,
+                    "Core is a namespace and cannot be used like this.");
             }
 
             FunctionDefinition functionDefinition = resolver.GetFunctionDefinition(name);
             if (functionDefinition != null)
             {
-                return new FunctionReference(FirstToken, functionDefinition, Owner);
+                return new FunctionReference(this.FirstToken, functionDefinition, this.Owner);
             }
 
             EnumDefinition enumDefinition = resolver.GetEnumDefinition(name);
             if (enumDefinition != null)
             {
-                return new EnumReference(FirstToken, enumDefinition, Owner);
+                return new EnumReference(this.FirstToken, enumDefinition, this.Owner);
             }
 
             return this;
@@ -51,13 +53,20 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Expression ResolveType(VariableScope varScope, Resolver resolver)
         {
-            PType type = varScope.GetTypeOfVariable(Name);
-            ResolvedType = type;
+            PType type = varScope.GetTypeOfVariable(this.Name);
+            this.ResolvedType = type;
             if (type == null)
             {
-                throw new ParserException(
-                    FirstToken,
-                    "The " + (IsFunctionInvocation ? "function" : "variable") + " '" + Name + "' is not defined.");
+                if (this.IsFunctionInvocation)
+                {
+                    throw new TestedParserException(
+                        this.FirstToken,
+                        "The function '" + this.Name + "' is not defined.");
+                }
+
+                throw new TestedParserException(
+                    this.FirstToken,
+                    "The variable '" + this.Name + "' is not defined.");
             }
 
             return this;

@@ -1,6 +1,6 @@
 ﻿namespace Pastel.Parser
 {
-    internal class ParserException : UserErrorException
+    internal abstract class ParserException : UserErrorException
     {
         internal ParserException(Token token, string message)
             : base(InterpretToken(token) + message)
@@ -11,5 +11,19 @@
             if (token == null) return "";
             return token.FileName + ", Line: " + (token.Line + 1) + ", Col: " + (token.Col + 1) + ", ";
         }
+    }
+
+    internal class UNTESTED_ParserException : ParserException
+    {
+        internal UNTESTED_ParserException(Token token, string msg)
+            : base(token, msg)
+        { }
+    }
+    
+    internal class TestedParserException : ParserException
+    {
+        internal TestedParserException(Token token, string msg)
+            : base(token, msg)
+        { }
     }
 }

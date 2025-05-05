@@ -8,7 +8,7 @@ namespace Pastel.Parser.ParseNodes
 
         public Statement(Token firstToken)
         {
-            FirstToken = firstToken;
+            this.FirstToken = firstToken;
         }
 
         public abstract Statement ResolveNamesAndCullUnusedCode(Resolver resolver);
@@ -35,7 +35,9 @@ namespace Pastel.Parser.ParseNodes
                 Statement ex = output[i];
                 if (ex is ReturnStatement || ex is BreakStatement)
                 {
-                    throw new ParserException(output[i + 1].FirstToken, "Unreachable code detected");
+                    throw new UNTESTED_ParserException(
+                        output[i + 1].FirstToken,
+                        "Unreachable code detected");
                 }
 
                 if (ex is ExpressionAsStatement)
@@ -43,7 +45,9 @@ namespace Pastel.Parser.ParseNodes
                     Expression innerExpression = ((ExpressionAsStatement)ex).Expression;
                     if (!(innerExpression is FunctionInvocation))
                     {
-                        throw new ParserException(ex.FirstToken, "This expression isn't allowed here.");
+                        throw new UNTESTED_ParserException(
+                            ex.FirstToken,
+                            "This expression isn't allowed here.");
                     }
                 }
             }

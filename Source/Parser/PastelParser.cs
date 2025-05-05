@@ -39,8 +39,7 @@ namespace Pastel.Parser
 
         internal object GetConstant(string name, object defaultValue)
         {
-            object output;
-            if (constants.TryGetValue(name, out output))
+            if (this.constants.TryGetValue(name, out object output))
             {
                 return output;
             }
@@ -79,18 +78,20 @@ namespace Pastel.Parser
                 case "STATICALLY_TYPED": return yesNo("cs java", "js php py");
 
                 default:
-                    throw new ParserException(throwToken, "Unknown @pastel_flag constant: '" + name + "'.");
+                    throw new UNTESTED_ParserException(
+                        throwToken,
+                        "Unknown @pastel_flag constant: '" + name + "'.");
             }
         }
 
         internal bool GetParseTimeBooleanConstant(string name)
         {
-            return (bool)GetConstant(name, false);
+            return (bool)this.GetConstant(name, false);
         }
 
         internal string GetParseTimeStringConstant(string name)
         {
-            return (string)GetConstant(name, "");
+            return (string)this.GetConstant(name, "");
         }
     }
 }

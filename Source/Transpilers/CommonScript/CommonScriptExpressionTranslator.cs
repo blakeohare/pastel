@@ -9,10 +9,10 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateArrayGet(Expression array, Expression index)
         {
-            return TranslateExpression(array)
+            return this.TranslateExpression(array)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[")
-                .Push(TranslateExpression(index))
+                .Push(this.TranslateExpression(index))
                 .Push("]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
@@ -104,7 +104,7 @@ namespace Pastel.Transpilers.CommonScript
             for (int i = 0; i < args.Length; ++i)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(TranslateExpression(args[i]));
+                buf.Push(this.TranslateExpression(args[i]));
             }
             return buf
                 .Push("]")
@@ -607,7 +607,7 @@ namespace Pastel.Transpilers.CommonScript
 
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
-            return TranslateExpression(root)
+            return this.TranslateExpression(root)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push("[" + fieldIndex + "]")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);

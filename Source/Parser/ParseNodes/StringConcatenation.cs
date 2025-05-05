@@ -47,9 +47,11 @@ namespace Pastel.Parser.ParseNodes
                             if ((string)inlineConst.Value == "") current = null;
                             break;
                         case "null":
-                            throw new ParserException(current.FirstToken, "Cannot concatenate null to string.");
+                            throw new UNTESTED_ParserException(
+                                current.FirstToken, 
+                                "Cannot concatenate null to string.");
                         default:
-                            throw new ParserException(
+                            throw new UNTESTED_ParserException(
                                 current.FirstToken,
                                 "No string conversion available for type: " + inlineConst.Type.RootValue);
                     }
@@ -79,7 +81,7 @@ namespace Pastel.Parser.ParseNodes
                         case "string":
                             break;
                         default:
-                            throw new ParserException(
+                            throw new UNTESTED_ParserException(
                                 current.FirstToken,
                                 "There is no default conversion from " + curType.RootValue + " to string.");
                     }

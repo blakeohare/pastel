@@ -30,7 +30,9 @@ namespace Pastel.Parser.ParseNodes
         internal virtual InlineConstant DoConstantResolution(HashSet<string> cycleDetection, Resolver resolver)
         {
             // override this for expressions that are expected to return constants.
-            throw new ParserException(FirstToken, "This expression does not resolve into a constant.");
+            throw new UNTESTED_ParserException(
+                this.FirstToken,
+                "This expression does not resolve into a constant.");
         }
 
         internal abstract Expression ResolveType(VariableScope varScope, Resolver resolver);

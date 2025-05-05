@@ -149,10 +149,9 @@ namespace Pastel.Parser.ParseNodes
                     return PType.STRING;
             }
 
-            throw new ParserException(
+            throw new UNTESTED_ParserException(
                 this.OpToken,
-                "The operator '" + op + "' is not defined for types: " +
-                tleft.TypeName + " and " + tright.TypeName + ".");
+                "The operator '" + op + "' is not defined for types: " + tleft.TypeName + " and " + tright.TypeName + ".");
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)
@@ -207,30 +206,33 @@ namespace Pastel.Parser.ParseNodes
                 default:
                     if (this.Op == "%")
                     {
+                        // TODO: modulo operator is not defined for compile-time resolution.
                         throw new System.NotImplementedException("Remember when you implement this to prevent negatives.");
                     }
-                    throw new ParserException(this.OpToken, "The operator is not defined for these two constants.");
+                    throw new UNTESTED_ParserException(
+                        this.OpToken,
+                        "The operator is not defined for these two constants.");
             }
         }
         
         private InlineConstant CreateBoolean(bool value)
         {
-            return new InlineConstant(PType.BOOL, this.FirstToken, value, Owner) { ResolvedType = PType.BOOL };
+            return InlineConstant.OfBoolean(value, this.FirstToken, this.Owner);
         }
 
         private InlineConstant CreateInteger(int value)
         {
-            return new InlineConstant(PType.INT, this.FirstToken, value, Owner) { ResolvedType = PType.INT };
+            return InlineConstant.OfInteger(value, this.FirstToken, this.Owner);
         }
 
         private InlineConstant CreateFloat(double value)
         {
-            return new InlineConstant(PType.DOUBLE, this.FirstToken, value, Owner) { ResolvedType = PType.DOUBLE };
+            return InlineConstant.OfFloat(value, this.FirstToken, this.Owner);
         }
 
         private InlineConstant CreateString(string value)
         {
-            return new InlineConstant(PType.STRING, this.FirstToken, value, Owner) { ResolvedType = PType.STRING };
+            return InlineConstant.OfString(value, this.FirstToken, this.Owner);
         }
     }
 }

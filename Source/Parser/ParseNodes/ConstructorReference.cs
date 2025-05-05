@@ -9,7 +9,7 @@ namespace Pastel.Parser.ParseNodes
         public ConstructorReference(Token newToken, PType type, ICompilationEntity owner) 
             : base(ExpressionType.CONSTRUCTOR_REFERENCE, newToken, owner)
         {
-            TypeToConstruct = type;
+            this.TypeToConstruct = type;
         }
 
         public override Expression ResolveNamesAndCullUnusedCode(Resolver resolver)

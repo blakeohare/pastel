@@ -17,25 +17,27 @@ namespace Pastel.Parser.ParseNodes
 
         public EnumDefinition(Token enumToken, Token nameToken, PastelContext context)
         {
-            FirstToken = enumToken;
-            NameToken = nameToken;
-            Context = context;
+            this.FirstToken = enumToken;
+            this.NameToken = nameToken;
+            this.Context = context;
         }
 
         internal void InitializeValues(IList<Token> valueTokens, IList<Expression> valueExpressions)
         {
-            ValueTokens = valueTokens.ToArray();
-            ValuesByName = new Dictionary<string, Expression>();
-            int length = ValueTokens.Length;
+            this.ValueTokens = valueTokens.ToArray();
+            this.ValuesByName = new Dictionary<string, Expression>();
+            int length = this.ValueTokens.Length;
             int highestValue = 0;
             bool highestSet = false;
             List<string> autoAssignMe = new List<string>();
             for (int i = 0; i < length; ++i)
             {
-                string name = ValueTokens[i].Value;
-                if (ValuesByName.ContainsKey(name))
+                string name = this.ValueTokens[i].Value;
+                if (this.ValuesByName.ContainsKey(name))
                 {
-                    throw new ParserException(FirstToken, "The enum '" + NameToken.Value + "' has multiple definitions of '" + name + "'");
+                    throw new UNTESTED_ParserException(
+                        this.FirstToken, 
+                        "The enum '" + this.NameToken.Value + "' has multiple definitions of '" + name + "'");
                 }
                 Expression expression = valueExpressions[i];
                 if (expression == null)
@@ -44,27 +46,26 @@ namespace Pastel.Parser.ParseNodes
                 }
                 else
                 {
-                    ValuesByName[name] = expression;
+                    this.ValuesByName[name] = expression;
 
-                    if (expression is InlineConstant)
+                    if (expression is InlineConstant ic)
                     {
-                        InlineConstant ic = (InlineConstant)expression;
-                        if (ic.Value is int)
+                        if (ic.Value is int icVal)
                         {
-                            if (!highestSet || (int)ic.Value > highestValue)
+                            if (!highestSet || icVal > highestValue)
                             {
-                                highestValue = (int)ic.Value;
+                                highestValue = icVal;
                                 highestSet = true;
                             }
                         }
                         else
                         {
-                            throw new ParserException(expression.FirstToken, "Only integers are allowed as enum values.");
+                            throw new UNTESTED_ParserException(expression.FirstToken, "Only integers are allowed as enum values.");
                         }
                     }
                     else
                     {
-                        UnresolvedValues.Add(name);
+                        this.UnresolvedValues.Add(name);
                     }
                 }
             }
@@ -72,39 +73,45 @@ namespace Pastel.Parser.ParseNodes
             // anything that doesn't have a value assigned to it, auto-assign incrementally from the highest value provided.
             foreach (string name in autoAssignMe)
             {
-                ValuesByName[name] = new InlineConstant(PType.INT, FirstToken, highestValue++, this);
+                this.ValuesByName[name] = InlineConstant.OfInteger(highestValue++, this.FirstToken, this);
             }
         }
 
         public InlineConstant GetValue(Token name)
         {
             Expression value;
-            if (ValuesByName.TryGetValue(name.Value, out value))
+            if (this.ValuesByName.TryGetValue(name.Value, out value))
             {
                 return (InlineConstant)value;
             }
-            throw new ParserException(name, "The enum value '" + name.Value + "' does not exist in the definition of '" + NameToken.Value + "'.");
+            throw new UNTESTED_ParserException(
+                name, 
+                "The enum value '" + name.Value + "' does not exist in the definition of '" + this.NameToken.Value + "'.");
         }
 
         internal void DoConstantResolutions(HashSet<string> cycleDetection, Resolver resolver)
         {
-            string prefix = NameToken.Value + ".";
-            foreach (string name in UnresolvedValues)
+            string prefix = this.NameToken.Value + ".";
+            foreach (string name in this.UnresolvedValues)
             {
                 string cycleKey = prefix + name;
                 if (cycleDetection.Contains(cycleKey))
                 {
-                    throw new ParserException(FirstToken, "This enum has a cycle in its value declarations in '" + name + "'");
+                    throw new UNTESTED_ParserException(
+                        this.FirstToken, 
+                        "This enum has a cycle in its value declarations in '" + name + "'");
                 }
                 cycleDetection.Add(cycleKey);
 
-                InlineConstant ic = ValuesByName[cycleKey].DoConstantResolution(cycleDetection, resolver);
+                InlineConstant ic = this.ValuesByName[cycleKey].DoConstantResolution(cycleDetection, resolver);
                 if (!(ic.Value is int))
                 {
-                    throw new ParserException(ic.FirstToken, "Enum values must resolve into integers. This does not.");
+                    throw new UNTESTED_ParserException(
+                        ic.FirstToken,
+                        "Enum values must resolve into integers.");
                 }
 
-                ValuesByName[cycleKey] = ic;
+                this.ValuesByName[cycleKey] = ic;
                 cycleDetection.Remove(cycleKey);
             }
         }

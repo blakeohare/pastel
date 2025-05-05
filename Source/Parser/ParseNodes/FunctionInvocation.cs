@@ -15,13 +15,11 @@ namespace Pastel.Parser.ParseNodes
             IList<Expression> args) 
             : base(ExpressionType.FUNCTION_INVOCATION, root.FirstToken, root.Owner)
         {
-            if (root is Variable)
-            {
-                ((Variable)root).IsFunctionInvocation = true;
-            }
-            Root = root;
-            OpenParenToken = openParen;
-            Args = args.ToArray();
+            if (root is Variable v) v.IsFunctionInvocation = true;
+            
+            this.Root = root;
+            this.OpenParenToken = openParen;
+            this.Args = args.ToArray();
         }
 
         internal Expression MaybeImmediatelyResolve(PastelParser parser)
@@ -33,17 +31,15 @@ namespace Pastel.Parser.ParseNodes
                 switch (constFunc.NameToken.Value)
                 {
                     case "ext_boolean":
-                        return new InlineConstant(
-                            PType.BOOL,
-                            this.FirstToken,
+                        return InlineConstant.OfBoolean(
                             parser.GetParseTimeBooleanConstant(argValue),
+                            this.FirstToken,
                             this.Owner);
 
                     case "pastel_flag":
-                        return new InlineConstant(
-                            PType.BOOL,
-                            this.FirstToken,
+                        return InlineConstant.OfBoolean(
                             parser.GetPastelFlagConstant(constFunc.NameToken, argValue),
+                            this.FirstToken,
                             this.Owner);
 
                     // This will be resolved later.
@@ -51,7 +47,7 @@ namespace Pastel.Parser.ParseNodes
                         return this;
 
                     default:
-                        throw new ParserException(this.FirstToken, "Unknown compile-time function: " + constFunc.NameToken.Value);
+                        throw new TestedParserException(this.FirstToken, "Unknown compile-time function: " + constFunc.NameToken.Value);
                 }
             }
 
@@ -62,29 +58,33 @@ namespace Pastel.Parser.ParseNodes
         {
             if (this.Root is CompileTimeFunctionReference)
             {
-                throw new ParserException(
+                throw new TestedParserException(
                     this.FirstToken,
                     "Compile-time functions can only be used as standalone statements and cannot be used in expressions.");
             }
 
             this.Root = this.Root.ResolveNamesAndCullUnusedCode(resolver);
-            ResolveNamesAndCullUnusedCodeInPlace(this.Args, resolver);
+            Expression.ResolveNamesAndCullUnusedCodeInPlace(this.Args, resolver);
 
             return this;
         }
 
         private void VerifyArgTypes(PType[] expectedTypes, Resolver resolver)
         {
-            if (expectedTypes.Length != Args.Length)
+            if (expectedTypes.Length != this.Args.Length)
             {
-                throw new ParserException(OpenParenToken, "This function invocation has the wrong number of parameters. Expected " + expectedTypes.Length + " but found " + Args.Length + ".");
+                throw new UNTESTED_ParserException(
+                    this.OpenParenToken,
+                    "This function invocation has the wrong number of parameters. Expected " + expectedTypes.Length + " but found " + Args.Length + ".");
             }
 
             for (int i = 0; i < Args.Length; ++i)
             {
                 if (!PType.CheckAssignment(resolver, expectedTypes[i], Args[i].ResolvedType))
                 {
-                    throw new ParserException(Args[i].FirstToken, "Wrong function arg type. Cannot convert a " + Args[i].ResolvedType + " to a " + expectedTypes[i]);
+                    throw new UNTESTED_ParserException(
+                        this.Args[i].FirstToken,
+                        "Wrong function arg type. Cannot convert a " + Args[i].ResolvedType + " to a " + expectedTypes[i]);
                 }
             }
         }
@@ -141,26 +141,23 @@ namespace Pastel.Parser.ParseNodes
                 return new FunctionPointerInvocation(resolver, FirstToken, Root, Args);
             }
 
-            throw new ParserException(OpenParenToken, "This expression cannot be invoked like a function.");
+            throw new UNTESTED_ParserException(this.OpenParenToken, "This expression cannot be invoked like a function.");
         }
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            Root = Root.ResolveWithTypeContext(resolver);
+            this.Root = this.Root.ResolveWithTypeContext(resolver);
 
-            if (Root is FunctionReference)
+            if (this.Root.Type != ExpressionType.FUNCTION_REFERENCE)
             {
-                // this is okay.
-            }
-            else
-            {
-                throw new ParserException(OpenParenToken, "Cannot invoke this like a function.");
+                throw new UNTESTED_ParserException(this.OpenParenToken, "Cannot invoke this like a function.");
             }
 
-            for (int i = 0; i < Args.Length; ++i)
+            for (int i = 0; i < this.Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(resolver);
+                this.Args[i] = this.Args[i].ResolveWithTypeContext(resolver);
             }
+            
             return this;
         }
 
@@ -170,6 +167,7 @@ namespace Pastel.Parser.ParseNodes
             {
                 this.Args[i] = this.Args[i].DoConstantResolution(cycleDetection, resolver);
             }
+            
             if (this.Root is DotField df && df.Root is Variable v && v.Name == "Core")
             {
                 CoreFunction cf;

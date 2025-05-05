@@ -22,7 +22,7 @@ namespace Pastel
 
         public static string ConvertStringValueToCode(string rawValue)
         {
-            return ConvertStringValueToCode(rawValue, false);
+            return CodeUtil.ConvertStringValueToCode(rawValue, false);
         }
 
         private const char ASCII_MAX = (char)127;
@@ -93,7 +93,9 @@ namespace Pastel
                 {
                     if (!ESCAPE_SEQUENCE_LOOKUP.TryGetValue(tokenValue[++i], out char escChar))
                     {
-                        throw new ParserException(throwToken, "Invalid escape sequence in string constant.");
+                        throw new UNTESTED_ParserException(
+                            throwToken,
+                            "Invalid escape sequence in string constant.");
                     }
                     c = escChar;
                 }
@@ -102,9 +104,7 @@ namespace Pastel
             return output.ToString();
         }
 
-        /// <summary>
-        /// Override C#'s default float to string behavior of not display the decimal portion if it's a whole number.
-        /// </summary>
+        // Override C#'s default float to string behavior of not display the decimal portion if it's a whole number.
         public static string FloatToString(double value)
         {
             string output = value.ToString();

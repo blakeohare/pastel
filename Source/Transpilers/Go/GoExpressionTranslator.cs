@@ -375,12 +375,12 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateFunctionInvocation(FunctionReference funcRef, Expression[] args)
         {
-            StringBuffer buf = TranslateExpression(funcRef)
+            StringBuffer buf = this.TranslateExpression(funcRef)
                 .Push("(");
             for (int i = 0; i < args.Length; i++)
             {
                 if (i > 0) buf.Push(", ");
-                buf.Push(TranslateExpression(args[i]));
+                buf.Push(this.TranslateExpression(args[i]));
             }
             return buf.Push(")");
         }
@@ -585,9 +585,9 @@ namespace Pastel.Transpilers.Go
             this.MarkFeatureAsUsed("IMPORT:math");
 
             return StringBuffer.Of("math.Pow(")
-                .Push(TranslateExpression(expBase))
+                .Push(this.TranslateExpression(expBase))
                 .Push(", ")
-                .Push(TranslateExpression(exponent))
+                .Push(this.TranslateExpression(exponent))
                 .Push(")");
         }
 
@@ -736,7 +736,7 @@ namespace Pastel.Transpilers.Go
             this.MarkFeatureAsUsed("IMPORT:sort");
             return StringBuffer
                 .Of("PST_SortedIntArrayCopy(")
-                .Push(TranslateExpression(intArray))
+                .Push(this.TranslateExpression(intArray))
                 .Push(")");
         }
 
@@ -1063,7 +1063,7 @@ namespace Pastel.Transpilers.Go
 
         public override StringBuffer TranslateStructFieldDereference(Expression root, StructDefinition structDef, string fieldName, int fieldIndex)
         {
-            return TranslateExpression(root)
+            return this.TranslateExpression(root)
                 .Push(".f_")
                 .Push(fieldName);
         }

@@ -76,11 +76,12 @@ namespace Pastel
                     break;
                 }
             }
-            if (!okay)
-            {
-                throw new ParserException(token, "Invalid name for a extensible function or argument.");
-            }
-            return name;
+
+            if (okay) return name;
+            
+                throw new UNTESTED_ParserException(
+                    token, 
+                    "Invalid name for a extensible function or argument.");
         }
 
     }

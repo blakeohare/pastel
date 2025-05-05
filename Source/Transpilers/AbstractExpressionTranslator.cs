@@ -74,21 +74,27 @@ namespace Pastel.Transpilers
                         case "Array":
                             if (constructor.Type.Generics.Length != 1)
                             {
-                                throw new ParserException(constructor.Type.FirstToken, "Array constructor requires exactly 1 generic type.");
+                                throw new UNTESTED_ParserException(
+                                    constructor.Type.FirstToken,
+                                    "Array constructor requires exactly 1 generic type.");
                             }
                             return this.TranslateArrayNew(constructor.Type.Generics[0], constructor.Args[0]);
 
                         case "List":
                             if (constructor.Type.Generics.Length != 1)
                             {
-                                throw new ParserException(constructor.Type.FirstToken, "List constructor requires exactly 1 generic type.");
+                                throw new UNTESTED_ParserException(
+                                    constructor.Type.FirstToken,
+                                    "List constructor requires exactly 1 generic type.");
                             }
                             return this.TranslateListNew(constructor.Type.Generics[0]);
 
                         case "Dictionary":
                             if (constructor.Type.Generics.Length != 2)
                             {
-                                throw new ParserException(constructor.Type.FirstToken, "Dictionary constructor requires exactly 2 generic types.");
+                                throw new UNTESTED_ParserException(
+                                    constructor.Type.FirstToken,
+                                    "Dictionary constructor requires exactly 2 generic types.");
                             }
                             PType dictionaryKeyType = constructor.Type.Generics[0];
                             PType dictionaryValueType = constructor.Type.Generics[1];
@@ -97,7 +103,9 @@ namespace Pastel.Transpilers
                         case "StringBuilder":
                             if (constructor.Type.Generics.Length != 0)
                             {
-                                throw new ParserException(constructor.Type.FirstToken, "StringBuilder constructor does not have any generics.");
+                                throw new UNTESTED_ParserException(
+                                    constructor.Type.FirstToken,
+                                    "StringBuilder constructor does not have any generics.");
                             }
                             return this.TranslateStringBuilderNew();
 
@@ -275,7 +283,9 @@ namespace Pastel.Transpilers
                 case CoreFunction.UTF8_BYTES_TO_STRING: return this.TranslateUtf8BytesToString(args[0]);
 
                 case CoreFunction.DICTIONARY_TRY_GET:
-                    throw new ParserException(coreFuncInvocation.FirstToken, "Dictionary's TryGet method cannot be called like this. It must be assigned to a variable directly. This is due to a restriction in how this can get transpiled to certain languages.");
+                    throw new UNTESTED_ParserException(
+                        coreFuncInvocation.FirstToken,
+                        "Dictionary's TryGet method cannot be called like this. It must be assigned to a variable directly. This is due to a restriction in how this can get transpiled to certain languages.");
 
                 default:
                     throw new NotImplementedException(coreFuncInvocation.Function.ToString());

@@ -1,0 +1,8 @@
+int foo() {
+    char c = "hello"[true];
+    return c + 0;
+}
+
+#######
+
+test.pst, Line: 2, Col: 21, Cannot index into a string with a bool.

@@ -22,7 +22,7 @@ namespace Pastel.Transpilers.Php
 
             files["@STRUCT_DIR/gen_classes.php"] = string.Join('\n', structCodeLines);
 
-            GenerateFunctionImplementation(files, context, config, context.GetCodeForFunctions());
+            this.GenerateFunctionImplementation(files, context, config, context.GetCodeForFunctions());
             return files;
         }
 

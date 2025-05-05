@@ -13,22 +13,26 @@ namespace Pastel.Parser.ParseNodes
         public FunctionPointerInvocation(Resolver resolver, Token firstToken, Expression root, IList<Expression> Args)
             : base(ExpressionType.FUNCTION_POINTER_INVOCATION, firstToken, root.Owner)
         {
-            Root = root;
+            this.Root = root;
             this.Args = Args.ToArray();
 
-            ResolvedType = Root.ResolvedType.Generics[0];
+            this.ResolvedType = this.Root.ResolvedType.Generics[0];
 
-            if (Root.ResolvedType.Generics.Length - 1 != this.Args.Length)
+            if (this.Root.ResolvedType.Generics.Length - 1 != this.Args.Length)
             {
-                throw new ParserException(Root.FirstToken, "This function has the incorrect number of arguments.");
+                throw new UNTESTED_ParserException(
+                    this.Root.FirstToken, 
+                    "This function has the incorrect number of arguments.");
             }
             for (int i = 0; i < this.Args.Length; ++i)
             {
-                PType expectedArgType = Root.ResolvedType.Generics[i + 1];
+                PType expectedArgType = this.Root.ResolvedType.Generics[i + 1];
                 PType actualArgType = this.Args[i].ResolvedType;
                 if (!actualArgType.IsIdentical(resolver, expectedArgType))
                 {
-                    throw new ParserException(this.Args[i].FirstToken, "Incorrect argument type. Expected " + expectedArgType + " but found " + actualArgType + ".");
+                    throw new UNTESTED_ParserException(
+                        this.Args[i].FirstToken, 
+                        "Incorrect argument type. Expected " + expectedArgType + " but found " + actualArgType + ".");
                 }
             }
         }
@@ -45,9 +49,9 @@ namespace Pastel.Parser.ParseNodes
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)
         {
-            for (int i = 0; i < Args.Length; ++i)
+            for (int i = 0; i < this.Args.Length; ++i)
             {
-                Args[i] = Args[i].ResolveWithTypeContext(resolver);
+                this.Args[i] = this.Args[i].ResolveWithTypeContext(resolver);
             }
             return this;
         }

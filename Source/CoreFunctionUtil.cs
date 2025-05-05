@@ -14,21 +14,21 @@ namespace Pastel
 
         public static PType[] GetCoreFunctionArgTypes(CoreFunction functionId)
         {
-            if (returnTypes == null)
+            if (CoreFunctionUtil.returnTypes == null)
             {
                 CoreFunctionUtil.Init();
             }
-            return argTypes[functionId].ToArray();
+            return CoreFunctionUtil.argTypes[functionId].ToArray();
         }
 
         public static PType GetCoreFunctionReturnType(CoreFunction functionId)
         {
-            if (returnTypes == null)
+            if (CoreFunctionUtil.returnTypes == null)
             {
                 CoreFunctionUtil.Init();
             }
 
-            return returnTypes[functionId];
+            return CoreFunctionUtil.returnTypes[functionId];
         }
 
         public static bool PerformAdditionalTypeResolution(CoreFunctionReference funcRef, Expression[] args)
@@ -39,7 +39,7 @@ namespace Pastel
                 case CoreFunction.MATH_ABS:
                     if (firstType.RootValue != "int" && firstType.RootValue != "double")
                     {
-                        throw new ParserException(
+                        throw new UNTESTED_ParserException(
                             funcRef.FirstToken,
                             "Math.abs() is only applicable to numeric types.");
                     }
@@ -54,12 +54,12 @@ namespace Pastel
 
         public static bool[] GetCoreFunctionIsArgTypeRepeated(CoreFunction functionId)
         {
-            if (returnTypes == null)
+            if (CoreFunctionUtil.returnTypes == null)
             {
                 CoreFunctionUtil.Init();
             }
 
-            return argTypesRepeated[functionId];
+            return CoreFunctionUtil.argTypesRepeated[functionId];
         }
 
         private static void Init()
@@ -70,9 +70,9 @@ namespace Pastel
                 lookup[func.ToString()] = func;
             }
 
-            returnTypes = new Dictionary<CoreFunction, PType>();
-            argTypes = new Dictionary<CoreFunction, PType[]>();
-            argTypesRepeated = new Dictionary<CoreFunction, bool[]>();
+            CoreFunctionUtil.returnTypes = new Dictionary<CoreFunction, PType>();
+            CoreFunctionUtil.argTypes = new Dictionary<CoreFunction, PType[]>();
+            CoreFunctionUtil.argTypesRepeated = new Dictionary<CoreFunction, bool[]>();
 
             string[] rows = GetCoreFunctionSignatureManifest().Split('\n');
             foreach (string row in rows)
@@ -108,9 +108,9 @@ namespace Pastel
                     }
 
                     CoreFunction func = lookup[name];
-                    returnTypes[func] = returnType;
-                    argTypes[func] = argList.ToArray();
-                    argTypesRepeated[func] = argRepeated.ToArray();
+                    CoreFunctionUtil.returnTypes[func] = returnType;
+                    CoreFunctionUtil.argTypes[func] = argList.ToArray();
+                    CoreFunctionUtil.argTypesRepeated[func] = argRepeated.ToArray();
                 }
             }
         }

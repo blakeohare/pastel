@@ -31,7 +31,9 @@ namespace Pastel.Parser
             string name = nameToken.Value;
             if (GetTypeOfVariable(name) != null)
             {
-                throw new ParserException(nameToken, "This declaration of '" + name + "' conflicts with a previous declaration.");
+                throw new UNTESTED_ParserException(
+                    nameToken, 
+                    "This declaration of '" + name + "' conflicts with a previous declaration.");
             }
 
             this.type[name] = type;
