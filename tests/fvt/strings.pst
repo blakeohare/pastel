@@ -1,6 +1,14 @@
 void runner() {
     testConcatAll();
+    testSlicingAndDicing();
+    testStartsEndsWith();
+    testTrim();
+    testLowerUpper();
+    testReverse();
+    testCharacters();
+}
 
+void testLowerUpper() {
     string s = ""
         + "abc XYZ 123 .?" // ASCII
         + " ëËæÆçÇìÌ" // accents
@@ -12,8 +20,9 @@ void runner() {
 
     assertEqStr("ABC XYZ 123 .? ËËÆÆÇÇÌÌ あ ア 阿 아", s.ToUpper());
     assertEqStr("abc xyz 123 .? ëëææççìì あ ア 阿 아", s.ToLower());
+}
 
-    // Trim
+void testTrim() {
     string FW_SPACE = ""; // "　";
     string padding = " \r\n\t" + FW_SPACE;
     string testStr = padding + "." + padding;
@@ -26,26 +35,11 @@ void runner() {
     assertEqStr(
         readableWrap(padding + "."),
         readableWrap(testStr.TrimEnd()));
+}
 
-    // Reverse
+void testReverse() {
     assertEqStr("321 cba", "abc 123".Reverse());
     assertEqStr("おえういあ 321 cba", "abc 123 あいうえお".Reverse());
-
-    string nums = "012三4五67八9";
-
-    assertEqInt(10, nums.Size());
-
-    assertEqStr("012", nums.SubString(0, 3));
-    assertEqStr("012三", nums.SubString(0, 4));
-    assertEqStr("三4五6", nums.SubString(3, 4));
-
-    string haystack = "0123456";
-    assertTrue(haystack.StartsWith("012"));
-    assertTrue(haystack.EndsWith("456"));
-    assertFalse(haystack.StartsWith("1"));
-    assertFalse(haystack.EndsWith("5"));
-
-    testCharacters();
 }
 
 void testCharacters() {
@@ -68,4 +62,20 @@ void testConcatAll() {
     // Not a good way to check but look at the generated code to see if this whole line is concatenated into a single StringBuilder pattern, if applicable.
     string val = "a" + passThruInt(2) + "c" + passThruInt(4) + "e";
     assertEqStr("a2c4e", val);
+}
+
+void testSlicingAndDicing() {
+    string nums = "012三4五67八9";
+    assertEqInt(10, nums.Size());
+    assertEqStr("012", nums.SubString(0, 3));
+    assertEqStr("012三", nums.SubString(0, 4));
+    assertEqStr("三4五6", nums.SubString(3, 4));
+}
+
+void testStartsEndsWith() {
+    string haystack = "0123456";
+    assertTrue(haystack.StartsWith("012"));
+    assertTrue(haystack.EndsWith("456"));
+    assertFalse(haystack.StartsWith("1"));
+    assertFalse(haystack.EndsWith("5"));
 }
