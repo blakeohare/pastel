@@ -46,8 +46,7 @@ namespace Pastel.Parser.ParseNodes
             {
                 badIndex = !indexType.IsInteger;
                 this.ResolvedType = PType.CHAR;
-                // TODO(cleanup): shouldn't badIndex be checked here?
-                if (this.Root is InlineConstant rootIc && this.Index is InlineConstant indexIc)
+                if (!badIndex && this.Root is InlineConstant rootIc && this.Index is InlineConstant indexIc)
                 {
                     string rootStr = (string)rootIc.Value; 
                     string c = rootStr[(int)indexIc.Value].ToString();
@@ -63,7 +62,7 @@ namespace Pastel.Parser.ParseNodes
 
             if (badIndex)
             {
-                throw new UNTESTED_ParserException(
+                throw new TestedParserException(
                     this.BracketToken,
                     "Cannot index into a " + rootType + " with a " + indexType + ".");
             }
