@@ -1,5 +1,6 @@
 void runner() {
     testShortcircuiting();
+    testSwitch();
 }
 
 void testShortcircuiting() {
@@ -39,3 +40,88 @@ bool passThruBoolWithLog(bool val, List<string> log, string logItem) {
     log.Add(logItem);
     return val;
 }
+
+// TODO: this SHOULD resolve at compile time but isn't.
+// const int SWITCH_WORKS = !IS_GO && !IS_PYTHON;
+
+void testSwitch() {
+    if (IS_GO) { }
+    else if (IS_PYTHON) { }
+    else {
+
+        assertEqStr("1: EF", "1: " + runSwitchInt(-1));
+        assertEqStr("2: AF", "2: " + runSwitchInt(0));
+        assertEqStr("3: AF", "3: " + runSwitchInt(1));
+        assertEqStr("4: EF", "4: " + runSwitchInt(2));
+        assertEqStr("5: BF", "5: " + runSwitchInt(3));
+        assertEqStr("6: CF", "6: " + runSwitchInt(4));
+        assertEqStr("7: CDF", "7: " + runSwitchInt(5));
+        assertEqStr("8: EF", "8: " + runSwitchInt(6));
+        assertEqStr("9: EF", "9: " + runSwitchInt(7));
+    }
+}
+
+string runSwitchInt(int cond) {
+    List<string> log = new List<string>();
+    if (IS_GO) { }
+    else if (IS_PYTHON) { }
+    else {
+        switch (cond) {
+            case 0:
+            case 1:
+                log.Add("A");
+                break;
+            case 3:
+                log.Add("B");
+                break;
+            case 4:
+            case 5:
+                log.Add("C");
+                if (cond == 4) {
+                    break;
+                }
+                log.Add("D");
+                break;
+            case 6:
+            default:
+                log.Add("E");
+                break;
+        }
+        log.Add("F");
+    }
+    return log.Join("");
+}
+
+// TODO: add support for string switch statements.
+/*
+string runSwitchString(int cond) {
+    List<string> log = new List<string>();
+    if (IS_GO) { }
+    else if (IS_PYTHON) { }
+    else {
+        switch (cond) {
+            case "zero":
+            case "one":
+                log.Add("A");
+                break;
+            case "three":
+                log.Add("B");
+                break;
+            case "four":
+            case "five":
+                log.Add("C");
+                if (cond == 4) {
+                    break;
+                }
+                log.Add("D");
+                break;
+            case "six":
+            default:
+                log.Add("E");
+                break;
+        }
+        log.Add("F");
+    }
+    return log.Join("");
+}
+*/
