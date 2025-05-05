@@ -1,0 +1,12 @@
+struct MyStruct {
+    int x;
+}
+
+object foo() {
+    Mystruct s = new MyStruct;
+    return s;
+}
+
+#########
+
+test.pst, Line: 6, Col: 30, Constructors must be invoked like functions.

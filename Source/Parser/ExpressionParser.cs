@@ -153,17 +153,15 @@ namespace Pastel.Parser
                 }
                 else if (!tokens.IsNext("("))
                 {
-                    tokens.PopExpected("("); // This will intentionally throw an error here.
+                    throw new TestedParserException(
+                        tokens.Pop(),
+                        "Constructors must be invoked like functions.");
                 }
 
                 Expression expr = new ConstructorReference(newToken, typeToConstruct, this.parser.ActiveEntity);
                 if (implicitCtorArgs != null)
                 {
                     expr = new FunctionInvocation(expr, newToken, implicitCtorArgs);
-                }
-                else
-                {
-                    expr = this.ParseEntityChain(expr, tokens);
                 }
 
                 return this.ParseOutEntitySuffixes(tokens, expr);
@@ -182,19 +180,40 @@ namespace Pastel.Parser
 
         private Expression ParseOutEntitySuffixes(TokenStream tokens, Expression root)
         {
-            while (true)
+            while (tokens.HasMore)
             {
                 switch (tokens.PeekValue())
                 {
                     case ".":
-                    case "[":
-                    case "(":
-                        root = this.ParseEntityChain(root, tokens);
+                        Token dotToken = tokens.Pop();
+                        Token field = ExpressionParser.EnsureTokenIsValidName(tokens.Pop(), "Invalid field name");
+                        root = new DotField(root, dotToken, field);
                         break;
+                    
+                    case "[":
+                        Token openBracket = tokens.Pop();
+                        Expression index = this.ParseExpression(tokens);
+                        tokens.PopExpected("]");
+                        root = new BracketIndex(root, openBracket, index);
+                        break;
+                    
+                    case "(":
+                        Token openParen = tokens.Pop();
+                        List<Expression> args = new List<Expression>();
+                        while (!tokens.PopIfPresent(")"))
+                        {
+                            if (args.Count > 0) tokens.PopExpected(",");
+                            args.Add(this.ParseExpression(tokens));
+                        }
+                        root = new FunctionInvocation(root, openParen, args).MaybeImmediatelyResolve(this.parser);
+                        break;
+                
                     default:
                         return root;
                 }
             }
+
+            return root;
         }
 
         private Expression ParseEntityRoot(TokenStream tokens)
@@ -262,36 +281,6 @@ namespace Pastel.Parser
             throw new UNTESTED_ParserException(
                 tokens.Peek(),
                 "Unrecognized expression.");
-        }
-
-        private Expression ParseEntityChain(Expression root, TokenStream tokens)
-        {
-            switch (tokens.PeekValue())
-            {
-                case ".":
-                    Token dotToken = tokens.Pop();
-                    Token field = ExpressionParser.EnsureTokenIsValidName(tokens.Pop(), "Invalid field name");
-                    return new DotField(root, dotToken, field);
-                case "[":
-                    Token openBracket = tokens.Pop();
-                    Expression index = this.ParseExpression(tokens);
-                    tokens.PopExpected("]");
-                    return new BracketIndex(root, openBracket, index);
-                case "(":
-                    Token openParen = tokens.Pop();
-                    List<Expression> args = new List<Expression>();
-                    while (!tokens.PopIfPresent(")"))
-                    {
-                        if (args.Count > 0) tokens.PopExpected(",");
-                        args.Add(this.ParseExpression(tokens));
-                    }
-                    return new FunctionInvocation(root, openParen, args).MaybeImmediatelyResolve(this.parser);
-                
-                default:
-                    // Should be checked before calling this function.
-                    // TODO(cleanup): no, that's silly.
-                    throw new InvalidOperationException();
-            }
         }
 
         // This function became really weird for legitimate reasons, but deseparately needs to be written (or rather,
