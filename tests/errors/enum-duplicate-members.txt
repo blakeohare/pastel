@@ -1,0 +1,9 @@
+enum Test {
+    FOO,
+    BAR,
+    FOO,
+}
+
+########
+
+test.pst, Line: 4, Col: 5, The enum 'Test' has multiple definitions of 'FOO'

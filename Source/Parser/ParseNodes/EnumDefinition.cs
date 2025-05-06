@@ -22,9 +22,23 @@ namespace Pastel.Parser.ParseNodes
             this.Context = context;
         }
 
-        internal void InitializeValues(IList<Token> valueTokens, IList<Expression> valueExpressions)
+        internal void InitializeValues(IList<Token> memberNameTokens, IList<Expression> valueExpressions)
         {
-            this.ValueTokens = valueTokens.ToArray();
+            this.ValueTokens = memberNameTokens.ToArray();
+
+            HashSet<string> dupCheck = [];
+            foreach (Token memToken in memberNameTokens)
+            {
+                string name = memToken.Value;
+                if (dupCheck.Contains(name))
+                {
+                    throw new TestedParserException(
+                        memToken,
+                        "The enum '" + this.NameToken.Value + "' has multiple definitions of '" + name + "'");
+                }
+                dupCheck.Add(name);
+            }
+
             this.ValuesByName = new Dictionary<string, Expression>();
             int length = this.ValueTokens.Length;
             int highestValue = 0;
@@ -33,12 +47,6 @@ namespace Pastel.Parser.ParseNodes
             for (int i = 0; i < length; ++i)
             {
                 string name = this.ValueTokens[i].Value;
-                if (this.ValuesByName.ContainsKey(name))
-                {
-                    throw new UNTESTED_ParserException(
-                        this.FirstToken, 
-                        "The enum '" + this.NameToken.Value + "' has multiple definitions of '" + name + "'");
-                }
                 Expression expression = valueExpressions[i];
                 if (expression == null)
                 {
