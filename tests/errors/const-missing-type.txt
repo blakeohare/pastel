@@ -1,0 +1,9 @@
+const VALUE = 42;
+
+int foo() {
+    return VALUE;
+}
+
+########
+
+test.pst, Line: 1, Col: 1, Type omitted from const declaration.

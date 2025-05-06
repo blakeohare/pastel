@@ -51,7 +51,7 @@ namespace Pastel.Parser
         public VariableDeclaration ParseConstDefinition(TokenStream tokens)
         {
             Token constToken = tokens.PopExpected("const");
-            VariableDeclaration assignment = this.StatementParser.ParseAssignmentWithNewFirstToken(constToken, tokens);
+            VariableDeclaration assignment = this.StatementParser.ParseConstAssignment(constToken, tokens);
             assignment.IsConstant = true;
             return assignment;
         }

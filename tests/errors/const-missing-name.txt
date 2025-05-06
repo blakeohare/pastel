@@ -1,0 +1,9 @@
+const string = "Stringy string.";
+
+string foo() {
+    return VALUE;
+}
+
+########
+
+test.pst, Line: 1, Col: 14, Name omitted from const declaration.

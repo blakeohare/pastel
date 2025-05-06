@@ -280,18 +280,32 @@ namespace Pastel.Parser
             return new ReturnStatement(returnToken, expression);
         }
 
-        public VariableDeclaration ParseAssignmentWithNewFirstToken(Token newToken, TokenStream tokens)
+        public VariableDeclaration ParseConstAssignment(Token constToken, TokenStream tokens)
         {
-            Statement stmnt = this.ParseStatement(tokens, false);
-            VariableDeclaration? assignment = stmnt as VariableDeclaration;
-            if (assignment == null)
+            PType varType = PType.TryParse(tokens);
+            if (tokens.IsNext("="))
             {
-                throw new UNTESTED_ParserException(
-                    newToken,
-                    "Expected an assignment here.");
+                // Using IsStruct as a proxy for "is not reserved word?"
+                // TODO: when reserved words are introduced to the tokenizer as a token type, fix this check.
+                bool isNonBuiltInType = varType.IsStruct; 
+                if (isNonBuiltInType)
+                {
+                    throw new TestedParserException(
+                        constToken,
+                        "Type omitted from const declaration.");
+                }
+                throw new TestedParserException(
+                    tokens.Peek(),
+                    "Name omitted from const declaration.");   
             }
-            assignment.FirstToken = newToken;
-            return assignment;
+            Token nameToken = tokens.PopIdentifier();
+            Token equalsToken = tokens.PopExpected("=");
+            Expression value = this.ExpressionParser.ParseExpression(tokens);
+            tokens.PopExpected(";");
+            VariableDeclaration varDec = new VariableDeclaration(
+                varType, nameToken, equalsToken, value, this.parser.Context);
+            varDec.FirstToken = constToken;
+            return varDec;
         }
 
     }
