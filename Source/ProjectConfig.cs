@@ -266,7 +266,7 @@ namespace Pastel
             {
                 string[] parts = SplitOnColon(extension);
                 config.ExtensionPlatformValues[parts[0]] = parts[1].Trim();
-                config.ExtensionPlatformValuesDefinitionTokens[parts[0].Trim()] = new Token("", originalPath, 1, 0, TokenType.PUNCTUATION);
+                config.ExtensionPlatformValuesDefinitionTokens[parts[0].Trim()] = new Token("", originalPath, 2, 1, TokenType.PUNCTUATION);
             }
         }
 

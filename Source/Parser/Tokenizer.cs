@@ -64,7 +64,6 @@ namespace Pastel.Parser
 
         private static int FindSuspciousUnclosedStringLine(List<Token> tokensSoFar)
         {
-            Token suspiciousToken = null;
             foreach (Token suspiciousCheck in tokensSoFar)
             {
                 char c = suspiciousCheck.Value[0];
@@ -86,8 +85,8 @@ namespace Pastel.Parser
             int[] lineByIndex = new int[code.Length];
             int[] colByIndex = new int[code.Length];
             char c;
-            int line = 0;
-            int col = 0;
+            int line = 1;
+            int col = 1;
             for (int i = 0; i < code.Length; i++)
             {
                 c = code[i];
@@ -96,7 +95,7 @@ namespace Pastel.Parser
                 if (c == '\n')
                 {
                     line++;
-                    col = 0;
+                    col = 1;
                 }
                 else
                 {
@@ -226,7 +225,7 @@ namespace Pastel.Parser
                     int susStringLine = FindSuspciousUnclosedStringLine(tokens);
                     if (susStringLine != -1)
                     {
-                        msg += " The string on line " + (susStringLine + 1) + " is suspicious.";
+                        msg += " The string on line " + susStringLine + " is suspicious.";
                     }
                     throw new EofException(filename, msg);
                 }

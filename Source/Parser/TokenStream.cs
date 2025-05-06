@@ -119,7 +119,7 @@ namespace Pastel.Parser
 
         public Token PopBitShiftHackIfPresent()
         {
-            string val1 = PeekValue();
+            string val1 = this.PeekValue();
             if (val1 == "<<") return this.Pop(); // << is unambiguouos
             if (val1 == ">" && this.index + 1 < this.length) // could be a >>
             {
