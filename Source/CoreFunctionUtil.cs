@@ -37,9 +37,9 @@ namespace Pastel
             switch (funcRef.CoreFunctionId)
             {
                 case CoreFunction.MATH_ABS:
-                    if (firstType.RootValue != "int" && firstType.RootValue != "double")
+                    if (!firstType.IsInteger && !firstType.IsFloat)
                     {
-                        throw new UNTESTED_ParserException(
+                        throw new TestedParserException(
                             funcRef.FirstToken,
                             "Math.abs() is only applicable to numeric types.");
                     }

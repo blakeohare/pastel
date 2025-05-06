@@ -93,7 +93,7 @@ namespace Pastel
                 {
                     if (!ESCAPE_SEQUENCE_LOOKUP.TryGetValue(tokenValue[++i], out char escChar))
                     {
-                        throw new UNTESTED_ParserException(
+                        throw new TestedParserException(
                             throwToken,
                             "Invalid escape sequence in string constant.");
                     }

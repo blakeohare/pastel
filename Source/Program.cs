@@ -130,7 +130,7 @@ namespace Pastel
                 string code = DiskUtil.TryReadTextFile(path);
                 if (code == null)
                 {
-                    throw new UNTESTED_ParserException(
+                    throw new TestedParserException(
                         throwLocation,
                         "File does not exist: " + path);
                 }

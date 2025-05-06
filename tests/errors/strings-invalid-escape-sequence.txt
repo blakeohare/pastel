@@ -1,0 +1,7 @@
+string foo() {
+    return "Backslash C? \c!";
+}
+
+########
+
+test.pst, Line: 2, Col: 12, Invalid escape sequence in string constant.

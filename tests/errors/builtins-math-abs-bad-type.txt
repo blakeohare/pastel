@@ -1,0 +1,8 @@
+object foo(bool arg) {
+    object x = Core.Abs(arg);
+    return x;
+}
+
+#########
+
+test.pst, Line: 2, Col: 16, Math.abs() is only applicable to numeric types.

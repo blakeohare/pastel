@@ -170,13 +170,18 @@ def run_fvt_tests(pastel_exec_path, platforms):
         if all_pass:
             pass # TODO: delete directory
 
-def split_negative_test_file(content, throw_path):
+def get_test_file_data(content, test_file_path, project_runtime_dir):
     lines = content.replace('\r\n', '\n').split('\n')
     for i in range(len(lines)):
         line = lines[i].strip()
         if len(line) >= 3 and len(line) * '#' == line:
-            return ('\n'.join(lines[:i]).strip(), '\n'.join(lines[i + 1:]).strip())
-    raise Exception("Invalid test file: " + throw_path)
+            test_code = '\n'.join(lines[:i]).strip()
+            expected_error = '\n'.join(lines[i + 1:]).strip()
+            expected_error = expected_error.replace(
+                '%CWD%',
+                os.path.abspath(project_runtime_dir))
+            return (test_code, expected_error)
+    raise Exception("Invalid test file: " + test_file_path)
 
 def create_java_target(name, func_path, struct_path):
     if not func_path.endswith('.java'): raise Exception()
@@ -240,7 +245,7 @@ def run_error_tests(pastel_exec_path):
         dst_path = get_temp_dir(test_id)
         test_path = os.path.join(error_dir, test_id + '.txt')
         test_content = file_read_text(test_path)
-        code, expected = split_negative_test_file(test_content, test_path)
+        code, expected = get_test_file_data(test_content, test_path, dst_path)
         code_path = os.path.abspath(os.path.join(dst_path, 'test.pst'))
         lang_id = 'js'
         if test_id.endswith(']'):
