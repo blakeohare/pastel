@@ -1,5 +1,7 @@
 package gen;
 
+import java.util.*;
+
 public class NumAnalysis {
   public int count;
   public int min;

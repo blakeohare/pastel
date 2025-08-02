@@ -8,36 +8,36 @@ void testShortcircuiting() {
     if (passThruBoolWithLog(true, log, "A") && passThruBoolWithLog(true, log, "B")) {
         passThruBoolWithLog(true, log, "C");
     }
-    assertEqStr("ABC", log.Join(""));
-    log.Clear();
+    assertEqStr("ABC", log.join(""));
+    log.clear();
 
     if (passThruBoolWithLog(true, log, "A") && passThruBoolWithLog(false, log, "B")) {
         passThruBoolWithLog(true, log, "C");
     }
-    assertEqStr("AB", log.Join(""));
-    log.Clear();
+    assertEqStr("AB", log.join(""));
+    log.clear();
 
     if (passThruBoolWithLog(true, log, "A") || passThruBoolWithLog(true, log, "B")) {
         passThruBoolWithLog(true, log, "C");
     }
-    assertEqStr("AC", log.Join(""));
-    log.Clear();
+    assertEqStr("AC", log.join(""));
+    log.clear();
 
     if (passThruBoolWithLog(false, log, "A") || passThruBoolWithLog(true, log, "B")) {
         passThruBoolWithLog(true, log, "C");
     }
-    assertEqStr("ABC", log.Join(""));
-    log.Clear();
+    assertEqStr("ABC", log.join(""));
+    log.clear();
 
     if (passThruBoolWithLog(false, log, "A") || passThruBoolWithLog(true, log, "B") || passThruBoolWithLog(true, log, "C")) {
         passThruBoolWithLog(true, log, "D");
     }
-    assertEqStr("ABD", log.Join(""));
-    log.Clear();
+    assertEqStr("ABD", log.join(""));
+    log.clear();
 }
 
 bool passThruBoolWithLog(bool val, List<string> log, string logItem) {
-    log.Add(logItem);
+    log.add(logItem);
     return val;
 }
 
@@ -69,27 +69,27 @@ string runSwitchInt(int cond) {
         switch (cond) {
             case 0:
             case 1:
-                log.Add("A");
+                log.add("A");
                 break;
             case 3:
-                log.Add("B");
+                log.add("B");
                 break;
             case 4:
             case 5:
-                log.Add("C");
+                log.add("C");
                 if (cond == 4) {
                     break;
                 }
-                log.Add("D");
+                log.add("D");
                 break;
             case 6:
             default:
-                log.Add("E");
+                log.add("E");
                 break;
         }
-        log.Add("F");
+        log.add("F");
     }
-    return log.Join("");
+    return log.join("");
 }
 
 // TODO: add support for string switch statements.
@@ -102,26 +102,26 @@ string runSwitchString(int cond) {
         switch (cond) {
             case "zero":
             case "one":
-                log.Add("A");
+                log.add("A");
                 break;
             case "three":
-                log.Add("B");
+                log.add("B");
                 break;
             case "four":
             case "five":
-                log.Add("C");
+                log.add("C");
                 if (cond == 4) {
                     break;
                 }
-                log.Add("D");
+                log.add("D");
                 break;
             case "six":
             default:
-                log.Add("E");
+                log.add("E");
                 break;
         }
-        log.Add("F");
+        log.add("F");
     }
-    return log.Join("");
+    return log.join("");
 }
 */

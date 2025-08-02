@@ -1,5 +1,5 @@
 object foo(bool arg) {
-    object x = Core.Abs(arg);
+    object x = Math.abs(arg);
     return x;
 }
 

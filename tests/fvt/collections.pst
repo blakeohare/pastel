@@ -12,7 +12,7 @@ void testArrays() {
     nums[2] = 3;
 
     int sum = 0;
-    for (int i = 0; i < nums.Size(); i += 1) {
+    for (int i = 0; i < nums.size(); i += 1) {
         sum += nums[i];
     }
     assertEqInt(6, sum);
@@ -49,12 +49,12 @@ void testArrayInitDefaultValue() {
 
 void testLists() {
     List<int> nums = new List<int>();
-    nums.Add(1);
-    nums.Add(2);
-    nums.Add(3);
+    nums.add(1);
+    nums.add(2);
+    nums.add(3);
 
     int sum = 0;
-    for (int i = 0; i < nums.Size(); i += 1) {
+    for (int i = 0; i < nums.size(); i += 1) {
         sum += nums[i];
     }
     assertEqInt(6, sum);
@@ -67,20 +67,20 @@ void testDictionaries() {
     nums["c"] = 3;
 
     int sum = 0;
-    Array<string> keys = nums.Keys();
-    for (int i = 0; i < keys.Size(); i += 1) {
+    Array<string> keys = nums.keys();
+    for (int i = 0; i < keys.size(); i += 1) {
         sum += nums[keys[i]];
     }
     assertEqInt(6, sum);
 
-    assertTrue(nums.Contains("a"));
-    assertFalse(nums.Contains("d"));
+    assertTrue(nums.contains("a"));
+    assertFalse(nums.contains("d"));
 
-    nums.Remove("b");
-    assertFalse(nums.Contains("b"));
-    assertEqInt(2, nums.Keys().Size());
+    nums.remove("b");
+    assertFalse(nums.contains("b"));
+    assertEqInt(2, nums.keys().size());
 
-    Array<int> vals = nums.Values();
-    assertEqInt(2, vals.Size());
+    Array<int> vals = nums.values();
+    assertEqInt(2, vals.size());
     assertEqInt(4, vals[0] + vals[1]);
 }

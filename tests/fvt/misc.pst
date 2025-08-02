@@ -11,7 +11,7 @@ void runner() {
 }
 
 void testBase64() {
-    Array<int> buf = Core.Base64ToBytes("ABCD");
+    Array<int> buf = Base64.toBytes("ABCD");
     // 000000 000001 000010 000011
     // 00000000 00010000 10000011
     assertEqInt(buf[0], 0x00);
@@ -20,51 +20,51 @@ void testBase64() {
 
     buf[2] = buf[2] + 1;
 
-    string bufInv = Core.BytesToBase64(buf);
+    string bufInv = Base64.fromBytes(buf);
     assertEqStr("ABCE", bufInv);
 }
 
 void testUnixTime() {
-    double now = Core.CurrentTimeSeconds();
+    double now = DateTime.currentTimeFloat();
     assertTrue(now > 1746108176);
     assertTrue(now < 0x7FFFFFFF);
 }
 
 // Go is missing a bunch of basic stuff, adding it here to exercise the codepath
 void testGoQuickImpl() {
-    string s = Core.FloatToString(37.5);
+    string s = 37.5 + "";
     assertEqStr("37.5", s);
 
     List<int> nums = new List<int>();
-    assertEqInt(0, nums.Size());
-    nums.Add(42);
-    assertEqInt(1, nums.Size());
-    nums.Clear();
-    assertEqInt(0, nums.Size());
+    assertEqInt(0, nums.size());
+    nums.add(42);
+    assertEqInt(1, nums.size());
+    nums.clear();
+    assertEqInt(0, nums.size());
 
     List<int> a = new List<int>();
     List<int> b = new List<int>();
-    a.Add(1);
-    a.Add(2);
-    b.Add(3);
-    b.Add(4);
-    List<int> c = Core.ListConcat(a, b);
-    assertEqInt(4, c.Size());
-    assertEqInt(2, b.Size());
-    a.Add(5);
-    assertEqInt(4, c.Size());
-    assertEqInt(3, a.Size());
+    a.add(1);
+    a.add(2);
+    b.add(3);
+    b.add(4);
+    List<int> c = Collections.concatenateLists(a, b);
+    assertEqInt(4, c.size());
+    assertEqInt(2, b.size());
+    a.add(5);
+    assertEqInt(4, c.size());
+    assertEqInt(3, a.size());
 
     int x = 42;
     x = -x;
-    assertEqStr("-42", Core.IntToString(x));
+    assertEqStr("-42", x + "");
 
-    assertTrue(Core.RandomFloat() >= 0);
-    assertTrue(Core.RandomFloat() < 1);
+    assertTrue(Random.nextFloat() >= 0);
+    assertTrue(Random.nextFloat() < 1);
 
     assertEqStr(
         "\"abc\\n123\\r\\n'\"",
-        Core.ToCodeString("abc\n123\r\n'"));
+        Json.serializeString("abc\n123\r\n'"));
 }
 
 void testOps() {
@@ -135,10 +135,10 @@ void testInlineOptimization() {
 
 void testOneOffStuff() {
     int value = 1;
-    assertEqStr("true", Core.BoolToString(value == 1));
-    assertEqStr("true", Core.BoolToString(value == 2));
-    assertEqStr("true", Core.BoolToString(true));
-    assertEqStr("false", Core.BoolToString(false));
+    assertEqStr("true", Convert.boolToString(value == 1));
+    assertEqStr("true", Convert.boolToString(value == 2));
+    assertEqStr("true", Convert.boolToString(true));
+    assertEqStr("false", Convert.boolToString(false));
 
     @import("inline.pst");
     assertEqInt(42, x);
@@ -184,14 +184,14 @@ void testFloatToString() {
 
 void testNewMathStuff() {
     int x = -1;
-    assertEqInt(1, Core.Abs(x));
-    assertEqInt(1, Core.Abs(-x));
+    assertEqInt(1, Math.abs(x));
+    assertEqInt(1, Math.abs(-x));
 
     double pie = 3.14159265358979;
     double negPie = -pie;
     // Use string assertion to verify type
-    assertEqStr("4", "" + Core.Ceil(pie));
-    assertEqStr("3", "" + Core.Floor(pie));
-    assertEqStr("-3", "" + Core.Ceil(negPie));
-    assertEqStr("-4", "" + Core.Floor(negPie));
+    assertEqStr("4", "" + Math.ceil(pie));
+    assertEqStr("3", "" + Math.floor(pie));
+    assertEqStr("-3", "" + Math.ceil(negPie));
+    assertEqStr("-4", "" + Math.floor(negPie));
 }

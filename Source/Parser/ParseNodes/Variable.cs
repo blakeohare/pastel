@@ -29,11 +29,12 @@ namespace Pastel.Parser.ParseNodes
                 return constantValue.CloneWithNewToken(this.FirstToken);
             }
 
-            if (name == "Core")
+            
+            if (CoreFunctionLookup.IsAnyRootNamespace(name))
             {
                 throw new UNTESTED_ParserException(
                     this.FirstToken,
-                    "Core is a namespace and cannot be used like this.");
+                    name + " is a namespace and cannot be used like this.");
             }
 
             FunctionDefinition functionDefinition = resolver.GetFunctionDefinition(name);

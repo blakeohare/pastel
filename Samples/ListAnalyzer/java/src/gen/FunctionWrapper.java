@@ -1,5 +1,7 @@
 package gen;
 
+import java.util.*;
+
 public final class FunctionWrapper {
   private static int[] PST_sortedCopyOfIntArray(int[] nums) {
     int[] output = java.util.Arrays.copyOf(nums, nums.length);
@@ -12,9 +14,8 @@ public final class FunctionWrapper {
   }
   private static final HashMap<String, PstExtWrapper> PST_ExtCallbacks = new HashMap<>();
 
-  public static void PST_RegisterExtensibleCallback(String name, PstExtWrapper func)
-  {
-      PST_ExtCallbacks.put(name, func);
+  public static void PST_RegisterExtensibleCallback(String name, PstExtWrapper func) {
+    PST_ExtCallbacks.put(name, func);
   }
 
   public static double calculate_standard_deviation(int[] nums, int length, double mean) {

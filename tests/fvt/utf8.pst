@@ -1,5 +1,5 @@
 string toUtf8(string str) {
-    return intArrayToString(str.ToUtf8Bytes());
+    return intArrayToString(str.toUtf8Bytes());
 }
 
 void runner() {

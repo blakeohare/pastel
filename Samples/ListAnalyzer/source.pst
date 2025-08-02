@@ -33,14 +33,14 @@ NumAnalysis perform_analysis(Array<int> nums, int length) {
 			if (value < output.min) output.min = value;
 			if (value > output.max) output.max = value;
 		}
-		output.mean = Core.FloatDivision(1.0 * output.total, length);
+		output.mean = 1.0 * output.total / length;
 		output.std_dev = calculate_standard_deviation(nums, length, output.mean);
 
-		Array<int> nums_copy = Core.SortedCopyOfIntArray(nums);
+		Array<int> nums_copy = Sorting.getIntegerSortedCopy(nums);
 		if (length % 2 == 0) {
-			output.median = Core.FloatDivision(nums_copy[Core.IntegerDivision(length, 2) - 1] + nums_copy[Core.IntegerDivision(length, 2)], 2.0);
+			output.median = (nums_copy[length / 2 - 1] + nums_copy[length / 2]) / 2.0;
 		} else {
-			output.median = 0.0 + nums_copy[Core.IntegerDivision(length, 2)];
+			output.median = 0.0 + nums_copy[length / 2];
 		}
 	}
 	return output;
@@ -50,7 +50,7 @@ double calculate_standard_deviation(Array<int> nums, int length, double mean) {
 	double total_dev = 0.0;
 	for (int i = 0; i < length; i += 1) {
 		double diff = nums[i] - mean;
-		total_dev += Core.Pow(diff, 2);
+		total_dev += Math.pow(diff, 2);
 	}
-	return Core.Pow(Core.FloatDivision(total_dev, length), 0.5);
+	return Math.pow(total_dev / length, 0.5);
 }

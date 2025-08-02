@@ -106,7 +106,7 @@ namespace Pastel.Parser.ParseNodes
                 return cfr;
             }
 
-            throw new NotImplementedException();
+            throw new UNTESTED_ParserException(this.FieldName, "No field named '." + this.FieldName.Value + "'.");
         }
 
         internal override Expression ResolveWithTypeContext(Resolver resolver)

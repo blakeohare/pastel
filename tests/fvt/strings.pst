@@ -24,8 +24,8 @@ void testLowerUpper() {
         // + " А" // Cyrillic
         ;
 
-    assertEqStr("ABC XYZ 123 .? ËËÆÆÇÇÌÌ あ ア 阿 아", s.ToUpper());
-    assertEqStr("abc xyz 123 .? ëëææççìì あ ア 阿 아", s.ToLower());
+    assertEqStr("ABC XYZ 123 .? ËËÆÆÇÇÌÌ あ ア 阿 아", s.toUpper());
+    assertEqStr("abc xyz 123 .? ëëææççìì あ ア 阿 아", s.toLower());
 }
 
 void testTrim() {
@@ -34,25 +34,25 @@ void testTrim() {
     string testStr = padding + "." + padding;
     assertEqStr(
         readableWrap("."),
-        readableWrap(testStr.Trim()));
+        readableWrap(testStr.trim()));
     assertEqStr(
         readableWrap("." + padding),
-        readableWrap(testStr.TrimStart()));
+        readableWrap(testStr.trimStart()));
     assertEqStr(
         readableWrap(padding + "."),
-        readableWrap(testStr.TrimEnd()));
+        readableWrap(testStr.trimEnd()));
 }
 
 void testReverse() {
-    assertEqStr("321 cba", "abc 123".Reverse());
-    assertEqStr("おえういあ 321 cba", "abc 123 あいうえお".Reverse());
+    assertEqStr("321 cba", "abc 123".reverse());
+    assertEqStr("おえういあ 321 cba", "abc 123 あいうえお".reverse());
 }
 
 void testCharacters() {
     char c = 'x';
-    int charCode = Core.Ord(c);
+    int charCode = Convert.charToCharCode(c);
     assertEqInt(charCode, 96 + 24);
-    char cRoundTrip = Core.Chr(charCode + 1);
+    char cRoundTrip = Convert.charCodeToChar(charCode + 1);
     assertEqChar('y', cRoundTrip);
 
     assertEqStr("yz", cRoundTrip + "z");
@@ -80,38 +80,38 @@ void testConcatAll() {
 
 void testSlicingAndDicing() {
     string nums = "012三4五67八9";
-    assertEqInt(10, nums.Size());
-    assertEqStr("012", nums.SubString(0, 3));
-    assertEqStr("012三", nums.SubString(0, 4));
-    assertEqStr("三4五6", nums.SubString(3, 4));
+    assertEqInt(10, nums.size());
+    assertEqStr("012", nums.subString(0, 3));
+    assertEqStr("012三", nums.subString(0, 4));
+    assertEqStr("三4五6", nums.subString(3, 4));
 }
 
 void testStartsEndsWith() {
     string haystack = "0123456";
-    assertTrue(haystack.StartsWith("012"));
-    assertTrue(haystack.EndsWith("456"));
-    assertFalse(haystack.StartsWith("1"));
-    assertFalse(haystack.EndsWith("5"));
+    assertTrue(haystack.startsWith("012"));
+    assertTrue(haystack.endsWith("456"));
+    assertFalse(haystack.startsWith("1"));
+    assertFalse(haystack.endsWith("5"));
 }
 
 void testCompare() {
     string a = "A";
     string b = "B";
     string b2 = b;
-    assertFalse(Core.StringCompareIsReverse(a, b));
-    assertTrue(Core.StringCompareIsReverse(b, a));
-    assertFalse(Core.StringCompareIsReverse(b, b2));
+    assertFalse(Deprecated.stringCompareIsReverse(a, b));
+    assertTrue(Deprecated.stringCompareIsReverse(b, a));
+    assertFalse(Deprecated.stringCompareIsReverse(b, b2));
 }
 
 void testCharCode() {
     string s = "abc";
-    assertEqInt(98, s.CharCodeAt(1));
+    assertEqInt(98, s.charCodeAt(1));
 }
 
 void testSplit() {
     string toSplit = "this is  a string ";
-    string[] parts = toSplit.Split(" ");
-    assertEqInt(6, parts.Size());
+    string[] parts = toSplit.split(" ");
+    assertEqInt(6, parts.size());
     assertEqStr("this", parts[0]);
     assertEqStr("", parts[2]);
     assertEqStr("", parts[5]);
@@ -120,28 +120,29 @@ void testSplit() {
 
 void testSubStringEqual() {
     string test = "0123456789";
-    assertTrue(test.SubStringIsEqualTo(0, "012"));
-    assertTrue(test.SubStringIsEqualTo(8, "89"));
-    assertTrue(test.SubStringIsEqualTo(4, ""));
-    assertTrue(test.SubStringIsEqualTo(0, "0123456789"));
-    assertFalse(test.SubStringIsEqualTo(1, "0123"));
+    assertTrue(test.subStringIsEqualTo(0, "012"));
+    assertTrue(test.subStringIsEqualTo(8, "89"));
+    assertTrue(test.subStringIsEqualTo(4, ""));
+    assertTrue(test.subStringIsEqualTo(0, "0123456789"));
+    assertFalse(test.subStringIsEqualTo(1, "0123"));
 }
 
 void testReplace() {
     string test = "12345";
     string testSequences = "aaaaa";
-    assertEqStr("12THREE & FOUR5", test.Replace("34", "THREE & FOUR"));
-    assertEqStr("12THREE & FOUR5", test.Replace("34", "THREE & FOUR"));
-    assertEqStr("bba", testSequences.Replace("aa", "b"));
+    // TODO: test accidentally-regex
+    assertEqStr("12THREE & FOUR5", test.replace("34", "THREE & FOUR"));
+    assertEqStr("12THREE & FOUR5", test.replace("34", "THREE & FOUR"));
+    assertEqStr("bba", testSequences.replace("aa", "b"));
 }
 
 void testFind() {
     string test = "0123456789";
     string twenty = test + test;
-    assertEqInt(-1, twenty.IndexOf("543"));
-    assertEqInt(0, twenty.IndexOf("0123"));
-    assertEqInt(10, twenty.LastIndexOf("0123"));
-    assertEqInt(3, twenty.IndexOf("34"));
-    assertEqInt(3, twenty.IndexOf("34", 3));
-    assertEqInt(13, twenty.IndexOf("34", 4));
+    assertEqInt(-1, twenty.indexOf("543"));
+    assertEqInt(0, twenty.indexOf("0123"));
+    assertEqInt(10, twenty.lastIndexOf("0123"));
+    assertEqInt(3, twenty.indexOf("34"));
+    assertEqInt(3, twenty.indexOf("34", 3));
+    assertEqInt(13, twenty.indexOf("34", 4));
 }

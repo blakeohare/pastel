@@ -32,7 +32,8 @@ namespace Pastel.Parser.ParseNodes
         {
             if (this.Context != null)
             {
-                // CoreFunctionReferences only get introduced before the ResolveType phase for Core.* functions, in which case they have no Context and nothing to resolve.
+                // CoreFunctionReferences only get introduced before the ResolveType phase for core
+                // functions, in which case they have no Context and nothing to resolve.
                 throw new Exception();
             }
             return this;

@@ -3,7 +3,7 @@ object fail(string msg) {
     args[0] = msg;
 
     // TODO: Fix the C# bug where the ternary tries to get ignored
-    object ignored = Core.ExtensibleCallbackInvoke("fail", args);
+    object ignored = Pastel.invokeExtension("fail", args);
     return ignored;
 }
 
@@ -16,7 +16,11 @@ void assertFalse(bool val) {
 }
 
 void assertEqChar(char expected, char actual) {
-    if (expected != actual) fail("Expected '" + Core.CharToString(expected) + "' but found '" + Core.CharToString(actual) + "' instead.");
+    if (expected != actual) {
+        fail(
+            "Expected '" + Convert.charToString(expected) + 
+            "' but found '" + Convert.charToString(actual) + "' instead.");
+    }
 }
 
 void assertEqStr(string expected, string actual) {
@@ -24,7 +28,7 @@ void assertEqStr(string expected, string actual) {
     // invoking .equals() on a non-null instance.
     if (expected == actual) return; // both null or happen to be same ref
     if (expected != null && actual != null) {
-        if (Core.StringEquals(expected, actual)) return;
+        if (Deprecated.stringEquals(expected, actual)) return;
     }
 
     // if only one was null or they were both non-null and didn't, match then they failed.
@@ -38,7 +42,7 @@ void assertEqStr(string expected, string actual) {
 }
 
 void assertEqInt(int expected, int actual) {
-    assertEqStr(Core.IntToString(expected), Core.IntToString(actual));
+    assertEqStr(Convert.intToString(expected), Convert.intToString(actual));
 }
 
 void assertEqBool(bool expected, bool actual) {

@@ -1,5 +1,6 @@
 using Pastel.Parser.ParseNodes;
 using System.Collections.Generic;
+using System.Xml;
 
 namespace Pastel.Parser
 {
@@ -18,20 +19,63 @@ namespace Pastel.Parser
         {
             if (coreLookup.Count > 0) return;
 
+            Dictionary<string, CoreFunction> _Base64 = [];
+            Dictionary<string, CoreFunction> _Collections = [];
+            Dictionary<string, CoreFunction> _Convert = [];
+            Dictionary<string, CoreFunction> _DateTime = [];
+            Dictionary<string, CoreFunction> _Deprecated = [];
+            Dictionary<string, CoreFunction> _Json = [];
             Dictionary<string, CoreFunction> _Math = [];
-            Dictionary<string, CoreFunction> _Core = [];
+            Dictionary<string, CoreFunction> _Pastel = [];
+            Dictionary<string, CoreFunction> _Random = [];
+            Dictionary<string, CoreFunction> _Sorting = [];
+
             Dictionary<string, CoreFunction> _string = [];
             Dictionary<string, CoreFunction> _stringBuilder = [];
             Dictionary<string, CoreFunction> _array = [];
             Dictionary<string, CoreFunction> _list = [];
             Dictionary<string, CoreFunction> _dictionary = [];
+
+            coreLookup["Base64"] = _Base64;
+            coreLookup["Collections"] = _Collections;
+            coreLookup["Convert"] = _Convert;
+            coreLookup["DateTime"] = _DateTime;
+            coreLookup["Deprecated"] = _Deprecated;
+            coreLookup["Pastel"] = _Pastel;
+            coreLookup["Json"] = _Json;
             coreLookup["Math"] = _Math;
-            coreLookup["Core"] = _Core;
+            coreLookup["Random"] = _Random;
+            coreLookup["Sorting"] = _Sorting;
+
             methodLookup["string"] = _string;
-            methodLookup["stringBuilder"] = _stringBuilder;
+            methodLookup["StringBuilder"] = _stringBuilder;
             methodLookup["Array"] = _array;
             methodLookup["List"] = _list;
             methodLookup["Dictionary"] = _dictionary;
+
+            _Base64["toBytes"] = CoreFunction.BASE64_TO_BYTES;
+            _Base64["toStringUtf8"] = CoreFunction.BASE64_TO_STRING;
+            _Base64["fromBytes"] = CoreFunction.BYTES_TO_BASE64;
+
+            _Collections["concatenateLists"] = CoreFunction.LIST_CONCAT;
+            _Collections["multiplyList"] = CoreFunction.MULTIPLY_LIST;
+
+            _Convert["boolToString"] = CoreFunction.BOOL_TO_STRING;
+            _Convert["charCodeToChar"] = CoreFunction.CHR;
+            _Convert["charCodeToString"] = CoreFunction.STRING_FROM_CHAR_CODE;
+            _Convert["charToCharCode"] = CoreFunction.ORD;
+            _Convert["charToString"] = CoreFunction.CHAR_TO_STRING;
+            _Convert["floatToString"] = CoreFunction.FLOAT_TO_STRING;
+            _Convert["intToString"] = CoreFunction.INT_TO_STRING;
+            _Convert["isValidInteger"] = CoreFunction.IS_VALID_INTEGER;
+            _Convert["parseFloatUnsafe"] = CoreFunction.PARSE_FLOAT_UNSAFE;
+            _Convert["parseInt"] = CoreFunction.PARSE_INT;
+            _Convert["tryParseFloat"] = CoreFunction.TRY_PARSE_FLOAT;
+            _Convert["utf8BytesToString"] = CoreFunction.UTF8_BYTES_TO_STRING;
+
+            _DateTime["currentTimeFloat"] = CoreFunction.CURRENT_TIME_SECONDS;
+
+            _Json["serializeString"] = CoreFunction.TO_CODE_STRING;
 
             _Math["abs"] = CoreFunction.MATH_ABS;
             _Math["arcTan"] = CoreFunction.MATH_ARCTAN;
@@ -45,90 +89,68 @@ namespace Pastel.Parser
             _Math["floor"] = CoreFunction.MATH_FLOOR;
             _Math["pow"] = CoreFunction.MATH_POW;
 
-            // Copy Math namespace to Core using old casing for compatibility
-            foreach (string key in _Math.Keys)
-            {
-                string upperCaseKey = key.Substring(0, 1).ToUpper() + key.Substring(1);
-                _Core[upperCaseKey] = _Math[key];
-            }
+            _Pastel["emitComment"] = CoreFunction.EMIT_COMMENT;
+            _Pastel["invokeExtension"] = CoreFunction.EXTENSIBLE_CALLBACK_INVOKE;
+            _Pastel["printStdErr"] = CoreFunction.PRINT_STDERR;
+            _Pastel["printStdOut"] = CoreFunction.PRINT_STDOUT;
 
-            _Core["Base64ToBytes"] = CoreFunction.BASE64_TO_BYTES;
-            _Core["Base64ToString"] = CoreFunction.BASE64_TO_STRING;
-            _Core["BoolToString"] = CoreFunction.BOOL_TO_STRING;
-            _Core["BytesToBase64"] = CoreFunction.BYTES_TO_BASE64;
-            _Core["CharToString"] = CoreFunction.CHAR_TO_STRING;
-            _Core["Chr"] = CoreFunction.CHR;
-            _Core["CurrentTimeSeconds"] = CoreFunction.CURRENT_TIME_SECONDS;
-            _Core["EmitComment"] = CoreFunction.EMIT_COMMENT;
-            _Core["ExtensibleCallbackInvoke"] = CoreFunction.EXTENSIBLE_CALLBACK_INVOKE;
-            _Core["FloatToString"] = CoreFunction.FLOAT_TO_STRING;
-            _Core["IntToString"] = CoreFunction.INT_TO_STRING;
-            _Core["IsValidInteger"] = CoreFunction.IS_VALID_INTEGER;
-            _Core["ListConcat"] = CoreFunction.LIST_CONCAT;
-            _Core["ListToArray"] = CoreFunction.LIST_TO_ARRAY;
-            _Core["MultiplyList"] = CoreFunction.MULTIPLY_LIST;
-            _Core["Ord"] = CoreFunction.ORD;
-            _Core["ParseFloatUnsafe"] = CoreFunction.PARSE_FLOAT_UNSAFE;
-            _Core["ParseInt"] = CoreFunction.PARSE_INT;
-            _Core["PrintStdErr"] = CoreFunction.PRINT_STDERR;
-            _Core["PrintStdOut"] = CoreFunction.PRINT_STDOUT;
-            _Core["RandomFloat"] = CoreFunction.RANDOM_FLOAT;
-            _Core["StringAppend"] = CoreFunction.STRING_APPEND;
-            _Core["StringCompareIsReverse"] = CoreFunction.STRING_COMPARE_IS_REVERSE;
-            _Core["StringEquals"] = CoreFunction.STRING_EQUALS;
-            _Core["StringFromCharCode"] = CoreFunction.STRING_FROM_CHAR_CODE;
-            _Core["StrongReferenceEquality"] = CoreFunction.STRONG_REFERENCE_EQUALITY;
-            _Core["ToCodeString"] = CoreFunction.TO_CODE_STRING;
-            _Core["TryParseFloat"] = CoreFunction.TRY_PARSE_FLOAT;
-            _Core["Utf8BytesToString"] = CoreFunction.UTF8_BYTES_TO_STRING;
+            _Random["nextFloat"] = CoreFunction.RANDOM_FLOAT;
 
-            // TODO: rename these to lexical and numeric sort
-            _Core["SortedCopyOfStringArray"] = CoreFunction.SORTED_COPY_OF_STRING_ARRAY;
-            _Core["SortedCopyOfIntArray"] = CoreFunction.SORTED_COPY_OF_INT_ARRAY;
+            _Sorting["getIntegerSortedCopy"] = CoreFunction.SORTED_COPY_OF_INT_ARRAY;
+            _Sorting["getLexicalSortedCopy"] = CoreFunction.SORTED_COPY_OF_STRING_ARRAY;
 
-            _string["CharCodeAt"] = CoreFunction.STRING_CHAR_CODE_AT;
-            _string["Contains"] = CoreFunction.STRING_CONTAINS;
-            _string["EndsWith"] = CoreFunction.STRING_ENDS_WITH;
-            _string["IndexOf"] = CoreFunction.STRING_INDEX_OF;
-            _string["LastIndexOf"] = CoreFunction.STRING_LAST_INDEX_OF;
-            _string["Replace"] = CoreFunction.STRING_REPLACE;
-            _string["Reverse"] = CoreFunction.STRING_REVERSE;
-            _string["Size"] = CoreFunction.STRING_LENGTH;
-            _string["Split"] = CoreFunction.STRING_SPLIT;
-            _string["StartsWith"] = CoreFunction.STRING_STARTS_WITH;
-            _string["SubString"] = CoreFunction.STRING_SUBSTRING;
-            _string["SubStringIsEqualTo"] = CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO;
-            _string["ToLower"] = CoreFunction.STRING_TO_LOWER;
-            _string["ToUpper"] = CoreFunction.STRING_TO_UPPER;
-            _string["ToUtf8Bytes"] = CoreFunction.STRING_TO_UTF8_BYTES;
-            _string["Trim"] = CoreFunction.STRING_TRIM;
-            _string["TrimEnd"] = CoreFunction.STRING_TRIM_END;
-            _string["TrimStart"] = CoreFunction.STRING_TRIM_START;
+            _string["charCodeAt"] = CoreFunction.STRING_CHAR_CODE_AT;
+            _string["contains"] = CoreFunction.STRING_CONTAINS;
+            _string["endsWith"] = CoreFunction.STRING_ENDS_WITH;
+            _string["indexOf"] = CoreFunction.STRING_INDEX_OF;
+            _string["lastIndexOf"] = CoreFunction.STRING_LAST_INDEX_OF;
+            _string["replace"] = CoreFunction.STRING_REPLACE;
+            _string["reverse"] = CoreFunction.STRING_REVERSE;
+            _string["size"] = CoreFunction.STRING_LENGTH;
+            _string["split"] = CoreFunction.STRING_SPLIT;
+            _string["startsWith"] = CoreFunction.STRING_STARTS_WITH;
+            _string["subString"] = CoreFunction.STRING_SUBSTRING;
+            _string["subStringIsEqualTo"] = CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO;
+            _string["toLower"] = CoreFunction.STRING_TO_LOWER;
+            _string["toUpper"] = CoreFunction.STRING_TO_UPPER;
+            _string["toUtf8Bytes"] = CoreFunction.STRING_TO_UTF8_BYTES;
+            _string["trim"] = CoreFunction.STRING_TRIM;
+            _string["trimEnd"] = CoreFunction.STRING_TRIM_END;
+            _string["trimStart"] = CoreFunction.STRING_TRIM_START;
 
-            _array["Join"] = CoreFunction.ARRAY_JOIN;
-            _array["Size"] = CoreFunction.ARRAY_LENGTH;
+            _array["join"] = CoreFunction.ARRAY_JOIN;
+            _array["size"] = CoreFunction.ARRAY_LENGTH;
 
-            _list["Add"] = CoreFunction.LIST_ADD;
-            _list["Clear"] = CoreFunction.LIST_CLEAR;
-            _list["Insert"] = CoreFunction.LIST_INSERT;
-            _list["Join"] = CoreFunction.LIST_JOIN_STRINGS;
-            _list["Pop"] = CoreFunction.LIST_POP;
-            _list["RemoveAt"] = CoreFunction.LIST_REMOVE_AT;
-            _list["Reverse"] = CoreFunction.LIST_REVERSE;
-            _list["Shuffle"] = CoreFunction.LIST_SHUFFLE;
-            _list["Size"] = CoreFunction.LIST_SIZE;
+            _list["add"] = CoreFunction.LIST_ADD;
+            _list["clear"] = CoreFunction.LIST_CLEAR;
+            _list["insert"] = CoreFunction.LIST_INSERT;
+            _list["join"] = CoreFunction.LIST_JOIN_STRINGS;
+            _list["pop"] = CoreFunction.LIST_POP;
+            _list["removeAt"] = CoreFunction.LIST_REMOVE_AT;
+            _list["reverse"] = CoreFunction.LIST_REVERSE;
+            _list["shuffle"] = CoreFunction.LIST_SHUFFLE;
+            _list["size"] = CoreFunction.LIST_SIZE;
+            _list["toArray"] = CoreFunction.LIST_TO_ARRAY;
 
+            _dictionary["contains"] = CoreFunction.DICTIONARY_CONTAINS_KEY;
+            _dictionary["keys"] = CoreFunction.DICTIONARY_KEYS;
+            _dictionary["remove"] = CoreFunction.DICTIONARY_REMOVE;
+            _dictionary["size"] = CoreFunction.DICTIONARY_SIZE;
+            _dictionary["tryGet"] = CoreFunction.DICTIONARY_TRY_GET;
+            _dictionary["values"] = CoreFunction.DICTIONARY_VALUES;
 
-            _dictionary["Contains"] = CoreFunction.DICTIONARY_CONTAINS_KEY;
-            _dictionary["Keys"] = CoreFunction.DICTIONARY_KEYS;
-            _dictionary["Remove"] = CoreFunction.DICTIONARY_REMOVE;
-            _dictionary["Size"] = CoreFunction.DICTIONARY_SIZE;
-            _dictionary["TryGet"] = CoreFunction.DICTIONARY_TRY_GET;
-            _dictionary["Values"] = CoreFunction.DICTIONARY_VALUES;
+            _stringBuilder["add"] = CoreFunction.STRINGBUILDER_ADD;
+            _stringBuilder["clear"] = CoreFunction.STRINGBUILDER_CLEAR;
+            _stringBuilder["toString"] = CoreFunction.STRINGBUILDER_TOSTRING;
 
-            _stringBuilder["Add"] = CoreFunction.STRINGBUILDER_ADD;
-            _stringBuilder["Clear"] = CoreFunction.STRINGBUILDER_CLEAR;
-            _stringBuilder["ToString"] = CoreFunction.STRINGBUILDER_TOSTRING;
+            // This assumes the left input is a variable and you can apply += on it
+            _Deprecated["stringAppend"] = CoreFunction.STRING_APPEND;
+            // Replace this in favor of the traditional `str1.compare(str2) -> -1, 0, 1`
+            _Deprecated["stringCompareIsReverse"] = CoreFunction.STRING_COMPARE_IS_REVERSE;
+            // TODO: Use == and let the static type system deal with such nuances.
+            _Deprecated["stringEquals"] = CoreFunction.STRING_EQUALS;
+            // TODO: verify this is what == does.
+            _Deprecated["strongReferenceEquality"] = CoreFunction.STRONG_REFERENCE_EQUALITY;
         }
 
         internal static CoreFunction GetCoreFunction(string rootNs, string field)

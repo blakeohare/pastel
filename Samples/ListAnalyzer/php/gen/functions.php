@@ -77,9 +77,9 @@
 				$output->std_dev = self::calculate_standard_deviation($nums, $length, $output->mean);
 				$nums_copy = self::PST_sortedCopyOfIntArray($nums);
 				if ($length % 2 == 0) {
-					$output->median = ($nums_copy->arr[intval($length / 2) - 1] + $nums_copy->arr[intval($length / 2)]) / 2.0;
+					$output->median = ($nums_copy->arr[intdiv($length, 2) - 1] + $nums_copy->arr[intdiv($length, 2)]) / 2.0;
 				} else {
-					$output->median = 0.0 + $nums_copy->arr[intval($length / 2)];
+					$output->median = 0.0 + $nums_copy->arr[intdiv($length, 2)];
 				}
 			}
 			return $output;

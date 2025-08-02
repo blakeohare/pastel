@@ -13,7 +13,7 @@ void testBuiltinOverwrite() {
 
     // But now we need to use the length property
     string foo = "hello";
-    assertEqInt(5, foo.Size());
+    assertEqInt(5, foo.size());
 }
 
 void testVarDeclaration() {

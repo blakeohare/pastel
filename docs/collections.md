@@ -87,41 +87,39 @@ methods mentioned below.
 
 ## List methods
 
-- `list.Add(item)` - adds `item` to the end of `list`.
-- `list.Concat(otherList)` - creates a new list as a combination of `list` and
+- `list.add(item)` - adds `item` to the end of `list`.
+- `list.concat(otherList)` - creates a new list as a combination of `list` and
   `otherList` and returns the new list. The input lists are unaffected by this.
-- `list.Clear()` - removes all items from the list.
-- `list.Size()` - returns the size of the list as an integer.
-- `list.Shuffle()` - shuffles the list randomly. Shuffle is in-place and so
+- `list.clear()` - removes all items from the list.
+- `list.size()` - returns the size of the list as an integer.
+- `list.shuffle()` - shuffles the list randomly. Shuffle is in-place and so
   there is no return value.
-- `list.Reverse()` - reverses the list in-place. No return value.
-- `list.JoinStrings(string sep)` - Creates a new string as the result of joining
+- `list.reverse()` - reverses the list in-place. No return value.
+- `list.joinStrings(string sep)` - Creates a new string as the result of joining
   together all the strings in the list. This is only applicable to
   `List<string>`.
-- `list.JoinChars(string sep)` - Creates a new string as the result of joining
+- `list.joinChars(string sep)` - Creates a new string as the result of joining
   together all the characters in the list. This is only applicable to
   `List<char>`.
-- `list.RemoveAt(index)` - Removes the item at the given index. This must be a 
+- `list.removeAt(index)` - Removes the item at the given index. This must be a 
   number from 0 to length (exclusive).
-- `list.Pop()` - Removes the last item in the list.
+- `list.pop()` - Removes the last item in the list.
 
 ## Array methods
 
-- `array.Join(string separator)` - Creates a new string as the result of joining
+- `array.join(string separator)` - Creates a new string as the result of joining
   together all the strings in the array. This is only applicable to
   `Array<string>`.
-- `array.Length()` - Gets the length of the array as an integer.
+- `array.length()` - Gets the length of the array as an integer.
 
 
 ## Dictionary methods
 
-- `dictionary.Keys()` - Creates a new array of the keys in the dictionary. The
+- `dictionary.keys()` - Creates a new array of the keys in the dictionary. The
   order of these keys is not guaranteed to be in any particular order.
-- `dictionary.Values()` - Creates a new array of the values in the dictionary.
+- `dictionary.values()` - Creates a new array of the values in the dictionary.
   The order of these values is not guaranteed to be in any particular order.
-- `dictionary.Remove(key)` - Removes the entry with the given key.
-- `dictionary.Size()` - Returns the number of elements in the dictionary.
-- `dictionary.TryGet(key, fallback)` - Attempts to get the value at the given
+- `dictionary.remove(key)` - Removes the entry with the given key.
+- `dictionary.size()` - Returns the number of elements in the dictionary.
+- `dictionary.tryGet(key, fallback)` - Attempts to get the value at the given
   key. If no key exists, the fallback value is returned instead.
-
-

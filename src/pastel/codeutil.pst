@@ -1,18 +1,18 @@
 
 Array<string> PadStringsToSameLength(Array<string> strs) {
     int maxLen = 0;
-    for (int i = 0; i < strs.Size(); i += 1) {
-        int sz = strs[i].Size();
+    for (int i = 0; i < strs.size(); i += 1) {
+        int sz = strs[i].size();
         if (sz > maxLen) maxLen = sz;
     }
 
-    Array<string> output = new Array<string>(strs.Size());
+    Array<string> output = new Array<string>(strs.size());
     List<string> buffer = new List<string>();
     
-    for (int j = 0; j < strs.Size(); j += 1) {
-        int sizeRequired = maxLen - strs[j].Size() + 1;
-        while (buffer.Size() < sizeRequired) buffer.Add(" ");
-        while (buffer.Size() > sizeRequired) buffer.Pop();
+    for (int j = 0; j < strs.size(); j += 1) {
+        int sizeRequired = maxLen - strs[j].size() + 1;
+        while (buffer.size() < sizeRequired) buffer.Add(" ");
+        while (buffer.size() > sizeRequired) buffer.Pop();
         buffer[0] = strs[j];
         output[j] = buffer.Join("");
     }

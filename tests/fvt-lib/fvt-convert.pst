@@ -1,8 +1,8 @@
 
 string intArrayToString(Array<int> arr) {
     List<string> sb = new List<string>();
-    for (int i = 0; i < arr.Size(); i += 1) {
-        sb.Add(Core.IntToString(arr[i]));
+    for (int i = 0; i < arr.size(); i += 1) {
+        sb.add(Convert.intToString(arr[i]));
     }
-    return sb.Join(" ");
+    return sb.join(" ");
 }
