@@ -131,12 +131,14 @@ namespace Pastel.Transpilers.Python
             dictionaryBuilder.Append(" = { ");
 
             bool isInteger = false;
+            bool isChar = false;
             bool first = true;
             foreach (InlineConstant ic in this.expressionsToChunkIds.Keys)
             {
                 if (first)
                 {
                     isInteger = ic.ResolvedType.IsInteger;
+                    isChar = ic.ResolvedType.IsChar;
                     first = false;
                 }
                 else
@@ -151,7 +153,8 @@ namespace Pastel.Transpilers.Python
                 }
                 else
                 {
-                    dictionaryBuilder.Append(CodeUtil.ConvertStringValueToCode((string)ic.Value));
+                    string strValRaw = isChar ? "" + (char)ic.Value : (string)ic.Value;
+                    dictionaryBuilder.Append(CodeUtil.ConvertStringValueToCode(strValRaw));
                 }
                 dictionaryBuilder.Append(": ");
                 dictionaryBuilder.Append(this.expressionsToChunkIds[ic]);
@@ -216,8 +219,10 @@ namespace Pastel.Transpilers.Python
             Token equalsToken = Token.CreateDummyToken(op);
             Variable variable = new Variable(Token.CreateDummyToken(this.ConditionVariableName), this.owner);
             variable.ApplyPrefix = false;
-            Expression condition = new OpChain(new Expression[] { variable, InlineConstant.Of(id, variable.FirstToken, this.owner) }, new Token[] { equalsToken });
-
+            Expression condition = new OpPair(
+                variable,
+                equalsToken,
+                InlineConstant.Of(id, variable.FirstToken, this.owner));
             return new IfStatement(
                 Token.CreateDummyToken("if"),
                 condition,
