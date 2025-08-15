@@ -8,7 +8,7 @@ namespace Pastel.Transpilers
 {
     internal abstract class AbstractExpressionTranslator
     {
-        private TranspilerContext transpilerCtx;
+        protected TranspilerContext transpilerCtx;
 
         protected void MarkFeatureAsUsed(string feature)
         {
@@ -175,16 +175,6 @@ namespace Pastel.Transpilers
             }
             sb.Push(")");
             return sb;
-        }
-
-        public StringBuffer TranslateVariableName(string varName)
-        {
-            StringBuffer sb = StringBuffer.Of(varName);
-            if (this.transpilerCtx.VariablePrefix != null)
-            {
-                sb.Prepend(this.transpilerCtx.VariablePrefix);
-            }
-            return sb.WithTightness(ExpressionTightness.ATOMIC);
         }
 
         public StringBuffer TranslateCoreFunctionInvocation(CoreFunctionInvocation coreFuncInvocation)
