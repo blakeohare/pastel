@@ -454,13 +454,6 @@ namespace Pastel.Parser.ParseNodes
                 return null;
             }
 
-            while (tokens.IsNext("[") && tokens.PeekAhead(1) == "]")
-            {
-                tokens.PopExpected("[");
-                tokens.PopExpected("]");
-                type = new PType(type.FirstToken, null, "Array", type);
-            }
-
             return type;
         }
 
@@ -503,6 +496,21 @@ namespace Pastel.Parser.ParseNodes
 
         private static PType ParseImpl(TokenStream tokens)
         {
+            PType type = ParseImplWithoutArraySuffix(tokens);
+            if (type != null)
+            {
+                while (tokens.IsNext("[") && tokens.PeekAhead(1) == "]")
+                {
+                    tokens.PopExpected("[");
+                    tokens.PopExpected("]");
+                    type = new PType(type.FirstToken, null, "Array", type);
+                }
+            }
+
+            return type;
+        }
+
+        private static PType ParseImplWithoutArraySuffix(TokenStream tokens) {
             int consecutiveTokenCount = PType.ParseRootNameImpl(tokens);
             if (consecutiveTokenCount == 0) return null;
             Token namespaceToken = null;
