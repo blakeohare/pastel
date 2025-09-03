@@ -234,9 +234,9 @@ namespace Pastel.Transpilers.JavaScript
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
             return StringBuffer
-                .Of("(PST$extCallbacks[")
+                .Of("PST$extCallbacks[")
                 .Push(this.TranslateExpression(name))
-                .Push("] || (() => null))(")
+                .Push("](")
                 .Push(this.TranslateExpression(argsArray))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
