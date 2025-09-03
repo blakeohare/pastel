@@ -58,7 +58,7 @@ namespace Pastel.Parser.ParseNodes
 
             if (expectedTypes.Length < this.Args.Length)
             {
-                if (!isArgRepeated[isArgRepeated.Length - 1])
+                if (isArgRepeated.Length == 0 || !isArgRepeated[isArgRepeated.Length - 1])
                 {
                     throw new UNTESTED_ParserException(this.FirstToken, "Too many arguments.");
                 }
