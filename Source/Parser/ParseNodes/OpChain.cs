@@ -68,6 +68,12 @@ namespace Pastel.Parser.ParseNodes
                     case "int*int":
                         current = InlineConstant.OfInteger((int)current.Value * (int)next.Value, current.FirstToken, next.Owner);
                         break;
+                    case "char+int":
+                        current = InlineConstant.OfInteger((int)((string)current.Value)[0] + (int)next.Value, current.FirstToken, next.Owner);
+                        break;
+                    case "char-int":
+                        current = InlineConstant.OfInteger((int)((string)current.Value)[0] - (int)next.Value, current.FirstToken, next.Owner);
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
