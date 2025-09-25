@@ -89,7 +89,7 @@ let PST$b64ToBytes = s => {
     let buf = [];
     len = pairs.length;
     for (let i = 0; i < len; i += 4) {
-        buf.push((pairs[i] << 6) | (pairs[i + 1] << 4) | (pairs[i + 2]) | (pairs[i + 3]));
+        buf.push((pairs[i] << 6) | (pairs[i + 1] << 4) | (pairs[i + 2] << 2) | (pairs[i + 3]));
     }
     return buf;
 };
