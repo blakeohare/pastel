@@ -263,14 +263,12 @@ namespace Pastel.Transpilers.CSharp
         public override StringBuffer TranslateExtensibleCallbackInvoke(Expression name, Expression argsArray)
         {
             return StringBuffer
-                .Of("PST_ExtCallbacks.ContainsKey(")
-                .Push(this.TranslateExpression(name))
-                .Push(") ? PST_ExtCallbacks[")
+                .Of("PST_ExtCallbacks[")
                 .Push(this.TranslateExpression(name))
                 .Push("].Invoke(")
                 .Push(this.TranslateExpression(argsArray))
-                .Push(") : null")
-                .WithTightness(ExpressionTightness.TERNARY);
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
         public override StringBuffer TranslateFloatToString(Expression floatExpr)
