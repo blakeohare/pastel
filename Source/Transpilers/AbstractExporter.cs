@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Pastel.Parser;
 
 namespace Pastel.Transpilers
 {
@@ -11,7 +12,13 @@ namespace Pastel.Transpilers
 
         public void DoExport(ProjectConfig config, PastelContext context)
         {
-            Dictionary<string, string> files = GenerateFiles(config, context);
+            Dictionary<string, string> files = this.GenerateFiles(config, context);
+
+            if (config.OutputFileFunctions == null)
+            {
+                throw new UserErrorException(
+                    "The project config does not define an output file for functions. An output.functions-path field is necessary.");
+            }
 
             foreach (string path in files.Keys)
             {
@@ -22,11 +29,12 @@ namespace Pastel.Transpilers
                 string code = files[path]
                     .Replace("\n", this.PreferredNewline)
                     .Replace("\t", this.PreferredTab);
-                string parent = System.IO.Path.GetDirectoryName(actualPath);
-                if (!DiskUtil.EnsureDirectoryExists(parent))
+                string? parent = System.IO.Path.GetDirectoryName(actualPath);
+                if (parent == null || !DiskUtil.EnsureDirectoryExists(parent))
                 {
                     throw new UserErrorException("Cannot export file: " + actualPath);
                 }
+
                 System.IO.File.WriteAllText(actualPath, code);
             }
         }
