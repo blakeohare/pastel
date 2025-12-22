@@ -41,6 +41,13 @@ namespace Pastel.Parser.ParseNodes
                 verificationLength--;
             }
 
+            if (verificationLength > this.Args.Length)
+            {
+                throw new UNTESTED_ParserException(
+                    this.FirstToken,
+                    "Not enough arguments provided to this function.");
+            }
+
             for (int i = 0; i < verificationLength; ++i)
             {
                 if (!PType.CheckAssignmentWithTemplateOutput(resolver, expectedTypes[i], this.Args[i].ResolvedType, templateLookup))
