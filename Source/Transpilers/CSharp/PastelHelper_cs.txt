@@ -237,3 +237,16 @@ private static string PST_BytesToBase64(int[] arr) {
     }
     return System.Convert.ToBase64String(buf);
 }
+
+// PASTEL_ENTITY_ID: PST_stringToUnicodeChars
+private static int[] PST_stringToUnicodeChars(string val) {
+    byte[] bytes = System.Text.Encoding.UTF32.GetBytes(val);
+    int[] chars = new int[bytes.Length >> 2];
+    int j;
+    int len = chars.Length;
+    for (int i = 0; i < len; i++) {
+        j = i << 2;
+        chars[i] = (bytes[j | 3] << 24) | (bytes[j | 2] << 16) | (bytes[j | 1] << 8) | bytes[j];
+    }
+    return chars;
+}

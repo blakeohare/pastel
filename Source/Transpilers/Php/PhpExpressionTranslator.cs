@@ -837,6 +837,11 @@ namespace Pastel.Transpilers.Php
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateStringToUnicodeChars(Expression str)
+        {
+            throw new NotImplementedException();
+        }
+
         public override StringBuffer TranslateStringToUtf8Bytes(Expression str)
         {
             return StringBuffer

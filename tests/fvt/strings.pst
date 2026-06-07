@@ -12,6 +12,7 @@ void runner() {
     testStartsEndsWith();
     testSubStringEqual();
     testTrim();
+    testUnicodeSplit();
 }
 
 void testLowerUpper() {
@@ -145,4 +146,32 @@ void testFind() {
     assertEqInt(3, twenty.indexOf("34"));
     assertEqInt(3, twenty.indexOf("34", 3));
     assertEqInt(13, twenty.indexOf("34", 4));
+}
+
+void testUnicodeSplit() {
+    string test = "abc";
+    int[] chars = test.toUnicodeChars();
+    assertEqInt(3, chars.size());
+    assertEqInt(97, chars[0]);
+    assertEqInt(98, chars[1]);
+    assertEqInt(99, chars[2]);
+
+    test = "あいう 🔥🇳🇵";
+    chars = test.toUnicodeChars();
+    assertEqInt(7, chars.size());
+
+    // hiragana (interleaving characters are the small versions, which is why it goes up by 2)
+    assertEqInt(0x3042, chars[0]);
+    assertEqInt(0x3044, chars[1]);
+    assertEqInt(0x3046, chars[2]);
+
+    // space
+    assertEqInt(32, chars[3]);
+
+    // fire emoji
+    assertEqInt(0x1F525, chars[4]);
+
+    // Nepal flag [region indicator chars N & P] (two characters)
+    assertEqInt(0x1F1F3, chars[5]);
+    assertEqInt(0x1F1F5, chars[6]);
 }

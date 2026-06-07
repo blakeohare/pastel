@@ -56,3 +56,10 @@ def PST_stringToUtf8Bytes(s):
 def PST_bytesToBase64(arr):
   barr = bytearray(arr)
   return base64.b64encode(barr).decode('utf-8')
+
+# PASTEL_ENTITY_ID: PST_stringToUnicodeChars
+def PST_stringToUnicodeChars(s):
+  o = []
+  for c in list(s):
+    o.append(ord(c))
+  return o

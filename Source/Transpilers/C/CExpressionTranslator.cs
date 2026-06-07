@@ -443,6 +443,11 @@ namespace Pastel.Transpilers.C
             throw new NotImplementedException();
         }
 
+        public override StringBuffer TranslateStringToUnicodeChars(Expression str)
+        {
+            throw new NotImplementedException();
+        }
+
         public override StringBuffer TranslateStringToUtf8Bytes(Expression str)
         {
             throw new NotImplementedException();

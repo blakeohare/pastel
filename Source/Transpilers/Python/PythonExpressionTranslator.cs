@@ -1039,6 +1039,15 @@ namespace Pastel.Transpilers.Python
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 
+        public override StringBuffer TranslateStringToUnicodeChars(Expression str)
+        {
+            return StringBuffer
+                .Of("PST_stringToUnicodeChars(")
+                .Push(this.TranslateExpression(str))
+                .Push(")")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
         public override StringBuffer TranslateStringToUtf8Bytes(Expression str)
         {
             return StringBuffer

@@ -112,6 +112,7 @@ namespace Pastel.Parser
             _string["subString"] = CoreFunction.STRING_SUBSTRING;
             _string["subStringIsEqualTo"] = CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO;
             _string["toLower"] = CoreFunction.STRING_TO_LOWER;
+            _string["toUnicodeChars"] = CoreFunction.STRING_TO_UNICODE_CHARS;
             _string["toUpper"] = CoreFunction.STRING_TO_UPPER;
             _string["toUtf8Bytes"] = CoreFunction.STRING_TO_UTF8_BYTES;
             _string["trim"] = CoreFunction.STRING_TRIM;

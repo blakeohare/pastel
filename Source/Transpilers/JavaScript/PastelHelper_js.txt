@@ -118,3 +118,25 @@ let PST$floatToStr = f => {
     let s = f + '';
     return s.includes('.') ? s : (s + '.0');
 };
+
+// PASTEL_ENTITY_ID: PST$toUnicode
+let PST$toUnicode = s => {
+  let utf8 = new TextEncoder().encode(s);
+  let o = [];
+  let len = utf8.length;
+  let c;
+  for (let i = 0; i < len; i++) {
+    c = utf8[i];
+    if (c < 128) o.push(c);
+    else if ((c & 0xE0) === 0xC0) {
+      o.push(((c & 0x1F) << 6) | (utf8[++i] & 0x3F));
+    } else if ((c & 0xF0) === 0xE0) {
+      o.push(((c & 0x0F) << 12) | ((utf8[i + 1] & 0x3F) << 6) | (utf8[i + 2] & 0x3F));
+      i += 2;
+    } else {
+      o.push(((c & 0x07) << 18) | ((utf8[i + 1] & 0x3F) << 12) | ((utf8[i + 2] & 0x3F) << 6) | (utf8[i + 3] & 0x3F));
+      i += 3;
+    }
+  }
+  return o;
+};

@@ -1,5 +1,6 @@
 ﻿using Pastel.Parser.ParseNodes;
 using System;
+using System.Security.Authentication;
 
 namespace Pastel.Transpilers.CSharp
 {
@@ -827,6 +828,15 @@ namespace Pastel.Transpilers.CSharp
             return this.TranslateExpression(str)
                 .EnsureTightness(ExpressionTightness.SUFFIX_SEQUENCE)
                 .Push(".ToUpper()")
+                .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
+        }
+
+        public override StringBuffer TranslateStringToUnicodeChars(Expression str)
+        {
+            return StringBuffer
+                .Of("PST_stringToUnicodeChars(")
+                .Push(this.TranslateExpression(str))
+                .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);
         }
 

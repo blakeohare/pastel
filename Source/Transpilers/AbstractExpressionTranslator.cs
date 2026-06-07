@@ -260,6 +260,7 @@ namespace Pastel.Transpilers
                 case CoreFunction.STRING_SUBSTRING_IS_EQUAL_TO: return this.TranslateStringSubstringIsEqualTo(args[0], args[1], args[2]);
                 case CoreFunction.STRING_TO_LOWER: return this.TranslateStringToLower(args[0]);
                 case CoreFunction.STRING_TO_UPPER: return this.TranslateStringToUpper(args[0]);
+                case CoreFunction.STRING_TO_UNICODE_CHARS: return this.TranslateStringToUnicodeChars(args[0]);
                 case CoreFunction.STRING_TO_UTF8_BYTES: return this.TranslateStringToUtf8Bytes(args[0]);
                 case CoreFunction.STRING_TRIM: return this.TranslateStringTrim(args[0]);
                 case CoreFunction.STRING_TRIM_END: return this.TranslateStringTrimEnd(args[0]);
@@ -446,6 +447,7 @@ namespace Pastel.Transpilers
         public abstract StringBuffer TranslateStringSubstringIsEqualTo(Expression haystack, Expression startIndex, Expression needle);
         public abstract StringBuffer TranslateStringToLower(Expression str);
         public abstract StringBuffer TranslateStringToUpper(Expression str);
+        public abstract StringBuffer TranslateStringToUnicodeChars(Expression str);
         public abstract StringBuffer TranslateStringToUtf8Bytes(Expression str);
         public abstract StringBuffer TranslateStringTrim(Expression str);
         public abstract StringBuffer TranslateStringTrimEnd(Expression str);
