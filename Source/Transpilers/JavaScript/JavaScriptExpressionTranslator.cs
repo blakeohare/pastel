@@ -162,8 +162,9 @@ namespace Pastel.Transpilers.JavaScript
 
         public override StringBuffer TranslateDictionaryKeys(Expression dictionary)
         {
+            bool isIntKeys = dictionary.ResolvedType.Generics[0].IsInteger;
             return StringBuffer
-                .Of("Object.keys(")
+                .Of(isIntKeys ? "PST$Object_intKeys(" : "Object.keys(")
                 .Push(this.TranslateExpression(dictionary))
                 .Push(")")
                 .WithTightness(ExpressionTightness.SUFFIX_SEQUENCE);

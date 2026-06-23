@@ -140,3 +140,13 @@ let PST$toUnicode = s => {
   }
   return o;
 };
+
+// PASTEL_ENTITY_ID: PST$Object_intKeys
+let PST$Object_intKeys = o => {
+    let keys = Object.keys(o);
+    let sz = keys.length;
+    for (let i = 0; i < sz; i++) {
+        keys[i] = parseInt(keys[i]);
+    }
+    return keys;
+};

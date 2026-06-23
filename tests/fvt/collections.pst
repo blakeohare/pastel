@@ -83,4 +83,22 @@ void testDictionaries() {
     Array<int> vals = nums.values();
     assertEqInt(2, vals.size());
     assertEqInt(4, vals[0] + vals[1]);
+
+    Dictionary<int, string> valByNum = new Dictionary<int, string>();
+    valByNum[1] = "A";
+    valByNum[10] = "B";
+    valByNum[100] = "X";
+    valByNum[100] = "C";
+    assertEqInt(3, valByNum.size());
+    assertEqStr("A", valByNum[1]);
+    assertEqStr("B", valByNum[10]);
+    assertEqStr("C", valByNum[100]);
+    assertFalse(valByNum.contains(2));
+    assertTrue(valByNum.contains(10));
+
+    int[] intKeys = valByNum.keys();
+    // TODO: Need unordered array contents assert. For now, just add them up!
+    int keySum = 0;
+    for (int j = 0; j < intKeys.size(); j += 1) keySum += intKeys[j];
+    assertEqInt(111, keySum);
 }
